@@ -1,0 +1,5 @@
+Version 0.0.5 - July 21, 2008
+- Changed prefix of special fields to conform with CouchDB 
+  requirements (Thanks Dean Landolt). Break backwards compatibility.
+- Moved to Google Code subversion
+- Fixed unit test imports

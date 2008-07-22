@@ -1,0 +1,23 @@
+jsonpickle
+=================================
+John Paulett (john@7oars.com)
+http://code.google.com/p/jsonpickle/
+http://code.7oars.com/hg/jsonpickle/
+http://blog.7oars.com
+
+
+RELEASE NOTES
+=================================
+0.0.3
+Bugfix releaes
+- Convert back to setup.py from pavement.py (issue found by spidaman) 
+
+0.0.2
+Major release to handle more complex Python objects
+- Handle feedparser's FeedParserDict
+- Converted project to Paver
+- Restructured directories
+- Increase test coverage
+
+0.0.1
+Initial release
