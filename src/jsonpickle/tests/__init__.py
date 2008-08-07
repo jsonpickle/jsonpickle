@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2008 John Paulett
+# Copyright (C) 2008 John Paulett (john -at- 7oars.com)
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
