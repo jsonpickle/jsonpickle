@@ -63,8 +63,8 @@ class FeedParserTest(unittest.TestCase):
         self.doc = feedparser.parse(RSS_DOC)
         
     def test(self):
-        pickled = jsonpickle.dumps(self.doc)
-        unpickled = jsonpickle.loads(pickled)
+        pickled = jsonpickle.encode(self.doc)
+        unpickled = jsonpickle.decode(pickled)
         self.assertEquals(self.doc['feed']['title'], unpickled['feed']['title'])
 
 def suite():

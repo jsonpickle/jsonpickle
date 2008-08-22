@@ -18,6 +18,8 @@ def isprimitive(obj):
     True
     >>> isprimitive(3.5)
     True
+    >>> isprimitive(long(4))
+    True
     >>> isprimitive('hello world')
     True
     >>> isprimitive(u'hello world')
@@ -37,7 +39,7 @@ def isprimitive(obj):
     """
     if obj is None:
         return True
-    elif type(obj) in [str, unicode, int, float, bool]:
+    elif type(obj) in [str, unicode, int, float, bool, long]:
         return True
     return False
 

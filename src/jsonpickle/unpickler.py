@@ -83,6 +83,6 @@ class Unpickler(object):
         >>> u._isclassdict(25)    
         False
         """
-        if type(obj) is dict and obj.has_key('classmodule__') and obj.has_key('classname__'):
+        if type(obj) is dict and 'classmodule__' in obj and 'classname__' in obj:
             return True
         return False

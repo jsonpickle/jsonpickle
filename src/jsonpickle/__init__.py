@@ -17,12 +17,12 @@ Create an object.
 A String
 
 Use jsonpickle to transform the object into a JSON string.
->>> pickled = jsonpickle.dumps(obj)
+>>> pickled = jsonpickle.encode(obj)
 >>> print pickled
 {"classname__": "Thing", "child": null, "name": "A String", "classmodule__": "jsonpickle.tests.classes"}
 
 Use jsonpickle to recreate a Python object from a JSON string
->>> unpickled = jsonpickle.loads(pickled)
+>>> unpickled = jsonpickle.decode(pickled)
 >>> print unpickled.name
 A String
 
@@ -37,60 +37,63 @@ True
 If you will never need to load (regenerate the Python class from JSON), you can
 pass in the keyword unpicklable=False to prevent extra information from being 
 added to JSON.
->>> oneway = jsonpickle.dumps(obj, unpicklable=False)
+>>> oneway = jsonpickle.encode(obj, unpicklable=False)
 >>> print oneway
 {"name": "A String", "child": null}
 
 """
-
-
-__version__ = '0.0.5'
-__all__ = [
-    'dump', 'dumps', 'load', 'loads'
-]
-
-import simplejson as json
-
+    
 from pickler import Pickler
 from unpickler import Unpickler
 
+__version__ = '0.1.0'
+__all__ = [
+    'encode', 'decode'
+]
 
-def dump(value, file, **kwargs):
-    """Saves a JSON formatted representation of value into file.
-    """
-    j = Pickler(unpicklable=__isunpicklable(kwargs))
-    json.dump(j.flatten(value), file)
+class Struct(object): pass
+json = Struct()
 
-def dumps(value, **kwargs):
+def _use_cjson():
+    import cjson
+    json.encode = cjson.encode
+    json.decode = cjson.decode
+
+def _use_simplejson():
+    import simplejson
+    json.encode = simplejson.dumps
+    json.decode = simplejson.loads
+
+try:
+    _use_cjson()
+except ImportError:
+    _use_simplejson()
+    
+def encode(value, **kwargs):
     """Returns a JSON formatted representation of value, a Python object.
     
     Optionally takes a keyword argument unpicklable.  If set to False,
-    the output does not contain the information necessary to 
+    the output does not contain the information necessary to turn 
+    the json back into Python.
     
-    >>> dumps('my string')
+    >>> encode('my string')
     '"my string"'
-    >>> dumps(36)
+    >>> encode(36)
     '36'
     """
     j = Pickler(unpicklable=__isunpicklable(kwargs))
-    return json.dumps(j.flatten(value))
+    return json.encode(j.flatten(value))
 
-def load(file):
-    """Converts the JSON string in file into a Python object
-    """
-    j = Unpickler()
-    return j.restore(json.load(file))
-
-def loads(string):
+def decode(string):
     """Converts the JSON string into a Python object.
     
-    >>> loads('"my string"')
-    u'my string'
-    >>> loads('36')
+    >>> str(decode('"my string"'))
+    'my string'
+    >>> decode('36')
     36
     """
     j = Unpickler()
-    return j.restore(json.loads(string))
+    return j.restore(json.decode(string))
 
 def __isunpicklable(kw):
     """Utility function for finding keyword unpicklable and returning value.
@@ -104,7 +107,7 @@ def __isunpicklable(kw):
     False
     
     """
-    if kw.has_key('unpicklable') and not kw['unpicklable']:
+    if 'unpicklable' in kw and not kw['unpicklable']:
         return False
     return True
 

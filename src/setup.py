@@ -1,3 +1,13 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2008 John Paulett (john -at- 7oars.com)
+# All rights reserved.
+#
+# This software is licensed as described in the file COPYING, which
+# you should have received as part of this distribution.
+
+
 import jsonpickle as _jsonpickle
 
 try:
@@ -29,5 +39,8 @@ setup(
     packages = ["jsonpickle"],
     test_suite = 'jsonpickle.tests.suite',
     install_requires=["simplejson"],
+    extras_require = {
+        "cjson":  ["python-cjson"]
+    },
     zip_safe=True,
 )

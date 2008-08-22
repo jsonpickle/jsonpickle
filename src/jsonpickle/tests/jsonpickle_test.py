@@ -187,26 +187,35 @@ class JSONPickleTestCase(unittest.TestCase):
         self.obj = Thing('A name')
         self.expected_json = '{"classname__": "Thing", "child": null, "name": "A name", "classmodule__": "jsonpickle.tests.classes"}' 
         
-    def test_dumps(self):
-        pickled = jsonpickle.dumps(self.obj)
+    def tearDown(self):
+        try:
+            jsonpickle._use_cjson()
+        except:
+            pass
+        
+    def test_encode(self):
+        pickled = jsonpickle.encode(self.obj)
         self.assertEqual(self.expected_json, pickled)
     
-    def test_dumps_notunpicklable(self):
-        pickled = jsonpickle.dumps(self.obj, unpicklable=False)
+    def test_encode_notunpicklable(self):
+        pickled = jsonpickle.encode(self.obj, unpicklable=False)
         self.assertEqual('{"name": "A name", "child": null}', pickled)
-      
-    def test_dump(self):
-        # TODO test writing to file
-        pass
     
-    def test_loads(self):
-        unpickled = jsonpickle.loads(self.expected_json)
+    def test_decode(self):
+        unpickled = jsonpickle.decode(self.expected_json)
         self.assertEqual(self.obj.name, unpickled.name)
         self.assertEqual(type(self.obj), type(unpickled))
     
-    def test_load(self):
-        # TODO test reading to file
-        pass
+    def test_simplejson(self):
+        jsonpickle._use_simplejson()
+ 
+        pickled = jsonpickle.encode(self.obj)
+        self.assertEqual(self.expected_json, pickled)
+        
+        unpickled = jsonpickle.decode(self.expected_json)
+        self.assertEqual(self.obj.name, unpickled.name)
+        self.assertEqual(type(self.obj), type(unpickled))
+        
 
 def suite():
     suite = unittest.TestSuite()
