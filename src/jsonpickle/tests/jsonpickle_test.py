@@ -156,7 +156,10 @@ class PicklingTestCase(unittest.TestCase):
         obj['key1'] = 1
         
         flattened = self.pickler.flatten(obj)
-        self.assertEqual({'key1': 1}, flattened['classdictitems__'])
+        self.assertEqual({'key1': 1,
+                          'classname__': 'DictSubclass',
+                          'classmodule__': 'jsonpickle.tests.classes'},
+                         flattened)
         self.assertEqual(flattened['classname__'], 'DictSubclass')
         
         inflated = self.unpickler.restore(flattened)
@@ -170,7 +173,8 @@ class PicklingTestCase(unittest.TestCase):
                 
         flattened = self.pickler.flatten(obj)
         self.assertEqual(1, flattened['key1'])
-        self.assertFalse(flattened.has_key('classdictitems__'))
+        self.assertFalse(flattened.has_key('classname__'))
+        self.assertFalse(flattened.has_key('classmodule__'))
         
         inflated = self.unpickler.restore(flattened)
         self.assertEqual(1, inflated['key1'])

@@ -73,18 +73,8 @@ class Pickler(object):
                 data['classmodule__'] = module
                 data['classname__'] = name 
             if util.is_dictionary_subclass(obj):
-                if self.unpicklable is True:
-                    # this will place items in a sub dictionary (arguably not a pure JSON representation, 
-                    # since it should be at root level.  However, this method preserves the object
-                    # so that it can be recreated as a Python object
-                    data['classdictitems__'] = self.flatten(dict(obj))
-                else:
-                    # this option will place everything at root, but it allows a dictionary key
-                    # to overwrite an instance variable if both have the same name
-                    for k, v in obj.iteritems():
-                        data[k] = self.flatten(v)
-            #elif util.is_collection_subclass(obj):
-            #    data['__classcollectionitems__'] = self.flatten()
+                for k, v in obj.iteritems():
+                    data[k] = self.flatten(v)
             elif util.is_noncomplex(obj):
                 data = [] # obj.__class__()
                 for v in obj:

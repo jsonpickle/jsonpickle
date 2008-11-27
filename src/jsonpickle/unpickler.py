@@ -34,14 +34,11 @@ class Unpickler(object):
             
             for k, v in obj.iteritems():
                 # ignore the fake attribute
-                if k in ['classmodule__', 'classname__']:
-                    continue
-                if k == 'classdictitems__':
-                    for dictk, dictv in v.iteritems():
-                        instance[dictk] = self.restore(dictv)
+                if k in ('classmodule__', 'classname__'):
                     continue
                 value = self.restore(v)
-                if util.is_noncomplex(instance):
+                if (util.is_noncomplex(instance) or
+                        util.is_dictionary_subclass(instance)):
                     instance[k] = value
                 else:
                     instance.__dict__[k] = value
