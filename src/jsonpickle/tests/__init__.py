@@ -19,7 +19,9 @@ def suite():
     suite.addTest(thirdparty_tests.suite())
     return suite
 
+def main():
+    #unittest.main(defaultTest='suite')
+    unittest.TextTestRunner(verbosity=2).run(suite())
+    
 if __name__ == '__main__':
-    #unittest.main()
-    #unittest.TextTestRunner(verbosity=2).run(suite())
-    unittest.main(defaultTest='suite')
+    main()

@@ -46,7 +46,7 @@ added to JSON.
 from pickler import Pickler
 from unpickler import Unpickler
 
-__version__ = '0.1.0'
+__version__ = '0.2.0a'
 __all__ = [
     'encode', 'decode'
 ]
@@ -110,4 +110,3 @@ def __isunpicklable(kw):
     if 'unpicklable' in kw and not kw['unpicklable']:
         return False
     return True
-
