@@ -191,12 +191,6 @@ class JSONPickleTestCase(unittest.TestCase):
         self.obj = Thing('A name')
         self.expected_json = '{"classname__": "Thing", "child": null, "name": "A name", "classmodule__": "jsonpickle.tests.classes"}' 
         
-    def tearDown(self):
-        try:
-            jsonpickle._use_cjson()
-        except:
-            pass
-        
     def test_encode(self):
         pickled = jsonpickle.encode(self.obj)
         self.assertEqual(self.expected_json, pickled)
@@ -210,9 +204,7 @@ class JSONPickleTestCase(unittest.TestCase):
         self.assertEqual(self.obj.name, unpickled.name)
         self.assertEqual(type(self.obj), type(unpickled))
     
-    def test_simplejson(self):
-        jsonpickle._use_simplejson()
- 
+    def test_json(self):
         pickled = jsonpickle.encode(self.obj)
         self.assertEqual(self.expected_json, pickled)
         

@@ -35,14 +35,14 @@ True
 True
 
 If you will never need to load (regenerate the Python class from JSON), you can
-pass in the keyword unpicklable=False to prevent extra information from being 
+pass in the keyword unpicklable=False to prevent extra information from being
 added to JSON.
 >>> oneway = jsonpickle.encode(obj, unpicklable=False)
 >>> print oneway
 {"name": "A String", "child": null}
 
 """
-    
+
 from pickler import Pickler
 from unpickler import Unpickler
 
@@ -51,31 +51,164 @@ __all__ = [
     'encode', 'decode'
 ]
 
-class Struct(object): pass
-json = Struct()
 
-def _use_cjson():
-    import cjson
-    json.encode = cjson.encode
-    json.decode = cjson.decode
+class JSONPluginMgr(object):
+    """The JSONPluginMgr handles encoding and decoding.
 
-def _use_simplejson():
-    import simplejson
-    json.encode = simplejson.dumps
-    json.decode = simplejson.loads
+    It tries these modules in this order:
+        cjson, json, simplejson, demjson
 
-try:
-    _use_cjson()
-except ImportError:
-    _use_simplejson()
-    
+    cjson is the fastest, and is tried first.
+    json comes with python2.6 and is tried second.
+    simplejson is a very popular backend and is tried third.
+    demjson is the most permissive backend and is tried last.
+    """
+    def __init__(self):
+        ## The names of backends that have been successfully imported
+        self._backend_names = []
+
+        ## A dictionary mapping backend names to encode/decode functions
+        self._encoders = {}
+        self._decoders = {}
+
+        ## Options to pass to specific encoders
+        self._encoder_options = {}
+
+        ## The exception class that is thrown when a decoding error occurs
+        self._decoder_exceptions = {}
+
+        ## Whether we've loaded any backends successfully
+        self._verified = False
+
+        ## Try loading cjson, simplejson and demjson
+        self.load_backend('cjson', 'encode', 'decode', 'DecodeError')
+        self.load_backend('json', 'dumps', 'loads', ValueError)
+        self.load_backend('simplejson', 'dumps', 'loads', ValueError)
+        self.load_backend('demjson', 'encode', 'decode', 'JSONDecodeError')
+
+    def _verify(self):
+        """Ensures that we've loaded at least one JSON backend.
+        """
+        if not self._verified:
+            raise AssertionError(
+                    'jsonpickle requires at least one of the following:\n'
+                    '    cjson, json (new in python2.6), simplejson, demjson'
+                    )
+
+    def load_backend(self, name, encode_name, decode_name, decode_exc):
+        """Loads a backend by name.
+
+        This method loads a backend and sets up references to that
+        backend's encode/decode functions and exception classes.
+
+        encode_name is the name of the backend's encode method.
+        The method should take an object and return a string.
+
+        decode_name names the backend's method for the reverse
+        operation -- returning a Python object from a string.
+
+        decode_exc can be either the name of the exception class
+        used to denote decoding errors, or it can be a direct reference
+        to the appropriate exception class itself.  If it is a name,
+        then the assumption is that an exception class of that name
+        can be found in the backend module's namespace.
+        """
+        try:
+            mod = __import__(name)
+            ## We loaded a JSON backend, so setup our internal state
+            self._verified = True
+            self._encoders[name] = getattr(mod, encode_name)
+            self._decoders[name] = getattr(mod, decode_name)
+            ## Add this backend to the list of candidate backends
+            self._backend_names.append(name)
+            ## Setup the default args and kwargs for this encoder
+            self._encoder_options[name] = ([], {})
+            if type(decode_exc) is str:
+                ## This backend's decoder exception is part of the backend
+                self._decoder_exceptions[name] = getattr(mod, decode_exc)
+            else:
+                ## simplejson uses the ValueError exception
+                self._decoder_exceptions[name] = decode_exc
+        except ImportError:
+            pass
+
+    def encode(self, obj):
+        """Attempts to encode an object into JSON.
+
+        This tries the loaded backends in order and passes along the last
+        exception if no backend is able to encode the object.
+        """
+        self._verify()
+        for idx, name in enumerate(self._backend_names):
+            try:
+                optargs, kwargs = self._encoder_options[name]
+                args = (obj,) + tuple(optargs)
+                return self._encoders[name](*args, **kwargs)
+            except:
+                if idx == len(self._backend_names) - 1:
+                    raise
+
+    def decode(self, string):
+        """Attempts to decode an object from a JSON string.
+
+        This tries the loaded backends in order and passes along the last
+        exception if no backends are able to decode the string.
+        """
+        self._verify()
+        for idx, name in enumerate(self._backend_names):
+            try:
+                return self._decoders[name](string)
+            except self._decoder_exceptions[name]:
+                if idx == len(self._backend_names) - 1:
+                    raise
+
+    def set_preferred_backend(self, name):
+        """Sets the preferred json backend.
+
+        If a preferred backend is set then jsonpickle tries to use it
+        before any other backend.
+
+        For example,
+            set_preferred_backend('simplejson')
+
+        If the backend is not one of the built-in jsonpickle backends
+        (cjson, json/simplejson, or demjson) then you must load the
+        backend prior to calling set_preferred_backend.  An AssertionError
+        exception is raised if the backend has not been loaded.
+        """
+        if name in self._backend_names:
+            self._backend_names.remove(name)
+            self._backend_names.insert(0, name)
+        else:
+            errmsg = 'The "%s" backend has not been loaded.' % name
+            raise AssertionError(errmsg)
+
+    def set_encoder_options(self, name, *args, **kwargs):
+        """Associates encoder-specific options with an encoder.
+
+        After calling set_encoder_options, any calls to jsonpickle's
+        encode method will pass the supplied args and kwargs along to
+        the appropriate backend's encode method.
+
+        For example,
+            set_encoder_options('simplejson', sort_keys=True, indent=4)
+            set_encoder_options('demjson', compactly=False)
+
+        See the appropriate encoder's documentation for details about
+        the supported arguments and keyword arguments.
+        """
+        self._encoder_options[name] = (args, kwargs)
+
+json = JSONPluginMgr()
+
+
 def encode(value, **kwargs):
     """Returns a JSON formatted representation of value, a Python object.
-    
+
     Optionally takes a keyword argument unpicklable.  If set to False,
-    the output does not contain the information necessary to turn 
+    the output does not contain the information necessary to turn
     the json back into Python.
-    
+
     >>> encode('my string')
     '"my string"'
     >>> encode(36)
@@ -86,7 +219,7 @@ def encode(value, **kwargs):
 
 def decode(string):
     """Converts the JSON string into a Python object.
-    
+
     >>> str(decode('"my string"'))
     'my string'
     >>> decode('36')
@@ -98,14 +231,14 @@ def decode(string):
 def __isunpicklable(kw):
     """Utility function for finding keyword unpicklable and returning value.
     Default is assumed to be True.
-    
+
     >>> __isunpicklable({})
     True
     >>> __isunpicklable({'unpicklable':True})
     True
     >>> __isunpicklable({'unpicklable':False})
     False
-    
+
     """
     if 'unpicklable' in kw and not kw['unpicklable']:
         return False
