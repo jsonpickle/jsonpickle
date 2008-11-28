@@ -10,3 +10,17 @@ Version 0.0.5 - July 21, 2008
   requirements (Thanks Dean Landolt). Break backwards compatibility.
 - Moved to Google Code subversion
 - Fixed unit test imports
+
+Version 0.0.3
+Bugfix releaes
+- Convert back to setup.py from pavement.py (issue found by spidaman) 
+
+Version 0.0.2
+Major release to handle more complex Python objects
+- Handle feedparser's FeedParserDict
+- Converted project to Paver
+- Restructured directories
+- Increase test coverage
+
+Version 0.0.1
+Initial release
