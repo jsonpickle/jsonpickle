@@ -7,7 +7,7 @@
 # you should have received as part of this distribution.
 
 import sys
-import util
+import jsonpickle.util as util
 
 class Unpickler(object):
     def restore(self, obj):

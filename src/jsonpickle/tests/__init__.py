@@ -8,15 +8,15 @@
 
 import unittest
 
-import jsonpickle.tests.util
+import jsonpickle.tests.util_tests
 import jsonpickle.tests.jsonpickle_test
 import jsonpickle.tests.thirdparty_tests
 
 def suite():
     suite = unittest.TestSuite()    
-    suite.addTest(util.suite())
-    suite.addTest(jsonpickle_test.suite())
-    suite.addTest(thirdparty_tests.suite())
+    suite.addTest(jsonpickle.tests.util_tests.suite())
+    suite.addTest(jsonpickle.tests.jsonpickle_test.suite())
+    suite.addTest(jsonpickle.tests.thirdparty_tests.suite())
     return suite
 
 def main():

@@ -8,8 +8,6 @@
 
 import doctest
 import unittest
-import tempfile
-import os.path
 
 import jsonpickle
 from jsonpickle.tests.classes import Thing, DictSubclass

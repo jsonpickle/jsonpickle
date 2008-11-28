@@ -48,8 +48,8 @@ added to JSON.
 
 """
 
-from pickler import Pickler
-from unpickler import Unpickler
+from jsonpickle.pickler import Pickler
+from jsonpickle.unpickler import Unpickler
 
 __version__ = '0.2.0a'
 __all__ = [

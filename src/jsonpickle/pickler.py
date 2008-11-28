@@ -6,7 +6,7 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 
-import util
+import jsonpickle.util as util
 
 class Pickler(object):
     """Converts a Python object to a JSON representation.
@@ -69,7 +69,7 @@ class Pickler(object):
             return data
         elif isinstance(obj, object):
             data = {}
-            module, name = self._getclassdetail(obj)
+            module, name = _getclassdetail(obj)
             if self.unpicklable is True:
                 data['classmodule__'] = module
                 data['classname__'] = name 
@@ -86,22 +86,21 @@ class Pickler(object):
             return data
         # else, what else? (classes, methods, functions, old style classes...)
         
-    def _getclassdetail(self, obj):
-        """Helper class to return the class of an object.
-        
-        >>> p = Pickler()
-        >>> class Klass(object): pass
-        >>> p._getclassdetail(Klass())
-        ('jsonpickle.pickler', 'Klass')
-        >>> p._getclassdetail(25)
-        ('__builtin__', 'int')
-        >>> p._getclassdetail(None)
-        ('__builtin__', 'NoneType')
-        >>> p._getclassdetail(False)
-        ('__builtin__', 'bool')
-        """
-        cls = getattr(obj, '__class__')
-        module = getattr(cls, '__module__')
-        name = getattr(cls, '__name__')
-        return module, name
+def _getclassdetail(obj):
+    """Helper class to return the class of an object.
+    
+    >>> class Klass(object): pass
+    >>> _getclassdetail(Klass())
+    ('jsonpickle.pickler', 'Klass')
+    >>> _getclassdetail(25)
+    ('__builtin__', 'int')
+    >>> _getclassdetail(None)
+    ('__builtin__', 'NoneType')
+    >>> _getclassdetail(False)
+    ('__builtin__', 'bool')
+    """
+    cls = getattr(obj, '__class__')
+    module = getattr(cls, '__module__')
+    name = getattr(cls, '__name__')
+    return module, name
     

@@ -6,6 +6,9 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 
+"""Helper functions for pickling and unpickling.  Most functions assist in 
+determining the type of an object.
+"""
 import time
 
 COLLECTIONS = set, list, tuple,
