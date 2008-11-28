@@ -1,0 +1,39 @@
+.. _jsonpickle-api:
+
+.. contents::
+
+:mod:`jsonpickle` -- High Level API
+===================================
+
+.. autofunction:: jsonpickle.encode
+
+.. autofunction:: jsonpickle.decode
+
+
+Low Level API
+=============
+
+Typically this low level functionality is not needed by clients.
+
+:mod:`jsonpickle.picker` -- Python to JSON
+------------------------------------------
+
+.. automodule:: jsonpickle.pickler
+    :members:
+    :undoc-members:
+
+
+:mod:`jsonpickle.unpickler` -- JSON to Python
+---------------------------------------------
+
+.. automodule:: jsonpickle.unpickler
+    :members:
+    :undoc-members:
+    
+
+:mod:`jsonpickle.util` -- Helper functions
+------------------------------------------
+
+.. automodule:: jsonpickle.util
+    :members:
+    :undoc-members:

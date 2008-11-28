@@ -10,13 +10,11 @@ import sys
 import util
 
 class Unpickler(object):
-    def __init__(self):
-        pass
-    
     def restore(self, obj):
         """Restores a flattened object to its original python state.
         
         Simply returns any of the basic builtin types
+        
         >>> u = Unpickler()
         >>> u.restore('hello world')
         'hello world'

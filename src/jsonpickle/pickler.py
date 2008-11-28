@@ -27,6 +27,7 @@ class Pickler(object):
         """Takes an object and returns a JSON-safe representation of it.
         
         Simply returns any of the basic builtin datatypes
+        
         >>> p = Pickler()
         >>> p.flatten('hello world')
         'hello world'

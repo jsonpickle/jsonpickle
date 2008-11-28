@@ -1,0 +1,19 @@
+# Sphinx inventory version 1
+# Project: jsonpickle
+# Version: 0.2
+jsonpickle.pickler mod api.html
+jsonpickle.unpickler mod api.html
+jsonpickle mod index.html
+jsonpickle.util mod api.html
+jsonpickle.util.isdictionary function api.html
+jsonpickle.util.isprimitive function api.html
+jsonpickle.util.is_noncomplex function api.html
+jsonpickle.unpickler.Unpickler.restore method api.html
+jsonpickle.util.iscollection function api.html
+jsonpickle.encode function api.html
+jsonpickle.pickler.Pickler.flatten method api.html
+jsonpickle.util.is_collection_subclass function api.html
+jsonpickle.util.is_dictionary_subclass function api.html
+jsonpickle.pickler.Pickler class api.html
+jsonpickle.decode function api.html
+jsonpickle.unpickler.Unpickler class api.html

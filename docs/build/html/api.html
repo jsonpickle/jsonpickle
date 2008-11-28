@@ -1,0 +1,332 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>jsonpickle &#8211; High Level API &mdash; jsonpickle v0.2.0a documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+          URL_ROOT:    '',
+          VERSION:     '0.2.0a',
+          COLLAPSE_MODINDEX: false,
+          FILE_SUFFIX: '.html'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="jsonpickle v0.2.0a documentation" href="index.html" />
+    <link rel="prev" title="jsonpickle Usage" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="modindex.html" title="Global Module Index"
+             accesskey="M">modules</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="jsonpickle Usage"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">jsonpickle v0.2.0a documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  
+  <div class="contents topic">
+<p class="topic-title first"><a id="contents" name="contents"><span id="jsonpickle-api"></span>Contents</a></p>
+<ul class="simple">
+<li><a class="reference" href="#jsonpickle-high-level-api" id="id1" name="id1"><a title="" class="reference" href="index.html#module-jsonpickle"><tt class="xref docutils literal"><span class="pre">jsonpickle</span></tt></a> &#8211; High Level API</a></li>
+<li><a class="reference" href="#low-level-api" id="id2" name="id2">Low Level API</a><ul>
+<li><a class="reference" href="#module-jsonpickle.pickler" id="id3" name="id3"><tt class="xref docutils literal"><span class="pre">jsonpickle.picker</span></tt> &#8211; Python to JSON</a></li>
+<li><a class="reference" href="#module-jsonpickle.unpickler" id="id4" name="id4"><tt class="xref docutils literal"><span class="pre">jsonpickle.unpickler</span></tt> &#8211; JSON to Python</a></li>
+<li><a class="reference" href="#module-jsonpickle.util" id="id5" name="id5"><tt class="xref docutils literal"><span class="pre">jsonpickle.util</span></tt> &#8211; Helper functions</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="jsonpickle-high-level-api">
+<h1><a class="toc-backref" href="#id1"><a title="" class="reference" href="index.html#module-jsonpickle"><tt class="xref docutils literal"><span class="pre">jsonpickle</span></tt></a> &#8211; High Level API<a class="headerlink" href="#jsonpickle-high-level-api" title="Permalink to this headline">¶</a></a></h1>
+<dl class="function">
+<dt id="jsonpickle.encode">
+<!--[jsonpickle.encode]--><tt class="descclassname">jsonpickle.</tt><tt class="descname">encode</tt><big>(</big><em>value</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#jsonpickle.encode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a JSON formatted representation of value, a Python object.</p>
+<p>Optionally takes a keyword argument unpicklable.  If set to False,
+the output does not contain the information necessary to turn 
+the json back into Python.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;my string&#39;</span><span class="p">)</span>
+<span class="go">&#39;&quot;my string&quot;&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">encode</span><span class="p">(</span><span class="mf">36</span><span class="p">)</span>
+<span class="go">&#39;36&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="jsonpickle.decode">
+<!--[jsonpickle.decode]--><tt class="descclassname">jsonpickle.</tt><tt class="descname">decode</tt><big>(</big><em>string</em><big>)</big><a class="headerlink" href="#jsonpickle.decode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts the JSON string into a Python object.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="nb">str</span><span class="p">(</span><span class="n">decode</span><span class="p">(</span><span class="s">&#39;&quot;my string&quot;&#39;</span><span class="p">))</span>
+<span class="go">&#39;my string&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">decode</span><span class="p">(</span><span class="s">&#39;36&#39;</span><span class="p">)</span>
+<span class="go">36</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="low-level-api">
+<h1><a class="toc-backref" href="#id2">Low Level API<a class="headerlink" href="#low-level-api" title="Permalink to this headline">¶</a></a></h1>
+<p>Typically this low level functionality is not needed by clients.</p>
+<div class="section" id="module-jsonpickle.pickler">
+<h2><a class="toc-backref" href="#id3"><tt class="xref docutils literal"><span class="pre">jsonpickle.picker</span></tt> &#8211; Python to JSON<a class="headerlink" href="#module-jsonpickle.pickler" title="Permalink to this headline">¶</a></a></h2>
+<dl class="class">
+<dt id="jsonpickle.pickler.Pickler">
+<!--[jsonpickle.pickler.Pickler]-->class <tt class="descclassname">jsonpickle.pickler.</tt><tt class="descname">Pickler</tt><big>(</big><em>unpicklable=True</em><big>)</big><a class="headerlink" href="#jsonpickle.pickler.Pickler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a Python object to a JSON representation.</p>
+<p>Setting unpicklable to False removes the ability to regenerate
+the objects into object types beyond what the standard simplejson
+library supports.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">p</span> <span class="o">=</span> <span class="n">Pickler</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="s">&#39;hello world&#39;</span><span class="p">)</span>
+<span class="go">&#39;hello world&#39;</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="jsonpickle.pickler.Pickler.flatten">
+<!--[jsonpickle.pickler.Pickler.flatten]--><tt class="descname">flatten</tt><big>(</big><em>obj</em><big>)</big><a class="headerlink" href="#jsonpickle.pickler.Pickler.flatten" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes an object and returns a JSON-safe representation of it.</p>
+<p>Simply returns any of the basic builtin datatypes</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">p</span> <span class="o">=</span> <span class="n">Pickler</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="s">&#39;hello world&#39;</span><span class="p">)</span>
+<span class="go">&#39;hello world&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="s">u&#39;hello world&#39;</span><span class="p">)</span>
+<span class="go">u&#39;hello world&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="mf">49</span><span class="p">)</span>
+<span class="go">49</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="mf">350.0</span><span class="p">)</span>
+<span class="go">350.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span> <span class="ow">is</span> <span class="bp">None</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span><span class="o">.</span><span class="n">flatten</span><span class="p">([</span><span class="mf">1</span><span class="p">,</span> <span class="mf">2</span><span class="p">,</span> <span class="mf">3</span><span class="p">,</span> <span class="mf">4</span><span class="p">])</span>
+<span class="go">[1, 2, 3, 4]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span><span class="o">.</span><span class="n">flatten</span><span class="p">((</span><span class="mf">1</span><span class="p">,))</span>
+<span class="go">(1,)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span><span class="o">.</span><span class="n">flatten</span><span class="p">({</span><span class="s">&#39;key&#39;</span><span class="p">:</span> <span class="s">&#39;value&#39;</span><span class="p">})</span>
+<span class="go">{&#39;key&#39;: &#39;value&#39;}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-jsonpickle.unpickler">
+<h2><a class="toc-backref" href="#id4"><tt class="xref docutils literal"><span class="pre">jsonpickle.unpickler</span></tt> &#8211; JSON to Python<a class="headerlink" href="#module-jsonpickle.unpickler" title="Permalink to this headline">¶</a></a></h2>
+<dl class="class">
+<dt id="jsonpickle.unpickler.Unpickler">
+<!--[jsonpickle.unpickler.Unpickler]-->class <tt class="descclassname">jsonpickle.unpickler.</tt><tt class="descname">Unpickler</tt><a class="headerlink" href="#jsonpickle.unpickler.Unpickler" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="jsonpickle.unpickler.Unpickler.restore">
+<!--[jsonpickle.unpickler.Unpickler.restore]--><tt class="descname">restore</tt><big>(</big><em>obj</em><big>)</big><a class="headerlink" href="#jsonpickle.unpickler.Unpickler.restore" title="Permalink to this definition">¶</a></dt>
+<dd><p>Restores a flattened object to its original python state.</p>
+<p>Simply returns any of the basic builtin types</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">u</span> <span class="o">=</span> <span class="n">Unpickler</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">u</span><span class="o">.</span><span class="n">restore</span><span class="p">(</span><span class="s">&#39;hello world&#39;</span><span class="p">)</span>
+<span class="go">&#39;hello world&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">u</span><span class="o">.</span><span class="n">restore</span><span class="p">({</span><span class="s">&#39;key&#39;</span><span class="p">:</span> <span class="s">&#39;value&#39;</span><span class="p">})</span>
+<span class="go">{&#39;key&#39;: &#39;value&#39;}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-jsonpickle.util">
+<h2><a class="toc-backref" href="#id5"><tt class="xref docutils literal"><span class="pre">jsonpickle.util</span></tt> &#8211; Helper functions<a class="headerlink" href="#module-jsonpickle.util" title="Permalink to this headline">¶</a></a></h2>
+<dl class="function">
+<dt id="jsonpickle.util.is_collection_subclass">
+<!--[jsonpickle.util.is_collection_subclass]--><tt class="descclassname">jsonpickle.util.</tt><tt class="descname">is_collection_subclass</tt><big>(</big><em>obj</em><big>)</big><a class="headerlink" href="#jsonpickle.util.is_collection_subclass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Collection subclass</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Temp</span><span class="p">(</span><span class="nb">list</span><span class="p">):</span> <span class="k">pass</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">Temp</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">is_collection_subclass</span><span class="p">(</span><span class="n">Temp</span><span class="p">())</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">is_collection_subclass</span><span class="p">({</span><span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="mf">1</span><span class="p">})</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">is_collection_subclass</span><span class="p">([</span><span class="mf">1</span><span class="p">])</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">is_collection_subclass</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">)</span>
+<span class="go">False</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="jsonpickle.util.is_dictionary_subclass">
+<!--[jsonpickle.util.is_dictionary_subclass]--><tt class="descclassname">jsonpickle.util.</tt><tt class="descname">is_dictionary_subclass</tt><big>(</big><em>obj</em><big>)</big><a class="headerlink" href="#jsonpickle.util.is_dictionary_subclass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dictionary subclass</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Temp</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span> <span class="k">pass</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">Temp</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="p">[</span><span class="s">&#39;key&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">is_dictionary_subclass</span><span class="p">(</span><span class="n">Temp</span><span class="p">())</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">is_dictionary_subclass</span><span class="p">({</span><span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="mf">1</span><span class="p">})</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">is_dictionary_subclass</span><span class="p">([</span><span class="mf">1</span><span class="p">])</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">is_dictionary_subclass</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">)</span>
+<span class="go">False</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="jsonpickle.util.is_noncomplex">
+<!--[jsonpickle.util.is_noncomplex]--><tt class="descclassname">jsonpickle.util.</tt><tt class="descname">is_noncomplex</tt><big>(</big><em>obj</em><big>)</big><a class="headerlink" href="#jsonpickle.util.is_noncomplex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Special (weird) classes.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">t</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">struct_time</span><span class="p">(</span><span class="s">&#39;123456789&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">t</span>
+<span class="go">(&#39;1&#39;, &#39;2&#39;, &#39;3&#39;, &#39;4&#39;, &#39;5&#39;, &#39;6&#39;, &#39;7&#39;, &#39;8&#39;, &#39;9&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">is_noncomplex</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">is_noncomplex</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">)</span>
+<span class="go">False</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="jsonpickle.util.iscollection">
+<!--[jsonpickle.util.iscollection]--><tt class="descclassname">jsonpickle.util.</tt><tt class="descname">iscollection</tt><big>(</big><em>obj</em><big>)</big><a class="headerlink" href="#jsonpickle.util.iscollection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper method to see if the object is a Python collection (list, 
+set, or tuple).</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">iscollection</span><span class="p">([</span><span class="mf">4</span><span class="p">])</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">iscollection</span><span class="p">((</span><span class="mf">4</span><span class="p">,</span><span class="mf">3</span><span class="p">))</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">iscollection</span><span class="p">(</span><span class="n">set</span><span class="p">([</span><span class="mf">4</span><span class="p">,</span><span class="mf">5</span><span class="p">]))</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">iscollection</span><span class="p">({</span><span class="s">&#39;key&#39;</span><span class="p">:</span><span class="s">&#39;value&#39;</span><span class="p">})</span>
+<span class="go">False</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="jsonpickle.util.isdictionary">
+<!--[jsonpickle.util.isdictionary]--><tt class="descclassname">jsonpickle.util.</tt><tt class="descname">isdictionary</tt><big>(</big><em>obj</em><big>)</big><a class="headerlink" href="#jsonpickle.util.isdictionary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper method for testing if the object is a dictionary.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">isdictionary</span><span class="p">({</span><span class="s">&#39;key&#39;</span><span class="p">:</span><span class="s">&#39;value&#39;</span><span class="p">})</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="jsonpickle.util.isprimitive">
+<!--[jsonpickle.util.isprimitive]--><tt class="descclassname">jsonpickle.util.</tt><tt class="descname">isprimitive</tt><big>(</big><em>obj</em><big>)</big><a class="headerlink" href="#jsonpickle.util.isprimitive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper class to see if the object is one of the basic Python
+builtin objects.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">isprimitive</span><span class="p">(</span><span class="mf">3</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">isprimitive</span><span class="p">(</span><span class="mf">3.5</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">isprimitive</span><span class="p">(</span><span class="nb">long</span><span class="p">(</span><span class="mf">4</span><span class="p">))</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">isprimitive</span><span class="p">(</span><span class="s">&#39;hello world&#39;</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">isprimitive</span><span class="p">(</span><span class="s">u&#39;hello world&#39;</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">isprimitive</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">isprimitive</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">isprimitive</span><span class="p">([</span><span class="mf">4</span><span class="p">,</span><span class="mf">4</span><span class="p">])</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">isprimitive</span><span class="p">({</span><span class="s">&#39;key&#39;</span><span class="p">:</span><span class="s">&#39;value&#39;</span><span class="p">})</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">isprimitive</span><span class="p">((</span><span class="mf">1</span><span class="p">,</span><span class="mf">3</span><span class="p">))</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">isprimitive</span><span class="p">(</span><span class="nb">object</span><span class="p">())</span>
+<span class="go">False</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h3><a href="index.html">Table Of Contents</a></h3>
+            <ul>
+<li><a class="reference" href=""><tt class="docutils literal"><span class="pre">jsonpickle</span></tt> &#8211; High Level API</a></li>
+<li><a class="reference" href="#low-level-api">Low Level API</a><ul>
+<li><a class="reference" href="#module-jsonpickle.pickler"><tt class="docutils literal"><span class="pre">jsonpickle.picker</span></tt> &#8211; Python to JSON</a></li>
+<li><a class="reference" href="#module-jsonpickle.unpickler"><tt class="docutils literal"><span class="pre">jsonpickle.unpickler</span></tt> &#8211; JSON to Python</a></li>
+<li><a class="reference" href="#module-jsonpickle.util"><tt class="docutils literal"><span class="pre">jsonpickle.util</span></tt> &#8211; Helper functions</a></li>
+</ul>
+</li>
+</ul>
+
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="index.html" title="previous chapter">jsonpickle Usage</a></p>
+            <h3>This Page</h3>
+            <ul class="this-page-menu">
+              <li><a href="_sources/api.txt">Show Source</a></li>
+            </ul>
+          <h3>Quick search</h3>
+            <form class="search" action="search.html" method="get">
+              <input type="text" name="q" size="18" /> <input type="submit" value="Go" />
+              <input type="hidden" name="check_keywords" value="yes" />
+              <input type="hidden" name="area" value="default" />
+            </form>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="modindex.html" title="Global Module Index"
+             accesskey="M">modules</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="jsonpickle Usage"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">jsonpickle v0.2.0a documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2008, John Paulett.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.5.
+    </div>
+  </body>
+</html>

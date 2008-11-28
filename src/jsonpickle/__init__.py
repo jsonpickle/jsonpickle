@@ -8,38 +8,43 @@
 
 """Python library for serializing any arbitrary object graph into JSON
 
->>> import jsonpickle
->>> from jsonpickle.tests.classes import Thing
+    >>> import jsonpickle
+    >>> from jsonpickle.tests.classes import Thing
 
 Create an object.
->>> obj = Thing('A String')
->>> print obj.name
-A String
+
+    >>> obj = Thing('A String')
+    >>> print obj.name
+    A String
 
 Use jsonpickle to transform the object into a JSON string.
->>> pickled = jsonpickle.encode(obj)
->>> print pickled
-{"classname__": "Thing", "child": null, "name": "A String", "classmodule__": "jsonpickle.tests.classes"}
+    
+    >>> pickled = jsonpickle.encode(obj)
+    >>> print pickled
+    {"classname__": "Thing", "child": null, "name": "A String", "classmodule__": "jsonpickle.tests.classes"}
 
 Use jsonpickle to recreate a Python object from a JSON string
->>> unpickled = jsonpickle.decode(pickled)
->>> print unpickled.name
-A String
+    
+    >>> unpickled = jsonpickle.decode(pickled)
+    >>> print unpickled.name
+    A String
 
 The new object has the same type and data, but essentially is now a copy of the original.
->>> obj == unpickled
-False
->>> obj.name == unpickled.name
-True
->>> type(obj) == type(unpickled)
-True
+    
+    >>> obj == unpickled
+    False
+    >>> obj.name == unpickled.name
+    True
+    >>> type(obj) == type(unpickled)
+    True
 
 If you will never need to load (regenerate the Python class from JSON), you can
 pass in the keyword unpicklable=False to prevent extra information from being
 added to JSON.
->>> oneway = jsonpickle.encode(obj, unpicklable=False)
->>> print oneway
-{"name": "A String", "child": null}
+    
+    >>> oneway = jsonpickle.encode(obj, unpicklable=False)
+    >>> print oneway
+    {"name": "A String", "child": null}
 
 """
 
