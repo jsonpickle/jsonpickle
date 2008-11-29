@@ -11,41 +11,40 @@ determining the type of an object.
 """
 import time
 
-COLLECTIONS = set, list, tuple,
-#TODO add PRIMITIVES global
-#TODO refactor names to be consistent
+COLLECTIONS = set, list, tuple
+PRIMITIVES = str, unicode, int, float, bool, long
 
-def isprimitive(obj):
+def is_primitive(obj):
     """Helper method to see if the object is a basic data type. Strings, 
     integers, longs, floats, booleans, and None are considered primitive 
-    and will return True when passed into *isprimitive()*
+    and will return True when passed into *is_primitive()*
     
-    >>> isprimitive(3)
+    >>> is_primitive(3)
     True
-    >>> isprimitive([4,4])
+    >>> is_primitive([4,4])
     False
     """
     if obj is None:
         return True
-    elif type(obj) in [str, unicode, int, float, bool, long]:
+    elif type(obj) in PRIMITIVES:
         return True
     return False
 
-def isdictionary(obj):
+def is_dictionary(obj):
     """Helper method for testing if the object is a dictionary.
     
-    >>> isdictionary({'key':'value'})
+    >>> is_dictionary({'key':'value'})
     True
     """   
     if type(obj) is dict:
         return True
     return False
 
-def iscollection(obj):
+def is_collection(obj):
     """Helper method to see if the object is a Python collection (list, 
     set, or tuple).
     
-    >>> iscollection([4])
+    >>> is_collection([4])
     True
     """
     if type(obj) in COLLECTIONS:
@@ -61,7 +60,7 @@ def is_dictionary_subclass(obj):
     True
     """
     #TODO add UserDict
-    if issubclass(obj.__class__, dict) and not isdictionary(obj):
+    if issubclass(obj.__class__, dict) and not is_dictionary(obj):
         return True
     return False
 
@@ -75,7 +74,7 @@ def is_collection_subclass(obj):
     True
     """
     #TODO add UserDict
-    if issubclass(obj.__class__, COLLECTIONS) and not iscollection(obj):
+    if issubclass(obj.__class__, COLLECTIONS) and not is_collection(obj):
         return True
     return False
 

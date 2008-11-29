@@ -54,15 +54,15 @@ class Pickler(object):
         {'key': 'value'}
         """
         
-        if util.isprimitive(obj):
+        if util.is_primitive(obj):
             return obj
-        elif util.iscollection(obj):
+        elif util.is_collection(obj):
             data = [] # obj.__class__()
             for v in obj:
                 data.append(self.flatten(v))
             return obj.__class__(data)
             #TODO handle tuple and sets
-        elif util.isdictionary(obj):
+        elif util.is_dictionary(obj):
             data = obj.__class__()
             for k, v in obj.iteritems():
                 data[k] = self.flatten(v)

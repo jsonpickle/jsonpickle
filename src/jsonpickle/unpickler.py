@@ -41,13 +41,13 @@ class Unpickler(object):
                 else:
                     instance.__dict__[k] = value
             return instance
-        elif util.iscollection(obj):
+        elif util.is_collection(obj):
             # currently restores all collections to lists, even sets and tuples
             data = []
             for v in obj:
                 data.append(self.restore(v))
             return data
-        elif util.isdictionary(obj):
+        elif util.is_dictionary(obj):
             data = {}
             for k, v in obj.iteritems():
                 data[k] = self.restore(v)

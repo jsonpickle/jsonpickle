@@ -16,75 +16,75 @@ from jsonpickle.tests.classes import Thing, ListSubclass, DictSubclass
 
 class IsPrimitiveTestCase(unittest.TestCase):
     def test_int(self):
-        self.assertTrue(isprimitive(0))
-        self.assertTrue(isprimitive(3))
-        self.assertTrue(isprimitive(-3))
+        self.assertTrue(is_primitive(0))
+        self.assertTrue(is_primitive(3))
+        self.assertTrue(is_primitive(-3))
 
     def test_float(self):
-        self.assertTrue(isprimitive(0))
-        self.assertTrue(isprimitive(3.5))
-        self.assertTrue(isprimitive(-3.5))
-        self.assertTrue(isprimitive(float(3)))
+        self.assertTrue(is_primitive(0))
+        self.assertTrue(is_primitive(3.5))
+        self.assertTrue(is_primitive(-3.5))
+        self.assertTrue(is_primitive(float(3)))
 
     def test_long(self):
-        self.assertTrue(isprimitive(long(3)))
+        self.assertTrue(is_primitive(long(3)))
 
     def test_bool(self):
-        self.assertTrue(isprimitive(True))
-        self.assertTrue(isprimitive(False))
+        self.assertTrue(is_primitive(True))
+        self.assertTrue(is_primitive(False))
 
     def test_None(self):
-        self.assertTrue(isprimitive(None))
+        self.assertTrue(is_primitive(None))
 
     def test_str(self):
-        self.assertTrue(isprimitive('hello'))
-        self.assertTrue(isprimitive(''))
+        self.assertTrue(is_primitive('hello'))
+        self.assertTrue(is_primitive(''))
 
     def test_unicode(self):
-        self.assertTrue(isprimitive(u'hello'))
-        self.assertTrue(isprimitive(u''))
-        self.assertTrue(isprimitive(unicode('hello')))
+        self.assertTrue(is_primitive(u'hello'))
+        self.assertTrue(is_primitive(u''))
+        self.assertTrue(is_primitive(unicode('hello')))
 
     def test_list(self):
-        self.assertFalse(isprimitive([]))
-        self.assertFalse(isprimitive([4, 4]))
+        self.assertFalse(is_primitive([]))
+        self.assertFalse(is_primitive([4, 4]))
 
     def test_dict(self):
-        self.assertFalse(isprimitive({'key':'value'}))
-        self.assertFalse(isprimitive({}))
+        self.assertFalse(is_primitive({'key':'value'}))
+        self.assertFalse(is_primitive({}))
 
     def test_tuple(self):
-        self.assertFalse(isprimitive((1, 3)))
-        self.assertFalse(isprimitive((1,)))
+        self.assertFalse(is_primitive((1, 3)))
+        self.assertFalse(is_primitive((1,)))
 
     def test_set(self):
-        self.assertFalse(isprimitive(set([1, 3])))
+        self.assertFalse(is_primitive(set([1, 3])))
 
     def test_object(self):
-        self.assertFalse(isprimitive(Thing('test')))
+        self.assertFalse(is_primitive(Thing('test')))
 
 class IsCollection(unittest.TestCase):
     def test_list(self):
-        self.assertTrue(iscollection([1, 2]))
+        self.assertTrue(is_collection([1, 2]))
     
     def test_set(self):
-        self.assertTrue(iscollection(set([1, 2])))
+        self.assertTrue(is_collection(set([1, 2])))
         
     def test_tuple(self):
-        self.assertTrue(iscollection((1, 2)))
+        self.assertTrue(is_collection((1, 2)))
         
     def test_dict(self):
-        self.assertFalse(iscollection({'key':'value'}))
+        self.assertFalse(is_collection({'key':'value'}))
     
     def test_other(self):
-        self.assertFalse(iscollection(1))
+        self.assertFalse(is_collection(1))
 
 class IsDictionary(unittest.TestCase):
     def test_dict(self):
-        self.assertTrue(isdictionary({'key':'value'}))
+        self.assertTrue(is_dictionary({'key':'value'}))
     
     def test_list(self):
-        self.assertFalse(isdictionary([1, 2]))
+        self.assertFalse(is_dictionary([1, 2]))
 
 class IsDictionarySubclass(unittest.TestCase):
     def test_subclass(self):
