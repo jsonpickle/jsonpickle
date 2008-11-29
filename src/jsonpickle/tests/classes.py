@@ -13,3 +13,6 @@ class Thing(object):
 
 class DictSubclass(dict):
     name = 'Test'
+    
+class ListSubclass(list): 
+    pass

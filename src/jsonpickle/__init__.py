@@ -6,7 +6,10 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 
-"""Python library for serializing any arbitrary object graph into JSON
+"""Python library for serializing any arbitrary object graph into 
+`JSON <http://www.json.org/>`_.  It can take almost any Python object and turn
+the object into JSON.  Additionally, it can reconstitute the object back into
+Python. 
 
     >>> import jsonpickle
     >>> from jsonpickle.tests.classes import Thing

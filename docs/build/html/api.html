@@ -62,7 +62,7 @@
 <!--[jsonpickle.encode]--><tt class="descclassname">jsonpickle.</tt><tt class="descname">encode</tt><big>(</big><em>value</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#jsonpickle.encode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a JSON formatted representation of value, a Python object.</p>
 <p>Optionally takes a keyword argument unpicklable.  If set to False,
-the output does not contain the information necessary to turn 
+the output does not contain the information necessary to turn
 the json back into Python.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;my string&#39;</span><span class="p">)</span>
 <span class="go">&#39;&quot;my string&quot;&#39;</span>
@@ -162,21 +162,17 @@ library supports.</p>
 </div>
 <div class="section" id="module-jsonpickle.util">
 <h2><a class="toc-backref" href="#id5"><tt class="xref docutils literal"><span class="pre">jsonpickle.util</span></tt> &#8211; Helper functions<a class="headerlink" href="#module-jsonpickle.util" title="Permalink to this headline">¶</a></a></h2>
+<p>Helper functions for pickling and unpickling.  Most functions assist in 
+determining the type of an object.</p>
 <dl class="function">
 <dt id="jsonpickle.util.is_collection_subclass">
 <!--[jsonpickle.util.is_collection_subclass]--><tt class="descclassname">jsonpickle.util.</tt><tt class="descname">is_collection_subclass</tt><big>(</big><em>obj</em><big>)</big><a class="headerlink" href="#jsonpickle.util.is_collection_subclass" title="Permalink to this definition">¶</a></dt>
-<dd><p>Collection subclass</p>
+<dd><p>Returns True if <em>obj</em> is a subclass of a collection type, such as list
+set, tuple, etc.. <em>obj</em> must be a subclass and not the actual builtin, such
+as list, set, tuple, etc..</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Temp</span><span class="p">(</span><span class="nb">list</span><span class="p">):</span> <span class="k">pass</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">Temp</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">1</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">is_collection_subclass</span><span class="p">(</span><span class="n">Temp</span><span class="p">())</span>
 <span class="go">True</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">is_collection_subclass</span><span class="p">({</span><span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="mf">1</span><span class="p">})</span>
-<span class="go">False</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">is_collection_subclass</span><span class="p">([</span><span class="mf">1</span><span class="p">])</span>
-<span class="go">False</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">is_collection_subclass</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">)</span>
-<span class="go">False</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -184,18 +180,11 @@ library supports.</p>
 <dl class="function">
 <dt id="jsonpickle.util.is_dictionary_subclass">
 <!--[jsonpickle.util.is_dictionary_subclass]--><tt class="descclassname">jsonpickle.util.</tt><tt class="descname">is_dictionary_subclass</tt><big>(</big><em>obj</em><big>)</big><a class="headerlink" href="#jsonpickle.util.is_dictionary_subclass" title="Permalink to this definition">¶</a></dt>
-<dd><p>Dictionary subclass</p>
+<dd><p>Returns True if <em>obj</em> is a subclass of the dict type. <em>obj</em> must be 
+a subclass and not the actual builtin dict.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Temp</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span> <span class="k">pass</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">Temp</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="p">[</span><span class="s">&#39;key&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">is_dictionary_subclass</span><span class="p">(</span><span class="n">Temp</span><span class="p">())</span>
 <span class="go">True</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">is_dictionary_subclass</span><span class="p">({</span><span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="mf">1</span><span class="p">})</span>
-<span class="go">False</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">is_dictionary_subclass</span><span class="p">([</span><span class="mf">1</span><span class="p">])</span>
-<span class="go">False</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">is_dictionary_subclass</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">)</span>
-<span class="go">False</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -203,16 +192,13 @@ library supports.</p>
 <dl class="function">
 <dt id="jsonpickle.util.is_noncomplex">
 <!--[jsonpickle.util.is_noncomplex]--><tt class="descclassname">jsonpickle.util.</tt><tt class="descname">is_noncomplex</tt><big>(</big><em>obj</em><big>)</big><a class="headerlink" href="#jsonpickle.util.is_noncomplex" title="Permalink to this definition">¶</a></dt>
-<dd><p>Special (weird) classes.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">t</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">struct_time</span><span class="p">(</span><span class="s">&#39;123456789&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">t</span>
-<span class="go">(&#39;1&#39;, &#39;2&#39;, &#39;3&#39;, &#39;4&#39;, &#39;5&#39;, &#39;6&#39;, &#39;7&#39;, &#39;8&#39;, &#39;9&#39;)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">is_noncomplex</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
-<span class="go">True</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">is_noncomplex</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">)</span>
-<span class="go">False</span>
-</pre></div>
-</div>
+<dd><p>Returns True if <em>obj</em> is a special (weird) class, that is complex than 
+primitive data types, but is not a full object. Including:</p>
+<blockquote>
+<ul class="simple">
+<li><a title="(in Python v2.7)" class="reference" href="http://docs.python.org/dev/library/time.html#time.struct_time"><tt class="xref docutils literal"><span class="pre">struct_time</span></tt></a></li>
+</ul>
+</blockquote>
 </dd></dl>
 
 <dl class="function">
@@ -222,12 +208,6 @@ library supports.</p>
 set, or tuple).</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">iscollection</span><span class="p">([</span><span class="mf">4</span><span class="p">])</span>
 <span class="go">True</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">iscollection</span><span class="p">((</span><span class="mf">4</span><span class="p">,</span><span class="mf">3</span><span class="p">))</span>
-<span class="go">True</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">iscollection</span><span class="p">(</span><span class="n">set</span><span class="p">([</span><span class="mf">4</span><span class="p">,</span><span class="mf">5</span><span class="p">]))</span>
-<span class="go">True</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">iscollection</span><span class="p">({</span><span class="s">&#39;key&#39;</span><span class="p">:</span><span class="s">&#39;value&#39;</span><span class="p">})</span>
-<span class="go">False</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -245,29 +225,12 @@ set, or tuple).</p>
 <dl class="function">
 <dt id="jsonpickle.util.isprimitive">
 <!--[jsonpickle.util.isprimitive]--><tt class="descclassname">jsonpickle.util.</tt><tt class="descname">isprimitive</tt><big>(</big><em>obj</em><big>)</big><a class="headerlink" href="#jsonpickle.util.isprimitive" title="Permalink to this definition">¶</a></dt>
-<dd><p>Helper class to see if the object is one of the basic Python
-builtin objects.</p>
+<dd><p>Helper method to see if the object is a basic data type. Strings, 
+integers, longs, floats, booleans, and None are considered primitive 
+and will return True when passed into <em>isprimitive()</em></p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">isprimitive</span><span class="p">(</span><span class="mf">3</span><span class="p">)</span>
 <span class="go">True</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">isprimitive</span><span class="p">(</span><span class="mf">3.5</span><span class="p">)</span>
-<span class="go">True</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">isprimitive</span><span class="p">(</span><span class="nb">long</span><span class="p">(</span><span class="mf">4</span><span class="p">))</span>
-<span class="go">True</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">isprimitive</span><span class="p">(</span><span class="s">&#39;hello world&#39;</span><span class="p">)</span>
-<span class="go">True</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">isprimitive</span><span class="p">(</span><span class="s">u&#39;hello world&#39;</span><span class="p">)</span>
-<span class="go">True</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">isprimitive</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
-<span class="go">True</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">isprimitive</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
-<span class="go">True</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">isprimitive</span><span class="p">([</span><span class="mf">4</span><span class="p">,</span><span class="mf">4</span><span class="p">])</span>
-<span class="go">False</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">isprimitive</span><span class="p">({</span><span class="s">&#39;key&#39;</span><span class="p">:</span><span class="s">&#39;value&#39;</span><span class="p">})</span>
-<span class="go">False</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">isprimitive</span><span class="p">((</span><span class="mf">1</span><span class="p">,</span><span class="mf">3</span><span class="p">))</span>
-<span class="go">False</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">isprimitive</span><span class="p">(</span><span class="nb">object</span><span class="p">())</span>
 <span class="go">False</span>
 </pre></div>
 </div>

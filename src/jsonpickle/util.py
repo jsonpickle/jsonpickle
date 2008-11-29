@@ -12,32 +12,17 @@ determining the type of an object.
 import time
 
 COLLECTIONS = set, list, tuple,
+#TODO add PRIMITIVES global
+#TODO refactor names to be consistent
 
 def isprimitive(obj):
-    """Helper class to see if the object is one of the basic Python
-    builtin objects.    
+    """Helper method to see if the object is a basic data type. Strings, 
+    integers, longs, floats, booleans, and None are considered primitive 
+    and will return True when passed into *isprimitive()*
     
     >>> isprimitive(3)
     True
-    >>> isprimitive(3.5)
-    True
-    >>> isprimitive(long(4))
-    True
-    >>> isprimitive('hello world')
-    True
-    >>> isprimitive(u'hello world')
-    True
-    >>> isprimitive(True)
-    True
-    >>> isprimitive(None)
-    True
     >>> isprimitive([4,4])
-    False
-    >>> isprimitive({'key':'value'})
-    False
-    >>> isprimitive((1,3))
-    False
-    >>> isprimitive(object())
     False
     """
     if obj is None:
@@ -62,32 +47,18 @@ def iscollection(obj):
     
     >>> iscollection([4])
     True
-    >>> iscollection((4,3))
-    True
-    >>> iscollection(set([4,5]))
-    True
-    >>> iscollection({'key':'value'})
-    False
     """
-    
     if type(obj) in COLLECTIONS:
         return True
     return False
 
 def is_dictionary_subclass(obj):
-    """Dictionary subclass
+    """Returns True if *obj* is a subclass of the dict type. *obj* must be 
+    a subclass and not the actual builtin dict.
     
     >>> class Temp(dict): pass
-    >>> obj = Temp()
-    >>> obj['key'] = 1
     >>> is_dictionary_subclass(Temp())
     True
-    >>> is_dictionary_subclass({'a': 1})
-    False
-    >>> is_dictionary_subclass([1])
-    False
-    >>> is_dictionary_subclass('a')
-    False
     """
     #TODO add UserDict
     if issubclass(obj.__class__, dict) and not isdictionary(obj):
@@ -95,36 +66,24 @@ def is_dictionary_subclass(obj):
     return False
 
 def is_collection_subclass(obj):
-    """Collection subclass
+    """Returns True if *obj* is a subclass of a collection type, such as list
+    set, tuple, etc.. *obj* must be a subclass and not the actual builtin, such
+    as list, set, tuple, etc..
     
     >>> class Temp(list): pass
-    >>> obj = Temp()
-    >>> obj.append(1)
     >>> is_collection_subclass(Temp())
     True
-    >>> is_collection_subclass({'a': 1})
-    False
-    >>> is_collection_subclass([1])
-    False
-    >>> is_collection_subclass('a')
-    False
     """
     #TODO add UserDict
     if issubclass(obj.__class__, COLLECTIONS) and not iscollection(obj):
         return True
     return False
 
-
 def is_noncomplex(obj):
-    """Special (weird) classes.
+    """Returns True if *obj* is a special (weird) class, that is complex than 
+    primitive data types, but is not a full object. Including:
     
-    >>> t = time.struct_time('123456789')
-    >>> print t
-    ('1', '2', '3', '4', '5', '6', '7', '8', '9')
-    >>> is_noncomplex(t)
-    True
-    >>> is_noncomplex('a')
-    False
+        * :class:`~time.struct_time`
     """
     if type(obj) is time.struct_time:
         return True
