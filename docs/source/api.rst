@@ -1,5 +1,13 @@
 .. _jsonpickle-api:
 
+.. testsetup:: *
+
+    from jsonpickle import *
+    from jsonpickle.util import *
+    from jsonpickle.pickler import *
+    from jsonpickle.unpickler import *
+    
+
 .. contents::
 
 :mod:`jsonpickle` -- High Level API

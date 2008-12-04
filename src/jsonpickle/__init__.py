@@ -32,7 +32,13 @@ Use jsonpickle to recreate a Python object from a JSON string
     >>> print unpickled.name
     A String
 
-The new object has the same type and data, but essentially is now a copy of the original.
+.. warning::
+
+    Loading a JSON string from an untrusted source represents a potential
+    security vulnerability.  jsonpickle makes no attempt to sanitize the input. 
+
+The new object has the same type and data, but essentially is now a copy of 
+the original.
     
     >>> obj == unpickled
     False

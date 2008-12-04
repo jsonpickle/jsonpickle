@@ -51,7 +51,9 @@
 <li><a class="reference" href="#api-reference" id="id3" name="id3">API Reference</a></li>
 <li><a class="reference" href="#contributing" id="id4" name="id4">Contributing</a></li>
 <li><a class="reference" href="#contact" id="id5" name="id5">Contact</a></li>
-<li><a class="reference" href="#license" id="id6" name="id6">License</a></li>
+<li><a class="reference" href="#authors" id="id6" name="id6">Authors</a></li>
+<li><a class="reference" href="#change-log" id="id7" name="id7">Change Log</a></li>
+<li><a class="reference" href="#license" id="id8" name="id8">License</a></li>
 </ul>
 </div>
 <div class="section" id="module-jsonpickle">
@@ -82,7 +84,13 @@ Python.</p>
 <span class="go">A String</span>
 </pre></div>
 </div>
-<p>The new object has the same type and data, but essentially is now a copy of the original.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Loading a JSON string from an untrusted source represents a potential
+security vulnerability.  jsonpickle makes no attempt to sanitize the input.</p>
+</div>
+<p>The new object has the same type and data, but essentially is now a copy of 
+the original.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">==</span> <span class="n">unpickled</span>
 <span class="go">False</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">unpickled</span><span class="o">.</span><span class="n">name</span>
@@ -136,12 +144,61 @@ sync&#8217;ed daily.:</p>
 <h1><a class="toc-backref" href="#id5">Contact<a class="headerlink" href="#contact" title="Permalink to this headline">¶</a></a></h1>
 <p>Please join our <a class="reference" href="http://groups.google.com/group/jsonpickle">mailing list</a>.
 You can send email to <em>jsonpickle&#64;googlegroups.com</em>.</p>
+<p>Check <a class="reference" href="http://blog.7oars.com">http://blog.7oars.com</a> and <a class="reference" href="http://code.google.com/p/jsonpickle/">http://code.google.com/p/jsonpickle/</a> for
+project updates.</p>
+</div>
+<div class="section" id="authors">
+<h1><a class="toc-backref" href="#id6">Authors<a class="headerlink" href="#authors" title="Permalink to this headline">¶</a></a></h1>
+<p>John Paulett (john -at- 7oars.com)</p>
+</div>
+<div class="section" id="change-log">
+<h1><a class="toc-backref" href="#id7">Change Log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></a></h1>
+<dl class="docutils">
+<dt>Version 0.2.x - <strong>not yet released</strong></dt>
+<dd><ul class="first last simple">
+<li>Sphinx documentation</li>
+<li>Handle several datetime objects using the repr() of the objects</li>
+</ul>
+</dd>
+<dt>Version 0.1.0 - August 21, 2008</dt>
+<dd><ul class="first last simple">
+<li>Added long as basic primitive (thanks Adam Fisk)</li>
+<li>Prefer python-cjson to simplejson, if available</li>
+<li>Major API change, use python-cjson&#8217;s decode/encode instead of
+simplejson&#8217;s load/loads/dump/dumps</li>
+<li>Added benchmark.py to compare simplejson and python-cjson</li>
+</ul>
+</dd>
+<dt>Version 0.0.5 - July 21, 2008</dt>
+<dd><ul class="first last simple">
+<li>Changed prefix of special fields to conform with CouchDB
+requirements (Thanks Dean Landolt). Break backwards compatibility.</li>
+<li>Moved to Google Code subversion</li>
+<li>Fixed unit test imports</li>
+</ul>
+</dd>
+<dt>Version 0.0.3</dt>
+<dd><ul class="first last simple">
+<li>Convert back to setup.py from pavement.py (issue found by spidaman)</li>
+</ul>
+</dd>
+<dt>Version 0.0.2</dt>
+<dd><ul class="first last simple">
+<li>Handle feedparser&#8217;s FeedParserDict</li>
+<li>Converted project to Paver</li>
+<li>Restructured directories</li>
+<li>Increase test coverage</li>
+</ul>
+</dd>
+</dl>
+<p>Version 0.0.1
+Initial release</p>
 </div>
 <div class="section" id="license">
-<h1><a class="toc-backref" href="#id6">License<a class="headerlink" href="#license" title="Permalink to this headline">¶</a></a></h1>
+<h1><a class="toc-backref" href="#id8">License<a class="headerlink" href="#license" title="Permalink to this headline">¶</a></a></h1>
 <p>jsonpickle is provided under a
-<a class="reference" href="http://code.google.com/p/jsonpickle/source/browse/trunk/src/COPYING">New BSD license</a>,
-Copyright (C) 2008 John Paulett (john -at- 7oars.com)</p>
+<a class="reference" href="http://code.google.com/p/jsonpickle/source/browse/trunk/src/COPYING">New BSD license</a>,</p>
+<p>Copyright (C) 2008 John Paulett (john -at- 7oars.com)</p>
 </div>
 
 
@@ -159,11 +216,13 @@ Copyright (C) 2008 John Paulett (john -at- 7oars.com)</p>
 </li>
 <li><a class="reference" href="#contributing">Contributing</a></li>
 <li><a class="reference" href="#contact">Contact</a></li>
+<li><a class="reference" href="#authors">Authors</a></li>
+<li><a class="reference" href="#change-log">Change Log</a></li>
 <li><a class="reference" href="#license">License</a></li>
 </ul>
 
             <h4>Next topic</h4>
-            <p class="topless"><a href="api.html" title="next chapter"><tt class="docutils literal docutils literal"><span class="pre">jsonpickle</span></tt> &#8211; High Level API</a></p>
+            <p class="topless"><a href="api.html" title="next chapter"><tt class="docutils literal"><span class="pre">jsonpickle</span></tt> &#8211; High Level API</a></p>
             <h3>This Page</h3>
             <ul class="this-page-menu">
               <li><a href="_sources/index.txt">Show Source</a></li>
