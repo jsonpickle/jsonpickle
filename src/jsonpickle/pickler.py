@@ -80,6 +80,11 @@ class Pickler(object):
                 data = [] # obj.__class__()
                 for v in obj:
                     data.append(self.flatten(v))
+            elif util.is_repr(obj):
+                if self.unpicklable is True:
+                    data['classrepr__'] = repr(obj)
+                else:
+                    data = str(obj)
             else:
                 for k, v in obj.__dict__.iteritems():
                     data[str(k)] = self.flatten(v)

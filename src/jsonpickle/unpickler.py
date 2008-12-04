@@ -21,9 +21,11 @@ class Unpickler(object):
         >>> u.restore({'key': 'value'})
         {'key': 'value'}
         """
-        if self._isclassdict(obj):
-            cls = self._loadclass(obj['classmodule__'], obj['classname__'])
+        if isclassdict(obj):
+            if 'classrepr__' in obj:
+                return loadrepr(obj['classmodule__'], obj['classrepr__'])
             
+            cls = loadclass(obj['classmodule__'], obj['classname__'])
             try:
                 instance = object.__new__(cls)
             except TypeError:
@@ -55,29 +57,35 @@ class Unpickler(object):
         else:
             return obj
         
-    def _loadclass(self, module, name):
-        """Loads the module and returns the class.
-        
-        >>> u = Unpickler()
-        >>> u._loadclass('jsonpickle.tests.classes','Thing')
-        <class 'jsonpickle.tests.classes.Thing'>
-        """
-        __import__(module)
-        mod = sys.modules[module]
-        cls = getattr(mod, name)
-        return cls
+def loadclass(module, name):
+    """Loads the module and returns the class.
     
-    def _isclassdict(self, obj):
-        """Helper class that tests to see if the obj is a flattened object
-        
-        >>> u = Unpickler()
-        >>> u._isclassdict({'classmodule__':'__builtin__', 'classname__':'int'})
-        True
-        >>> u._isclassdict({'key':'value'})    
-        False
-        >>> u._isclassdict(25)    
-        False
-        """
-        if type(obj) is dict and 'classmodule__' in obj and 'classname__' in obj:
-            return True
-        return False
+    >>> loadclass('jsonpickle.tests.classes','Thing')
+    <class 'jsonpickle.tests.classes.Thing'>
+    """
+    __import__(module)
+    mod = sys.modules[module]
+    cls = getattr(mod, name)
+    return cls
+
+def loadrepr(module, objrepr):
+    """Returns an instance of the object from the object's repr() string. It
+    involves the dynamic specification of code.
+    
+    >>> loadrepr('jsonpickle.tests.classes','jsonpickle.tests.classes.Thing("json")')
+    jsonpickle.tests.classes.Thing("json")
+    """
+    exec('import %s' % module)
+    return eval(objrepr) 
+    
+def isclassdict(obj):
+    """Helper class that tests to see if the obj is a flattened object
+    
+    >>> isclassdict({'classmodule__':'__builtin__', 'classname__':'int'})
+    True
+    >>> isclassdict({'key':'value'})    
+    False
+    >>> isclassdict(25)
+    False
+    """
+    return type(obj) is dict and 'classmodule__' in obj and 'classname__' in obj

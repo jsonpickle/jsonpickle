@@ -9,6 +9,7 @@
 import unittest
 import doctest
 import time
+import datetime
 
 import jsonpickle.util
 from jsonpickle.util import *
@@ -110,7 +111,25 @@ class IsNonComplex(unittest.TestCase):
     def test_other(self):
         self.assertFalse(is_noncomplex('a'))
 
-
+class IsRepr(unittest.TestCase):
+    def setUp(self):
+        self.time = datetime.datetime.now()
+        
+    def test_datetime(self):
+        self.assertTrue(is_repr(self.time))
+        
+    def test_date(self):
+        self.assertTrue(is_repr(self.time.date()))
+    
+    def test_time(self):
+        self.assertTrue(is_repr(self.time.time()))
+        
+    def test_timedelta(self):
+        self.assertTrue(is_repr(datetime.timedelta(4)))
+        
+    def test_object(self):
+        self.assertFalse(is_repr(object()))
+    
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(IsPrimitiveTestCase))
@@ -119,6 +138,7 @@ def suite():
     suite.addTest(unittest.makeSuite(IsDictionarySubclass))
     suite.addTest(unittest.makeSuite(IsCollectionSubclass))
     suite.addTest(unittest.makeSuite(IsNonComplex))
+    suite.addTest(unittest.makeSuite(IsRepr))
     suite.addTest(doctest.DocTestSuite(jsonpickle.util))
     return suite
 

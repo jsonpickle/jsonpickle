@@ -10,9 +10,12 @@
 determining the type of an object.
 """
 import time
+import datetime
 
 COLLECTIONS = set, list, tuple
 PRIMITIVES = str, unicode, int, float, bool, long
+NEEDS_REPR = (datetime.datetime, datetime.time, datetime.date, 
+              datetime.timedelta)
 
 def is_primitive(obj):
     """Helper method to see if the object is a basic data type. Strings, 
@@ -88,3 +91,5 @@ def is_noncomplex(obj):
         return True
     return False
 
+def is_repr(obj):
+    return isinstance(obj, NEEDS_REPR)

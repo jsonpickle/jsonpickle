@@ -8,7 +8,8 @@
 
 import doctest
 import unittest
-
+import datetime
+import time
 import jsonpickle
 from jsonpickle.tests.classes import Thing, DictSubclass
 
@@ -143,8 +144,7 @@ class PicklingTestCase(unittest.TestCase):
         self.assertEqual(1234, inflated.value)
         
     def test_struct_time(self):
-        from time import struct_time
-        t = struct_time('123456789')
+        t = time.struct_time('123456789')
         
         flattened = self.pickler.flatten(t)
         self.assertEqual(['1', '2', '3', '4', '5', '6', '7', '8', '9'], flattened)
@@ -176,6 +176,48 @@ class PicklingTestCase(unittest.TestCase):
         
         inflated = self.unpickler.restore(flattened)
         self.assertEqual(1, inflated['key1'])
+    
+    def test_datetime(self):
+        obj = datetime.datetime.now()
+        
+        flattened = self.pickler.flatten(obj)
+        self.assertEqual(repr(obj), flattened['classrepr__'])
+        self.assertEqual('datetime', flattened['classmodule__'])
+        
+        inflated = self.unpickler.restore(flattened)
+        self.assertEqual(obj, inflated)
+    
+    def test_datetime_date(self):
+        obj = datetime.datetime.now().date()
+        
+        flattened = self.pickler.flatten(obj)
+        self.assertEqual(repr(obj), flattened['classrepr__'])
+        self.assertEqual('datetime', flattened['classmodule__'])
+        
+        inflated = self.unpickler.restore(flattened)
+        self.assertEqual(obj, inflated)
+        
+    def test_datetime_time(self):
+        obj = datetime.datetime.now().time()
+        
+        flattened = self.pickler.flatten(obj)
+        self.assertEqual(repr(obj), flattened['classrepr__'])
+        self.assertEqual('datetime', flattened['classmodule__'])
+        
+        inflated = self.unpickler.restore(flattened)
+        self.assertEqual(obj, inflated)
+        
+    def test_datetime_timedelta(self):
+        obj = datetime.timedelta(5)
+        
+        flattened = self.pickler.flatten(obj)
+        self.assertEqual(repr(obj), flattened['classrepr__'])
+        self.assertEqual('datetime', flattened['classmodule__'])
+        
+        inflated = self.unpickler.restore(flattened)
+        self.assertEqual(obj, inflated)
+        
+        
     
     def test_collectionsubclass(self):
         pass

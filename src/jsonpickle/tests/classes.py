@@ -10,7 +10,10 @@ class Thing(object):
     def __init__(self, name):
         self.name = name
         self.child = None
-
+        
+    def __repr__(self):
+        return 'jsonpickle.tests.classes.Thing("%s")' % self.name
+    
 class DictSubclass(dict):
     name = 'Test'
     
