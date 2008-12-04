@@ -39,9 +39,7 @@ def is_dictionary(obj):
     >>> is_dictionary({'key':'value'})
     True
     """   
-    if type(obj) is dict:
-        return True
-    return False
+    return type(obj) is dict
 
 def is_collection(obj):
     """Helper method to see if the object is a Python collection (list, 
@@ -50,9 +48,7 @@ def is_collection(obj):
     >>> is_collection([4])
     True
     """
-    if type(obj) in COLLECTIONS:
-        return True
-    return False
+    return type(obj) in COLLECTIONS
 
 def is_dictionary_subclass(obj):
     """Returns True if *obj* is a subclass of the dict type. *obj* must be 
@@ -62,10 +58,7 @@ def is_dictionary_subclass(obj):
     >>> is_dictionary_subclass(Temp())
     True
     """
-    #TODO add UserDict
-    if issubclass(obj.__class__, dict) and not is_dictionary(obj):
-        return True
-    return False
+    return issubclass(obj.__class__, dict) and not is_dictionary(obj)
 
 def is_collection_subclass(obj):
     """Returns True if *obj* is a subclass of a collection type, such as list
@@ -77,9 +70,7 @@ def is_collection_subclass(obj):
     True
     """
     #TODO add UserDict
-    if issubclass(obj.__class__, COLLECTIONS) and not is_collection(obj):
-        return True
-    return False
+    return issubclass(obj.__class__, COLLECTIONS) and not is_collection(obj)
 
 def is_noncomplex(obj):
     """Returns True if *obj* is a special (weird) class, that is complex than 
@@ -92,4 +83,12 @@ def is_noncomplex(obj):
     return False
 
 def is_repr(obj):
+    """Returns True if the *obj* must be encoded and decoded using the 
+    :func:`repr` function. Including:
+        
+        * :class:`~datetime.datetime`
+        * :class:`~datetime.date`
+        * :class:`~datetime.time`
+        * :class:`~datetime.timedelta`
+    """
     return isinstance(obj, NEEDS_REPR)
