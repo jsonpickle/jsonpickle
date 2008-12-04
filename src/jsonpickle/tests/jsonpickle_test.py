@@ -130,7 +130,37 @@ class PicklingTestCase(unittest.TestCase):
         self.assertEqual(3, inflated['k3'])
         
         #TODO show that non string keys fail
-    
+
+    def test_recursive(self):
+        """create a recursive structure and test that we can handle it
+        """
+        parent = Thing('parent')
+        child = Thing('child')
+        child.sibling = Thing('sibling')
+
+        parent.self = parent
+        parent.child = child
+        parent.child.twin = child
+        parent.child.parent = parent
+        parent.child.sibling.parent = parent
+
+        cloned = jsonpickle.decode(jsonpickle.encode(parent))
+
+        self.assertEqual(parent.name,
+                         cloned.name)
+        self.assertEqual(parent.child.name,
+                         cloned.child.name)
+        self.assertEqual(parent.child.sibling.name,
+                         cloned.child.sibling.name)
+        self.assertEqual(cloned,
+                         cloned.child.parent)
+        self.assertEqual(cloned,
+                         cloned.child.sibling.parent)
+        self.assertEqual(cloned,
+                         cloned.child.twin.parent)
+        self.assertEqual(cloned.child,
+                         cloned.child.twin)
+
     def test_oldstyleclass(self):
         from pickle import _EmptyClass
         

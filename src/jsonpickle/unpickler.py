@@ -10,6 +10,34 @@ import sys
 import jsonpickle.util as util
 
 class Unpickler(object):
+    def __init__(self):
+        ## The current recursion depth
+        self._depth = 0
+        ## Maps reference names to object instances
+        self._namedict = {}
+        ## The namestack grows whenever we recurse into a child object
+        self._namestack = []
+
+    def _reset(self):
+        """Resets the object's internal state.
+        """
+        self._namedict = {}
+        self._namestack = []
+
+    def _push(self):
+        """Steps down one level in the namespace.
+        """
+        self._depth += 1
+
+    def _pop(self, value):
+        """Step up one level in the namespace and return the value.
+        If we're at the root, reset the unpickler's state.
+        """
+        self._depth -= 1
+        if self._depth == 0:
+            self._reset()
+        return value
+
     def restore(self, obj):
         """Restores a flattened object to its original python state.
         
@@ -21,7 +49,11 @@ class Unpickler(object):
         >>> u.restore({'key': 'value'})
         {'key': 'value'}
         """
-        if isclassdict(obj):
+        self._push()
+        if isobjref(obj) and obj['objref__'] in self._namedict:
+            return self._pop(self._namedict.get(obj['objref__']))
+
+        elif isclassdict(obj):
             if 'classrepr__' in obj:
                 return loadrepr(obj['classmodule__'], obj['classrepr__'])
             
@@ -32,30 +64,41 @@ class Unpickler(object):
                 # old-style classes
                 instance = cls()
             
+            # keep a obj->name mapping for use in the _isobjref() case
+            name = '/' + '/'.join(self._namestack)
+            if name not in self._namedict:
+                self._namedict[name] = instance
+
             for k, v in obj.iteritems():
                 # ignore the fake attribute
                 if k in ('classmodule__', 'classname__'):
                     continue
+                # step into the namespace
+                self._namestack.append(k)
                 value = self.restore(v)
                 if (util.is_noncomplex(instance) or
                         util.is_dictionary_subclass(instance)):
                     instance[k] = value
                 else:
                     instance.__dict__[k] = value
-            return instance
+                # step out
+                self._namestack.pop()
+            return self._pop(instance)
         elif util.is_collection(obj):
             # currently restores all collections to lists, even sets and tuples
             data = []
             for v in obj:
                 data.append(self.restore(v))
-            return data
+            return self._pop(data)
         elif util.is_dictionary(obj):
             data = {}
             for k, v in obj.iteritems():
+                self._namestack.append(k)
                 data[k] = self.restore(v)
-            return data
+                self._namestack.pop()
+            return self._pop(data)
         else:
-            return obj
+            return self._pop(obj)
         
 def loadclass(module, name):
     """Loads the module and returns the class.
@@ -89,3 +132,16 @@ def isclassdict(obj):
     False
     """
     return type(obj) is dict and 'classmodule__' in obj and 'classname__' in obj
+
+def isobjref(obj):
+    """Helper class that tests to see if the obj is an object reference
+    
+    >>> isobjref({'objref__':'/'})
+    True
+    >>> isobjref({'key':'value'})
+    False
+    >>> isobjref(25)
+    False
+    """
+    return type(obj) is dict and 'objref__' in obj
+

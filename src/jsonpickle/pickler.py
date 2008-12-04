@@ -22,7 +22,41 @@ class Pickler(object):
     
     def __init__(self, unpicklable=True):
         self.unpicklable = unpicklable
-    
+        ## The current recursion depth
+        self._depth = 0
+        ## Maps id(obj) to reference names
+        self._objs = {}
+        ## The namestack grows whenever we recurse into a child object
+        self._namestack = []
+
+    def _reset(self):
+        self._objs = {}
+        self._namestack = []
+
+    def _push(self):
+        """Steps down one level in the namespace.
+        """
+        self._depth += 1
+
+    def _pop(self, value):
+        """Step up one level in the namespace and return the value.
+        If we're at the root, reset the pickler's state.
+        """
+        self._depth -= 1
+        if self._depth == 0:
+            self._reset()
+        return value
+
+    def _mkref(self, obj):
+        objid = id(obj)
+        if objid not in self._objs:
+            self._objs[objid] = '/' + '/'.join(self._namestack)
+            return True
+        return False
+
+    def _getref(self, obj):
+        return self._objs.get(id(obj))
+
     def flatten(self, obj):
         """Takes an object and returns a JSON-safe representation of it.
         
@@ -53,42 +87,54 @@ class Pickler(object):
         >>> p.flatten({'key': 'value'})
         {'key': 'value'}
         """
-        
+
+        self._push()
+
         if util.is_primitive(obj):
-            return obj
+            return self._pop(obj)
         elif util.is_collection(obj):
-            data = [] # obj.__class__()
-            for v in obj:
-                data.append(self.flatten(v))
-            return obj.__class__(data)
+            return self._pop(obj.__class__([ self.flatten(v) for v in obj ]))
             #TODO handle tuple and sets
         elif util.is_dictionary(obj):
             data = obj.__class__()
             for k, v in obj.iteritems():
+                self._namestack.append(k)
                 data[k] = self.flatten(v)
-            return data
+                self._namestack.pop()
+            return self._pop(data)
         elif isinstance(obj, object):
             data = {}
-            module, name = _getclassdetail(obj)
-            if self.unpicklable is True:
-                data['classmodule__'] = module
-                data['classname__'] = name 
-            if util.is_dictionary_subclass(obj):
-                for k, v in obj.iteritems():
-                    data[k] = self.flatten(v)
-            elif util.is_noncomplex(obj):
-                data = [] # obj.__class__()
-                for v in obj:
-                    data.append(self.flatten(v))
-            elif util.is_repr(obj):
+            if self._mkref(obj):
+                module, name = _getclassdetail(obj)
                 if self.unpicklable is True:
-                    data['classrepr__'] = repr(obj)
+                    data['classmodule__'] = module
+                    data['classname__'] = name
+                if util.is_dictionary_subclass(obj):
+                    for k, v in obj.iteritems():
+                        self._namestack.append(k)
+                        data[k] = self.flatten(v)
+                        self._namestack.pop()
+                elif util.is_noncomplex(obj):
+                    data = []
+                    for v in obj:
+                        data.append(self.flatten(v))
+                elif util.is_repr(obj):
+                    if self.unpicklable is True:
+                        data['classrepr__'] = repr(obj)
+                    else:
+                        data = str(obj)
                 else:
-                    data = str(obj)
+                    for k, v in obj.__dict__.iteritems():
+                        self._namestack.append(k)
+                        data[str(k)] = self.flatten(v)
+                        self._namestack.pop()
             else:
-                for k, v in obj.__dict__.iteritems():
-                    data[str(k)] = self.flatten(v)
-            return data
+                # We've seen this object before so place an object
+                # reference tag in the data. This avoids infinite recursion
+                # when processing cyclical objects.
+                data['objref__'] = self._getref(obj)
+
+            return self._pop(data)
         # else, what else? (classes, methods, functions, old style classes...)
         
 def _getclassdetail(obj):
@@ -108,4 +154,3 @@ def _getclassdetail(obj):
     module = getattr(cls, '__module__')
     name = getattr(cls, '__name__')
     return module, name
-    
