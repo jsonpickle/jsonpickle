@@ -222,7 +222,7 @@ def encode(value, **kwargs):
     >>> encode(36)
     '36'
     """
-    j = Pickler(unpicklable=__isunpicklable(kwargs))
+    j = Pickler(unpicklable=_isunpicklable(kwargs))
     return json.encode(j.flatten(value))
 
 def decode(string):
@@ -236,15 +236,15 @@ def decode(string):
     j = Unpickler()
     return j.restore(json.decode(string))
 
-def __isunpicklable(kw):
+def _isunpicklable(kw):
     """Utility function for finding keyword unpicklable and returning value.
     Default is assumed to be True.
 
-    >>> __isunpicklable({})
+    >>> _isunpicklable({})
     True
-    >>> __isunpicklable({'unpicklable':True})
+    >>> _isunpicklable({'unpicklable':True})
     True
-    >>> __isunpicklable({'unpicklable':False})
+    >>> _isunpicklable({'unpicklable':False})
     False
 
     """
