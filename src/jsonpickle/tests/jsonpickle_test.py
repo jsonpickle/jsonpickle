@@ -176,7 +176,7 @@ class PicklingTestCase(unittest.TestCase):
         
         inflated = self.unpickler.restore(flattened)
         self.assertEqual(1, inflated['key1'])
-    
+
     def test_datetime(self):
         obj = datetime.datetime.now()
         
@@ -187,6 +187,14 @@ class PicklingTestCase(unittest.TestCase):
         inflated = self.unpickler.restore(flattened)
         self.assertEqual(obj, inflated)
     
+    def test_repr_not_unpickable(self):
+        obj = datetime.datetime.now()
+        pickler = jsonpickle.pickler.Pickler(unpicklable=False)
+        flattened = pickler.flatten(obj)
+        self.assertFalse('classrepr__' in flattened)
+        self.assertFalse('classmodule__' in flattened)
+        self.assertEqual(str(obj), flattened)
+            
     def test_datetime_date(self):
         obj = datetime.datetime.now().date()
         
@@ -217,14 +225,6 @@ class PicklingTestCase(unittest.TestCase):
         inflated = self.unpickler.restore(flattened)
         self.assertEqual(obj, inflated)
         
-        
-    
-    def test_collectionsubclass(self):
-        pass
-    
-    def test_userobjects(self):
-        pass
-
 
 class JSONPickleTestCase(unittest.TestCase):
     def setUp(self):
