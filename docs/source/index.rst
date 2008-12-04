@@ -70,7 +70,8 @@ Change Log
 ==========
 Version 0.2.x - **not yet released**
     * Sphinx documentation
-    * Handle several datetime objects using the repr() of the objects
+    * Handle several datetime objects using the repr() of the objects 
+      (Thanks to Antonin Hildebrand).
     * Added support for recursive data structures
 
 Version 0.1.0 - August 21, 2008
