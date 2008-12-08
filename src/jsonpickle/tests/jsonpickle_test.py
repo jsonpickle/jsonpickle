@@ -255,6 +255,40 @@ class PicklingTestCase(unittest.TestCase):
         inflated = self.unpickler.restore(flattened)
         self.assertEqual(obj, inflated)
         
+    def test_type_reference(self):
+        """This test ensures that users can store references to types.
+        """
+        obj = Thing('object-with-type-reference')
+
+        # reference the built-in 'object' type
+        obj.typeref = object
+
+        flattened = self.pickler.flatten(obj)
+        self.assertEqual(flattened['typeref'], {
+                            'typename__': 'object',
+                            'typemodule__': '__builtin__'
+                         })
+
+        inflated = self.unpickler.restore(flattened)
+        self.assertEqual(inflated.typeref, object)
+
+    def test_class_reference(self):
+        """This test ensures that users can store references to classes.
+        """
+        obj = Thing('object-with-class-reference')
+
+        # reference the 'Thing' class (not an instance of the class)
+        obj.classref = Thing
+
+        flattened = self.pickler.flatten(obj)
+        self.assertEqual(flattened['classref'], {
+                            'typename__': 'Thing',
+                            'typemodule__': 'jsonpickle.tests.classes'
+                         })
+
+        inflated = self.unpickler.restore(flattened)
+        self.assertEqual(inflated.classref, Thing)
+
 
 class JSONPickleTestCase(unittest.TestCase):
     def setUp(self):

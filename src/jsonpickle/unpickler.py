@@ -9,6 +9,15 @@
 import sys
 import jsonpickle.util as util
 
+## These are property names used to track object types and references
+RESERVED_NAMES = (
+    'classmodule__',
+    'classname__',
+    'classrefname__',
+    'typemodule__',
+    'typename__',
+)
+
 class Unpickler(object):
     def __init__(self):
         ## The current recursion depth
@@ -50,31 +59,44 @@ class Unpickler(object):
         {'key': 'value'}
         """
         self._push()
-        if isobjref(obj) and obj['objref__'] in self._namedict:
+
+        if isobjrefdict(obj):
             return self._pop(self._namedict.get(obj['objref__']))
+
+        elif istypedict(obj):
+            typeref = loadclass(obj['typemodule__'], obj['typename__'])
+            if not typeref:
+                return self._pop(obj)
+            return self._pop(typeref)
 
         elif isclassdict(obj):
             if 'classrepr__' in obj:
-                return loadrepr(obj['classmodule__'], obj['classrepr__'])
-            
+                return self._pop(loadrepr(obj['classmodule__'],
+                                          obj['classrepr__']))
+
             cls = loadclass(obj['classmodule__'], obj['classname__'])
+            if not cls:
+                return self._pop(obj)
             try:
                 instance = object.__new__(cls)
             except TypeError:
                 # old-style classes
-                instance = cls()
+                try:
+                    instance = cls()
+                except TypeError:
+                    # fail gracefully if the constructor requires arguments
+                    self._mkref(obj)
+                    return self._pop(obj)
             
             # keep a obj->name mapping for use in the _isobjref() case
-            name = '/' + '/'.join(self._namestack)
-            if name not in self._namedict:
-                self._namedict[name] = instance
+            self._mkref(instance)
 
             for k, v in obj.iteritems():
-                # ignore the fake attribute
-                if k in ('classmodule__', 'classname__'):
+                # ignore the reserved attribute
+                if k in RESERVED_NAMES:
                     continue
-                # step into the namespace
                 self._namestack.append(k)
+                # step into the namespace
                 value = self.restore(v)
                 if (util.is_noncomplex(instance) or
                         util.is_dictionary_subclass(instance)):
@@ -84,12 +106,10 @@ class Unpickler(object):
                 # step out
                 self._namestack.pop()
             return self._pop(instance)
+
         elif util.is_collection(obj):
-            # currently restores all collections to lists, even sets and tuples
-            data = []
-            for v in obj:
-                data.append(self.restore(v))
-            return self._pop(data)
+            return self._pop([self.restore(v) for v in obj])
+
         elif util.is_dictionary(obj):
             data = {}
             for k, v in obj.iteritems():
@@ -97,19 +117,37 @@ class Unpickler(object):
                 data[k] = self.restore(v)
                 self._namestack.pop()
             return self._pop(data)
+
         else:
             return self._pop(obj)
-        
+
+    def _refname(self):
+        return '/' + '/'.join(self._namestack)
+
+    def _mkref(self, obj):
+        name = self._refname()
+        if name not in self._namedict:
+            self._namedict[name] = obj
+        return name
+
 def loadclass(module, name):
     """Loads the module and returns the class.
     
     >>> loadclass('jsonpickle.tests.classes','Thing')
     <class 'jsonpickle.tests.classes.Thing'>
+
+    >>> loadclass('example.module.does.not.exist', 'Missing')
+    
+
+    >>> loadclass('jsonpickle.tests.classes', 'MissingThing')
+    
+
     """
-    __import__(module)
-    mod = sys.modules[module]
-    cls = getattr(mod, name)
-    return cls
+    try:
+        __import__(module)
+        return getattr(sys.modules[module], name)
+    except:
+        return None
 
 def loadrepr(module, objrepr):
     """Returns an instance of the object from the object's repr() string. It
@@ -120,6 +158,31 @@ def loadrepr(module, objrepr):
     """
     exec('import %s' % module)
     return eval(objrepr) 
+
+def istypedict(obj):
+    """Helper class that tests to see if the obj is a flattened type
+    
+    >>> istypedict({'typemodule__': '__builtin__', 'typename__': 'object'})
+    True
+    >>> istypedict({'key':'value'})    
+    False
+    >>> istypedict(25)
+    False
+    """
+    return type(obj) is dict and 'typemodule__' in obj and 'typename__' in obj
+
+def isclassref(obj):
+    """Helper class that tests to see if the obj is a flattened object
+    
+    >>> isclassref({'classmodule__':'__builtin__', 'classrefname__':'int'})
+    True
+    >>> isclassref({'key':'value'})    
+    False
+    >>> isclassdict(25)
+    False
+    """
+    return (type(obj) is dict and
+            'classmodule__' in obj and 'classrefname__' in obj)
     
 def isclassdict(obj):
     """Helper class that tests to see if the obj is a flattened object
@@ -133,14 +196,14 @@ def isclassdict(obj):
     """
     return type(obj) is dict and 'classmodule__' in obj and 'classname__' in obj
 
-def isobjref(obj):
+def isobjrefdict(obj):
     """Helper class that tests to see if the obj is an object reference
     
-    >>> isobjref({'objref__':'/'})
+    >>> isobjrefdict({'objref__':'/'})
     True
-    >>> isobjref({'key':'value'})
+    >>> isobjrefdict({'key':'value'})
     False
-    >>> isobjref(25)
+    >>> isobjrefdict(25)
     False
     """
     return type(obj) is dict and 'objref__' in obj

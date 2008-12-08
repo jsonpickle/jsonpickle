@@ -10,12 +10,44 @@
 determining the type of an object.
 """
 import time
+import types
 import datetime
 
 COLLECTIONS = set, list, tuple
 PRIMITIVES = str, unicode, int, float, bool, long
 NEEDS_REPR = (datetime.datetime, datetime.time, datetime.date, 
               datetime.timedelta)
+
+def is_type(obj):
+    """Returns True is obj is a reference to a type.
+
+    >>> is_type(1)
+    False
+
+    >>> is_type(object)
+    True
+
+    >>> class Klass: pass
+    >>> is_type(Klass)
+    True
+    """
+    return type(obj) is types.TypeType or repr(obj).startswith('<class')
+
+def is_object(obj):
+    """Returns True is obj is a reference to an object instance.
+
+    >>> is_object(1)
+    True
+
+    >>> is_object(object())
+    True
+
+    >>> is_object(lambda x: 1)
+    False
+    """
+    return (isinstance(obj, object) and
+            type(obj) is not types.TypeType and
+            type(obj) is not types.FunctionType)
 
 def is_primitive(obj):
     """Helper method to see if the object is a basic data type. Strings, 
@@ -58,7 +90,8 @@ def is_dictionary_subclass(obj):
     >>> is_dictionary_subclass(Temp())
     True
     """
-    return issubclass(obj.__class__, dict) and not is_dictionary(obj)
+    return (hasattr(obj, '__class__') and
+            issubclass(obj.__class__, dict) and not is_dictionary(obj))
 
 def is_collection_subclass(obj):
     """Returns True if *obj* is a subclass of a collection type, such as list
