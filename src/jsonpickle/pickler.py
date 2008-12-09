@@ -200,6 +200,8 @@ def _isfunction(obj):
         return True
     if not util.is_object(obj):
         return False
+    if not hasattr(obj, '__class__'):
+        return False
     module = obj.__class__.__module__
     name = obj.__class__.__name__
     return (module == '__builtin__' and
