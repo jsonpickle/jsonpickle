@@ -67,9 +67,15 @@ class PicklingTestCase(unittest.TestCase):
         self.assertEqual(listD, self.unpickler.restore(listD))
         
     def test_set(self):
-        setA = set(['orange', 'apple', 'grape'])
-        self.assertEqual(setA, self.pickler.flatten(setA))
-        self.assertEqual(list(setA), self.unpickler.restore(setA))
+        setlist = ['orange', 'apple', 'grape']
+        setA = set(setlist)
+
+        flattened = self.pickler.flatten(setA)
+        for s in setlist:
+            self.assertTrue(s in flattened[tags.SET])
+
+        setA_pickled = {tags.SET: setlist}
+        self.assertEqual(setA, self.unpickler.restore(setA_pickled))
         
     def test_dict(self):
         dictA = {'key1': 1.0, 'key2': 20, 'key3': 'thirty'}
@@ -82,11 +88,28 @@ class PicklingTestCase(unittest.TestCase):
     def test_tuple(self):
         # currently all collections are converted to lists
         tupleA = (4, 16, 32)
-        self.assertEqual(tupleA, self.pickler.flatten(tupleA))
-        self.assertEqual(list(tupleA), self.unpickler.restore(tupleA))
+        tupleA_pickled = {tags.TUPLE: [4, 16, 32]}
+        self.assertEqual(tupleA_pickled, self.pickler.flatten(tupleA))
+        self.assertEqual(tupleA, self.unpickler.restore(tupleA_pickled))
         tupleB = (4,)
-        self.assertEqual(tupleB, self.pickler.flatten(tupleB))
-        self.assertEqual(list(tupleB), self.unpickler.restore(tupleB))
+        tupleB_pickled = {tags.TUPLE: [4]}
+        self.assertEqual(tupleB_pickled, self.pickler.flatten(tupleB))
+        self.assertEqual(tupleB, self.unpickler.restore(tupleB_pickled))
+
+    def test_tuple_roundtrip(self):
+        data = (1,2,3)
+        newdata = jsonpickle.decode(jsonpickle.encode(data))
+        self.assertEqual(data, newdata)
+
+    def test_set_roundtrip(self):
+        data = set([1,2,3])
+        newdata = jsonpickle.decode(jsonpickle.encode(data))
+        self.assertEqual(data, newdata)
+
+    def test_list_roundtrip(self):
+        data = [1,2,3]
+        newdata = jsonpickle.decode(jsonpickle.encode(data))
+        self.assertEqual(data, newdata)
         
     def test_class(self):
         inst = Thing('test name')
@@ -189,10 +212,10 @@ class PicklingTestCase(unittest.TestCase):
         
         flattened = self.pickler.flatten(obj)
         self.assertEqual({'key1': 1,
-                          tags.Object: 'jsonpickle.tests.classes.DictSubclass'
+                          tags.OBJECT: 'jsonpickle.tests.classes.DictSubclass'
                          },
                          flattened)
-        self.assertEqual(flattened[tags.Object],
+        self.assertEqual(flattened[tags.OBJECT],
                          'jsonpickle.tests.classes.DictSubclass')
         
         inflated = self.unpickler.restore(flattened)
@@ -206,7 +229,7 @@ class PicklingTestCase(unittest.TestCase):
                 
         flattened = self.pickler.flatten(obj)
         self.assertEqual(1, flattened['key1'])
-        self.assertFalse(tags.Object in flattened)
+        self.assertFalse(tags.OBJECT in flattened)
         
         inflated = self.unpickler.restore(flattened)
         self.assertEqual(1, inflated['key1'])
@@ -215,8 +238,8 @@ class PicklingTestCase(unittest.TestCase):
         obj = datetime.datetime.now()
         
         flattened = self.pickler.flatten(obj)
-        self.assertTrue(repr(obj) in flattened[tags.Repr])
-        self.assertTrue('datetime' in flattened[tags.Repr])
+        self.assertTrue(repr(obj) in flattened[tags.REPR])
+        self.assertTrue('datetime' in flattened[tags.REPR])
         
         inflated = self.unpickler.restore(flattened)
         self.assertEqual(obj, inflated)
@@ -225,16 +248,16 @@ class PicklingTestCase(unittest.TestCase):
         obj = datetime.datetime.now()
         pickler = jsonpickle.pickler.Pickler(unpicklable=False)
         flattened = pickler.flatten(obj)
-        self.assertFalse(tags.Repr in flattened)
-        self.assertFalse(tags.Object in flattened)
+        self.assertFalse(tags.REPR in flattened)
+        self.assertFalse(tags.OBJECT in flattened)
         self.assertEqual(str(obj), flattened)
             
     def test_datetime_date(self):
         obj = datetime.datetime.now().date()
         
         flattened = self.pickler.flatten(obj)
-        self.assertTrue(repr(obj) in flattened[tags.Repr])
-        self.assertTrue('datetime' in flattened[tags.Repr])
+        self.assertTrue(repr(obj) in flattened[tags.REPR])
+        self.assertTrue('datetime' in flattened[tags.REPR])
         
         inflated = self.unpickler.restore(flattened)
         self.assertEqual(obj, inflated)
@@ -243,8 +266,8 @@ class PicklingTestCase(unittest.TestCase):
         obj = datetime.datetime.now().time()
         
         flattened = self.pickler.flatten(obj)
-        self.assertTrue(repr(obj) in flattened[tags.Repr])
-        self.assertTrue('datetime' in flattened[tags.Repr])
+        self.assertTrue(repr(obj) in flattened[tags.REPR])
+        self.assertTrue('datetime' in flattened[tags.REPR])
         
         inflated = self.unpickler.restore(flattened)
         self.assertEqual(obj, inflated)
@@ -253,8 +276,8 @@ class PicklingTestCase(unittest.TestCase):
         obj = datetime.timedelta(5)
         
         flattened = self.pickler.flatten(obj)
-        self.assertTrue(repr(obj) in flattened[tags.Repr])
-        self.assertTrue('datetime' in flattened[tags.Repr])
+        self.assertTrue(repr(obj) in flattened[tags.REPR])
+        self.assertTrue('datetime' in flattened[tags.REPR])
         
         inflated = self.unpickler.restore(flattened)
         self.assertEqual(obj, inflated)
@@ -269,7 +292,7 @@ class PicklingTestCase(unittest.TestCase):
 
         flattened = self.pickler.flatten(obj)
         self.assertEqual(flattened['typeref'], {
-                            tags.Type: '__builtin__.object',
+                            tags.TYPE: '__builtin__.object',
                          })
 
         inflated = self.unpickler.restore(flattened)
@@ -285,7 +308,7 @@ class PicklingTestCase(unittest.TestCase):
 
         flattened = self.pickler.flatten(obj)
         self.assertEqual(flattened['classref'], {
-                            tags.Type: 'jsonpickle.tests.classes.Thing',
+                            tags.TYPE: 'jsonpickle.tests.classes.Thing',
                          })
 
         inflated = self.unpickler.restore(flattened)
@@ -295,7 +318,7 @@ class PicklingTestCase(unittest.TestCase):
 class JSONPickleTestCase(unittest.TestCase):
     def setUp(self):
         self.obj = Thing('A name')
-        self.expected_json = ('{"'+tags.Object+'": "jsonpickle.tests.classes.Thing",'
+        self.expected_json = ('{"'+tags.OBJECT+'": "jsonpickle.tests.classes.Thing",'
                               ' "name": "A name", "child": null}')
         
     def test_encode(self):

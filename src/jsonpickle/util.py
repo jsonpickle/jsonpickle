@@ -76,11 +76,34 @@ def is_dictionary(obj):
 def is_collection(obj):
     """Helper method to see if the object is a Python collection (list, 
     set, or tuple).
-    
     >>> is_collection([4])
     True
     """
     return type(obj) in COLLECTIONS
+
+def is_list(obj):
+    """Helper method to see if the object is a Python list.
+    
+    >>> is_list([4])
+    True
+    """
+    return type(obj) is list
+
+def is_set(obj):
+    """Helper method to see if the object is a Python set.
+    
+    >>> is_set(set())
+    True
+    """
+    return type(obj) is set
+
+def is_tuple(obj):
+    """Helper method to see if the object is a Python tuple.
+    
+    >>> is_tuple((1,))
+    True
+    """
+    return type(obj) is tuple
 
 def is_dictionary_subclass(obj):
     """Returns True if *obj* is a subclass of the dict type. *obj* must be 
@@ -92,7 +115,7 @@ def is_dictionary_subclass(obj):
     """
     return (hasattr(obj, '__class__') and
             issubclass(obj.__class__, dict) and not is_dictionary(obj))
-
+ 
 def is_collection_subclass(obj):
     """Returns True if *obj* is a subclass of a collection type, such as list
     set, tuple, etc.. *obj* must be a subclass and not the actual builtin, such

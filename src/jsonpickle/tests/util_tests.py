@@ -66,19 +66,23 @@ class IsPrimitiveTestCase(unittest.TestCase):
 
 class IsCollection(unittest.TestCase):
     def test_list(self):
-        self.assertTrue(is_collection([1, 2]))
+        self.assertTrue(is_list([1, 2]))
     
     def test_set(self):
-        self.assertTrue(is_collection(set([1, 2])))
+        self.assertTrue(is_set(set([1, 2])))
         
     def test_tuple(self):
-        self.assertTrue(is_collection((1, 2)))
+        self.assertTrue(is_tuple((1, 2)))
         
     def test_dict(self):
-        self.assertFalse(is_collection({'key':'value'}))
+        self.assertFalse(is_list({'key':'value'}))
+        self.assertFalse(is_set({'key':'value'}))
+        self.assertFalse(is_tuple({'key':'value'}))
     
     def test_other(self):
-        self.assertFalse(is_collection(1))
+        self.assertFalse(is_list(1))
+        self.assertFalse(is_set(1))
+        self.assertFalse(is_tuple(1))
 
 class IsDictionary(unittest.TestCase):
     def test_dict(self):

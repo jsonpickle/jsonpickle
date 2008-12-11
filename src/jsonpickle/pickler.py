@@ -57,7 +57,7 @@ class Pickler(object):
         return False
 
     def _getref(self, obj):
-        return {tags.Ref: self._objs.get(id(obj))}
+        return {tags.REF: self._objs.get(id(obj))}
 
     def flatten(self, obj):
         """Takes an object and returns a JSON-safe representation of it.
@@ -84,8 +84,8 @@ class Pickler(object):
         False
         >>> p.flatten([1, 2, 3, 4])
         [1, 2, 3, 4]
-        >>> p.flatten((1,))
-        (1,)
+        >>> p.flatten((1,2,))[tags.TUPLE]
+        [1, 2]
         >>> p.flatten({'key': 'value'})
         {'key': 'value'}
         """
@@ -95,9 +95,15 @@ class Pickler(object):
         if util.is_primitive(obj):
             return self._pop(obj)
 
-        if util.is_collection(obj):
-            return self._pop(obj.__class__([ self.flatten(v) for v in obj ]))
-            #TODO handle tuple and sets
+        if util.is_list(obj):
+            return self._pop([ self.flatten(v) for v in obj ])
+
+        # We handle tuples and sets by encoding them in a "(tuple|set)dict"
+        if util.is_tuple(obj):
+            return self._pop({tags.TUPLE: [ self.flatten(v) for v in obj ]})
+
+        if util.is_set(obj):
+            return self._pop({tags.SET: [ self.flatten(v) for v in obj ]})
 
         if util.is_dictionary(obj):
             return self._pop(self._flatten_dict_obj(obj, obj.__class__()))
@@ -113,11 +119,11 @@ class Pickler(object):
                 if has_class and not util.is_repr(obj):
                     module, name = _getclassdetail(obj)
                     if self.unpicklable is True:
-                        data[tags.Object] = '%s.%s' % (module, name)
+                        data[tags.OBJECT] = '%s.%s' % (module, name)
 
                 if util.is_repr(obj):
                     if self.unpicklable is True:
-                        data[tags.Repr] = '%s/%s' % (obj.__class__.__module__,
+                        data[tags.REPR] = '%s/%s' % (obj.__class__.__module__,
                                                      repr(obj))
                     else:
                         data = str(obj)
@@ -156,13 +162,13 @@ def _mktyperef(obj):
     """Returns a typeref dictionary.  This is used to implement referencing.
 
     >>> from jsonpickle import tags
-    >>> _mktyperef(AssertionError)[tags.Type].rsplit('.', 1)[0]
+    >>> _mktyperef(AssertionError)[tags.TYPE].rsplit('.', 1)[0]
     'exceptions'
 
-    >>> _mktyperef(AssertionError)[tags.Type].rsplit('.', 1)[-1]
+    >>> _mktyperef(AssertionError)[tags.TYPE].rsplit('.', 1)[-1]
     'AssertionError'
     """
-    return {tags.Type: '%s.%s' % (obj.__module__, obj.__name__)}
+    return {tags.TYPE: '%s.%s' % (obj.__module__, obj.__name__)}
 
 def _getclassdetail(obj):
     """Helper class to return the class of an object.

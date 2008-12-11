@@ -53,21 +53,21 @@ class Unpickler(object):
         """
         self._push()
 
-        if has_tag(obj, tags.Ref):
-            return self._pop(self._namedict.get(obj[tags.Ref]))
+        if has_tag(obj, tags.REF):
+            return self._pop(self._namedict.get(obj[tags.REF]))
 
-        if has_tag(obj, tags.Type):
-            typeref = loadclass(obj[tags.Type])
+        if has_tag(obj, tags.TYPE):
+            typeref = loadclass(obj[tags.TYPE])
             if not typeref:
                 return self._pop(obj)
             return self._pop(typeref)
 
-        if has_tag(obj, tags.Repr):
-            return self._pop(loadrepr(obj[tags.Repr]))
+        if has_tag(obj, tags.REPR):
+            return self._pop(loadrepr(obj[tags.REPR]))
 
-        if has_tag(obj, tags.Object):
+        if has_tag(obj, tags.OBJECT):
 
-            cls = loadclass(obj[tags.Object])
+            cls = loadclass(obj[tags.OBJECT])
             if not cls:
                 return self._pop(obj)
             try:
@@ -86,7 +86,7 @@ class Unpickler(object):
 
             for k, v in obj.iteritems():
                 # ignore the reserved attribute
-                if k in tags.Reserved:
+                if k in tags.RESERVED:
                     continue
                 self._namestack.append(k)
                 # step into the namespace
@@ -100,10 +100,16 @@ class Unpickler(object):
                 self._namestack.pop()
             return self._pop(instance)
 
-        elif util.is_collection(obj):
+        if util.is_list(obj):
             return self._pop([self.restore(v) for v in obj])
 
-        elif util.is_dictionary(obj):
+        if has_tag(obj, tags.TUPLE):
+            return self._pop(tuple([self.restore(v) for v in obj[tags.TUPLE]]))
+
+        if has_tag(obj, tags.SET):
+            return self._pop(set([self.restore(v) for v in obj[tags.SET]]))
+
+        if util.is_dictionary(obj):
             data = {}
             for k, v in obj.iteritems():
                 self._namestack.append(k)
@@ -111,8 +117,7 @@ class Unpickler(object):
                 self._namestack.pop()
             return self._pop(data)
 
-        else:
-            return self._pop(obj)
+        return self._pop(obj)
 
     def _refname(self):
         """Calculates the name of the current location in the JSON stack.
