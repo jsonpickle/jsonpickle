@@ -125,3 +125,30 @@ def is_repr(obj):
         * :class:`~datetime.timedelta`
     """
     return isinstance(obj, NEEDS_REPR)
+
+def is_function(obj):
+    """Returns true if passed a function
+
+    >>> is_function(lambda x: 1)
+    True
+
+    >>> is_function(locals)
+    True
+
+    >>> def method(): pass
+    >>> is_function(method)
+    True
+
+    >>> is_function(1)
+    False
+    """
+    if type(obj) is types.FunctionType:
+        return True
+    if not is_object(obj):
+        return False
+    if not hasattr(obj, '__class__'):
+        return False
+    module = obj.__class__.__module__
+    name = obj.__class__.__name__
+    return (module == '__builtin__' and
+            name in ('function', 'builtin_function_or_method'))

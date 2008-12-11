@@ -143,7 +143,7 @@ class Pickler(object):
         and places them into data.
         """
         for k, v in obj.iteritems():
-            if _isfunction(v):
+            if util.is_function(v):
                 continue
             self._namestack.append(str(k))
             data[str(k)] = self.flatten(v)
@@ -179,30 +179,3 @@ def _getclassdetail(obj):
     module = getattr(cls, '__module__')
     name = getattr(cls, '__name__')
     return module, name
-
-def _isfunction(obj):
-    """Returns true if passed a function
-
-    >>> _isfunction(lambda x: 1)
-    True
-
-    >>> _isfunction(locals)
-    True
-
-    >>> def method(): pass
-    >>> _isfunction(method)
-    True
-
-    >>> _isfunction(1)
-    False
-    """
-    if type(obj) is types.FunctionType:
-        return True
-    if not util.is_object(obj):
-        return False
-    if not hasattr(obj, '__class__'):
-        return False
-    module = obj.__class__.__module__
-    name = obj.__class__.__name__
-    return (module == '__builtin__' and
-            name in ('function', 'builtin_function_or_method'))
