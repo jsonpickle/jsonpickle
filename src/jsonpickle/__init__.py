@@ -61,9 +61,7 @@ from jsonpickle.pickler import Pickler
 from jsonpickle.unpickler import Unpickler
 
 __version__ = '0.2.0a'
-__all__ = [
-    'encode', 'decode'
-]
+__all__ = ('encode', 'decode')
 
 
 class JSONPluginMgr(object):
@@ -213,7 +211,12 @@ class JSONPluginMgr(object):
         """
         self._encoder_options[name] = (args, kwargs)
 
+# Initialize a JSONPluginMgr
 json = JSONPluginMgr()
+
+# Export specific JSONPluginMgr methods into the jsonpickle namespace
+set_preferred_backend = json.set_preferred_backend
+set_encoder_options = json.set_encoder_options
 
 
 def encode(value, **kwargs):
