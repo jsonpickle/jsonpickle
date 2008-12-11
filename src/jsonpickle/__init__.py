@@ -24,13 +24,13 @@ Use jsonpickle to transform the object into a JSON string.
     
     >>> pickled = jsonpickle.encode(obj)
     >>> print pickled
-    {"classname__": "Thing", "child": null, "name": "A String", "classmodule__": "jsonpickle.tests.classes"}
+    {"py/object": "jsonpickle.tests.classes.Thing", "name": "A String", "child": null}
 
 Use jsonpickle to recreate a Python object from a JSON string
     
     >>> unpickled = jsonpickle.decode(pickled)
-    >>> print unpickled.name
-    A String
+    >>> unpickled.name
+    u'A String'
 
 .. warning::
 

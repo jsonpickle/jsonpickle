@@ -8,15 +8,8 @@
 
 import sys
 import jsonpickle.util as util
+import jsonpickle.tags as tags
 
-## These are property names used to track object types and references
-RESERVED_NAMES = (
-    'classmodule__',
-    'classname__',
-    'classrefname__',
-    'typemodule__',
-    'typename__',
-)
 
 class Unpickler(object):
     def __init__(self):
@@ -60,21 +53,21 @@ class Unpickler(object):
         """
         self._push()
 
-        if isobjrefdict(obj):
-            return self._pop(self._namedict.get(obj['objref__']))
+        if has_tag(obj, tags.Ref):
+            return self._pop(self._namedict.get(obj[tags.Ref]))
 
-        elif istypedict(obj):
-            typeref = loadclass(obj['typemodule__'], obj['typename__'])
+        if has_tag(obj, tags.Type):
+            typeref = loadclass(obj[tags.Type])
             if not typeref:
                 return self._pop(obj)
             return self._pop(typeref)
 
-        elif isclassdict(obj):
-            if 'classrepr__' in obj:
-                return self._pop(loadrepr(obj['classmodule__'],
-                                          obj['classrepr__']))
+        if has_tag(obj, tags.Repr):
+            return self._pop(loadrepr(obj[tags.Repr]))
 
-            cls = loadclass(obj['classmodule__'], obj['classname__'])
+        if has_tag(obj, tags.Object):
+
+            cls = loadclass(obj[tags.Object])
             if not cls:
                 return self._pop(obj)
             try:
@@ -93,7 +86,7 @@ class Unpickler(object):
 
             for k, v in obj.iteritems():
                 # ignore the reserved attribute
-                if k in RESERVED_NAMES:
+                if k in tags.Reserved:
                     continue
                 self._namestack.append(k)
                 # step into the namespace
@@ -122,89 +115,96 @@ class Unpickler(object):
             return self._pop(obj)
 
     def _refname(self):
+        """Calculates the name of the current location in the JSON stack.
+
+        This is called as jsonpickle traverses the object structure to
+        create references to previously-traversed objects.  This allows
+        cyclical data structures such as doubly-linked lists.
+        jsonpickle ensures that duplicate python references to the same
+        object results in only a single JSON object definition and
+        special reference tags to represent each reference.
+
+        >>> u = Unpickler()
+        >>> u._namestack = []
+        >>> u._refname()
+        '/'
+
+        >>> u._namestack = ['a']
+        >>> u._refname()
+        '/a'
+
+        >>> u._namestack = ['a', 'b']
+        >>> u._refname()
+        '/a/b'
+
+        """
         return '/' + '/'.join(self._namestack)
 
     def _mkref(self, obj):
+        """
+        >>> from jsonpickle.tests.classes import Thing
+        >>> thing = Thing('referenced-thing')
+        >>> u = Unpickler()
+        >>> u._mkref(thing)
+        '/'
+        >>> u._namedict['/']
+        jsonpickle.tests.classes.Thing("referenced-thing")
+
+        """
         name = self._refname()
         if name not in self._namedict:
             self._namedict[name] = obj
         return name
 
-def loadclass(module, name):
+def loadclass(module_and_name):
     """Loads the module and returns the class.
     
-    >>> loadclass('jsonpickle.tests.classes','Thing')
+    >>> loadclass('jsonpickle.tests.classes.Thing')
     <class 'jsonpickle.tests.classes.Thing'>
 
-    >>> loadclass('example.module.does.not.exist', 'Missing')
+    >>> loadclass('example.module.does.not.exist.Missing')
     
 
-    >>> loadclass('jsonpickle.tests.classes', 'MissingThing')
+    >>> loadclass('jsonpickle.tests.classes.MissingThing')
     
 
     """
     try:
+        module, name = module_and_name.rsplit('.', 1)
         __import__(module)
         return getattr(sys.modules[module], name)
     except:
         return None
 
-def loadrepr(module, objrepr):
+def loadrepr(reprstr):
     """Returns an instance of the object from the object's repr() string. It
     involves the dynamic specification of code.
     
-    >>> loadrepr('jsonpickle.tests.classes','jsonpickle.tests.classes.Thing("json")')
+    >>> from jsonpickle import tags
+    >>> loadrepr('jsonpickle.tests.classes/jsonpickle.tests.classes.Thing("json")')
     jsonpickle.tests.classes.Thing("json")
-    """
-    exec('import %s' % module)
-    return eval(objrepr) 
 
-def istypedict(obj):
-    """Helper class that tests to see if the obj is a flattened type
-    
-    >>> istypedict({'typemodule__': '__builtin__', 'typename__': 'object'})
-    True
-    >>> istypedict({'key':'value'})    
-    False
-    >>> istypedict(25)
-    False
     """
-    return type(obj) is dict and 'typemodule__' in obj and 'typename__' in obj
+    module, evalstr = reprstr.split('/')
+    mylocals = locals()
+    localname = module
+    if '.' in localname:
+        localname = module.split('.', 1)[0]
+    mylocals[localname] = __import__(module)
+    return eval(evalstr)
 
-def isclassref(obj):
-    """Helper class that tests to see if the obj is a flattened object
-    
-    >>> isclassref({'classmodule__':'__builtin__', 'classrefname__':'int'})
-    True
-    >>> isclassref({'key':'value'})    
-    False
-    >>> isclassdict(25)
-    False
-    """
-    return (type(obj) is dict and
-            'classmodule__' in obj and 'classrefname__' in obj)
-    
-def isclassdict(obj):
-    """Helper class that tests to see if the obj is a flattened object
-    
-    >>> isclassdict({'classmodule__':'__builtin__', 'classname__':'int'})
-    True
-    >>> isclassdict({'key':'value'})    
-    False
-    >>> isclassdict(25)
-    False
-    """
-    return type(obj) is dict and 'classmodule__' in obj and 'classname__' in obj
+def has_tag(obj, tag):
+    """Helper class that tests to see if the obj is a dictionary
+    and contains a particular key/tag.
 
-def isobjrefdict(obj):
-    """Helper class that tests to see if the obj is an object reference
-    
-    >>> isobjrefdict({'objref__':'/'})
+    >>> obj = {'test': 1}
+    >>> has_tag(obj, 'test')
     True
-    >>> isobjrefdict({'key':'value'})
+    >>> has_tag(obj, 'fail')
     False
-    >>> isobjrefdict(25)
-    False
-    """
-    return type(obj) is dict and 'objref__' in obj
 
+    >>> has_tag(42, 'fail')
+    False
+
+    """
+    return type(obj) is dict and tag in obj

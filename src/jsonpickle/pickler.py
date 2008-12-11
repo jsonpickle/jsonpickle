@@ -7,6 +7,8 @@
 # you should have received as part of this distribution.
 import types
 import jsonpickle.util as util
+import jsonpickle.tags as tags
+
 
 class Pickler(object):
     """Converts a Python object to a JSON representation.
@@ -55,7 +57,7 @@ class Pickler(object):
         return False
 
     def _getref(self, obj):
-        return {'objref__': self._objs.get(id(obj))}
+        return {tags.Ref: self._objs.get(id(obj))}
 
     def flatten(self, obj):
         """Takes an object and returns a JSON-safe representation of it.
@@ -93,41 +95,41 @@ class Pickler(object):
         if util.is_primitive(obj):
             return self._pop(obj)
 
-        elif util.is_collection(obj):
+        if util.is_collection(obj):
             return self._pop(obj.__class__([ self.flatten(v) for v in obj ]))
             #TODO handle tuple and sets
 
-        elif util.is_dictionary(obj):
+        if util.is_dictionary(obj):
             return self._pop(self._flatten_dict_obj(obj, obj.__class__()))
 
-        elif util.is_type(obj):
+        if util.is_type(obj):
             return self._pop(_mktyperef(obj))
 
-        elif util.is_object(obj):
+        if util.is_object(obj):
             data = {}
             has_class = hasattr(obj, '__class__')
             has_dict = hasattr(obj, '__dict__')
             if self._mkref(obj):
-                if has_class:
+                if has_class and not util.is_repr(obj):
                     module, name = _getclassdetail(obj)
                     if self.unpicklable is True:
-                        data['classmodule__'] = module
-                        data['classname__'] = name
+                        data[tags.Object] = '%s.%s' % (module, name)
 
-                if util.is_dictionary_subclass(obj):
-                    return self._pop(self._flatten_dict_obj(obj, data))
-
-                elif util.is_noncomplex(obj):
-                    return self._pop([self.flatten(v) for v in obj])
-
-                elif util.is_repr(obj):
+                if util.is_repr(obj):
                     if self.unpicklable is True:
-                        data['classrepr__'] = repr(obj)
+                        data[tags.Repr] = '%s/%s' % (obj.__class__.__module__,
+                                                     repr(obj))
                     else:
                         data = str(obj)
                     return self._pop(data)
 
-                elif has_dict:
+                if util.is_dictionary_subclass(obj):
+                    return self._pop(self._flatten_dict_obj(obj, data))
+
+                if util.is_noncomplex(obj):
+                    return self._pop([self.flatten(v) for v in obj])
+
+                if has_dict:
                     return self._pop(self._flatten_dict_obj(obj.__dict__, data))
             else:
                 # We've seen this object before so place an object
@@ -153,14 +155,14 @@ class Pickler(object):
 def _mktyperef(obj):
     """Returns a typeref dictionary.  This is used to implement referencing.
 
-    >>> _mktyperef(AssertionError)['typemodule__']
+    >>> from jsonpickle import tags
+    >>> _mktyperef(AssertionError)[tags.Type].rsplit('.', 1)[0]
     'exceptions'
 
-    >>> _mktyperef(AssertionError)['typename__']
+    >>> _mktyperef(AssertionError)[tags.Type].rsplit('.', 1)[-1]
     'AssertionError'
     """
-    return {'typemodule__': obj.__module__,
-            'typename__': obj.__name__ }
+    return {tags.Type: '%s.%s' % (obj.__module__, obj.__name__)}
 
 def _getclassdetail(obj):
     """Helper class to return the class of an object.
