@@ -126,7 +126,7 @@ class Pickler(object):
                         data[tags.REPR] = '%s/%s' % (obj.__class__.__module__,
                                                      repr(obj))
                     else:
-                        data = str(obj)
+                        data = unicode(obj)
                     return self._pop(data)
 
                 if util.is_dictionary_subclass(obj):
@@ -153,8 +153,8 @@ class Pickler(object):
         for k, v in obj.iteritems():
             if util.is_function(v):
                 continue
-            self._namestack.append(str(k))
-            data[str(k)] = self.flatten(v)
+            self._namestack.append(k)
+            data[k] = self.flatten(v)
             self._namestack.pop()
         return data
 
