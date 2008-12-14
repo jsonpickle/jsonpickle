@@ -219,19 +219,35 @@ set_preferred_backend = json.set_preferred_backend
 set_encoder_options = json.set_encoder_options
 
 
-def encode(value, **kwargs):
+def encode(value, unpicklable=True, max_depth=-1, **kwargs):
     """Returns a JSON formatted representation of value, a Python object.
 
-    Optionally takes a keyword argument unpicklable.  If set to False,
-    the output does not contain the information necessary to turn
-    the json back into Python.
+    The keyword argument 'unpicklable' defaults to True.
+    If set to False, the output will not contain the information
+    necessary to turn the JSON data back into Python objects.
+
+    The keyword argument 'max_depth' defaults to -1.
+    If set to a non-negative number then jsonpickle will not recurse
+    deeper than 'max_depth' steps into the object.  Anything deeper
+    than 'max_depth' is represented using a Python repr() of the object.
 
     >>> encode('my string')
     '"my string"'
     >>> encode(36)
     '36'
+
+    >>> encode({'foo': True}, max_depth=0)
+    '"{\\'foo\\': True}"'
+
+    >>> encode({'foo': True}, max_depth=1)
+    '{"foo": "True"}'
+
+    >>> encode({'foo': True}, max_depth=2)
+    '{"foo": true}'
+
     """
-    j = Pickler(unpicklable=_isunpicklable(kwargs))
+    j = Pickler(unpicklable=unpicklable,
+                max_depth=max_depth)
     return json.encode(j.flatten(value))
 
 def decode(string):
@@ -244,19 +260,3 @@ def decode(string):
     """
     j = Unpickler()
     return j.restore(json.decode(string))
-
-def _isunpicklable(kw):
-    """Utility function for finding keyword unpicklable and returning value.
-    Default is assumed to be True.
-
-    >>> _isunpicklable({})
-    True
-    >>> _isunpicklable({'unpicklable':True})
-    True
-    >>> _isunpicklable({'unpicklable':False})
-    False
-
-    """
-    if 'unpicklable' in kw and not kw['unpicklable']:
-        return False
-    return True

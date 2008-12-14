@@ -17,15 +17,22 @@ class Pickler(object):
     the objects into object types beyond what the standard simplejson
     library supports.
 
+    Setting max_depth to a negative number means there is no
+    limit to the depth jsonpickle should recurse into an
+    object.  Setting it to zero or higher places a hard limit
+    on how deep jsonpickle recurses into objects, dictionaries, etc.
+
     >>> p = Pickler()
     >>> p.flatten('hello world')
     'hello world'
     """
     
-    def __init__(self, unpicklable=True):
+    def __init__(self, unpicklable=True, max_depth=-1):
         self.unpicklable = unpicklable
         ## The current recursion depth
-        self._depth = 0
+        self._depth = -1
+        ## The maximal recursion depth
+        self._max_depth = max_depth
         ## Maps id(obj) to reference names
         self._objs = {}
         ## The namestack grows whenever we recurse into a child object
@@ -45,7 +52,7 @@ class Pickler(object):
         If we're at the root, reset the pickler's state.
         """
         self._depth -= 1
-        if self._depth == 0:
+        if self._depth == -1:
             self._reset()
         return value
 
@@ -91,6 +98,9 @@ class Pickler(object):
         """
 
         self._push()
+        
+        if self._depth == self._max_depth:
+            return self._pop(repr(obj))
 
         if util.is_primitive(obj):
             return self._pop(obj)
