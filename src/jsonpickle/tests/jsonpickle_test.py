@@ -342,12 +342,27 @@ class JSONPickleTestCase(unittest.TestCase):
         self.assertEqual(self.obj.name, unpickled.name)
         self.assertEqual(type(self.obj), type(unpickled))
 
-    def test_unicode(self):
+    def test_unicode_dict_keys(self):
         pickled = jsonpickle.encode({'é': 'é'})
         unpickled = jsonpickle.decode(pickled)
         self.assertEqual(unpickled['é'.decode('utf-8')], 'é'.decode('utf-8'))
         self.assertTrue('é'.decode('utf-8') in unpickled)
-        
+
+    def test_tuple_dict_keys(self):
+        """Test that we handle dictionaries with tuples as keys.
+        We do not model this presently, so ensure that we at
+        least convert those tuples to unicode strings.
+
+        TODO: possibly handle dictionaries with non-stringy keys.
+        """
+        pickled = jsonpickle.encode({(1,2): 3,
+                                     (4,5): { (7,8): 9 }})
+        unpickled = jsonpickle.decode(pickled)
+        subdict = unpickled[u'(4, 5)']
+
+        self.assertEqual(unpickled[u'(1, 2)'], 3)
+        self.assertEqual(subdict[u'(7, 8)'], 9)
+
 
 def suite():
     suite = unittest.TestSuite()

@@ -153,6 +153,8 @@ class Pickler(object):
         for k, v in obj.iteritems():
             if util.is_function(v):
                 continue
+            if type(k) not in types.StringTypes:
+                k = unicode(k)
             self._namestack.append(k)
             data[k] = self.flatten(v)
             self._namestack.pop()
