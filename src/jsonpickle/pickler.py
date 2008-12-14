@@ -154,7 +154,7 @@ class Pickler(object):
             if util.is_function(v):
                 continue
             if type(k) not in types.StringTypes:
-                k = unicode(k)
+                k = repr(k)
             self._namestack.append(k)
             data[k] = self.flatten(v)
             self._namestack.pop()

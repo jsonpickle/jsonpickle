@@ -351,17 +351,36 @@ class JSONPickleTestCase(unittest.TestCase):
     def test_tuple_dict_keys(self):
         """Test that we handle dictionaries with tuples as keys.
         We do not model this presently, so ensure that we at
-        least convert those tuples to unicode strings.
+        least convert those tuples to repr strings.
 
-        TODO: possibly handle dictionaries with non-stringy keys.
+        TODO: handle dictionaries with non-stringy keys.
         """
-        pickled = jsonpickle.encode({(1,2): 3,
-                                     (4,5): { (7,8): 9 }})
+        pickled = jsonpickle.encode({(1, 2): 3,
+                                     (4, 5): { (7, 8): 9 }})
         unpickled = jsonpickle.decode(pickled)
-        subdict = unpickled[u'(4, 5)']
+        subdict = unpickled['(4, 5)']
 
-        self.assertEqual(unpickled[u'(1, 2)'], 3)
-        self.assertEqual(subdict[u'(7, 8)'], 9)
+        self.assertEqual(unpickled['(1, 2)'], 3)
+        self.assertEqual(subdict['(7, 8)'], 9)
+
+    def test_datetime_dict_keys(self):
+        """Test that we handle datetime objects as keys.
+        We do not model this presently, so ensure that we at
+        least convert those tuples into repr strings.
+
+        """
+        pickled = jsonpickle.encode({datetime.datetime(2008, 12, 31): True})
+        unpickled = jsonpickle.decode(pickled)
+        self.assertTrue(unpickled['datetime.datetime(2008, 12, 31, 0, 0)'])
+
+    def test_object_dict_keys(self):
+        """Test that we handle random objects as keys.
+
+        """
+        pickled = jsonpickle.encode({Thing('random'): True})
+        unpickled = jsonpickle.decode(pickled)
+        self.assertEqual(unpickled,
+                         {u'jsonpickle.tests.classes.Thing("random")': True})
 
 
 def suite():
