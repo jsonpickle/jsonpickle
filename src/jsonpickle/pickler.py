@@ -27,7 +27,7 @@ class Pickler(object):
     'hello world'
     """
     
-    def __init__(self, unpicklable=True, max_depth=-1):
+    def __init__(self, unpicklable=True, max_depth=None):
         self.unpicklable = unpicklable
         ## The current recursion depth
         self._depth = -1

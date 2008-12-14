@@ -219,15 +219,15 @@ set_preferred_backend = json.set_preferred_backend
 set_encoder_options = json.set_encoder_options
 
 
-def encode(value, unpicklable=True, max_depth=-1, **kwargs):
+def encode(value, unpicklable=True, max_depth=None, **kwargs):
     """Returns a JSON formatted representation of value, a Python object.
 
     The keyword argument 'unpicklable' defaults to True.
     If set to False, the output will not contain the information
     necessary to turn the JSON data back into Python objects.
 
-    The keyword argument 'max_depth' defaults to -1.
-    If set to a non-negative number then jsonpickle will not recurse
+    The keyword argument 'max_depth' defaults to None.
+    If set to a non-negative integer then jsonpickle will not recurse
     deeper than 'max_depth' steps into the object.  Anything deeper
     than 'max_depth' is represented using a Python repr() of the object.
 
@@ -236,14 +236,15 @@ def encode(value, unpicklable=True, max_depth=-1, **kwargs):
     >>> encode(36)
     '36'
 
+    >>> encode({'foo': True})
+    '{"foo": true}'
+
     >>> encode({'foo': True}, max_depth=0)
     '"{\\'foo\\': True}"'
 
     >>> encode({'foo': True}, max_depth=1)
     '{"foo": "True"}'
 
-    >>> encode({'foo': True}, max_depth=2)
-    '{"foo": true}'
 
     """
     j = Pickler(unpicklable=unpicklable,
