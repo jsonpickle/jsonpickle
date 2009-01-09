@@ -126,7 +126,12 @@ class JSONPluginMgr(object):
         can be found in the backend module's namespace.
         """
         try:
+            ## Load the JSON backend
             mod = __import__(name)
+            ## Handle submodules, e.g. django.utils.simplejson
+            components = name.split('.')
+            for comp in components[1:]:
+                mod = getattr(mod, comp)
             ## We loaded a JSON backend, so setup our internal state
             self._verified = True
             self._encoders[name] = getattr(mod, encode_name)

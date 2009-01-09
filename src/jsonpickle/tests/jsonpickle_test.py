@@ -382,6 +382,18 @@ class JSONPickleTestCase(unittest.TestCase):
         self.assertEqual(unpickled,
                          {u'jsonpickle.tests.classes.Thing("random")': True})
 
+    def test_load_backend(self):
+        """Test that we can call jsonpickle.load_backend()
+
+        """
+        jsonpickle.load_backend('simplejson', 'dumps', 'loads', ValueError)
+
+    def test_load_backend_submodule(self):
+        """Test that we can load a submodule as a backend
+
+        """
+        jsonpickle.load_backend('os.path', 'join', 'split', AttributeError)
+
 
 def suite():
     suite = unittest.TestSuite()
