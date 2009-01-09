@@ -217,6 +217,7 @@ json = JSONPluginMgr()
 # Export specific JSONPluginMgr methods into the jsonpickle namespace
 set_preferred_backend = json.set_preferred_backend
 set_encoder_options = json.set_encoder_options
+load_backend = json.load_backend
 
 
 def encode(value, unpicklable=True, max_depth=None, **kwargs):
