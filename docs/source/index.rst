@@ -43,14 +43,7 @@ Contributing
 
     svn checkout http://jsonpickle.googlecode.com/svn/trunk/ jsonpickle
 
-
-Additionally, we provide a mirror of the official subversion repository (using 
-`hgsubversion <http://www.bitbucket.org/durin42/hgsubversion/wiki/Home>`_), 
-sync'ed daily.::
-
-    hg clone http://www.bitbucket.org/johnpaulett/jsonpickle/ jsonpickle
-    
-    
+   
 Contact
 =======
 
@@ -63,16 +56,27 @@ project updates.
 
 Authors
 =======
-John Paulett (john -at- 7oars.com)
-David Aguilar (davvid -at- gmail.com)
+
+ * John Paulett (john -at- 7oars.com)
+ * David Aguilar (davvid -at- gmail.com)
 
 Change Log
 ==========
-Version 0.2.x - **not yet released**
-    * Sphinx documentation
+
+Version 0.2.0 - January 10, 2009
+    * Support for all major Python JSON backends (including json in Python 2.6,
+      simplejson, cjson, and demjson)
     * Handle several datetime objects using the repr() of the objects 
       (Thanks to Antonin Hildebrand).
+    * Sphinx documentation
     * Added support for recursive data structures
+    * Unicode dict-keys support
+    * Support for Google App Engine and Django
+    * Tons of additional testing and bug reports (Antonin Hildebrand, Sorin, 
+      Roberto Saccon, Faber Fedor, 
+      `FirePython <http://github.com/darwin/firepython/tree/master>`_, and
+      `Joose <http://code.google.com/p/joose-js/>`_)
+      
 
 Version 0.1.0 - August 21, 2008
     * Added long as basic primitive (thanks Adam Fisk)
@@ -106,5 +110,5 @@ License
 jsonpickle is provided under a 
 `New BSD license <http://code.google.com/p/jsonpickle/source/browse/trunk/src/COPYING>`_, 
 
-Copyright (C) 2008 John Paulett (john -at- 7oars.com)
+Copyright (C) 2008-2009 John Paulett (john -at- 7oars.com)
 

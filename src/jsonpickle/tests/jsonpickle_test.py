@@ -343,7 +343,7 @@ class JSONPickleTestCase(unittest.TestCase):
         self.assertEqual(type(self.obj), type(unpickled))
 
     def test_unicode_dict_keys(self):
-        pickled = jsonpickle.encode({'é': 'é'})
+        pickled = jsonpickle.encode({'é'.decode('utf-8'): 'é'.decode('utf-8')})
         unpickled = jsonpickle.decode(pickled)
         self.assertEqual(unpickled['é'.decode('utf-8')], 'é'.decode('utf-8'))
         self.assertTrue('é'.decode('utf-8') in unpickled)
