@@ -19,3 +19,9 @@ class DictSubclass(dict):
     
 class ListSubclass(list): 
     pass
+
+class BrokenReprThing(Thing):
+    def __repr__(self):
+        raise Exception('%s has a broken repr' % self.name)
+    def __str__(self):
+        return '<BrokenReprThing "%s">' % self.name

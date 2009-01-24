@@ -14,7 +14,9 @@ import time
 import jsonpickle
 from jsonpickle import tags
 
-from jsonpickle.tests.classes import Thing, DictSubclass
+from jsonpickle.tests.classes import Thing
+from jsonpickle.tests.classes import BrokenReprThing
+from jsonpickle.tests.classes import DictSubclass
 
 
 class PicklingTestCase(unittest.TestCase):
@@ -243,6 +245,17 @@ class PicklingTestCase(unittest.TestCase):
         
         inflated = self.unpickler.restore(flattened)
         self.assertEqual(obj, inflated)
+
+    def test_broken_repr_dict_key(self):
+        """Tests that we can pickle dictionaries with keys that have
+        broken __repr__ implementations.
+        """
+        br = BrokenReprThing('test')
+        obj = { br: True }
+        pickler = jsonpickle.pickler.Pickler()
+        flattened = pickler.flatten(obj)
+        self.assertTrue('<BrokenReprThing "test">' in flattened)
+        self.assertTrue(flattened['<BrokenReprThing "test">'])
     
     def test_repr_not_unpickable(self):
         obj = datetime.datetime.now()
