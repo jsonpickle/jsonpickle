@@ -205,9 +205,11 @@ class JSONPluginMgr(object):
         for idx, name in enumerate(self._backend_names):
             try:
                 return self._decoders[name](string)
-            except self._decoder_exceptions[name]:
+            except self._decoder_exceptions[name], e:
                 if idx == len(self._backend_names) - 1:
-                    raise
+                    raise e
+                else:
+                    pass # and try a more forgiving encoder, e.g. demjson
 
     def set_preferred_backend(self, name):
         """Sets the preferred json backend.
