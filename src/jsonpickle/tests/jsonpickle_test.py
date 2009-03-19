@@ -401,11 +401,57 @@ class JSONPickleTestCase(unittest.TestCase):
         """
         jsonpickle.load_backend('simplejson', 'dumps', 'loads', ValueError)
 
+    def _backend_is_loaded(self, backend):
+        """Returns True if the specified backend is loaded
+
+        """
+        return (backend in jsonpickle.json._backend_names and
+                backend in jsonpickle.json._encoders and
+                backend in jsonpickle.json._decoders and
+                backend in jsonpickle.json._encoder_options and
+                backend in jsonpickle.json._decoder_exceptions)
+
+    def _backend_is_partially_loaded(self, backend):
+        """Returns True if the specified backend is partially loaded
+
+        """
+        return (backend in jsonpickle.json._backend_names or
+                backend in jsonpickle.json._encoders or
+                backend in jsonpickle.json._decoders or
+                backend in jsonpickle.json._encoder_options or
+                backend in jsonpickle.json._decoder_exceptions)
+
     def test_load_backend_submodule(self):
         """Test that we can load a submodule as a backend
 
         """
         jsonpickle.load_backend('os.path', 'join', 'split', AttributeError)
+        self.assertTrue(self._backend_is_loaded('os.path'))
+
+
+    def test_load_backend_skips_bad_encode(self):
+        """Test that using an invalid encoder skips that backend
+
+        """
+        jsonpickle.load_backend('os.path', 'bad!', 'split', AttributeError)
+        self.assertFalse(self._backend_is_loaded('os.path'))
+        self.assertFalse(self._backend_is_partially_loaded('os.path'))
+
+    def test_load_backend_skips_bad_decode(self):
+        """Test that using an invalid decoder skips that backend
+
+        """
+        jsonpickle.load_backend('os.path', 'join', 'bad!', AttributeError)
+        self.assertFalse(self._backend_is_loaded('os.path'))
+        self.assertFalse(self._backend_is_partially_loaded('os.path'))
+
+    def test_load_backend_skips_bad_decode_exception(self):
+        """Test that using an invalid decoder exception skips that backend
+
+        """
+        jsonpickle.load_backend('os.path', 'join', 'split', 'bad!')
+        self.assertFalse(self._backend_is_loaded('os.path'))
+        self.assertFalse(self._backend_is_partially_loaded('os.path'))
 
 
 def suite():
