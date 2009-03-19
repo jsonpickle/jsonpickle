@@ -144,7 +144,7 @@ class JSONPluginMgr(object):
             self._encoders[name] = getattr(mod, encode_name)
             self._decoders[name] = getattr(mod, decode_name)
         except AttributeError:
-            self._remove_backend(name)
+            self.remove_backend(name)
             return
 
         try:
@@ -155,7 +155,7 @@ class JSONPluginMgr(object):
                 ## simplejson uses the ValueError exception
                 self._decoder_exceptions[name] = decode_exc
         except AttributeError:
-            self._remove_backend(name)
+            self.remove_backend(name)
             return
 
         ## Setup the default args and kwargs for this encoder
@@ -167,8 +167,8 @@ class JSONPluginMgr(object):
         ## Indicate that we successfully loaded a JSON backend
         self._verified = True
 
-    def _remove_backend(self, name):
-        """Removes all entries for a particular backend
+    def remove_backend(self, name):
+        """Removes all entries for a particular backend.
 
         """
         self._encoders.pop(name, None)
@@ -253,6 +253,7 @@ json = JSONPluginMgr()
 set_preferred_backend = json.set_preferred_backend
 set_encoder_options = json.set_encoder_options
 load_backend = json.load_backend
+remove_backend = json.remove_backend
 
 
 def encode(value, unpicklable=True, max_depth=None, **kwargs):
