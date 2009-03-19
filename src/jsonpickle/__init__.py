@@ -6,10 +6,10 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 
-"""Python library for serializing any arbitrary object graph into 
+"""Python library for serializing any arbitrary object graph into
 `JSON <http://www.json.org/>`_.  It can take almost any Python object and turn
 the object into JSON.  Additionally, it can reconstitute the object back into
-Python. 
+Python.
 
     >>> import jsonpickle
     >>> from jsonpickle.tests.classes import Thing
@@ -21,13 +21,13 @@ Create an object.
     A String
 
 Use jsonpickle to transform the object into a JSON string.
-    
+
     >>> pickled = jsonpickle.encode(obj)
     >>> print pickled
     {"py/object": "jsonpickle.tests.classes.Thing", "name": "A String", "child": null}
 
 Use jsonpickle to recreate a Python object from a JSON string
-    
+
     >>> unpickled = jsonpickle.decode(pickled)
     >>> str(unpickled.name)
     'A String'
@@ -35,11 +35,11 @@ Use jsonpickle to recreate a Python object from a JSON string
 .. warning::
 
     Loading a JSON string from an untrusted source represents a potential
-    security vulnerability.  jsonpickle makes no attempt to sanitize the input. 
+    security vulnerability.  jsonpickle makes no attempt to sanitize the input.
 
-The new object has the same type and data, but essentially is now a copy of 
+The new object has the same type and data, but essentially is now a copy of
 the original.
-    
+
     >>> obj == unpickled
     False
     >>> obj.name == unpickled.name
@@ -50,7 +50,7 @@ the original.
 If you will never need to load (regenerate the Python class from JSON), you can
 pass in the keyword unpicklable=False to prevent extra information from being
 added to JSON.
-    
+
     >>> oneway = jsonpickle.encode(obj, unpicklable=False)
     >>> print oneway
     {"name": "A String", "child": null}
@@ -101,11 +101,11 @@ class JSONPluginMgr(object):
     def _verify(self):
         """Ensures that we've loaded at least one JSON backend.
         """
-        if not self._verified:
-            raise AssertionError(
-                    'jsonpickle requires at least one of the following:\n'
-                    '    cjson, json (new in python2.6), simplejson, demjson'
-                    )
+        if self._verified:
+            return
+        raise AssertionError('jsonpickle requires at least one of the '
+                             'following:\n'
+                             '    cjson, python2.6, simplejson, or demjson')
 
     def load_backend(self, name, encode_name, decode_name, decode_exc):
         """Loads a backend by name.
@@ -169,7 +169,6 @@ class JSONPluginMgr(object):
 
     def remove_backend(self, name):
         """Removes all entries for a particular backend.
-
         """
         self._encoders.pop(name, None)
         self._decoders.pop(name, None)

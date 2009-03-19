@@ -42,9 +42,9 @@ class Unpickler(object):
 
     def restore(self, obj):
         """Restores a flattened object to its original python state.
-        
+
         Simply returns any of the basic builtin types
-        
+
         >>> u = Unpickler()
         >>> u.restore('hello world')
         'hello world'
@@ -80,7 +80,7 @@ class Unpickler(object):
                     # fail gracefully if the constructor requires arguments
                     self._mkref(obj)
                     return self._pop(obj)
-            
+
             # keep a obj->name mapping for use in the _isobjref() case
             self._mkref(instance)
 
@@ -163,15 +163,15 @@ class Unpickler(object):
 
 def loadclass(module_and_name):
     """Loads the module and returns the class.
-    
+
     >>> loadclass('jsonpickle.tests.classes.Thing')
     <class 'jsonpickle.tests.classes.Thing'>
 
     >>> loadclass('example.module.does.not.exist.Missing')
-    
+
 
     >>> loadclass('jsonpickle.tests.classes.MissingThing')
-    
+
 
     """
     try:
@@ -182,9 +182,9 @@ def loadclass(module_and_name):
         return None
 
 def loadrepr(reprstr):
-    """Returns an instance of the object from the object's repr() string. It
-    involves the dynamic specification of code.
-    
+    """Returns an instance of the object from the object's repr() string.
+    It involves the dynamic specification of code.
+
     >>> from jsonpickle import tags
     >>> loadrepr('jsonpickle.tests.classes/jsonpickle.tests.classes.Thing("json")')
     jsonpickle.tests.classes.Thing("json")
