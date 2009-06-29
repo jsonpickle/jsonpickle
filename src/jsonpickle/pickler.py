@@ -146,6 +146,9 @@ class Pickler(object):
                     return self._pop([self.flatten(v) for v in obj])
 
                 if has_dict:
+                    if util.is_collection_subclass(obj):
+                        self._flatten_collection_obj(obj, data)
+                        return self._pop(data)
                     return self._pop(self._flatten_dict_obj(obj.__dict__, data))
             else:
                 # We've seen this object before so place an object
@@ -170,6 +173,12 @@ class Pickler(object):
             self._namestack.append(k)
             data[k] = self.flatten(v)
             self._namestack.pop()
+        return data
+
+    def _flatten_collection_obj(self, obj, data):
+        """Return a json-friendly dict for a collection subclass."""
+        self._flatten_dict_obj(obj.__dict__, data)
+        data[tags.SEQ] = [ self.flatten(v) for v in obj ]
         return data
 
 def _mktyperef(obj):

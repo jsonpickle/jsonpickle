@@ -17,6 +17,8 @@ from jsonpickle import tags
 from jsonpickle.tests.classes import Thing
 from jsonpickle.tests.classes import BrokenReprThing
 from jsonpickle.tests.classes import DictSubclass
+from jsonpickle.tests.classes import ListSubclass
+from jsonpickle.tests.classes import SetSubclass
 
 
 class PicklingTestCase(unittest.TestCase):
@@ -67,7 +69,31 @@ class PicklingTestCase(unittest.TestCase):
         listD = []
         self.assertEqual(listD, self.pickler.flatten(listD))
         self.assertEqual(listD, self.unpickler.restore(listD))
-        
+
+    def test_list_subclass(self):
+        obj = ListSubclass()
+        obj.extend([1, 2, 3])
+        flattened = self.pickler.flatten(obj)
+        self.assertTrue(tags.OBJECT in flattened)
+        self.assertTrue(tags.SEQ in flattened)
+        self.assertEqual(len(flattened[tags.SEQ]), 3)
+        for v in obj:
+            self.assertTrue(v in flattened[tags.SEQ])
+        restored = self.unpickler.restore(flattened)
+        self.assertEqual(type(restored), ListSubclass)
+        self.assertEqual(restored, obj)
+
+    def test_list_subclass_with_data(self):
+        obj = ListSubclass()
+        obj.extend([1, 2, 3])
+        data = SetSubclass([1, 2, 3])
+        obj.data = data
+        flattened = self.pickler.flatten(obj)
+        restored = self.unpickler.restore(flattened)
+        self.assertEqual(restored, obj)
+        self.assertEqual(type(restored.data), SetSubclass)
+        self.assertEqual(restored.data, data)
+
     def test_set(self):
         setlist = ['orange', 'apple', 'grape']
         setA = set(setlist)
@@ -78,7 +104,29 @@ class PicklingTestCase(unittest.TestCase):
 
         setA_pickled = {tags.SET: setlist}
         self.assertEqual(setA, self.unpickler.restore(setA_pickled))
-        
+
+    def test_set_subclass(self):
+        obj = SetSubclass([1, 2, 3])
+        flattened = self.pickler.flatten(obj)
+        self.assertTrue(tags.OBJECT in flattened)
+        self.assertTrue(tags.SEQ in flattened)
+        self.assertEqual(len(flattened[tags.SEQ]), 3)
+        for v in obj:
+            self.assertTrue(v in flattened[tags.SEQ])
+        restored = self.unpickler.restore(flattened)
+        self.assertEqual(type(restored), SetSubclass)
+        self.assertEqual(restored, obj)
+
+    def test_set_subclass_with_data(self):
+        obj = SetSubclass([1, 2, 3])
+        data = ListSubclass()
+        data.extend([1, 2, 3])
+        obj.data = data
+        flattened = self.pickler.flatten(obj)
+        restored = self.unpickler.restore(flattened)
+        self.assertEqual(type(restored.data), ListSubclass)
+        self.assertEqual(restored.data, data)
+
     def test_dict(self):
         dictA = {'key1': 1.0, 'key2': 20, 'key3': 'thirty'}
         self.assertEqual(dictA, self.pickler.flatten(dictA))

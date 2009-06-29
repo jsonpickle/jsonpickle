@@ -12,6 +12,7 @@ REPR   = 'py/repr'
 REF    = 'py/ref'
 TUPLE  = 'py/tuple'
 SET    = 'py/set'
+SEQ    = 'py/seq'
 
 # All reserved tag names
-RESERVED = set([OBJECT, TYPE, REPR, REF, TUPLE, SET])
+RESERVED = set([OBJECT, TYPE, REPR, REF, TUPLE, SET, SEQ])

@@ -17,7 +17,10 @@ class Thing(object):
 class DictSubclass(dict):
     name = 'Test'
     
-class ListSubclass(list): 
+class ListSubclass(list):
+    pass
+
+class SetSubclass(set):
     pass
 
 class BrokenReprThing(Thing):

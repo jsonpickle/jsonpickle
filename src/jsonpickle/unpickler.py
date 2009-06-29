@@ -98,6 +98,16 @@ class Unpickler(object):
                     instance.__dict__[k] = value
                 # step out
                 self._namestack.pop()
+
+            # Handle list and set subclasses
+            if has_tag(obj, tags.SEQ):
+                if hasattr(instance, 'append'):
+                    for v in obj[tags.SEQ]:
+                        instance.append(self.restore(v))
+                if hasattr(instance, 'add'):
+                    for v in obj[tags.SEQ]:
+                        instance.add(self.restore(v))
+
             return self._pop(instance)
 
         if util.is_list(obj):
