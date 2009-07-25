@@ -321,7 +321,17 @@ class PicklingTestCase(unittest.TestCase):
         flattened = self.pickler.flatten(obj)
         inflated = self.unpickler.restore(flattened)
         self.assertEqual(inflated.themodule, os)
-            
+
+    def test_thing_with_submodule(self):
+        from distutils import sysconfig
+
+        obj = Thing('with-submodule')
+        obj.submodule = sysconfig
+
+        flattened = self.pickler.flatten(obj)
+        inflated = self.unpickler.restore(flattened)
+        self.assertEqual(inflated.submodule, sysconfig)
+
     def test_datetime_date(self):
         obj = datetime.datetime.now().date()
 
