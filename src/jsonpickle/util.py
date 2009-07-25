@@ -175,3 +175,13 @@ def is_function(obj):
     name = obj.__class__.__name__
     return (module == '__builtin__' and
             name in ('function', 'builtin_function_or_method'))
+
+def is_module(obj):
+    """Returns true if passed a module
+
+    >>> import os
+    >>> is_module(os)
+    True
+
+    """
+    return type(obj) is types.ModuleType

@@ -126,10 +126,19 @@ class Pickler(object):
             has_class = hasattr(obj, '__class__')
             has_dict = hasattr(obj, '__dict__')
             if self._mkref(obj):
-                if has_class and not util.is_repr(obj):
+                if (has_class and not util.is_repr(obj) and
+                        not util.is_module(obj)):
                     module, name = _getclassdetail(obj)
                     if self.unpicklable is True:
                         data[tags.OBJECT] = '%s.%s' % (module, name)
+
+                if util.is_module(obj):
+                    if self.unpicklable is True:
+                        data[tags.REPR] = '%s/%s' % (obj.__name__,
+                                                     obj.__name__)
+                    else:
+                        data = unicode(obj)
+                    return self._pop(data)
 
                 if util.is_repr(obj):
                     if self.unpicklable is True:

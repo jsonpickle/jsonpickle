@@ -6,6 +6,7 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 
+import os
 import doctest
 import unittest
 import datetime
@@ -312,6 +313,14 @@ class PicklingTestCase(unittest.TestCase):
         self.assertFalse(tags.REPR in flattened)
         self.assertFalse(tags.OBJECT in flattened)
         self.assertEqual(str(obj), flattened)
+
+    def test_thing_with_module(self):
+        obj = Thing('with-module')
+        obj.themodule = os
+
+        flattened = self.pickler.flatten(obj)
+        inflated = self.unpickler.restore(flattened)
+        self.assertEqual(inflated.themodule, os)
             
     def test_datetime_date(self):
         obj = datetime.datetime.now().date()
