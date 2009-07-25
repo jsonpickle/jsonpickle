@@ -7,6 +7,7 @@
 # you should have received as part of this distribution.
 
 import os
+import sys
 import doctest
 import unittest
 import datetime

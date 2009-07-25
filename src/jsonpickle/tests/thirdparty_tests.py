@@ -61,7 +61,7 @@ class FeedParserTest(unittest.TestCase):
     def setUp(self):
         #self.doc = feedparser.parse("http://feedparser.org/docs/examples/atom10.xml")
         self.doc = feedparser.parse(RSS_DOC)
-        
+
     def test(self):
         pickled = jsonpickle.encode(self.doc)
         unpickled = jsonpickle.decode(pickled)

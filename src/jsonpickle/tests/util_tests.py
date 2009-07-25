@@ -67,18 +67,18 @@ class IsPrimitiveTestCase(unittest.TestCase):
 class IsCollection(unittest.TestCase):
     def test_list(self):
         self.assertTrue(is_list([1, 2]))
-    
+
     def test_set(self):
         self.assertTrue(is_set(set([1, 2])))
-        
+
     def test_tuple(self):
         self.assertTrue(is_tuple((1, 2)))
-        
+
     def test_dict(self):
         self.assertFalse(is_list({'key':'value'}))
         self.assertFalse(is_set({'key':'value'}))
         self.assertFalse(is_tuple({'key':'value'}))
-    
+
     def test_other(self):
         self.assertFalse(is_list(1))
         self.assertFalse(is_set(1))
@@ -87,28 +87,28 @@ class IsCollection(unittest.TestCase):
 class IsDictionary(unittest.TestCase):
     def test_dict(self):
         self.assertTrue(is_dictionary({'key':'value'}))
-    
+
     def test_list(self):
         self.assertFalse(is_dictionary([1, 2]))
 
 class IsDictionarySubclass(unittest.TestCase):
     def test_subclass(self):
         self.assertTrue(is_dictionary_subclass(DictSubclass()))
-    
+
     def test_dict(self):
         self.assertFalse(is_dictionary_subclass({'key':'value'}))
 
 class IsCollectionSubclass(unittest.TestCase):
     def test_subclass(self):
         self.assertTrue(is_collection_subclass(ListSubclass()))
-    
+
     def test_list(self):
         self.assertFalse(is_collection_subclass([]))
 
 class IsNonComplex(unittest.TestCase):
     def setUp(self):
         self.time = time.struct_time('123456789')
-        
+
     def test_time_struct(self):
         self.assertTrue(is_noncomplex(self.time))
 
@@ -118,22 +118,22 @@ class IsNonComplex(unittest.TestCase):
 class IsRepr(unittest.TestCase):
     def setUp(self):
         self.time = datetime.datetime.now()
-        
+
     def test_datetime(self):
         self.assertTrue(is_repr(self.time))
-        
+
     def test_date(self):
         self.assertTrue(is_repr(self.time.date()))
-    
+
     def test_time(self):
         self.assertTrue(is_repr(self.time.time()))
-        
+
     def test_timedelta(self):
         self.assertTrue(is_repr(datetime.timedelta(4)))
-        
+
     def test_object(self):
         self.assertFalse(is_repr(object()))
-    
+
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(IsPrimitiveTestCase))
