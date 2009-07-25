@@ -26,33 +26,33 @@ class PicklingTestCase(unittest.TestCase):
     def setUp(self):
         self.pickler = jsonpickle.pickler.Pickler()
         self.unpickler = jsonpickle.unpickler.Unpickler()
-        
+
     def test_string(self):
         self.assertEqual('a string', self.pickler.flatten('a string'))
         self.assertEqual('a string', self.unpickler.restore('a string'))
-    
+
     def test_unicode(self):
         self.assertEqual(u'a string', self.pickler.flatten(u'a string'))
         self.assertEqual(u'a string', self.unpickler.restore(u'a string'))
-    
+
     def test_int(self):
         self.assertEqual(3, self.pickler.flatten(3))
         self.assertEqual(3, self.unpickler.restore(3))
-    
+
     def test_float(self):
         self.assertEqual(3.5, self.pickler.flatten(3.5))
         self.assertEqual(3.5, self.unpickler.restore(3.5))
-    
-    def test_boolean(self):    
+
+    def test_boolean(self):
         self.assertTrue(self.pickler.flatten(True))
         self.assertFalse(self.pickler.flatten(False))
         self.assertTrue(self.unpickler.restore(True))
         self.assertFalse(self.unpickler.restore(False))
-    
+
     def test_none(self):
         self.assertTrue(self.pickler.flatten(None) is None)
         self.assertTrue(self.unpickler.restore(None) is None)
-    
+
     def test_list(self):
         # multiple types of values
         listA = [1, 35.0, 'value']
@@ -135,7 +135,7 @@ class PicklingTestCase(unittest.TestCase):
         dictB = {}
         self.assertEqual(dictB, self.pickler.flatten(dictB))
         self.assertEqual(dictB, self.unpickler.restore(dictB))
-    
+
     def test_tuple(self):
         # currently all collections are converted to lists
         tupleA = (4, 16, 32)
@@ -161,52 +161,52 @@ class PicklingTestCase(unittest.TestCase):
         data = [1,2,3]
         newdata = jsonpickle.decode(jsonpickle.encode(data))
         self.assertEqual(data, newdata)
-        
+
     def test_class(self):
         inst = Thing('test name')
-        inst.child = Thing('child name') 
-        
+        inst.child = Thing('child name')
+
         flattened = self.pickler.flatten(inst)
         self.assertEqual('test name', flattened['name'])
         child = flattened['child']
         self.assertEqual('child name', child['name'])
-        
+
         inflated = self.unpickler.restore(flattened)
         self.assertEqual('test name', inflated.name)
         self.assertTrue(type(inflated) is Thing)
         self.assertEqual('child name', inflated.child.name)
         self.assertTrue(type(inflated.child) is Thing)
-    
+
     def test_classlist(self):
         array = [Thing('one'), Thing('two'), 'a string']
-        
+
         flattened = self.pickler.flatten(array)
         self.assertEqual('one', flattened[0]['name'])
         self.assertEqual('two', flattened[1]['name'])
-        self.assertEqual('a string', flattened[2])        
-        
+        self.assertEqual('a string', flattened[2])
+
         inflated = self.unpickler.restore(flattened)
         self.assertEqual('one', inflated[0].name)
         self.assertTrue(type(inflated[0]) is Thing)
         self.assertEqual('two', inflated[1].name)
         self.assertTrue(type(inflated[1]) is Thing)
         self.assertEqual('a string', inflated[2])
-        
+
     def test_classdict(self):
         dict = {'k1':Thing('one'), 'k2':Thing('two'), 'k3':3}
-        
+
         flattened = self.pickler.flatten(dict)
         self.assertEqual('one', flattened['k1']['name'])
         self.assertEqual('two', flattened['k2']['name'])
-        self.assertEqual(3, flattened['k3'])        
-        
+        self.assertEqual(3, flattened['k3'])
+
         inflated = self.unpickler.restore(flattened)
         self.assertEqual('one', inflated['k1'].name)
         self.assertTrue(type(inflated['k1']) is Thing)
         self.assertEqual('two', inflated['k2'].name)
         self.assertTrue(type(inflated['k2']) is Thing)
         self.assertEqual(3, inflated['k3'])
-        
+
         #TODO show that non string keys fail
 
     def test_recursive(self):
@@ -241,26 +241,26 @@ class PicklingTestCase(unittest.TestCase):
 
     def test_oldstyleclass(self):
         from pickle import _EmptyClass
-        
+
         obj = _EmptyClass()
         obj.value = 1234
-        
+
         flattened = self.pickler.flatten(obj)
         self.assertEqual(1234, flattened['value'])
-        
+
         inflated = self.unpickler.restore(flattened)
         self.assertEqual(1234, inflated.value)
-        
+
     def test_struct_time(self):
         t = time.struct_time('123456789')
-        
+
         flattened = self.pickler.flatten(t)
         self.assertEqual(['1', '2', '3', '4', '5', '6', '7', '8', '9'], flattened)
-         
+
     def test_dictsubclass(self):
         obj = DictSubclass()
         obj['key1'] = 1
-        
+
         flattened = self.pickler.flatten(obj)
         self.assertEqual({'key1': 1,
                           tags.OBJECT: 'jsonpickle.tests.classes.DictSubclass'
@@ -268,30 +268,30 @@ class PicklingTestCase(unittest.TestCase):
                          flattened)
         self.assertEqual(flattened[tags.OBJECT],
                          'jsonpickle.tests.classes.DictSubclass')
-        
+
         inflated = self.unpickler.restore(flattened)
         self.assertEqual(1, inflated['key1'])
 
     def test_dictsubclass_notunpickable(self):
         self.pickler.unpicklable = False
-        
+
         obj = DictSubclass()
         obj['key1'] = 1
-                
+
         flattened = self.pickler.flatten(obj)
         self.assertEqual(1, flattened['key1'])
         self.assertFalse(tags.OBJECT in flattened)
-        
+
         inflated = self.unpickler.restore(flattened)
         self.assertEqual(1, inflated['key1'])
 
     def test_datetime(self):
         obj = datetime.datetime.now()
-        
+
         flattened = self.pickler.flatten(obj)
         self.assertTrue(repr(obj) in flattened[tags.REPR])
         self.assertTrue('datetime' in flattened[tags.REPR])
-        
+
         inflated = self.unpickler.restore(flattened)
         self.assertEqual(obj, inflated)
 
@@ -305,7 +305,7 @@ class PicklingTestCase(unittest.TestCase):
         flattened = pickler.flatten(obj)
         self.assertTrue('<BrokenReprThing "test">' in flattened)
         self.assertTrue(flattened['<BrokenReprThing "test">'])
-    
+
     def test_repr_not_unpickable(self):
         obj = datetime.datetime.now()
         pickler = jsonpickle.pickler.Pickler(unpicklable=False)
@@ -324,34 +324,34 @@ class PicklingTestCase(unittest.TestCase):
             
     def test_datetime_date(self):
         obj = datetime.datetime.now().date()
-        
+
         flattened = self.pickler.flatten(obj)
         self.assertTrue(repr(obj) in flattened[tags.REPR])
         self.assertTrue('datetime' in flattened[tags.REPR])
-        
+
         inflated = self.unpickler.restore(flattened)
         self.assertEqual(obj, inflated)
-        
+
     def test_datetime_time(self):
         obj = datetime.datetime.now().time()
-        
+
         flattened = self.pickler.flatten(obj)
         self.assertTrue(repr(obj) in flattened[tags.REPR])
         self.assertTrue('datetime' in flattened[tags.REPR])
-        
+
         inflated = self.unpickler.restore(flattened)
         self.assertEqual(obj, inflated)
-        
+
     def test_datetime_timedelta(self):
         obj = datetime.timedelta(5)
-        
+
         flattened = self.pickler.flatten(obj)
         self.assertTrue(repr(obj) in flattened[tags.REPR])
         self.assertTrue('datetime' in flattened[tags.REPR])
-        
+
         inflated = self.unpickler.restore(flattened)
         self.assertEqual(obj, inflated)
-        
+
     def test_type_reference(self):
         """This test ensures that users can store references to types.
         """
@@ -390,24 +390,24 @@ class JSONPickleTestCase(unittest.TestCase):
         self.obj = Thing('A name')
         self.expected_json = ('{"'+tags.OBJECT+'": "jsonpickle.tests.classes.Thing",'
                               ' "name": "A name", "child": null}')
-        
+
     def test_encode(self):
         pickled = jsonpickle.encode(self.obj)
         self.assertEqual(self.expected_json, pickled)
-    
+
     def test_encode_notunpicklable(self):
         pickled = jsonpickle.encode(self.obj, unpicklable=False)
         self.assertEqual('{"name": "A name", "child": null}', pickled)
-    
+
     def test_decode(self):
         unpickled = jsonpickle.decode(self.expected_json)
         self.assertEqual(self.obj.name, unpickled.name)
         self.assertEqual(type(self.obj), type(unpickled))
-    
+
     def test_json(self):
         pickled = jsonpickle.encode(self.obj)
         self.assertEqual(self.expected_json, pickled)
-        
+
         unpickled = jsonpickle.decode(self.expected_json)
         self.assertEqual(self.obj.name, unpickled.name)
         self.assertEqual(type(self.obj), type(unpickled))
