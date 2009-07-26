@@ -174,6 +174,8 @@ class Pickler(object):
         if has_dict:
             if util.is_collection_subclass(obj):
                 return self._flatten_collection_obj(obj, data)
+            # hack for zope persistent objects, this unghostifies the object
+            getattr(obj, '_', None)
             return self._flatten_dict_obj(obj.__dict__, data)
 
         if has_slots:
