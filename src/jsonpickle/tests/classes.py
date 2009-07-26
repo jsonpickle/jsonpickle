@@ -65,12 +65,6 @@ class ThingWithProps(object):
         return self.identity == other.identity
 
 
-class ThingWithSlots(object):
-    __slots__ = ('a', 'b')
-    def __init__(self, a, b):
-        self.a = a
-        self.b = b
-    
 class DictSubclass(dict):
     name = 'Test'
     
