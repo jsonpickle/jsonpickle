@@ -7,7 +7,10 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 
+import sys
 import timeit
+
+IS_25_DOWN = sys.version_info[:2] <= (2, 5)
 
 number = 1000
 
@@ -17,7 +20,7 @@ import jsonpickle
 import jsonpickle.tests.thirdparty_tests as test
 doc = feedparser.parse(test.RSS_DOC)
 
-jsonpickle._use_cjson()
+jsonpickle.set_preferred_backend('cjson')
 
 pickled = jsonpickle.encode(doc)
 unpickled = jsonpickle.decode(pickled)
@@ -30,21 +33,24 @@ cjson_test = timeit.Timer(stmt=cjson)
 print "%.9f sec/pass " % (cjson_test.timeit(number=number) / number)
 
 
-simplejson = """\
+mod = 'json'
+if IS_25_DOWN:
+    mod = 'simplejson'
+
+json = """\
 import feedparser
 import jsonpickle
 import jsonpickle.tests.thirdparty_tests as test
 doc = feedparser.parse(test.RSS_DOC)
 
-jsonpickle._use_simplejson()
+jsonpickle.set_preferred_backend('%s')
 
 pickled = jsonpickle.encode(doc)
 unpickled = jsonpickle.decode(pickled)
 if doc['feed']['title'] != unpickled['feed']['title']:
     print 'Not a match'
-"""
+""" % mod
 
-print 'Using simplejson'
-simplejson_test = timeit.Timer(stmt=simplejson)
-print "%.9f sec/pass " % (simplejson_test.timeit(number=number) / number)
-
+print 'Using %s' % mod
+json_test = timeit.Timer(stmt=json)
+print "%.9f sec/pass " % (json_test.timeit(number=number) / number)
