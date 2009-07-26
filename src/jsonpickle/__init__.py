@@ -178,7 +178,7 @@ class JSONPluginMgr(object):
             self._backend_names.remove(name)
         self._verified = bool(self._backend_names)
 
-    def encode(self, obj, **kwargs):
+    def encode(self, obj):
         """Attempts to encode an object into JSON.
 
         This tries the loaded backends in order and passes along the last
@@ -189,7 +189,6 @@ class JSONPluginMgr(object):
             try:
                 optargs, optkwargs = self._encoder_options[name]
                 encoder_kwargs = optkwargs.copy()
-                encoder_kwargs.update(kwargs)
                 encoder_args = (obj,) + tuple(optargs)
                 return self._encoders[name](*encoder_args, **encoder_kwargs)
             except Exception:
@@ -259,7 +258,7 @@ load_backend = json.load_backend
 remove_backend = json.remove_backend
 
 
-def encode(value, unpicklable=True, max_depth=None, **kwargs):
+def encode(value, unpicklable=True, max_depth=None):
     """Returns a JSON formatted representation of value, a Python object.
 
     The keyword argument 'unpicklable' defaults to True.
@@ -289,7 +288,7 @@ def encode(value, unpicklable=True, max_depth=None, **kwargs):
     """
     j = Pickler(unpicklable=unpicklable,
                 max_depth=max_depth)
-    return json.encode(j.flatten(value), **kwargs)
+    return json.encode(j.flatten(value))
 
 def decode(string):
     """Converts the JSON string into a Python object.
