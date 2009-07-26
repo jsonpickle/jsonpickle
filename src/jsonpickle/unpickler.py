@@ -84,6 +84,11 @@ class Unpickler(object):
             # keep a obj->name mapping for use in the _isobjref() case
             self._mkref(instance)
 
+            if hasattr(instance, '__setstate__') and has_tag(obj, tags.STATE):
+                state = self.restore(obj[tags.STATE])
+                instance.__setstate__(state)
+                return self._pop(instance)
+
             for k, v in obj.iteritems():
                 # ignore the reserved attribute
                 if k in tags.RESERVED:

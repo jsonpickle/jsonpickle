@@ -141,7 +141,9 @@ class Pickler(object):
         data = {}
         has_class = hasattr(obj, '__class__')
         has_dict = hasattr(obj, '__dict__')
-        has_slots = hasattr(obj, '__slots__')
+        has_slots = not has_dict and hasattr(obj, '__slots__')
+        has_getstate = has_dict and hasattr(obj, '__getstate__')
+        has_getstate_support = has_getstate and hasattr(obj, '__setstate__')
 
         if (has_class and not util.is_repr(obj) and
                 not util.is_module(obj)):
@@ -172,9 +174,17 @@ class Pickler(object):
             return [self.flatten(v) for v in obj]
 
         if has_dict:
+            # Support objects that subclasses list and set
             if util.is_collection_subclass(obj):
                 return self._flatten_collection_obj(obj, data)
-            # hack for zope persistent objects, this unghostifies the object
+
+            # Support objects with __getstate__(); this ensures that
+            # both __setstate__() and __getstate__() are implemented
+            if has_getstate_support:
+                data[tags.STATE] = self.flatten(obj.__getstate__())
+                return data
+
+            # hack for zope persistent objects; this unghostifies the object
             getattr(obj, '_', None)
             return self._flatten_dict_obj(obj.__dict__, data)
 

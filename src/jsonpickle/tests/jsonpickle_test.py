@@ -17,6 +17,7 @@ from jsonpickle import tags
 
 from jsonpickle.tests.classes import Thing
 from jsonpickle.tests.classes import ThingWithSlots
+from jsonpickle.tests.classes import ThingWithProps
 from jsonpickle.tests.classes import BrokenReprThing
 from jsonpickle.tests.classes import DictSubclass
 from jsonpickle.tests.classes import ListSubclass
@@ -409,6 +410,14 @@ class PicklingTestCase(unittest.TestCase):
 
         inflated = self.unpickler.restore(flattened)
         self.assertEqual(inflated.classref, Thing)
+
+    def test_supports_getstate_setstate(self):
+        obj = ThingWithProps('object-which-defines-getstate-setstate')
+        flattened = self.pickler.flatten(obj)
+        self.assertTrue(flattened[tags.STATE].get('__identity__'))
+        self.assertTrue(flattened[tags.STATE].get('nom'))
+        inflated = self.unpickler.restore(flattened)
+        self.assertEqual(obj, inflated)
 
 
 class JSONPickleTestCase(unittest.TestCase):
