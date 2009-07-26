@@ -13,6 +13,8 @@ import time
 import types
 import datetime
 
+from jsonpickle import tags
+
 COLLECTIONS = set, list, tuple
 PRIMITIVES = str, unicode, int, float, bool, long
 NEEDS_REPR = (datetime.datetime, datetime.time, datetime.date, 
@@ -174,10 +176,13 @@ def is_function(obj):
     module = obj.__class__.__module__
     name = obj.__class__.__name__
     return (module == '__builtin__' and
-            name in ('function', 'builtin_function_or_method'))
+            name in ('function',
+                     'builtin_function_or_method',
+                     'instancemethod',
+                     'method-wrapper'))
 
 def is_module(obj):
-    """Returns true if passed a module
+    """Returns True if passed a module
 
     >>> import os
     >>> is_module(os)
@@ -185,3 +190,19 @@ def is_module(obj):
 
     """
     return type(obj) is types.ModuleType
+
+def is_picklable(name, value):
+    """Return True if an object cannot be pickled
+
+    >>> import os
+    >>> is_picklable('os', os)
+    True
+
+    >>> def foo(): pass
+    >>> is_picklable('foo', foo)
+    False
+
+    """
+    if name in tags.RESERVED:
+        return False
+    return not is_function(value)

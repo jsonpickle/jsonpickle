@@ -16,6 +16,7 @@ import jsonpickle
 from jsonpickle import tags
 
 from jsonpickle.tests.classes import Thing
+from jsonpickle.tests.classes import ThingWithSlots
 from jsonpickle.tests.classes import BrokenReprThing
 from jsonpickle.tests.classes import DictSubclass
 from jsonpickle.tests.classes import ListSubclass
@@ -239,6 +240,20 @@ class PicklingTestCase(unittest.TestCase):
         self.assertEqual(cloned.child,
                          cloned.child.twin)
 
+    def test_newstyleslots(self):
+        obj = ThingWithSlots(True, False)
+        jsonstr = jsonpickle.encode(obj)
+        newobj = jsonpickle.decode(jsonstr)
+        self.assertTrue(newobj.a)
+        self.assertFalse(newobj.b)
+
+    def test_newstyleslots_with_children(self):
+        obj = ThingWithSlots(Thing('a'), Thing('b'))
+        jsonstr = jsonpickle.encode(obj)
+        newobj = jsonpickle.decode(jsonstr)
+        self.assertEqual(newobj.a.name, 'a')
+        self.assertEqual(newobj.b.name, 'b')
+
     def test_oldstyleclass(self):
         from pickle import _EmptyClass
 
@@ -271,6 +286,7 @@ class PicklingTestCase(unittest.TestCase):
 
         inflated = self.unpickler.restore(flattened)
         self.assertEqual(1, inflated['key1'])
+        self.assertEqual(inflated.name, 'Test')
 
     def test_dictsubclass_notunpickable(self):
         self.pickler.unpicklable = False

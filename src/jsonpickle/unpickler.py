@@ -95,7 +95,7 @@ class Unpickler(object):
                         util.is_dictionary_subclass(instance)):
                     instance[k] = value
                 else:
-                    instance.__dict__[k] = value
+                    setattr(instance, k, value)
                 # step out
                 self._namestack.pop()
 

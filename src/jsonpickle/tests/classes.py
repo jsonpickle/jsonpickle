@@ -13,6 +13,12 @@ class Thing(object):
         
     def __repr__(self):
         return 'jsonpickle.tests.classes.Thing("%s")' % self.name
+
+class ThingWithSlots(object):
+    __slots__ = ('a', 'b')
+    def __init__(self, a, b):
+        self.a = a
+        self.b = b
     
 class DictSubclass(dict):
     name = 'Test'
