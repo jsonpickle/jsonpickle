@@ -6,6 +6,9 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 
+from jsonpickle.compat import set
+
+
 class Thing(object):
     def __init__(self, name):
         self.name = name

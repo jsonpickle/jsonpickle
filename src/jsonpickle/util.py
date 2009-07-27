@@ -14,6 +14,7 @@ import types
 import datetime
 
 from jsonpickle import tags
+from jsonpickle.compat import set
 
 COLLECTIONS = set, list, tuple
 PRIMITIVES = str, unicode, int, float, bool, long
