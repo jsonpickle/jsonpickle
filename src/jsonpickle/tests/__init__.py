@@ -13,7 +13,7 @@ import jsonpickle.tests.jsonpickle_test
 import jsonpickle.tests.thirdparty_tests
 
 def suite():
-    suite = unittest.TestSuite()    
+    suite = unittest.TestSuite()
     suite.addTest(jsonpickle.tests.util_tests.suite())
     suite.addTest(jsonpickle.tests.jsonpickle_test.suite())
     suite.addTest(jsonpickle.tests.thirdparty_tests.suite())
@@ -22,6 +22,6 @@ def suite():
 def main():
     #unittest.main(defaultTest='suite')
     unittest.TextTestRunner(verbosity=2).run(suite())
-    
+
 if __name__ == '__main__':
     main()

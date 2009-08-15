@@ -6,7 +6,7 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 
-"""Helper functions for pickling and unpickling.  Most functions assist in 
+"""Helper functions for pickling and unpickling.  Most functions assist in
 determining the type of an object.
 """
 import time
@@ -17,7 +17,7 @@ from jsonpickle import tags
 
 COLLECTIONS = set, list, tuple
 PRIMITIVES = str, unicode, int, float, bool, long
-NEEDS_REPR = (datetime.datetime, datetime.time, datetime.date, 
+NEEDS_REPR = (datetime.datetime, datetime.time, datetime.date,
               datetime.timedelta)
 
 def is_type(obj):
@@ -52,10 +52,10 @@ def is_object(obj):
             type(obj) is not types.FunctionType)
 
 def is_primitive(obj):
-    """Helper method to see if the object is a basic data type. Strings, 
-    integers, longs, floats, booleans, and None are considered primitive 
+    """Helper method to see if the object is a basic data type. Strings,
+    integers, longs, floats, booleans, and None are considered primitive
     and will return True when passed into *is_primitive()*
-    
+
     >>> is_primitive(3)
     True
     >>> is_primitive([4,4])
@@ -69,14 +69,14 @@ def is_primitive(obj):
 
 def is_dictionary(obj):
     """Helper method for testing if the object is a dictionary.
-    
+
     >>> is_dictionary({'key':'value'})
     True
-    """   
+    """
     return type(obj) is dict
 
 def is_collection(obj):
-    """Helper method to see if the object is a Python collection (list, 
+    """Helper method to see if the object is a Python collection (list,
     set, or tuple).
     >>> is_collection([4])
     True
@@ -85,7 +85,7 @@ def is_collection(obj):
 
 def is_list(obj):
     """Helper method to see if the object is a Python list.
-    
+
     >>> is_list([4])
     True
     """
@@ -93,7 +93,7 @@ def is_list(obj):
 
 def is_set(obj):
     """Helper method to see if the object is a Python set.
-    
+
     >>> is_set(set())
     True
     """
@@ -101,28 +101,28 @@ def is_set(obj):
 
 def is_tuple(obj):
     """Helper method to see if the object is a Python tuple.
-    
+
     >>> is_tuple((1,))
     True
     """
     return type(obj) is tuple
 
 def is_dictionary_subclass(obj):
-    """Returns True if *obj* is a subclass of the dict type. *obj* must be 
+    """Returns True if *obj* is a subclass of the dict type. *obj* must be
     a subclass and not the actual builtin dict.
-    
+
     >>> class Temp(dict): pass
     >>> is_dictionary_subclass(Temp())
     True
     """
     return (hasattr(obj, '__class__') and
             issubclass(obj.__class__, dict) and not is_dictionary(obj))
- 
+
 def is_collection_subclass(obj):
     """Returns True if *obj* is a subclass of a collection type, such as list
     set, tuple, etc.. *obj* must be a subclass and not the actual builtin, such
     as list, set, tuple, etc..
-    
+
     >>> class Temp(list): pass
     >>> is_collection_subclass(Temp())
     True
@@ -131,9 +131,9 @@ def is_collection_subclass(obj):
     return issubclass(obj.__class__, COLLECTIONS) and not is_collection(obj)
 
 def is_noncomplex(obj):
-    """Returns True if *obj* is a special (weird) class, that is complex than 
+    """Returns True if *obj* is a special (weird) class, that is complex than
     primitive data types, but is not a full object. Including:
-    
+
         * :class:`~time.struct_time`
     """
     if type(obj) is time.struct_time:
@@ -141,9 +141,9 @@ def is_noncomplex(obj):
     return False
 
 def is_repr(obj):
-    """Returns True if the *obj* must be encoded and decoded using the 
+    """Returns True if the *obj* must be encoded and decoded using the
     :func:`repr` function. Including:
-        
+
         * :class:`~datetime.datetime`
         * :class:`~datetime.date`
         * :class:`~datetime.time`

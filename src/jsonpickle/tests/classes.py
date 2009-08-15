@@ -10,7 +10,7 @@ class Thing(object):
     def __init__(self, name):
         self.name = name
         self.child = None
-        
+
     def __repr__(self):
         return 'jsonpickle.tests.classes.Thing("%s")' % self.name
 
@@ -20,7 +20,7 @@ class ThingWithSlots(object):
     def __init__(self, a, b):
         self.a = a
         self.b = b
-    
+
 
 class ThingWithProps(object):
 
@@ -67,7 +67,7 @@ class ThingWithProps(object):
 
 class DictSubclass(dict):
     name = 'Test'
-    
+
 
 class ListSubclass(list):
     pass
