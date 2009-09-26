@@ -221,7 +221,7 @@ var Search = {
       var params = $.getQueryParameters();
       if (params.q) {
           var query = params.q[0];
-          $('input[@name="q"]')[0].value = query;
+          $('input[name="q"]')[0].value = query;
           this.performSearch(query);
       }
   },
@@ -239,7 +239,7 @@ var Search = {
   },
 
   hasIndex : function() {
-      return self._index !== null;
+      return this._index !== null;
   },
 
   deferQuery : function(query) {
@@ -283,12 +283,17 @@ var Search = {
     if (this.hasIndex())
       this.query(query);
     else
-      this.setQuery(query);
+      this.deferQuery(query);
   },
 
   query : function(query) {
-    // stem the searchterms and add them to the
-    // correct list
+    var stopwords = ['and', 'then', 'into', 'it', 'as', 'are', 'in',
+                     'if', 'for', 'no', 'there', 'their', 'was', 'is',
+                     'be', 'to', 'that', 'but', 'they', 'not', 'such',
+                     'with', 'by', 'a', 'on', 'these', 'of', 'will',
+                     'this', 'near', 'the', 'or', 'at'];
+
+    // stem the searchterms and add them to the correct list
     var stemmer = new PorterStemmer();
     var searchterms = [];
     var excluded = [];
@@ -296,6 +301,10 @@ var Search = {
     var tmp = query.split(/\s+/);
     var object = (tmp.length == 1) ? tmp[0].toLowerCase() : null;
     for (var i = 0; i < tmp.length; i++) {
+      if (stopwords.indexOf(tmp[i]) != -1 || tmp[i].match(/^\d+$/)) {
+        // skip this word
+        continue;
+      }
       // stem the word
       var word = stemmer.stemWord(tmp[i]).toLowerCase();
       // select the correct list
@@ -341,9 +350,9 @@ var Search = {
       }
       for (var prefix in descrefs) {
         for (var name in descrefs[prefix]) {
-          if (name.toLowerCase().indexOf(object) > -1) {
+          var fullname = (prefix ? prefix + '.' : '') + name;
+          if (fullname.toLowerCase().indexOf(object) > -1) {
             match = descrefs[prefix][name];
-            fullname = (prefix ? prefix + '.' : '') + name;
             descr = desctypes[match[1]] + _(', in ') + titles[match[0]];
             objectResults.push([filenames[match[0]], fullname, '#'+fullname, descr]);
           }
@@ -431,13 +440,19 @@ var Search = {
           listItem.slideDown(5, function() {
             displayNextItem();
           });
-        } else {
+        } else if (DOCUMENTATION_OPTIONS.HAS_SOURCE) {
           $.get('_sources/' + item[0] + '.txt', function(data) {
             listItem.append($.makeSearchSummary(data, searchterms, hlterms));
             Search.output.append(listItem);
             listItem.slideDown(5, function() {
               displayNextItem();
             });
+          });
+        } else {
+          // no source available, just display title
+          Search.output.append(listItem);
+          listItem.slideDown(5, function() {
+            displayNextItem();
           });
         }
       }

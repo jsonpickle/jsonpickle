@@ -1,25 +1,26 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml">
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>jsonpickle Usage &mdash; jsonpickle v0.2.0a documentation</title>
+    <title>jsonpickle Usage &mdash; jsonpickle v0.2.0 documentation</title>
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-          URL_ROOT:    '',
-          VERSION:     '0.2.0a',
-          COLLAPSE_MODINDEX: false,
-          FILE_SUFFIX: '.html'
+        URL_ROOT:    '',
+        VERSION:     '0.2.0',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="jsonpickle v0.2.0a documentation" href="" />
-    <link rel="next" title="jsonpickle &#8211; High Level API" href="api.html" /> 
+    <link rel="top" title="jsonpickle v0.2.0 documentation" href="" />
+    <link rel="next" title="jsonpickle – High Level API" href="api.html" /> 
   </head>
   <body>
     <div class="related">
@@ -32,34 +33,34 @@
           <a href="modindex.html" title="Global Module Index"
              accesskey="M">modules</a> |</li>
         <li class="right" >
-          <a href="api.html" title="jsonpickle &#8211; High Level API"
+          <a href="api.html" title="jsonpickle – High Level API"
              accesskey="N">next</a> |</li>
-        <li><a href="">jsonpickle v0.2.0a documentation</a> &raquo;</li> 
+        <li><a href="">jsonpickle v0.2.0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
+
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
           <div class="body">
             
-  
-  <div class="contents topic">
-<p class="topic-title first"><a id="contents" name="contents">Contents</a></p>
+  <div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
 <ul class="simple">
-<li><a class="reference" href="#module-jsonpickle" id="id1" name="id1">jsonpickle Usage</a></li>
-<li><a class="reference" href="#download-install" id="id2" name="id2">Download &amp; Install</a></li>
-<li><a class="reference" href="#api-reference" id="id3" name="id3">API Reference</a></li>
-<li><a class="reference" href="#contributing" id="id4" name="id4">Contributing</a></li>
-<li><a class="reference" href="#contact" id="id5" name="id5">Contact</a></li>
-<li><a class="reference" href="#authors" id="id6" name="id6">Authors</a></li>
-<li><a class="reference" href="#change-log" id="id7" name="id7">Change Log</a></li>
-<li><a class="reference" href="#license" id="id8" name="id8">License</a></li>
+<li><a class="reference internal" href="#module-jsonpickle" id="id1">jsonpickle Usage</a></li>
+<li><a class="reference internal" href="#download-install" id="id2">Download &amp; Install</a></li>
+<li><a class="reference internal" href="#api-reference" id="id3">API Reference</a></li>
+<li><a class="reference internal" href="#contributing" id="id4">Contributing</a></li>
+<li><a class="reference internal" href="#contact" id="id5">Contact</a></li>
+<li><a class="reference internal" href="#authors" id="id6">Authors</a></li>
+<li><a class="reference internal" href="#change-log" id="id7">Change Log</a></li>
+<li><a class="reference internal" href="#license" id="id8">License</a></li>
 </ul>
 </div>
 <div class="section" id="module-jsonpickle">
-<h1><a class="toc-backref" href="#id1">jsonpickle Usage<a class="headerlink" href="#module-jsonpickle" title="Permalink to this headline">¶</a></a></h1>
-<p>Python library for serializing any arbitrary object graph into 
-<a class="reference" href="http://www.json.org/">JSON</a>.  It can take almost any Python object and turn
+<h1><a class="toc-backref" href="#id1">jsonpickle Usage</a><a class="headerlink" href="#module-jsonpickle" title="Permalink to this headline">¶</a></h1>
+<p>Python library for serializing any arbitrary object graph into
+<a class="reference external" href="http://www.json.org/">JSON</a>.  It can take almost any Python object and turn
 the object into JSON.  Additionally, it can reconstitute the object back into
 Python.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">jsonpickle</span>
@@ -89,7 +90,7 @@ Python.</p>
 <p class="last">Loading a JSON string from an untrusted source represents a potential
 security vulnerability.  jsonpickle makes no attempt to sanitize the input.</p>
 </div>
-<p>The new object has the same type and data, but essentially is now a copy of 
+<p>The new object has the same type and data, but essentially is now a copy of
 the original.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">==</span> <span class="n">unpickled</span>
 <span class="go">False</span>
@@ -109,41 +110,41 @@ added to JSON.</p>
 </div>
 </div>
 <div class="section" id="download-install">
-<h1><a class="toc-backref" href="#id2">Download &amp; Install<a class="headerlink" href="#download-install" title="Permalink to this headline">¶</a></a></h1>
-<p>The easiest way to get jsonpickle is via <a class="reference" href="http://pypi.python.org/">PyPi</a>:</p>
+<h1><a class="toc-backref" href="#id2">Download &amp; Install</a><a class="headerlink" href="#download-install" title="Permalink to this headline">¶</a></h1>
+<p>The easiest way to get jsonpickle is via <a class="reference external" href="http://pypi.python.org/">PyPi</a>:</p>
 <div class="highlight-python"><pre>$ easy_install jsonpickle</pre>
 </div>
-<p>You can also <a class="reference" href="http://code.google.com/p/jsonpickle/downloads/list">download</a> or <a class="reference" href="#jsonpickle-contrib-checkout"><em>checkout</em></a> the
+<p>You can also <a class="reference external" href="http://code.google.com/p/jsonpickle/downloads/list">download</a> or <a class="reference internal" href="#jsonpickle-contrib-checkout"><em>checkout</em></a> the
 latest code:</p>
 <div class="highlight-python"><pre>$ python setup.py install</pre>
 </div>
 </div>
 <div class="section" id="api-reference">
-<h1><a class="toc-backref" href="#id3">API Reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></a></h1>
+<h1><a class="toc-backref" href="#id3">API Reference</a><a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h1>
 <ul>
-<li class="toctree-l1"><a class="reference" href="api.html"><tt class="docutils literal"><span class="pre">jsonpickle</span></tt> &#8211; High Level API</a></li>
-<li class="toctree-l1"><a class="reference" href="api.html#low-level-api">Low Level API</a><ul>
-<li class="toctree-l2"><a class="reference" href="api.html#module-jsonpickle.pickler"><tt class="docutils literal"><span class="pre">jsonpickle.picker</span></tt> &#8211; Python to JSON</a></li>
-<li class="toctree-l2"><a class="reference" href="api.html#module-jsonpickle.unpickler"><tt class="docutils literal"><span class="pre">jsonpickle.unpickler</span></tt> &#8211; JSON to Python</a></li>
-<li class="toctree-l2"><a class="reference" href="api.html#module-jsonpickle.util"><tt class="docutils literal"><span class="pre">jsonpickle.util</span></tt> &#8211; Helper functions</a></li>
+<li class="toctree-l1"><a class="reference external" href="api.html"><tt class="docutils literal"><span class="pre">jsonpickle</span></tt> &#8211; High Level API</a></li>
+<li class="toctree-l1"><a class="reference external" href="api.html#low-level-api">Low Level API</a><ul>
+<li class="toctree-l2"><a class="reference external" href="api.html#module-jsonpickle.pickler"><tt class="docutils literal"><span class="pre">jsonpickle.pickler</span></tt> &#8211; Python to JSON</a></li>
+<li class="toctree-l2"><a class="reference external" href="api.html#module-jsonpickle.unpickler"><tt class="docutils literal"><span class="pre">jsonpickle.unpickler</span></tt> &#8211; JSON to Python</a></li>
+<li class="toctree-l2"><a class="reference external" href="api.html#module-jsonpickle.util"><tt class="docutils literal"><span class="pre">jsonpickle.util</span></tt> &#8211; Helper functions</a></li>
 </ul>
 </li>
 </ul>
 </div>
 <div class="section" id="contributing">
-<h1><a class="toc-backref" href="#id4">Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">¶</a></a></h1>
+<h1><a class="toc-backref" href="#id4">Contributing</a><a class="headerlink" href="#contributing" title="Permalink to this headline">¶</a></h1>
 <div class="highlight-python" id="jsonpickle-contrib-checkout"><pre>svn checkout http://jsonpickle.googlecode.com/svn/trunk/ jsonpickle</pre>
 </div>
 </div>
 <div class="section" id="contact">
-<h1><a class="toc-backref" href="#id5">Contact<a class="headerlink" href="#contact" title="Permalink to this headline">¶</a></a></h1>
-<p>Please join our <a class="reference" href="http://groups.google.com/group/jsonpickle">mailing list</a>.
+<h1><a class="toc-backref" href="#id5">Contact</a><a class="headerlink" href="#contact" title="Permalink to this headline">¶</a></h1>
+<p>Please join our <a class="reference external" href="http://groups.google.com/group/jsonpickle">mailing list</a>.
 You can send email to <em>jsonpickle&#64;googlegroups.com</em>.</p>
-<p>Check <a class="reference" href="http://blog.7oars.com">http://blog.7oars.com</a> and <a class="reference" href="http://code.google.com/p/jsonpickle/">http://code.google.com/p/jsonpickle/</a> for
+<p>Check <a class="reference external" href="http://blog.7oars.com">http://blog.7oars.com</a> and <a class="reference external" href="http://code.google.com/p/jsonpickle/">http://code.google.com/p/jsonpickle/</a> for
 project updates.</p>
 </div>
 <div class="section" id="authors">
-<h1><a class="toc-backref" href="#id6">Authors<a class="headerlink" href="#authors" title="Permalink to this headline">¶</a></a></h1>
+<h1><a class="toc-backref" href="#id6">Authors</a><a class="headerlink" href="#authors" title="Permalink to this headline">¶</a></h1>
 <blockquote>
 <ul class="simple">
 <li>John Paulett (john -at- 7oars.com)</li>
@@ -152,7 +153,7 @@ project updates.</p>
 </blockquote>
 </div>
 <div class="section" id="change-log">
-<h1><a class="toc-backref" href="#id7">Change Log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></a></h1>
+<h1><a class="toc-backref" href="#id7">Change Log</a><a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h1>
 <dl class="docutils">
 <dt>Version 0.2.0 - January 10, 2009</dt>
 <dd><ul class="first last simple">
@@ -166,8 +167,8 @@ simplejson, cjson, and demjson)</li>
 <li>Support for Google App Engine and Django</li>
 <li>Tons of additional testing and bug reports (Antonin Hildebrand, Sorin,
 Roberto Saccon, Faber Fedor,
-<a class="reference" href="http://github.com/darwin/firepython/tree/master">FirePython</a>, and
-<a class="reference" href="http://code.google.com/p/joose-js/">Joose</a>)</li>
+<a class="reference external" href="http://github.com/darwin/firepython/tree/master">FirePython</a>, and
+<a class="reference external" href="http://code.google.com/p/joose-js/">Joose</a>)</li>
 </ul>
 </dd>
 <dt>Version 0.1.0 - August 21, 2008</dt>
@@ -205,9 +206,9 @@ requirements (Thanks Dean Landolt). Break backwards compatibility.</li>
 Initial release</p>
 </div>
 <div class="section" id="license">
-<h1><a class="toc-backref" href="#id8">License<a class="headerlink" href="#license" title="Permalink to this headline">¶</a></a></h1>
+<h1><a class="toc-backref" href="#id8">License</a><a class="headerlink" href="#license" title="Permalink to this headline">¶</a></h1>
 <p>jsonpickle is provided under a
-<a class="reference" href="http://code.google.com/p/jsonpickle/source/browse/trunk/src/COPYING">New BSD license</a>,</p>
+<a class="reference external" href="http://code.google.com/p/jsonpickle/source/browse/trunk/src/COPYING">New BSD license</a>,</p>
 <p>Copyright (C) 2008-2009 John Paulett (john -at- 7oars.com)</p>
 </div>
 
@@ -219,30 +220,39 @@ Initial release</p>
         <div class="sphinxsidebarwrapper">
             <h3><a href="">Table Of Contents</a></h3>
             <ul>
-<li><a class="reference" href="">jsonpickle Usage</a></li>
-<li><a class="reference" href="#download-install">Download &amp; Install</a></li>
-<li><a class="reference" href="#api-reference">API Reference</a><ul>
+<li><a class="reference external" href="">jsonpickle Usage</a></li>
+<li><a class="reference external" href="#download-install">Download &amp; Install</a></li>
+<li><a class="reference external" href="#api-reference">API Reference</a><ul>
 </ul>
 </li>
-<li><a class="reference" href="#contributing">Contributing</a></li>
-<li><a class="reference" href="#contact">Contact</a></li>
-<li><a class="reference" href="#authors">Authors</a></li>
-<li><a class="reference" href="#change-log">Change Log</a></li>
-<li><a class="reference" href="#license">License</a></li>
+<li><a class="reference external" href="#contributing">Contributing</a></li>
+<li><a class="reference external" href="#contact">Contact</a></li>
+<li><a class="reference external" href="#authors">Authors</a></li>
+<li><a class="reference external" href="#change-log">Change Log</a></li>
+<li><a class="reference external" href="#license">License</a></li>
 </ul>
 
             <h4>Next topic</h4>
-            <p class="topless"><a href="api.html" title="next chapter"><tt class="docutils literal"><span class="pre">jsonpickle</span></tt> &#8211; High Level API</a></p>
+            <p class="topless"><a href="api.html"
+                                  title="next chapter"><tt class="docutils literal docutils literal"><span class="pre">jsonpickle</span></tt> &#8211; High Level API</a></p>
             <h3>This Page</h3>
             <ul class="this-page-menu">
-              <li><a href="_sources/index.txt">Show Source</a></li>
+              <li><a href="_sources/index.txt"
+                     rel="nofollow">Show Source</a></li>
             </ul>
-          <h3>Quick search</h3>
-            <form class="search" action="search.html" method="get">
-              <input type="text" name="q" size="18" /> <input type="submit" value="Go" />
-              <input type="hidden" name="check_keywords" value="yes" />
-              <input type="hidden" name="area" value="default" />
-            </form>
+          <div id="searchbox" style="display: none">
+            <h3>Quick search</h3>
+              <form class="search" action="search.html" method="get">
+                <input type="text" name="q" size="18" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+              </form>
+              <p class="searchtip" style="font-size: 90%">
+              Enter search terms or a module, class or function name.
+              </p>
+          </div>
+          <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -252,19 +262,19 @@ Initial release</p>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
+             >index</a></li>
         <li class="right" >
           <a href="modindex.html" title="Global Module Index"
-             accesskey="M">modules</a> |</li>
+             >modules</a> |</li>
         <li class="right" >
-          <a href="api.html" title="jsonpickle &#8211; High Level API"
-             accesskey="N">next</a> |</li>
-        <li><a href="">jsonpickle v0.2.0a documentation</a> &raquo;</li> 
+          <a href="api.html" title="jsonpickle – High Level API"
+             >next</a> |</li>
+        <li><a href="">jsonpickle v0.2.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-      &copy; Copyright 2008, John Paulett.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.5.
+        &copy; Copyright 2008, John Paulett.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.
     </div>
   </body>
 </html>

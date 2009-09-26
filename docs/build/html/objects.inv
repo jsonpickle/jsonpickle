@@ -7,8 +7,10 @@ jsonpickle mod index.html
 jsonpickle.util mod api.html
 jsonpickle.util.is_tuple function api.html
 jsonpickle.util.is_repr function api.html
+jsonpickle.util.is_module function api.html
 jsonpickle.util.is_dictionary_subclass function api.html
 jsonpickle.unpickler.loadclass function api.html
+jsonpickle.util.is_picklable function api.html
 jsonpickle.unpickler.loadrepr function api.html
 jsonpickle.util.is_noncomplex function api.html
 jsonpickle.pickler.Pickler.flatten method api.html
