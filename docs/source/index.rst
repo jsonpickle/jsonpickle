@@ -57,11 +57,14 @@ project updates.
 Authors
 =======
 
- * John Paulett (john -at- 7oars.com)
+ * John Paulett (john -at- paulett.org)
  * David Aguilar (davvid -at- gmail.com)
 
 Change Log
 ==========
+Version 0.3.0 - Upcoming
+    * Refactored project layout.
+
 
 Version 0.2.0 - January 10, 2009
     * Support for all major Python JSON backends (including json in Python 2.6,
@@ -110,5 +113,5 @@ License
 jsonpickle is provided under a 
 `New BSD license <http://code.google.com/p/jsonpickle/source/browse/trunk/src/COPYING>`_, 
 
-Copyright (C) 2008-2009 John Paulett (john -at- 7oars.com)
+Copyright (C) 2008-2009 John Paulett (john -at- paulett.org)
 

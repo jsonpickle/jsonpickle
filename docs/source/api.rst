@@ -24,7 +24,7 @@ Low Level API
 Typically this low level functionality is not needed by clients.
 
 :mod:`jsonpickle.pickler` -- Python to JSON
-------------------------------------------
+-------------------------------------------
 
 .. automodule:: jsonpickle.pickler
     :members:
