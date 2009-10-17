@@ -33,6 +33,9 @@ def is_type(obj):
     >>> is_type(Klass)
     True
     """
+    #FIXME "<class" seems like a hack. It will incorrectly return True
+    # for any class that does not define a custom __repr__ in a
+    # module that starts with "class" (e.g. "classify.SomeClass")
     return type(obj) is types.TypeType or repr(obj).startswith('<class')
 
 def is_object(obj):

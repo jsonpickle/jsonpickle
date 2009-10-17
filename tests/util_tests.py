@@ -13,7 +13,7 @@ import datetime
 
 import jsonpickle.util
 from jsonpickle.util import *
-from jsonpickle.tests.classes import Thing, ListSubclass, DictSubclass
+from samples import Thing, ListSubclass, DictSubclass
 
 class IsPrimitiveTestCase(unittest.TestCase):
     def test_int(self):

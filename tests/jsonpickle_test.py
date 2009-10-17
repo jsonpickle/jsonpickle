@@ -15,14 +15,7 @@ import time
 import jsonpickle
 from jsonpickle import tags
 
-from jsonpickle.tests.classes import Thing
-from jsonpickle.tests.classes import ThingWithSlots
-from jsonpickle.tests.classes import ThingWithProps
-from jsonpickle.tests.classes import BrokenReprThing
-from jsonpickle.tests.classes import DictSubclass
-from jsonpickle.tests.classes import ListSubclass
-from jsonpickle.tests.classes import SetSubclass
-
+from samples import Thing, ThingWithSlots, ThingWithProps, BrokenReprThing, DictSubclass, ListSubclass, SetSubclass
 
 class PicklingTestCase(unittest.TestCase):
     def setUp(self):
@@ -279,11 +272,11 @@ class PicklingTestCase(unittest.TestCase):
 
         flattened = self.pickler.flatten(obj)
         self.assertEqual({'key1': 1,
-                          tags.OBJECT: 'jsonpickle.tests.classes.DictSubclass'
+                          tags.OBJECT: 'samples.DictSubclass'
                          },
                          flattened)
         self.assertEqual(flattened[tags.OBJECT],
-                         'jsonpickle.tests.classes.DictSubclass')
+                         'samples.DictSubclass')
 
         inflated = self.unpickler.restore(flattened)
         self.assertEqual(1, inflated['key1'])
@@ -405,7 +398,7 @@ class PicklingTestCase(unittest.TestCase):
 
         flattened = self.pickler.flatten(obj)
         self.assertEqual(flattened['classref'], {
-                            tags.TYPE: 'jsonpickle.tests.classes.Thing',
+                            tags.TYPE: 'samples.Thing',
                          })
 
         inflated = self.unpickler.restore(flattened)
@@ -413,6 +406,7 @@ class PicklingTestCase(unittest.TestCase):
 
     def test_supports_getstate_setstate(self):
         obj = ThingWithProps('object-which-defines-getstate-setstate')
+        print dir(obj)
         flattened = self.pickler.flatten(obj)
         self.assertTrue(flattened[tags.STATE].get('__identity__'))
         self.assertTrue(flattened[tags.STATE].get('nom'))
@@ -423,7 +417,7 @@ class PicklingTestCase(unittest.TestCase):
 class JSONPickleTestCase(unittest.TestCase):
     def setUp(self):
         self.obj = Thing('A name')
-        self.expected_json = ('{"'+tags.OBJECT+'": "jsonpickle.tests.classes.Thing",'
+        self.expected_json = ('{"'+tags.OBJECT+'": "samples.Thing",'
                               ' "name": "A name", "child": null}')
 
     def test_encode(self):
@@ -485,7 +479,7 @@ class JSONPickleTestCase(unittest.TestCase):
         pickled = jsonpickle.encode({Thing('random'): True})
         unpickled = jsonpickle.decode(pickled)
         self.assertEqual(unpickled,
-                         {u'jsonpickle.tests.classes.Thing("random")': True})
+                         {u'samples.Thing("random")': True})
 
     def test_load_backend(self):
         """Test that we can call jsonpickle.load_backend()

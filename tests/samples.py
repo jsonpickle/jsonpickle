@@ -12,7 +12,7 @@ class Thing(object):
         self.child = None
 
     def __repr__(self):
-        return 'jsonpickle.tests.classes.Thing("%s")' % self.name
+        return 'samples.Thing("%s")' % self.name
 
 
 class ThingWithSlots(object):

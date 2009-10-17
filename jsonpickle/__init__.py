@@ -12,7 +12,7 @@ the object into JSON.  Additionally, it can reconstitute the object back into
 Python.
 
     >>> import jsonpickle
-    >>> from jsonpickle.tests.classes import Thing
+    >>> from samples import Thing
 
 Create an object.
 
@@ -24,7 +24,7 @@ Use jsonpickle to transform the object into a JSON string.
 
     >>> pickled = jsonpickle.encode(obj)
     >>> print pickled
-    {"py/object": "jsonpickle.tests.classes.Thing", "name": "A String", "child": null}
+    {"py/object": "samples.Thing", "name": "A String", "child": null}
 
 Use jsonpickle to recreate a Python object from a JSON string
 
@@ -60,7 +60,7 @@ added to JSON.
 from jsonpickle.pickler import Pickler
 from jsonpickle.unpickler import Unpickler
 
-__version__ = '0.2.0'
+__version__ = '0.3.0'
 __all__ = ('encode', 'decode')
 
 
