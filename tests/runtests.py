@@ -7,6 +7,10 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 
+import os
+import sys
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
 import unittest
 
 import util_tests
