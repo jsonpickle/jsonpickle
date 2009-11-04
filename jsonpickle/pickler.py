@@ -8,6 +8,7 @@
 import types
 import jsonpickle.util as util
 import jsonpickle.tags as tags
+import jsonpickle.handlers as handlers
 
 
 class Pickler(object):
@@ -144,13 +145,18 @@ class Pickler(object):
         has_slots = not has_dict and hasattr(obj, '__slots__')
         has_getstate = has_dict and hasattr(obj, '__getstate__')
         has_getstate_support = has_getstate and hasattr(obj, '__setstate__')
-
+        HandlerClass = handlers.registry.get( type(obj) )
+        
         if (has_class and not util.is_repr(obj) and
                 not util.is_module(obj)):
             module, name = _getclassdetail(obj)
             if self.unpicklable is True:
                 data[tags.OBJECT] = '%s.%s' % (module, name)
-
+            # Check for a custom handler
+            if HandlerClass: 
+                handler = HandlerClass( self )
+                return handler.flatten( obj, data )
+            
         if util.is_module(obj):
             if self.unpicklable is True:
                 data[tags.REPR] = '%s/%s' % (obj.__name__,
