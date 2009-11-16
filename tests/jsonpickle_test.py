@@ -13,6 +13,7 @@ import datetime
 import time
 
 import jsonpickle
+from jsonpickle import handlers
 from jsonpickle import tags
 
 from samples import Thing, ThingWithSlots, ThingWithProps, BrokenReprThing, DictSubclass, ListSubclass, SetSubclass
@@ -538,10 +539,55 @@ class JSONPickleTestCase(unittest.TestCase):
         self.failIf(self._backend_is_partially_loaded('os.path'))
 
 
+# Test classes for ExternalHandlerTestCase
+class Mixin(object):
+    def ok(self):
+        return True
+
+
+class UnicodeMixin(unicode, Mixin):
+    def __add__(self, rhs):
+        obj = super(UnicodeMixin, self).__add__(rhs)
+        return UnicodeMixin(obj)
+
+
+class UnicodeMixinHandler(handlers.BaseHandler):
+    def flatten(self, obj, data):
+        data['value'] = obj
+        return data
+
+    def restore(self, obj):
+        return UnicodeMixin(obj['value'])
+
+
+class ExternalHandlerTestCase(unittest.TestCase):
+    def setUp(self):
+        handlers.registry.register(UnicodeMixin, UnicodeMixinHandler)
+
+    def tearDown(self):
+        handlers.registry.unregister(UnicodeMixin)
+
+    def test_unicode_mixin(self):
+        obj = UnicodeMixin('test')
+        self.assertEqual(unicode(obj), u'test')
+
+        # Encode into JSON
+        content = jsonpickle.encode(obj)
+
+        # Resurrect from JSON
+        new_obj = jsonpickle.decode(content)
+        new_obj += ' passed'
+
+        self.assertEqual(unicode(new_obj), u'test passed')
+        self.assertEqual(type(new_obj), UnicodeMixin)
+        self.assertTrue(new_obj.ok())
+
+
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(PicklingTestCase))
     suite.addTest(unittest.makeSuite(JSONPickleTestCase))
+    suite.addTest(unittest.makeSuite(ExternalHandlerTestCase))
     suite.addTest(doctest.DocTestSuite(jsonpickle.pickler))
     suite.addTest(doctest.DocTestSuite(jsonpickle.unpickler))
     suite.addTest(doctest.DocTestSuite(jsonpickle))
