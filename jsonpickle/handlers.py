@@ -48,6 +48,16 @@ class Registry(object):
         self.REGISTRY[cls] = handler
         return handler
 
+    def unregister(self, cls):
+        """
+        Unregister hander.
+
+        :Parameters:
+          - `cls`: Object class
+        """
+        if cls in self.REGISTRY:
+            del self.REGISTRY[cls]
+
     def get(self, cls):
         """
         Get the customer handler for `obj` (if any)
