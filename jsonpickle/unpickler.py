@@ -73,7 +73,7 @@ class Unpickler(object):
                 return self._pop(obj)
 
             # check custom handlers
-            HandlerClass = handlers.registry.get( cls )
+            HandlerClass = handlers.registry.get(cls)
             if HandlerClass:
                 handler = HandlerClass(self)
                 return self._pop(handler.restore(obj))
