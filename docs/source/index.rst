@@ -64,7 +64,8 @@ Change Log
 ==========
 Version 0.3.0 - Upcoming
     * Refactored project layout.
-
+    * Support for user-defined serialization handlers via the
+      jsonpickle.handlers registry.
 
 Version 0.2.0 - January 10, 2009
     * Support for all major Python JSON backends (including json in Python 2.6,
@@ -79,7 +80,6 @@ Version 0.2.0 - January 10, 2009
       Roberto Saccon, Faber Fedor, 
       `FirePython <http://github.com/darwin/firepython/tree/master>`_, and
       `Joose <http://code.google.com/p/joose-js/>`_)
-      
 
 Version 0.1.0 - August 21, 2008
     * Added long as basic primitive (thanks Adam Fisk)
