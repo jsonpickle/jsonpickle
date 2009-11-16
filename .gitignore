@@ -1,4 +1,5 @@
 *.pyc
+*.swp
 env/
 build/
 dist/
