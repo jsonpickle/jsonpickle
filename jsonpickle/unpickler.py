@@ -9,6 +9,7 @@
 import sys
 import jsonpickle.util as util
 import jsonpickle.tags as tags
+import jsonpickle.handlers as handlers
 
 
 class Unpickler(object):
@@ -70,6 +71,13 @@ class Unpickler(object):
             cls = loadclass(obj[tags.OBJECT])
             if not cls:
                 return self._pop(obj)
+
+            # check custom handlers
+            HandlerClass = handlers.registry.get( cls )
+            if HandlerClass:
+                handler = HandlerClass(self)
+                return self._pop(handler.restore(obj))
+
             try:
                 instance = object.__new__(cls)
             except TypeError:
