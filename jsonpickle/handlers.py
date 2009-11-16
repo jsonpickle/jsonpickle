@@ -36,15 +36,16 @@ class BaseHandler(object):
 class Registry(object):
     REGISTRY = {}
 
-    def register(self, type, handler):
+    def register(self, cls, handler):
         """
         Register handler.
 
         :Parameters:
+          - `cls`: Object class
           - `handler`: `BaseHandler` subclass
 
         """
-        self.REGISTRY[type] = handler
+        self.REGISTRY[cls] = handler
         return handler
 
     def get(self, cls):
