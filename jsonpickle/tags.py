@@ -13,6 +13,7 @@ REF    = 'py/ref'
 TUPLE  = 'py/tuple'
 SET    = 'py/set'
 SEQ    = 'py/seq'
+DICT_KEY = 'py/dict_key'
 STATE = 'py/state'
 
 # All reserved tag names

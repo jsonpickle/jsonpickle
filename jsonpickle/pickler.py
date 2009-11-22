@@ -10,7 +10,6 @@ import jsonpickle.util as util
 import jsonpickle.tags as tags
 import jsonpickle.handlers as handlers
 
-
 class Pickler(object):
     """Converts a Python object to a JSON representation.
 
@@ -216,10 +215,8 @@ class Pickler(object):
         if not util.is_picklable(k, v):
             return data
         if type(k) not in types.StringTypes:
-            try:
-                k = repr(k)
-            except:
-                k = unicode(k)
+            from jsonpickle import encode
+            k = tags.DICT_KEY + " " + encode(k)
         self._namestack.append(k)
         data[k] = self.flatten(v)
         self._namestack.pop()
