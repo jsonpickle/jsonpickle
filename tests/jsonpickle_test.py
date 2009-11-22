@@ -464,6 +464,15 @@ class JSONPickleTestCase(unittest.TestCase):
         self.assertEqual(unpickled.values()[0][0], unpickled.values()[0][1])
         #self.assertEqual(unpickled.keys()[0], unpickled.values()[0][0])
 
+    def test_list_of_objects(self):
+        """Test that objects in lists are referenced correctly"""
+        a = Thing('a')
+        b = Thing('b')
+        pickled = jsonpickle.encode([a, b, b])
+        unpickled = jsonpickle.decode(pickled)
+        self.assertEqual(unpickled[1], unpickled[2])
+
+
     def test_load_backend(self):
         """Test that we can call jsonpickle.load_backend()
 
