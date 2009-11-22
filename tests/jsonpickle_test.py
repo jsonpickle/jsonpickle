@@ -620,6 +620,40 @@ class JSONPickleTestCase(unittest.TestCase):
         self.assertEqual(unpickled[1].name, 'b')
         self.assertEqual(unpickled[2].name, 'b')
 
+    def test_refs_keys_values(self):
+        """Test that objects in dict keys are referenced correctly
+        """
+        j = Thing('random')
+        object_dict = {j: j}
+        pickled = jsonpickle.encode(object_dict, keys=True)
+        unpickled = jsonpickle.decode(pickled, keys=True)
+        self.assertEqual(list(unpickled.keys()), list(unpickled.values()))
+
+    def test_refs_in_objects(self):
+        """Test that objects in lists are referenced correctly"""
+        a = Thing('a')
+        b = Thing('b')
+        pickled = jsonpickle.encode([a, b, b])
+        unpickled = jsonpickle.decode(pickled)
+        self.assertEqual(unpickled[1], unpickled[2])
+
+    def test_refs_recursive(self):
+        """Test that complicated recursive refs work"""
+
+        a = Thing('a')
+        a.self_list = [Thing('0'), Thing('1'), Thing('2')]
+        a.first = a.self_list[0]
+        a.stuff = {a.first: a.first}
+        a.morestuff = {a.self_list[1]: a.stuff}
+
+        pickle = jsonpickle.encode(a, keys=True)
+        b = jsonpickle.decode(pickle, keys=True)
+
+        item = b.self_list[0]
+        self.assertEqual(b.first, item)
+        self.assertEqual(b.stuff[b.first], item)
+        self.assertEqual(b.morestuff[b.self_list[1]][b.first], item)
+
     def test_load_backend(self):
         """Test that we can call jsonpickle.load_backend()
 
