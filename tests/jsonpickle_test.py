@@ -453,24 +453,19 @@ class JSONPickleTestCase(unittest.TestCase):
         unpickled = jsonpickle.decode(pickled)
         self.assertEqual(unpickled, datetime_dict)
 
-    def test_object_dict_keys(self):
+    def test_non_string_dict_keys(self):
         """Test that we handle random objects as keys.
 
         """
-        j = Thing('random')
-        object_dict = {j: [1, 2]}
-        pickled = jsonpickle.encode(object_dict)
+        int_dict = {1000: [1, 2]}
+        pickled = jsonpickle.encode(int_dict)
         unpickled = jsonpickle.decode(pickled)
-        self.assertEqual(unpickled[j], [1, 2])
+        self.assertEqual(unpickled[1000], [1, 2])
 
-    def test_list_of_objects(self):
-        """Test that objects in lists are referenced correctly"""
-        a = Thing('a')
-        b = Thing('b')
-        pickled = jsonpickle.encode([a, b, b])
+        tuple_dict = {(1, 2): [1, 2]}
+        pickled = jsonpickle.encode(tuple_dict)
         unpickled = jsonpickle.decode(pickled)
-        self.assertEqual(unpickled[1], unpickled[2])
-
+        self.assertEqual(unpickled[(1, 2)], [1, 2])
 
     def test_load_backend(self):
         """Test that we can call jsonpickle.load_backend()
