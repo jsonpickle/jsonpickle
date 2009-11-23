@@ -187,10 +187,11 @@ class JSONPluginMgr(object):
         self._verify()
         for idx, name in enumerate(self._backend_names):
             try:
-                optargs, kwargs = self._encoder_options[name]
-                args = (obj,) + tuple(optargs)
-                return self._encoders[name](*args, **kwargs)
-            except:
+                optargs, optkwargs = self._encoder_options[name]
+                encoder_kwargs = optkwargs.copy()
+                encoder_args = (obj,) + tuple(optargs)
+                return self._encoders[name](*encoder_args, **encoder_kwargs)
+            except Exception:
                 if idx == len(self._backend_names) - 1:
                     raise
 
@@ -257,7 +258,7 @@ load_backend = json.load_backend
 remove_backend = json.remove_backend
 
 
-def encode(value, unpicklable=True, max_depth=None, **kwargs):
+def encode(value, unpicklable=True, max_depth=None):
     """Returns a JSON formatted representation of value, a Python object.
 
     The keyword argument 'unpicklable' defaults to True.

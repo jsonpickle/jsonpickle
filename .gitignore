@@ -1,6 +1,6 @@
+tags
 *.pyc
+*.egg-info
 *.swp
-env/
-build/
-dist/
-jsonpickle.egg-info/
+build
+dist
