@@ -10,6 +10,7 @@ import sys
 import jsonpickle.util as util
 import jsonpickle.tags as tags
 import jsonpickle.handlers as handlers
+from jsonpickle.compat import set
 
 
 class Unpickler(object):
