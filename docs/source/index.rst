@@ -14,14 +14,14 @@ Download & Install
 ==================
 
 The easiest way to get jsonpickle is via PyPi_::
-    
+
     $ easy_install jsonpickle
-    
-You can also download_ or :ref:`checkout <jsonpickle-contrib-checkout>` the 
+
+You can also download_ or :ref:`checkout <jsonpickle-contrib-checkout>` the
 latest code::
 
-    $ python setup.py install   
-    
+    $ python setup.py install
+
 .. _PyPi: http://pypi.python.org/
 .. _download: http://code.google.com/p/jsonpickle/downloads/list
 
@@ -31,7 +31,7 @@ API Reference
 
 .. toctree::
    :maxdepth: 3
-   
+
    api
 
 Contributing
@@ -43,14 +43,14 @@ Contributing
 
     svn checkout http://jsonpickle.googlecode.com/svn/trunk/ jsonpickle
 
-   
+
 Contact
 =======
 
-Please join our `mailing list <http://groups.google.com/group/jsonpickle>`_.  
-You can send email to *jsonpickle@googlegroups.com*.  
+Please join our `mailing list <http://groups.google.com/group/jsonpickle>`_.
+You can send email to *jsonpickle@googlegroups.com*.
 
-Check http://blog.7oars.com and http://code.google.com/p/jsonpickle/ for 
+Check http://blog.7oars.com and http://code.google.com/p/jsonpickle/ for
 project updates.
 
 
@@ -70,14 +70,14 @@ Version 0.3.0 - Upcoming
 Version 0.2.0 - January 10, 2009
     * Support for all major Python JSON backends (including json in Python 2.6,
       simplejson, cjson, and demjson)
-    * Handle several datetime objects using the repr() of the objects 
+    * Handle several datetime objects using the repr() of the objects
       (Thanks to Antonin Hildebrand).
     * Sphinx documentation
     * Added support for recursive data structures
     * Unicode dict-keys support
     * Support for Google App Engine and Django
-    * Tons of additional testing and bug reports (Antonin Hildebrand, Sorin, 
-      Roberto Saccon, Faber Fedor, 
+    * Tons of additional testing and bug reports (Antonin Hildebrand, Sorin,
+      Roberto Saccon, Faber Fedor,
       `FirePython <http://github.com/darwin/firepython/tree/master>`_, and
       `Joose <http://code.google.com/p/joose-js/>`_)
 
@@ -89,13 +89,13 @@ Version 0.1.0 - August 21, 2008
     * Added benchmark.py to compare simplejson and python-cjson
 
 Version 0.0.5 - July 21, 2008
-    * Changed prefix of special fields to conform with CouchDB 
+    * Changed prefix of special fields to conform with CouchDB
       requirements (Thanks Dean Landolt). Break backwards compatibility.
     * Moved to Google Code subversion
     * Fixed unit test imports
 
 Version 0.0.3
-    * Convert back to setup.py from pavement.py (issue found by spidaman) 
+    * Convert back to setup.py from pavement.py (issue found by spidaman)
 
 Version 0.0.2
     * Handle feedparser's FeedParserDict
@@ -106,12 +106,11 @@ Version 0.0.2
 Version 0.0.1
 Initial release
 
-   
+
 License
 =======
 
-jsonpickle is provided under a 
-`New BSD license <http://code.google.com/p/jsonpickle/source/browse/trunk/src/COPYING>`_, 
+jsonpickle is provided under a
+`New BSD license <http://code.google.com/p/jsonpickle/source/browse/trunk/src/COPYING>`_,
 
 Copyright (C) 2008-2009 John Paulett (john -at- paulett.org)
-
