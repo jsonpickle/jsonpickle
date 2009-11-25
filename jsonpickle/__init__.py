@@ -74,6 +74,7 @@ class JSONPluginMgr(object):
     json comes with python2.6 and is tried second.
     simplejson is a very popular backend and is tried third.
     demjson is the most permissive backend and is tried last.
+
     """
     def __init__(self):
         ## The names of backends that have been successfully imported
@@ -108,7 +109,8 @@ class JSONPluginMgr(object):
                              '    cjson, python2.6, simplejson, or demjson')
 
     def load_backend(self, name, encode_name, decode_name, decode_exc):
-        """Loads a backend by name.
+        """
+        Load a JSON backend by name.
 
         This method loads a backend and sets up references to that
         backend's encode/decode functions and exception classes.
@@ -168,8 +170,7 @@ class JSONPluginMgr(object):
         self._verified = True
 
     def remove_backend(self, name):
-        """Removes all entries for a particular backend.
-        """
+        """Remove all entries for a particular backend."""
         self._encoders.pop(name, None)
         self._decoders.pop(name, None)
         self._decoder_exceptions.pop(name, None)
@@ -179,10 +180,12 @@ class JSONPluginMgr(object):
         self._verified = bool(self._backend_names)
 
     def encode(self, obj):
-        """Attempts to encode an object into JSON.
+        """
+        Attempt to encode an object into JSON.
 
         This tries the loaded backends in order and passes along the last
         exception if no backend is able to encode the object.
+
         """
         self._verify()
         for idx, name in enumerate(self._backend_names):
@@ -196,10 +199,12 @@ class JSONPluginMgr(object):
                     raise
 
     def decode(self, string):
-        """Attempts to decode an object from a JSON string.
+        """
+        Attempt to decode an object from a JSON string.
 
         This tries the loaded backends in order and passes along the last
         exception if no backends are able to decode the string.
+
         """
         self._verify()
         for idx, name in enumerate(self._backend_names):
@@ -212,7 +217,8 @@ class JSONPluginMgr(object):
                     pass # and try a more forgiving encoder, e.g. demjson
 
     def set_preferred_backend(self, name):
-        """Sets the preferred json backend.
+        """
+        Set the preferred json backend.
 
         If a preferred backend is set then jsonpickle tries to use it
         before any other backend.
@@ -233,7 +239,8 @@ class JSONPluginMgr(object):
             raise AssertionError(errmsg)
 
     def set_encoder_options(self, name, *args, **kwargs):
-        """Associates encoder-specific options with an encoder.
+        """
+        Associate encoder-specific options with an encoder.
 
         After calling set_encoder_options, any calls to jsonpickle's
         encode method will pass the supplied args and kwargs along to
@@ -245,6 +252,7 @@ class JSONPluginMgr(object):
 
         See the appropriate encoder's documentation for details about
         the supported arguments and keyword arguments.
+
         """
         self._encoder_options[name] = (args, kwargs)
 
@@ -259,7 +267,8 @@ remove_backend = json.remove_backend
 
 
 def encode(value, unpicklable=True, max_depth=None):
-    """Returns a JSON formatted representation of value, a Python object.
+    """
+    Return a JSON formatted representation of value, a Python object.
 
     The keyword argument 'unpicklable' defaults to True.
     If set to False, the output will not contain the information
@@ -291,7 +300,8 @@ def encode(value, unpicklable=True, max_depth=None):
     return json.encode(j.flatten(value))
 
 def decode(string):
-    """Converts the JSON string into a Python object.
+    """
+    Convert a JSON string into a Python object.
 
     >>> str(decode('"my string"'))
     'my string'
