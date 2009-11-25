@@ -66,6 +66,7 @@ Version 0.3.0 - Upcoming
     * Refactored project layout.
     * Support for user-defined serialization handlers via the
       jsonpickle.handlers registry.
+    * Removed cjson support per John Millikin's recommendation.
 
 Version 0.2.0 - January 10, 2009
     * Support for all major Python JSON backends (including json in Python 2.6,

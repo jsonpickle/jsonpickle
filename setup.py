@@ -48,9 +48,6 @@ SETUP_ARGS = dict(
     packages=["jsonpickle"],
     test_suite='jsonpickle.tests.suite',
     install_requires=INSTALL_REQUIRES,
-    extras_require = {
-        "cjson":  ["python-cjson"]
-    },
     zip_safe=True,
 )
 

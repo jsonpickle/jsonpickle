@@ -68,11 +68,10 @@ class JSONPluginMgr(object):
     """The JSONPluginMgr handles encoding and decoding.
 
     It tries these modules in this order:
-        cjson, json, simplejson, demjson
+        simplejson, json, demjson
 
-    cjson is the fastest, and is tried first.
+    simplejson is a fast and popular backend and is tried first.
     json comes with python2.6 and is tried second.
-    simplejson is a very popular backend and is tried third.
     demjson is the most permissive backend and is tried last.
 
     """
@@ -93,10 +92,9 @@ class JSONPluginMgr(object):
         ## Whether we've loaded any backends successfully
         self._verified = False
 
-        ## Try loading cjson, simplejson and demjson
-        self.load_backend('cjson', 'encode', 'decode', 'DecodeError')
-        self.load_backend('json', 'dumps', 'loads', ValueError)
+        ## Try loading simplejson and demjson
         self.load_backend('simplejson', 'dumps', 'loads', ValueError)
+        self.load_backend('json', 'dumps', 'loads', ValueError)
         self.load_backend('demjson', 'encode', 'decode', 'JSONDecodeError')
 
     def _verify(self):
@@ -106,7 +104,7 @@ class JSONPluginMgr(object):
             return
         raise AssertionError('jsonpickle requires at least one of the '
                              'following:\n'
-                             '    cjson, python2.6, simplejson, or demjson')
+                             '    python2.6, simplejson, or demjson')
 
     def load_backend(self, name, encode_name, decode_name, decode_exc):
         """
@@ -227,9 +225,11 @@ class JSONPluginMgr(object):
             set_preferred_backend('simplejson')
 
         If the backend is not one of the built-in jsonpickle backends
-        (cjson, json/simplejson, or demjson) then you must load the
-        backend prior to calling set_preferred_backend.  An AssertionError
-        exception is raised if the backend has not been loaded.
+        (json/simplejson, or demjson) then you must load the backend
+        prior to calling set_preferred_backend.
+
+        AssertionError is raised if the backend has not been loaded.
+
         """
         if name in self._backend_names:
             self._backend_names.remove(name)
