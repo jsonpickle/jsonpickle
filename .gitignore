@@ -4,3 +4,5 @@ tags
 *.swp
 build
 dist
+env
+docs/build
