@@ -1,7 +1,3 @@
-.. jsonpickle documentation master file, created by sphinx-quickstart on Thu Nov 27 14:21:06 2008.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 .. contents::
 
 jsonpickle Usage
@@ -13,16 +9,21 @@ jsonpickle Usage
 Download & Install
 ==================
 
-The easiest way to get jsonpickle is via PyPi_::
+The easiest way to get jsonpickle is via PyPi_ with easy_install::
 
-    $ easy_install jsonpickle
+    $ easy_install -U jsonpickle
+
+or pip_::
+  
+    $ pip install -U jsonpickle
 
 You can also download_ or :ref:`checkout <jsonpickle-contrib-checkout>` the
-latest code::
+latest code and install from source::
 
     $ python setup.py install
 
-.. _PyPi: http://pypi.python.org/
+.. _PyPi: http://pypi.python.org/pypi/jsonpickle
+.. _pip: http://pypi.python.org/pypi/pip
 .. _download: http://code.google.com/p/jsonpickle/downloads/list
 
 
@@ -41,7 +42,7 @@ Contributing
 
 ::
 
-    svn checkout http://jsonpickle.googlecode.com/svn/trunk/ jsonpickle
+    git clone git://github.com/jsonpickle/jsonpickle.git
 
 
 Contact
@@ -50,20 +51,20 @@ Contact
 Please join our `mailing list <http://groups.google.com/group/jsonpickle>`_.
 You can send email to *jsonpickle@googlegroups.com*.
 
-Check http://blog.7oars.com and http://code.google.com/p/jsonpickle/ for
-project updates.
+Check http://github.com/jsonpickle/jsonpickle for project updates.
 
 
 Authors
 =======
 
- * John Paulett (john -at- paulett.org)
- * David Aguilar (davvid -at- gmail.com)
+ * John Paulett - john -at- paulett.org - http://github.com/johnpaulett/jsonpickle
+ * David Aguilar - davvid -at- gmail.com - http://github.com/davvid/jsonpickle
 
 Change Log
 ==========
 Version 0.3.0 - Upcoming
     * Refactored project layout.
+    * Officially migrated to git from subversion
     * Support for user-defined serialization handlers via the
       jsonpickle.handlers registry.
     * Removed cjson support per John Millikin's recommendation.
@@ -105,7 +106,7 @@ Version 0.0.2
     * Increase test coverage
 
 Version 0.0.1
-Initial release
+    Initial release
 
 
 License

@@ -30,7 +30,7 @@ SETUP_ARGS = dict(
     long_description = _jsonpickle.__doc__,
     author="John Paulett",
     author_email="john -at- paulett.org",
-    url="http://code.google.com/p/jsonpickle/",
+    url="http://github.com/jsonpickle/jsonpickle",
     license="BSD",
     platforms=['POSIX', 'Windows'],
     keywords=['json pickle', 'json', 'pickle', 'marshal',
@@ -40,7 +40,7 @@ SETUP_ARGS = dict(
         "Operating System :: OS Independent",
         "Programming Language :: Python",
         "Topic :: Software Development :: Libraries :: Python Modules",
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
         "Programming Language :: JavaScript"
     ],
