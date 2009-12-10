@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2008 John Paulett (john -at- 7oars.com)
+# Copyright (C) 2008 John Paulett (john -at- paulett.org)
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which

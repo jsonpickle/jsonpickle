@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2008 John Paulett (john -at- 7oars.com)
+# Copyright (C) 2008 John Paulett (john -at- paulett.org)
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
@@ -29,7 +29,7 @@ SETUP_ARGS = dict(
                 "arbitrary object graph into JSON",
     long_description = _jsonpickle.__doc__,
     author="John Paulett",
-    author_email="john@7oars.com",
+    author_email="john -at- paulett.org",
     url="http://code.google.com/p/jsonpickle/",
     license="BSD",
     platforms=['POSIX', 'Windows'],
