@@ -40,7 +40,8 @@ Contributing
 
 .. _jsonpickle-contrib-checkout:
 
-::
+We welcome contributions from everyone.  Please fork jsonpickle on 
+`github <http://github.com/jsonpickle/jsonpickle>`_::
 
     git clone git://github.com/jsonpickle/jsonpickle.git
 
@@ -57,17 +58,35 @@ Check http://github.com/jsonpickle/jsonpickle for project updates.
 Authors
 =======
 
- * John Paulett - john -at- paulett.org - http://github.com/johnpaulett/jsonpickle
- * David Aguilar - davvid -at- gmail.com - http://github.com/davvid/jsonpickle
+ * John Paulett - john -at- paulett.org - http://github.com/johnpaulett
+ * David Aguilar - davvid -at- gmail.com - http://github.com/davvid
+ * Dan Buch - http://github.com/meatballhat
+ * Ian Schenck - http://github.com/ianschenck
 
 Change Log
 ==========
-Version 0.3.0 - Upcoming
-    * Refactored project layout.
-    * Officially migrated to git from subversion
+
+Version 0.3.0 - Upcoming (Really Soon)
+    * Officially migrated to git from subversion. Project home now at 
+      `<http://jsonpickle.github.com/>`_. Thanks to Michael Jone's 
+      `sphinx-to-github <http://github.com/michaeljones/sphinx-to-github>`_.
+    * Fortified jsonpickle against common error conditions.
+    * Added support for:
+     * List and set subclasses.
+     * Objects with module references.
+     * Newstyle classes with `__slots__`.
+     * Objects implementing `__setstate__()` and `__getstate__()`
+       (follows the :mod:`pickle` protocol).
+    * Improved support for Zope objects via pre-fetch.
     * Support for user-defined serialization handlers via the
       jsonpickle.handlers registry.
     * Removed cjson support per John Millikin's recommendation.
+    * General improvements to style, including :pep:`257` compliance and 
+      refactored project layout.
+    * Steps towards Python 2.3 and Python 3 support.
+    * New contributors Dan Buch and Ian Schenck.
+    * Thanks also to Kieran Darcy, Eoghan Murray, and Antonin Hildebrand
+      for their assistance!
 
 Version 0.2.0 - January 10, 2009
     * Support for all major Python JSON backends (including json in Python 2.6,
@@ -113,6 +132,6 @@ License
 =======
 
 jsonpickle is provided under a
-`New BSD license <http://code.google.com/p/jsonpickle/source/browse/trunk/src/COPYING>`_,
+`New BSD license <http://github.com/jsonpickle/jsonpickle/raw/master/COPYING>`_,
 
 Copyright (C) 2008-2009 John Paulett (john -at- paulett.org)
