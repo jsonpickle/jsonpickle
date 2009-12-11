@@ -9,7 +9,6 @@
 import unittest
 
 import jsonpickle
-import feedparser
 
 RSS_DOC = """<?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom" xml:base="http://example.org/" xml:lang="en">
@@ -59,7 +58,10 @@ RSS_DOC = """<?xml version="1.0" encoding="utf-8"?>
 
 class FeedParserTest(unittest.TestCase):
     def setUp(self):
-        #self.doc = feedparser.parse("http://feedparser.org/docs/examples/atom10.xml")
+        try:
+            import feedparser
+        except ImportError, e:
+            self.fail("feedparser module not available, please install")
         self.doc = feedparser.parse(RSS_DOC)
 
     def test(self):
