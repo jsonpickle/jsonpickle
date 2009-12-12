@@ -26,7 +26,7 @@ def suite():
 
 def main():
     #unittest.main(defaultTest='suite')
-    unittest.TextTestRunner(verbosity=2).run(suite())
+    return unittest.TextTestRunner(verbosity=2).run(suite())
 
 if __name__ == '__main__':
-    main()
+    sys.exit(not main().wasSuccessful())
