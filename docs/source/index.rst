@@ -80,7 +80,7 @@ Authors
 Change Log
 ==========
 
-Version 0.3.0 - Upcoming (Really Soon)
+Version 0.3.0 - December 11, 2009
     * Officially migrated to git from subversion. Project home now at 
       `<http://jsonpickle.github.com/>`_. Thanks to Michael Jone's 
       `sphinx-to-github <http://github.com/michaeljones/sphinx-to-github>`_.
