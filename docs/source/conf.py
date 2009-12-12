@@ -20,6 +20,10 @@ sys.path.insert(0, os.path.abspath(os.path.join('..', '..')))
 import jsonpickle
 
 sys.path.insert(1, os.path.abspath(os.path.join('..', '..', 'thirdparty', 'sphinx-to-github')))
+try:
+    import sphinxtogithub
+except ImportError, e:
+    raise ImportError('Could not import sphinxtogithub\nIs the git submodule populated at thirdparty/sphinx-to-github? At the project root run:\n\tgit submodule init\n\tgit submodule update')
 
 # -- General configuration -----------------------------------------------------
 
