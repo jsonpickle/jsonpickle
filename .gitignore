@@ -2,7 +2,9 @@ tags
 *.pyc
 *.egg-info
 *.swp
-build
-dist
-env
-docs/build
+/build
+/dist
+/env
+*#*
+*~
+
