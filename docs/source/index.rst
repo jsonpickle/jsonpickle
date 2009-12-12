@@ -80,6 +80,9 @@ Authors
 Change Log
 ==========
 
+Version 0.3.1 - December 12, 2009
+    * Include tests and docs directories in sdist for distribution packages.
+
 Version 0.3.0 - December 11, 2009
     * Officially migrated to git from subversion. Project home now at 
       `<http://jsonpickle.github.com/>`_. Thanks to Michael Jone's 

@@ -59,7 +59,7 @@ added to JSON.
 from jsonpickle.pickler import Pickler
 from jsonpickle.unpickler import Unpickler
 
-__version__ = '0.3.0'
+__version__ = '0.3.1'
 __all__ = ('encode', 'decode')
 
 
