@@ -6,10 +6,9 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 
-"""Python library for serializing any arbitrary object graph into
-`JSON <http://www.json.org/>`_.  It can take almost any Python object and turn
-the object into JSON.  Additionally, it can reconstitute the object back into
-Python.
+"""Python library for serializing any arbitrary object graph into JSON.
+It can take almost any Python object and turn the object into JSON.
+Additionally, it can reconstitute the object back into Python.
 
     >>> import jsonpickle
     >>> from samples import Thing
@@ -98,8 +97,7 @@ class JSONPluginMgr(object):
         self.load_backend('demjson', 'encode', 'decode', 'JSONDecodeError')
 
     def _verify(self):
-        """Ensures that we've loaded at least one JSON backend.
-        """
+        """Ensures that we've loaded at least one JSON backend."""
         if self._verified:
             return
         raise AssertionError('jsonpickle requires at least one of the '
@@ -112,18 +110,17 @@ class JSONPluginMgr(object):
 
         This method loads a backend and sets up references to that
         backend's encode/decode functions and exception classes.
-
-        encode_name is the name of the backend's encode method.
-        The method should take an object and return a string.
-
-        decode_name names the backend's method for the reverse
-        operation -- returning a Python object from a string.
-
-        decode_exc can be either the name of the exception class
-        used to denote decoding errors, or it can be a direct reference
-        to the appropriate exception class itself.  If it is a name,
-        then the assumption is that an exception class of that name
-        can be found in the backend module's namespace.
+        
+        :param encode_name: is the name of the backend's encode method.
+          The method should take an object and return a string.
+        :param decode_name: names the backend's method for the reverse
+          operation -- returning a Python object from a string.
+        :param decode_exc: can be either the name of the exception class
+          used to denote decoding errors, or it can be a direct reference
+          to the appropriate exception class itself.  If it is a name,
+          then the assumption is that an exception class of that name
+          can be found in the backend module's namespace.
+            
         """
         try:
             ## Load the JSON backend
@@ -221,7 +218,8 @@ class JSONPluginMgr(object):
         If a preferred backend is set then jsonpickle tries to use it
         before any other backend.
 
-        For example,
+        For example::
+        
             set_preferred_backend('simplejson')
 
         If the backend is not one of the built-in jsonpickle backends
@@ -246,7 +244,8 @@ class JSONPluginMgr(object):
         encode method will pass the supplied args and kwargs along to
         the appropriate backend's encode method.
 
-        For example,
+        For example::
+        
             set_encoder_options('simplejson', sort_keys=True, indent=4)
             set_encoder_options('demjson', compactly=False)
 

@@ -1,3 +1,17 @@
+========================
+jsonpickle Documentation
+========================
+
+`jsonpickle <http://jsonpickle.github.com>`_ is a Python library for 
+serialization and deserialization of complex Python objects to and from
+JSON.  The standard Python libraries for encoding Python into JSON, such as
+the stdlib's json, simplejson, and demjson, can only handle Python 
+primitives that have a direct JSON equivalent (e.g. dicts, lists, strings, 
+ints, etc.).  jsonpickle builds on top of these libraries and allows more
+complex data structures to be serialized to JSON. jsonpickle is highly
+configurable and extendable--allowing the user to choose the JSON backend
+and add additional backends.
+
 .. contents::
 
 jsonpickle Usage
@@ -72,11 +86,13 @@ Version 0.3.0 - Upcoming (Really Soon)
       `sphinx-to-github <http://github.com/michaeljones/sphinx-to-github>`_.
     * Fortified jsonpickle against common error conditions.
     * Added support for:
+
      * List and set subclasses.
      * Objects with module references.
      * Newstyle classes with `__slots__`.
      * Objects implementing `__setstate__()` and `__getstate__()`
        (follows the :mod:`pickle` protocol).
+
     * Improved support for Zope objects via pre-fetch.
     * Support for user-defined serialization handlers via the
       jsonpickle.handlers registry.
