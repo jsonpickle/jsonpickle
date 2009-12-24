@@ -34,7 +34,7 @@ Additional JSON backends can be used via :func:`jsonpickle.load_backend`.
 For example, users of `Django <http://www.djangoproject.com/>`_ can use the
 version of simplejson that is bundled in Django::
 
-    jsonpickle.load_backend('django.util.simplejson')
+    jsonpickle.load_backend('django.util.simplejson', 'dumps', 'loads', ValueError))
     jsonpickle.set_preferred_backend('django.util.simplejson')
 
 .. autofunction:: jsonpickle.set_preferred_backend
