@@ -23,13 +23,15 @@ jsonpickle Usage
 Download & Install
 ==================
 
-The easiest way to get jsonpickle is via PyPi_ with easy_install::
-
-    $ easy_install -U jsonpickle
-
-or pip_::
-  
+The easiest way to get jsonpickle is via PyPi_ with pip_::
+   
     $ pip install -U jsonpickle
+ 
+For Python 2.6+, jsonpickle has no required dependencies (it uses the standard
+library's :mod:`json` module by default). For Python 2.5 or earlier, you must 
+install a supported JSON backend (including simplejson or demjson). For example::
+
+    $ pip install simplejson
 
 You can also download_ or :ref:`checkout <jsonpickle-contrib-checkout>` the
 latest code and install from source::
@@ -38,7 +40,7 @@ latest code and install from source::
 
 .. _PyPi: http://pypi.python.org/pypi/jsonpickle
 .. _pip: http://pypi.python.org/pypi/pip
-.. _download: http://code.google.com/p/jsonpickle/downloads/list
+.. _download: http://pypi.python.org/pypi/jsonpickle
 
 
 API Reference

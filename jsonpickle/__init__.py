@@ -59,9 +59,13 @@ added to JSON.
 from jsonpickle.pickler import Pickler
 from jsonpickle.unpickler import Unpickler
 
-__version__ = '0.3.1'
+__version__ = '0.3.2'
 __all__ = ('encode', 'decode')
 
+SUPPORTED_BACKENDS = ('json',
+                      'simplejson',
+                      'demjson',
+                      'django.util.simplejson')
 
 class JSONPluginMgr(object):
     """The JSONPluginMgr handles encoding and decoding.
