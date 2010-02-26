@@ -307,17 +307,6 @@ class PicklingTestCase(unittest.TestCase):
         inflated = self.unpickler.restore(flattened)
         self.assertEqual(obj, inflated)
 
-    def test_broken_repr_dict_key(self):
-        """Tests that we can pickle dictionaries with keys that have
-        broken __repr__ implementations.
-        """
-        br = BrokenReprThing('test')
-        obj = { br: True }
-        pickler = jsonpickle.pickler.Pickler()
-        flattened = pickler.flatten(obj)
-        self.assertTrue('<BrokenReprThing "test">' in flattened)
-        self.assertTrue(flattened['<BrokenReprThing "test">'])
-
     def test_repr_not_unpickable(self):
         obj = datetime.datetime.now()
         pickler = jsonpickle.pickler.Pickler(unpicklable=False)
@@ -451,37 +440,33 @@ class JSONPickleTestCase(unittest.TestCase):
 
     def test_tuple_dict_keys(self):
         """Test that we handle dictionaries with tuples as keys.
-        We do not model this presently, so ensure that we at
-        least convert those tuples to repr strings.
-
-        TODO: handle dictionaries with non-stringy keys.
         """
-        pickled = jsonpickle.encode({(1, 2): 3,
-                                     (4, 5): { (7, 8): 9 }})
+        tuple_dict = {(1, 2): 3, (4, 5): { (7, 8): 9 }}
+        pickled = jsonpickle.encode(tuple_dict)
         unpickled = jsonpickle.decode(pickled)
-        subdict = unpickled['(4, 5)']
-
-        self.assertEqual(unpickled['(1, 2)'], 3)
-        self.assertEqual(subdict['(7, 8)'], 9)
+        self.assertEqual(unpickled, tuple_dict)
 
     def test_datetime_dict_keys(self):
         """Test that we handle datetime objects as keys.
-        We do not model this presently, so ensure that we at
-        least convert those tuples into repr strings.
-
         """
-        pickled = jsonpickle.encode({datetime.datetime(2008, 12, 31): True})
+        datetime_dict = {datetime.datetime(2008, 12, 31): True}
+        pickled = jsonpickle.encode(datetime_dict)
         unpickled = jsonpickle.decode(pickled)
-        self.assertTrue(unpickled['datetime.datetime(2008, 12, 31, 0, 0)'])
+        self.assertEqual(unpickled, datetime_dict)
 
-    def test_object_dict_keys(self):
+    def test_non_string_dict_keys(self):
         """Test that we handle random objects as keys.
 
         """
-        pickled = jsonpickle.encode({Thing('random'): True})
+        int_dict = {1000: [1, 2]}
+        pickled = jsonpickle.encode(int_dict)
         unpickled = jsonpickle.decode(pickled)
-        self.assertEqual(unpickled,
-                         {u'samples.Thing("random")': True})
+        self.assertEqual(unpickled[1000], [1, 2])
+
+        tuple_dict = {(1, 2): [1, 2]}
+        pickled = jsonpickle.encode(tuple_dict)
+        unpickled = jsonpickle.decode(pickled)
+        self.assertEqual(unpickled[(1, 2)], [1, 2])
 
     def test_load_backend(self):
         """Test that we can call jsonpickle.load_backend()

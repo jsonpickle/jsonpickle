@@ -137,6 +137,9 @@ class Unpickler(object):
             data = {}
             for k, v in sorted(obj.iteritems(), key=lambda item:item[0]):
                 self._namestack.append(k)
+                if k.startswith(tags.DICT_KEY):
+                    from jsonpickle import decode
+                    k = decode(k[len(tags.DICT_KEY)+1:])
                 data[k] = self.restore(v)
                 self._namestack.pop()
             return self._pop(data)
