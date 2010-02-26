@@ -9,6 +9,16 @@ import types
 import jsonpickle.util as util
 import jsonpickle.tags as tags
 import jsonpickle.handlers as handlers
+import jsonpickle.pluginmgr as pluginmgr
+
+
+def encode(value, unpicklable=False, max_depth=None,
+           backend=None, context=None):
+    context = context or pluginmgr.instance()
+    backend = backend or Pickler(unpicklable=unpicklable,
+                                 max_depth=max_depth)
+    return context.encode(backend.flatten(value))
+
 
 class Pickler(object):
     """Converts a Python object to a JSON representation.
@@ -215,8 +225,7 @@ class Pickler(object):
         if not util.is_picklable(k, v):
             return data
         if type(k) not in types.StringTypes:
-            from jsonpickle import encode
-            k = tags.DICT_KEY + ' ' + encode(k)
+            k = tags.OBJECT + ':' + encode(k, backend=self)
         self._namestack.append(k)
         data[k] = self.flatten(v)
         self._namestack.pop()

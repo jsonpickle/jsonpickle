@@ -10,7 +10,15 @@ import sys
 import jsonpickle.util as util
 import jsonpickle.tags as tags
 import jsonpickle.handlers as handlers
+import jsonpickle.pluginmgr as pluginmgr
+
 from jsonpickle.compat import set
+
+
+def decode(string, backend=None, context=None):
+    backend = backend or Unpickler()
+    context = context or pluginmgr.instance()
+    return backend.restore(context.decode(string))
 
 
 class Unpickler(object):
@@ -137,9 +145,8 @@ class Unpickler(object):
             data = {}
             for k, v in sorted(obj.iteritems(), key=lambda item:item[0]):
                 self._namestack.append(k)
-                if k.startswith(tags.DICT_KEY):
-                    from jsonpickle import decode
-                    k = decode(k[len(tags.DICT_KEY)+1:])
+                if k.startswith(tags.OBJECT):
+                    k = decode(k[len(tags.OBJECT)+1:], backend=self)
                 data[k] = self.restore(v)
                 self._namestack.pop()
             return self._pop(data)

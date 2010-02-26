@@ -8,7 +8,6 @@ that need to be specially handled.
 """
 from jsonpickle.compat import set
 
-DICT_KEY = 'py/dict_key'
 OBJECT = 'py/object'
 TYPE = 'py/type'
 REPR = 'py/repr'
