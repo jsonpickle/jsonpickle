@@ -12,10 +12,11 @@ import jsonpickle.handlers as handlers
 import jsonpickle.pluginmgr as pluginmgr
 
 
-def encode(value, unpicklable=False, max_depth=None,
+def encode(value, unpicklable=False, make_refs=True, max_depth=None,
            backend=None, context=None):
     context = context or pluginmgr.instance()
     backend = backend or Pickler(unpicklable=unpicklable,
+                                 make_refs=make_refs,
                                  max_depth=max_depth)
     return context.encode(backend.flatten(value))
 
@@ -32,13 +33,20 @@ class Pickler(object):
     object.  Setting it to zero or higher places a hard limit
     on how deep jsonpickle recurses into objects, dictionaries, etc.
 
+    Setting make_refs to False disables the referencing support.
+    Objects that are id()-identical won't be preserved across
+    encode()/decode() when make_refs is False, but the resulting
+    JSON stream is conceptually simpler.
+
     >>> p = Pickler()
     >>> p.flatten('hello world')
     'hello world'
+
     """
 
-    def __init__(self, unpicklable=True, max_depth=None):
+    def __init__(self, unpicklable=True, make_refs=True, max_depth=None):
         self.unpicklable = unpicklable
+        self.make_refs = make_refs
         ## The current recursion depth
         self._depth = -1
         ## The maximal recursion depth
@@ -68,10 +76,18 @@ class Pickler(object):
 
     def _mkref(self, obj):
         objid = id(obj)
-        if objid not in self._objs:
+        if self.make_refs:
+            if objid in self._objs:
+                # We've seen this object before so place an object
+                # reference tag in the data. This avoids infinite recursion
+                # when processing cyclical objects.
+                return self._getref(obj)
             self._objs[objid] = '/' + '/'.join(self._namestack)
-            return True
-        return False
+            # We've never seen this object so return its
+            # json representation.
+            return self._flatten_obj_instance(obj)
+        # Refs support is turned off, just flatten it
+        return self._flatten_obj_instance(obj)
 
     def _getref(self, obj):
         return {tags.REF: self._objs.get(id(obj))}
@@ -132,17 +148,7 @@ class Pickler(object):
             return self._pop(_mktyperef(obj))
 
         if util.is_object(obj):
-            if self._mkref(obj):
-                # We've never seen this object so return its
-                # json representation.
-                return self._pop(self._flatten_obj_instance(obj))
-            else:
-                # We've seen this object before so place an object
-                # reference tag in the data. This avoids infinite recursion
-                # when processing cyclical objects.
-                return self._pop(self._getref(obj))
-
-            return self._pop(data)
+            return self._pop(self._mkref(obj))
         # else, what else? (methods, functions, old style classes...)
 
     def _flatten_obj_instance(self, obj):
