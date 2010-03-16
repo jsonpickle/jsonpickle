@@ -297,6 +297,18 @@ class PicklingTestCase(unittest.TestCase):
         inflated = self.unpickler.restore(flattened)
         self.assertEqual(1, inflated['key1'])
 
+    def test_tuple_notunpicklable(self):
+        self.pickler.unpicklable = False
+
+        flattened = self.pickler.flatten(('one', 2, 3))
+        self.assertEqual(flattened, ['one', 2, 3])
+
+    def test_set_notunpicklable(self):
+        self.pickler.unpicklable = False
+
+        flattened = self.pickler.flatten(set(['one', 2, 3]))
+        self.assertEqual(sorted(flattened), sorted(['one', 2, 3]))
+
     def test_datetime(self):
         obj = datetime.datetime.now()
 

@@ -111,10 +111,16 @@ class Pickler(object):
 
         # We handle tuples and sets by encoding them in a "(tuple|set)dict"
         if util.is_tuple(obj):
-            return self._pop({tags.TUPLE: [ self.flatten(v) for v in obj ]})
+            if self.unpicklable is True:
+                return self._pop({tags.TUPLE: [ self.flatten(v) for v in obj ]})
+            else:
+                return self._pop([ self.flatten(v) for v in obj ])
 
         if util.is_set(obj):
-            return self._pop({tags.SET: [ self.flatten(v) for v in obj ]})
+            if self.unpicklable is True:
+                return self._pop({tags.SET: [ self.flatten(v) for v in obj ]})
+            else:
+                return self._pop([ self.flatten(v) for v in obj ])
 
         if util.is_dictionary(obj):
             return self._pop(self._flatten_dict_obj(obj, obj.__class__()))
