@@ -58,6 +58,9 @@ class Pickler(object):
         return value
 
     def _mkref(self, obj):
+        # Do not use references if not unpicklable.
+        if self.unpicklable is False:
+            return True
         objid = id(obj)
         if objid not in self._objs:
             self._objs[objid] = '/' + '/'.join(self._namestack)
