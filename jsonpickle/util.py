@@ -135,8 +135,8 @@ def is_collection_subclass(obj):
     return issubclass(obj.__class__, COLLECTIONS) and not is_collection(obj)
 
 def is_noncomplex(obj):
-    """Returns True if *obj* is a special (weird) class, that is complex than
-    primitive data types, but is not a full object. Including:
+    """Returns True if *obj* is a special (weird) class, that is more complex
+    than primitive data types, but is not a full object. Including:
 
         * :class:`~time.struct_time`
     """
