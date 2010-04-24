@@ -5,6 +5,7 @@
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
+import operator
 import types
 import jsonpickle.util as util
 import jsonpickle.tags as tags
@@ -200,7 +201,7 @@ class Pickler(object):
     def _flatten_dict_obj(self, obj, data):
         """Recursively call flatten() and return json-friendly dict
         """
-        for k, v in sorted(obj.iteritems(), key=lambda item:item[0]):
+        for k, v in sorted(obj.iteritems(), key=operator.itemgetter(0)):
             self._flatten_key_value_pair(k, v, data)
         return data
 

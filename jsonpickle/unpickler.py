@@ -6,6 +6,7 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 
+import operator
 import sys
 import jsonpickle.util as util
 import jsonpickle.tags as tags
@@ -98,7 +99,7 @@ class Unpickler(object):
                 instance.__setstate__(state)
                 return self._pop(instance)
 
-            for k, v in sorted(obj.iteritems(), key=lambda item:item[0]):
+            for k, v in sorted(obj.iteritems(), key=operator.itemgetter(0)):
                 # ignore the reserved attribute
                 if k in tags.RESERVED:
                     continue
@@ -135,7 +136,7 @@ class Unpickler(object):
 
         if util.is_dictionary(obj):
             data = {}
-            for k, v in sorted(obj.iteritems(), key=lambda item:item[0]):
+            for k, v in sorted(obj.iteritems(), key=operator.itemgetter(0)):
                 self._namestack.append(k)
                 data[k] = self.restore(v)
                 self._namestack.pop()
