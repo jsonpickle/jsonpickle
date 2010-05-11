@@ -196,7 +196,11 @@ class Pickler(object):
             # Support objects with __getstate__(); this ensures that
             # both __setstate__() and __getstate__() are implemented
             if has_getstate_support:
-                data[tags.STATE] = self.flatten(obj.__getstate__())
+                state = self.flatten(obj.__getstate__())
+                if self.unpicklable:
+                    data[tags.STATE] = state
+                else:
+                    data = state
                 return data
 
             # hack for zope persistent objects; this unghostifies the object
