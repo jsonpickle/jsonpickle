@@ -241,7 +241,11 @@ class Pickler(object):
     def _flatten_collection_obj(self, obj, data):
         """Return a json-friendly dict for a collection subclass."""
         self._flatten_dict_obj(obj.__dict__, data)
-        data[tags.SEQ] = [ self.flatten(v) for v in obj ]
+        value = [ self.flatten(v) for v in obj ]
+        if self.unpicklable:
+            data[tags.SEQ] = value
+        else:
+            return value
         return data
 
 def _mktyperef(obj):
