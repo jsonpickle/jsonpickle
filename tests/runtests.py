@@ -16,12 +16,14 @@ import unittest
 import util_tests
 import jsonpickle_test
 import thirdparty_tests
+import backends_tests
 
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(util_tests.suite())
     suite.addTest(jsonpickle_test.suite())
     suite.addTest(thirdparty_tests.suite())
+    suite.addTest(backends_tests.suite())
     return suite
 
 def main():
