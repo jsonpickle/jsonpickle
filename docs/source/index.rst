@@ -78,9 +78,18 @@ Authors
  * David Aguilar - davvid -at- gmail.com - http://github.com/davvid
  * Dan Buch - http://github.com/meatballhat
  * Ian Schenck - http://github.com/ianschenck
+ * David K. Hess - http://github.com/davidkhess
+ * Alec Thomas - http://github.com/alecthomas
+
 
 Change Log
 ==========
+
+Version 0.4 - unreleased
+    * Switch build from setuptools to distutils
+    * Consistent dictionary key ordering
+    * Fix areas with improper support for unpicklable=False
+    * New contributers David K. Hess and Alec Thomas
 
 Version 0.3.1 - December 12, 2009
     * Include tests and docs directories in sdist for distribution packages.
