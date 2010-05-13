@@ -210,3 +210,19 @@ def is_picklable(name, value):
     if name in tags.RESERVED:
         return False
     return not is_function(value)
+
+def is_installed(module):
+    """Tests to see if ``module`` is available on the sys.path
+
+    >>> is_installed('sys')
+    True
+    >>> is_installed('hopefullythisisnotarealmodule')
+    False
+
+    """
+    try:
+        __import__(module)
+        return True
+    except ImportError, e:
+        return False
+
