@@ -59,6 +59,9 @@ class Pickler(object):
         return value
 
     def _mkref(self, obj):
+        # Do not use references if not unpicklable.
+        if self.unpicklable is False:
+            return True
         objid = id(obj)
         if objid not in self._objs:
             self._objs[objid] = '/' + '/'.join(self._namestack)
@@ -112,10 +115,16 @@ class Pickler(object):
 
         # We handle tuples and sets by encoding them in a "(tuple|set)dict"
         if util.is_tuple(obj):
-            return self._pop({tags.TUPLE: [ self.flatten(v) for v in obj ]})
+            if self.unpicklable is True:
+                return self._pop({tags.TUPLE: [ self.flatten(v) for v in obj ]})
+            else:
+                return self._pop([ self.flatten(v) for v in obj ])
 
         if util.is_set(obj):
-            return self._pop({tags.SET: [ self.flatten(v) for v in obj ]})
+            if self.unpicklable is True:
+                return self._pop({tags.SET: [ self.flatten(v) for v in obj ]})
+            else:
+                return self._pop([ self.flatten(v) for v in obj ])
 
         if util.is_dictionary(obj):
             return self._pop(self._flatten_dict_obj(obj, obj.__class__()))
@@ -188,7 +197,11 @@ class Pickler(object):
             # Support objects with __getstate__(); this ensures that
             # both __setstate__() and __getstate__() are implemented
             if has_getstate_support:
-                data[tags.STATE] = self.flatten(obj.__getstate__())
+                state = self.flatten(obj.__getstate__())
+                if self.unpicklable:
+                    data[tags.STATE] = state
+                else:
+                    data = state
                 return data
 
             # hack for zope persistent objects; this unghostifies the object
@@ -229,7 +242,11 @@ class Pickler(object):
     def _flatten_collection_obj(self, obj, data):
         """Return a json-friendly dict for a collection subclass."""
         self._flatten_dict_obj(obj.__dict__, data)
-        data[tags.SEQ] = [ self.flatten(v) for v in obj ]
+        value = [ self.flatten(v) for v in obj ]
+        if self.unpicklable:
+            data[tags.SEQ] = value
+        else:
+            return value
         return data
 
 def _mktyperef(obj):

@@ -81,7 +81,10 @@ class Unpickler(object):
                 return self._pop(handler.restore(obj))
 
             try:
-                instance = object.__new__(cls)
+                if hasattr(cls, '__new__'):
+                    instance = cls.__new__(cls)
+                else:
+                    instance = object.__new__(cls)
             except TypeError:
                 # old-style classes
                 try:
