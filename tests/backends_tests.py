@@ -69,10 +69,10 @@ class JsonlibTestCase(BackendTestCase):
 
 class YajlTestCase(BackendTestCase):
     def setUp(self):
-        self.set_backend('yajl', 'dumps', 'loads', 'Unknown')
+        self.set_backend('yajl', 'dumps', 'loads', ValueError)
         
     def test(self):
-        expected_pickled = '{"things":[{"py\/object":"samples.Thing","name":"data","child":null}]}'
+        expected_pickled = '{"things":[{"py/object":"samples.Thing","name":"data","child":null}]}'
         self.assertEncodeDecode(expected_pickled)
 
 def suite():
