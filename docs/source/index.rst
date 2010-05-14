@@ -54,13 +54,10 @@ API Reference
 Contributing
 ============
 
-.. _jsonpickle-contrib-checkout:
+.. toctree::
+   :maxdepth: 3
 
-We welcome contributions from everyone.  Please fork jsonpickle on 
-`github <http://github.com/jsonpickle/jsonpickle>`_::
-
-    git clone git://github.com/jsonpickle/jsonpickle.git
-
+   contrib
 
 Contact
 =======
