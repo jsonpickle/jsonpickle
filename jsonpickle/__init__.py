@@ -100,6 +100,11 @@ class JSONPluginMgr(object):
         self.load_backend('json', 'dumps', 'loads', ValueError)
         self.load_backend('demjson', 'encode', 'decode', 'JSONDecodeError')
 
+        ## Experimental support
+        self.load_backend('jsonlib', 'write', 'read', 'ReadError')
+        self.load_backend('yajl', 'dumps', 'loads', ValueError)
+        
+
     def _verify(self):
         """Ensures that we've loaded at least one JSON backend."""
         if self._verified:

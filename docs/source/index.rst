@@ -86,7 +86,10 @@ Version 0.4 - unreleased
     * Switch build from setuptools to distutils
     * Consistent dictionary key ordering
     * Fix areas with improper support for unpicklable=False
+    * Experimental support for  `jsonlib <http://pypi.python.org/pypi/jsonlib/>`_
+      and `py-yajl <http://github.com/rtyler/py-yajl/>`_ backends.
     * New contributers David K. Hess and Alec Thomas
+
 
 Version 0.3.1 - December 12, 2009
     * Include tests and docs directories in sdist for distribution packages.

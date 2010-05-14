@@ -61,7 +61,7 @@ class DemjsonTestCase(BackendTestCase):
        
 class JsonlibTestCase(BackendTestCase):
     def setUp(self):
-        self.set_backend('jsonlib', 'write', 'read', 'ReadError')
+        self.set_preferred_backend('jsonlib')
         
     def test(self):
         expected_pickled = '{"things":[{"py\/object":"samples.Thing","name":"data","child":null}]}'
@@ -69,7 +69,7 @@ class JsonlibTestCase(BackendTestCase):
 
 class YajlTestCase(BackendTestCase):
     def setUp(self):
-        self.set_backend('yajl', 'dumps', 'loads', ValueError)
+        self.set_preferred_backend('yajl')
         
     def test(self):
         expected_pickled = '{"things":[{"py/object":"samples.Thing","name":"data","child":null}]}'
