@@ -47,17 +47,11 @@ def main():
 def _check_dependencies():
     # check to see if any of the supported backends is installed
     backends = _jsonpickle.SUPPORTED_BACKENDS
-    if not any([_is_installed(module) for module in backends]):
+    if not any([_jsonpickle.util.is_installed(module) for module in backends]):
         print >> sys.stderr, ('No supported JSON backend found. '
                               'Must install one of %s' % (', '.join(backends)))
         sys.exit(1)
 
-def _is_installed(module):
-    try:
-        __import__(module)
-        return True
-    except ImportError, e:
-        return False
 
 if __name__ == '__main__':
     sys.exit(main())

@@ -37,6 +37,17 @@ version of simplejson that is bundled in Django::
     jsonpickle.load_backend('django.util.simplejson', 'dumps', 'loads', ValueError))
     jsonpickle.set_preferred_backend('django.util.simplejson')
 
+Supported backends:
+
+ * :mod:`json` in Python 2.6+
+ * `simplejson <http://undefined.org/python/#simplejson>`_
+ * `demjson <http://deron.meranda.us/python/demjson/>`_
+
+Experimental backends:
+
+ * `jsonlib <http://pypi.python.org/pypi/jsonlib/>`_
+ * yajl via `py-yajl <http://github.com/rtyler/py-yajl/>`_
+
 .. autofunction:: jsonpickle.set_preferred_backend
 
 .. autofunction:: jsonpickle.load_backend

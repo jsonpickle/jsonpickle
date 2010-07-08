@@ -47,7 +47,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'jsonpickle'
-copyright = u'2008-2009, John Paulett'
+copyright = u'2008-2010, John Paulett'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

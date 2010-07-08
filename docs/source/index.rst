@@ -54,13 +54,10 @@ API Reference
 Contributing
 ============
 
-.. _jsonpickle-contrib-checkout:
+.. toctree::
+   :maxdepth: 3
 
-We welcome contributions from everyone.  Please fork jsonpickle on 
-`github <http://github.com/jsonpickle/jsonpickle>`_::
-
-    git clone git://github.com/jsonpickle/jsonpickle.git
-
+   contrib
 
 Contact
 =======
@@ -78,9 +75,21 @@ Authors
  * David Aguilar - davvid -at- gmail.com - http://github.com/davvid
  * Dan Buch - http://github.com/meatballhat
  * Ian Schenck - http://github.com/ianschenck
+ * David K. Hess - http://github.com/davidkhess
+ * Alec Thomas - http://github.com/alecthomas
+
 
 Change Log
 ==========
+
+Version 0.4 - unreleased
+    * Switch build from setuptools to distutils
+    * Consistent dictionary key ordering
+    * Fix areas with improper support for unpicklable=False
+    * Experimental support for  `jsonlib <http://pypi.python.org/pypi/jsonlib/>`_
+      and `py-yajl <http://github.com/rtyler/py-yajl/>`_ backends.
+    * New contributers David K. Hess and Alec Thomas
+
 
 Version 0.3.1 - December 12, 2009
     * Include tests and docs directories in sdist for distribution packages.

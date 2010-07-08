@@ -1,0 +1,6 @@
+demjson==1.4
+feedparser==4.1
+#ipython==0.10
+jsonlib==1.6.1
+simplejson==2.1.1
+Sphinx==0.6.5

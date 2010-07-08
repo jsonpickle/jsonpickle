@@ -135,8 +135,8 @@ def is_collection_subclass(obj):
     return issubclass(obj.__class__, COLLECTIONS) and not is_collection(obj)
 
 def is_noncomplex(obj):
-    """Returns True if *obj* is a special (weird) class, that is complex than
-    primitive data types, but is not a full object. Including:
+    """Returns True if *obj* is a special (weird) class, that is more complex
+    than primitive data types, but is not a full object. Including:
 
         * :class:`~time.struct_time`
     """
@@ -210,3 +210,19 @@ def is_picklable(name, value):
     if name in tags.RESERVED:
         return False
     return not is_function(value)
+
+def is_installed(module):
+    """Tests to see if ``module`` is available on the sys.path
+
+    >>> is_installed('sys')
+    True
+    >>> is_installed('hopefullythisisnotarealmodule')
+    False
+
+    """
+    try:
+        __import__(module)
+        return True
+    except ImportError, e:
+        return False
+
