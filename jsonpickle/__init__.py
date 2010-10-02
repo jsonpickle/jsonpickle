@@ -87,7 +87,12 @@ class JSONPluginMgr(object):
         self._decoders = {}
 
         ## Options to pass to specific encoders
-        self._encoder_options = {}
+        json_opts = ((), {'sort_keys': True})
+        self._encoder_options = {
+            'json': json_opts,
+            'simplejson': json_opts,
+            'django.util.simplejson': json_opts,
+        }
 
         ## The exception class that is thrown when a decoding error occurs
         self._decoder_exceptions = {}
