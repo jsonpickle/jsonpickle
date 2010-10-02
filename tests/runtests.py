@@ -9,7 +9,9 @@
 
 import os
 import sys
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
+testdir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(1, os.path.dirname(testdir))
 
 import unittest
 
