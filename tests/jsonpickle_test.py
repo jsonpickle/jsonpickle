@@ -426,6 +426,15 @@ class PicklingTestCase(unittest.TestCase):
         inflated = self.unpickler.restore(flattened)
         self.assertEqual(obj, inflated)
 
+    def test_references(self):
+        obj_a = Thing('foo')
+        obj_b = Thing('bar')
+        coll = [obj_a, obj_b, obj_b]
+        flattened = self.pickler.flatten(coll)
+        inflated = self.unpickler.restore(flattened)
+        self.assertEqual(len(inflated), len(coll))
+        for x in range(len(coll)):
+            self.assertEqual(repr(coll[x]), repr(inflated[x]))
 
 class JSONPickleTestCase(unittest.TestCase):
     def setUp(self):
