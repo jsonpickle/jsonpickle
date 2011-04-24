@@ -75,6 +75,10 @@ class DictSubclass(dict):
 class ListSubclass(list):
     pass
 
+class ListSubclassWithInit(list):
+    def __init__(self, attr):
+        self.attr = attr
+        super(ListSubclassWithInit, self).__init__()
 
 class SetSubclass(set):
     pass

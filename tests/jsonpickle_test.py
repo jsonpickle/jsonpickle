@@ -17,7 +17,7 @@ import jsonpickle
 from jsonpickle import handlers
 from jsonpickle import tags
 
-from samples import Thing, ThingWithSlots, ThingWithProps, BrokenReprThing, DictSubclass, ListSubclass, SetSubclass
+from samples import Thing, ThingWithSlots, ThingWithProps, BrokenReprThing, DictSubclass, ListSubclass, SetSubclass, ListSubclassWithInit
 
 class PicklingTestCase(unittest.TestCase):
     def setUp(self):
@@ -435,6 +435,13 @@ class PicklingTestCase(unittest.TestCase):
         self.assertEqual(len(inflated), len(coll))
         for x in range(len(coll)):
             self.assertEqual(repr(coll[x]), repr(inflated[x]))
+
+    def test_list_subclass_with_init(self):
+        obj = ListSubclassWithInit('foo')
+        self.assertEqual(obj.attr, 'foo')
+        flattened = self.pickler.flatten(obj)
+        inflated = self.unpickler.restore(flattened)
+        self.assertEqual(type(inflated), ListSubclassWithInit)
 
 class JSONPickleTestCase(unittest.TestCase):
     def setUp(self):
