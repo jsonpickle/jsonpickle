@@ -51,6 +51,14 @@ class SimpleJsonTestCase(BackendTestCase):
         expected_pickled = '{"things": [{"py/object": "samples.Thing", "name": "data", "child": null}]}'
         self.assertEncodeDecode(expected_pickled)
 
+
+def has_module(module):
+    try:
+        __import__(module)
+    except ImportError:
+        return False
+    return True
+
 class DemjsonTestCase(BackendTestCase):
     def setUp(self):
         self.set_preferred_backend('demjson')
@@ -58,7 +66,8 @@ class DemjsonTestCase(BackendTestCase):
     def test(self):
         expected_pickled = u'{"things":[{"child":null,"name":"data","py/object":"samples.Thing"}]}'
         self.assertEncodeDecode(expected_pickled)
-       
+
+
 class JsonlibTestCase(BackendTestCase):
     def setUp(self):
         self.set_preferred_backend('jsonlib')
@@ -66,6 +75,7 @@ class JsonlibTestCase(BackendTestCase):
     def test(self):
         expected_pickled = '{"things":[{"py\/object":"samples.Thing","name":"data","child":null}]}'
         self.assertEncodeDecode(expected_pickled)
+
 
 class YajlTestCase(BackendTestCase):
     def setUp(self):
@@ -79,9 +89,12 @@ def suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(JsonTestCase))
     suite.addTest(unittest.makeSuite(SimpleJsonTestCase))
-    suite.addTest(unittest.makeSuite(DemjsonTestCase))
-    suite.addTest(unittest.makeSuite(YajlTestCase))
-    suite.addTest(unittest.makeSuite(JsonlibTestCase))
+    if has_module('demjson'):
+        suite.addTest(unittest.makeSuite(DemjsonTestCase))
+    if has_module('yajl'):
+        suite.addTest(unittest.makeSuite(YajlTestCase))
+    if has_module('jsonlib'):
+        suite.addTest(unittest.makeSuite(JsonlibTestCase))
     return suite
 
 if __name__ == '__main__':
