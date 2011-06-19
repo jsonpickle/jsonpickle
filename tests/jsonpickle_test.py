@@ -501,7 +501,10 @@ class JSONPickleTestCase(unittest.TestCase):
         pickled = jsonpickle.encode([a, b, b])
         unpickled = jsonpickle.decode(pickled)
         self.assertEqual(unpickled[1], unpickled[2])
-
+        self.assertEqual(type(unpickled[0]), Thing)
+        self.assertEqual(unpickled[0].name, 'a')
+        self.assertEqual(unpickled[1].name, 'b')
+        self.assertEqual(unpickled[2].name, 'b')
 
     def test_load_backend(self):
         """Test that we can call jsonpickle.load_backend()
