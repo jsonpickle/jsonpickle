@@ -23,11 +23,17 @@ class Unpickler(object):
         ## The namestack grows whenever we recurse into a child object
         self._namestack = []
 
+        ## Maps objects to their index in the _objs list
+        self._obj_to_idx = {}
+        self._objs = []
+
     def _reset(self):
         """Resets the object's internal state.
         """
         self._namedict = {}
         self._namestack = []
+        self._obj_to_idx = {}
+        self._objs = []
 
     def _push(self):
         """Steps down one level in the namespace.
@@ -55,6 +61,9 @@ class Unpickler(object):
         {'key': 'value'}
         """
         self._push()
+
+        if has_tag(obj, tags.ID):
+            return self._pop(self._objs[obj[tags.ID]])
 
         if has_tag(obj, tags.REF):
             return self._pop(self._namedict.get(obj[tags.REF]))
@@ -179,15 +188,18 @@ class Unpickler(object):
         >>> thing = Thing('referenced-thing')
         >>> u = Unpickler()
         >>> u._mkref(thing)
-        '/'
-        >>> u._namedict['/']
+        0
+        >>> u._objs[0]
         samples.Thing("referenced-thing")
 
         """
-        name = self._refname()
-        if name not in self._namedict:
-            self._namedict[name] = obj
-        return name
+        obj_id = id(obj)
+        try:
+            idx = self._obj_to_idx[obj_id]
+        except KeyError:
+            idx = self._obj_to_idx[obj_id] = len(self._objs)
+            self._objs.append(obj)
+        return idx
 
 def loadclass(module_and_name):
     """Loads the module and returns the class.
