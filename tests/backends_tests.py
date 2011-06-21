@@ -2,6 +2,7 @@ from samples import Thing
 
 import jsonpickle
 import unittest
+import warnings
 
 SAMPLE_DATA = {'things': [Thing('data')]}
 
@@ -56,6 +57,7 @@ def has_module(module):
     try:
         __import__(module)
     except ImportError:
+        warnings.warn('%s not available for testing, consider installing' % module)
         return False
     return True
 
