@@ -35,14 +35,11 @@ class Pickler(object):
         self._depth = -1
         ## The maximal recursion depth
         self._max_depth = max_depth
-        ## Maps id(obj) to reference names
+        ## Maps id(obj) to reference IDs
         self._objs = {}
-        ## The namestack grows whenever we recurse into a child object
-        self._namestack = []
 
     def _reset(self):
         self._objs = {}
-        self._namestack = []
 
     def _push(self):
         """Steps down one level in the namespace.
@@ -64,12 +61,13 @@ class Pickler(object):
             return True
         objid = id(obj)
         if objid not in self._objs:
-            self._objs[objid] = '/' + '/'.join(self._namestack)
+            new_id = len(self._objs)
+            self._objs[objid] = new_id
             return True
         return False
 
     def _getref(self, obj):
-        return {tags.REF: self._objs.get(id(obj))}
+        return {tags.ID: self._objs.get(id(obj))}
 
     def flatten(self, obj):
         """Takes an object and returns a JSON-safe representation of it.
@@ -101,7 +99,6 @@ class Pickler(object):
         >>> p.flatten({'key': 'value'})
         {'key': 'value'}
         """
-
         self._push()
 
         if self._depth == self._max_depth:
@@ -111,20 +108,20 @@ class Pickler(object):
             return self._pop(obj)
 
         if util.is_list(obj):
-            return self._pop([ self.flatten(v) for v in obj ])
+            return self._pop([self.flatten(v) for v in obj])
 
         # We handle tuples and sets by encoding them in a "(tuple|set)dict"
         if util.is_tuple(obj):
             if self.unpicklable is True:
-                return self._pop({tags.TUPLE: [ self.flatten(v) for v in obj ]})
+                return self._pop({tags.TUPLE: [self.flatten(v) for v in obj]})
             else:
-                return self._pop([ self.flatten(v) for v in obj ])
+                return self._pop([self.flatten(v) for v in obj])
 
         if util.is_set(obj):
             if self.unpicklable is True:
-                return self._pop({tags.SET: [ self.flatten(v) for v in obj ]})
+                return self._pop({tags.SET: [self.flatten(v) for v in obj]})
             else:
-                return self._pop([ self.flatten(v) for v in obj ])
+                return self._pop([self.flatten(v) for v in obj])
 
         if util.is_dictionary(obj):
             return self._pop(self._flatten_dict_obj(obj, obj.__class__()))
@@ -234,9 +231,7 @@ class Pickler(object):
                 k = repr(k)
             except:
                 k = unicode(k)
-        self._namestack.append(k)
         data[k] = self.flatten(v)
-        self._namestack.pop()
         return data
 
     def _flatten_collection_obj(self, obj, data):
