@@ -34,11 +34,8 @@ directory::
     # activate the virtualenv
     source env/bin/activate
 
-    # install pip
-    easy_install pip
-
     # use pip to install the dependencies listed in the requirements file
-    env/bin/pip install --upgrade -r tests/test-req.txt
+    pip install --upgrade -r tests/test-req.txt
 
 To run the suite, simply invoke :file:`tests/runtests.py`::
 
