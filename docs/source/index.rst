@@ -77,6 +77,7 @@ Authors
  * Ian Schenck - http://github.com/ianschenck
  * David K. Hess - http://github.com/davidkhess
  * Alec Thomas - http://github.com/alecthomas
+ * jaraco - https://github.com/jaraco
 
 
 Change Log
