@@ -19,11 +19,13 @@ import util_tests
 import jsonpickle_test
 import thirdparty_tests
 import backends_tests
+import document_test
 
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(util_tests.suite())
     suite.addTest(jsonpickle_test.suite())
+    suite.addTest(document_test.suite())
     suite.addTest(thirdparty_tests.suite())
     suite.addTest(backends_tests.suite())
     return suite

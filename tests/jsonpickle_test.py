@@ -420,7 +420,6 @@ class PicklingTestCase(unittest.TestCase):
 
     def test_supports_getstate_setstate(self):
         obj = ThingWithProps('object-which-defines-getstate-setstate')
-        print dir(obj)
         flattened = self.pickler.flatten(obj)
         self.assertTrue(flattened[tags.STATE].get('__identity__'))
         self.assertTrue(flattened[tags.STATE].get('nom'))
@@ -494,6 +493,18 @@ class JSONPickleTestCase(unittest.TestCase):
         unpickled = jsonpickle.decode(pickled)
         self.assertEqual(unpickled,
                          {u'samples.Thing("random")': True})
+
+    def test_list_of_objects(self):
+        """Test that objects in lists are referenced correctly"""
+        a = Thing('a')
+        b = Thing('b')
+        pickled = jsonpickle.encode([a, b, b])
+        unpickled = jsonpickle.decode(pickled)
+        self.assertEqual(unpickled[1], unpickled[2])
+        self.assertEqual(type(unpickled[0]), Thing)
+        self.assertEqual(unpickled[0].name, 'a')
+        self.assertEqual(unpickled[1].name, 'b')
+        self.assertEqual(unpickled[2].name, 'b')
 
     def test_load_backend(self):
         """Test that we can call jsonpickle.load_backend()
