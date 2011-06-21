@@ -82,13 +82,24 @@ Authors
 Change Log
 ==========
 
-Version 0.4 - unreleased
+Version 0.4.0 - June 21, 2011
     * Switch build from setuptools to distutils
     * Consistent dictionary key ordering
     * Fix areas with improper support for unpicklable=False
+    * Added support for cyclical data structures (`#16 
+      <https://github.com/jsonpickle/jsonpickle/issues/16>`_).
     * Experimental support for  `jsonlib <http://pypi.python.org/pypi/jsonlib/>`_
       and `py-yajl <http://github.com/rtyler/py-yajl/>`_ backends.
     * New contributers David K. Hess and Alec Thomas
+
+    .. warning::
+
+        To support cyclical data structures (`#16 
+        <https://github.com/jsonpickle/jsonpickle/issues/16>`_), the storage format
+        has been modified.  Efforts have been made to ensure backwards-compatibility.
+        jsonpickle 0.4.0 can read data encoded by jsonpickle 0.3.1, but earlier
+        versions of jsonpickle may be unable to read data encoded by jsonpickle 
+        0.4.0.
 
 
 Version 0.3.1 - December 12, 2009
@@ -164,4 +175,4 @@ License
 jsonpickle is provided under a
 `New BSD license <http://github.com/jsonpickle/jsonpickle/raw/master/COPYING>`_,
 
-Copyright (C) 2008-2009 John Paulett (john -at- paulett.org)
+Copyright (C) 2008-2011 John Paulett (john -at- paulett.org)
