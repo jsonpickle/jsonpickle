@@ -89,9 +89,15 @@ class Unpickler(object):
                 handler = HandlerClass(self)
                 return self._pop(handler.restore(obj))
 
+            factory = loadfactory(obj)
             try:
                 if hasattr(cls, '__new__'):
-                    instance = cls.__new__(cls)
+                    # new style classes
+                    if factory:
+                        instance = cls.__new__(cls, factory)
+                        instance.default_factory = factory
+                    else:
+                        instance = cls.__new__(cls)
                 else:
                     instance = object.__new__(cls)
             except TypeError:
@@ -220,6 +226,24 @@ def loadclass(module_and_name):
         return getattr(sys.modules[module], name)
     except:
         return None
+
+def loadfactory(obj):
+    try:
+        default_factory = obj['default_factory']
+    except KeyError:
+        return None
+    try:
+        type_tag = default_factory[tags.TYPE]
+    except:
+        return None
+
+    typeref = loadclass(type_tag)
+    if typeref:
+        del obj['default_factory']
+        return typeref
+
+    return None
+
 
 def loadrepr(reprstr):
     """Returns an instance of the object from the object's repr() string.

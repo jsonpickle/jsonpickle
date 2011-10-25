@@ -7,17 +7,18 @@
 # you should have received as part of this distribution.
 
 import os
-import sys
-import doctest
-import unittest
+import collections
 import datetime
+import doctest
 import time
+import unittest
 
 import jsonpickle
 from jsonpickle import handlers
 from jsonpickle import tags
 
 from samples import Thing, ThingWithSlots, ThingWithProps, BrokenReprThing, DictSubclass, ListSubclass, SetSubclass, ListSubclassWithInit
+
 
 class PicklingTestCase(unittest.TestCase):
     def setUp(self):
@@ -158,6 +159,23 @@ class PicklingTestCase(unittest.TestCase):
         data = [1,2,3]
         newdata = jsonpickle.decode(jsonpickle.encode(data))
         self.assertEqual(data, newdata)
+
+    def test_defaultdict_roundtrip(self):
+        """Make sure we can handle collections.defaultdict(list)"""
+        # setup
+        defaultdict = collections.defaultdict(list)
+        defaultdict['a'] = 1
+        defaultdict['b'].append(2)
+        defaultdict['c'] = collections.defaultdict(dict)
+        # jsonpickle work your magic
+        encoded = jsonpickle.encode(defaultdict)
+        newdefaultdict = jsonpickle.decode(encoded)
+        # jsonpickle never fails
+        self.assertEqual(newdefaultdict['a'], 1)
+        self.assertEqual(newdefaultdict['b'], [2])
+        self.assertEqual(type(newdefaultdict['c']), collections.defaultdict)
+        self.assertEqual(defaultdict.default_factory, list)
+        self.assertEqual(newdefaultdict.default_factory, list)
 
     def test_class(self):
         inst = Thing('test name')

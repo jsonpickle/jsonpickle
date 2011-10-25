@@ -211,8 +211,14 @@ class Pickler(object):
     def _flatten_dict_obj(self, obj, data):
         """Recursively call flatten() and return json-friendly dict
         """
+        flatten = self._flatten_key_value_pair
         for k, v in sorted(obj.iteritems(), key=operator.itemgetter(0)):
-            self._flatten_key_value_pair(k, v, data)
+            flatten(k, v, data)
+
+        # the collections.defaultdict protocol
+        if hasattr(obj, 'default_factory') and callable(obj.default_factory):
+            flatten('default_factory', obj.default_factory, data)
+
         return data
 
     def _flatten_newstyle_with_slots(self, obj, data):
