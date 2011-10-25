@@ -90,14 +90,17 @@ class Unpickler(object):
                 return self._pop(handler.restore(obj))
 
             factory = loadfactory(obj)
+            args = getargs(obj)
+            if args:
+                args = self.restore(args)
             try:
                 if hasattr(cls, '__new__'):
                     # new style classes
                     if factory:
-                        instance = cls.__new__(cls, factory)
+                        instance = cls.__new__(cls, factory, *args)
                         instance.default_factory = factory
                     else:
-                        instance = cls.__new__(cls)
+                        instance = cls.__new__(cls, *args)
                 else:
                     instance = object.__new__(cls)
             except TypeError:
@@ -109,7 +112,8 @@ class Unpickler(object):
                     self._mkref(obj)
                     return self._pop(obj)
 
-            # keep a obj->name mapping for use in the _isobjref() case
+            # Add to the instance table to allow being referenced by a
+            # downstream object
             self._mkref(instance)
 
             if hasattr(instance, '__setstate__') and has_tag(obj, tags.STATE):
@@ -244,6 +248,20 @@ def loadfactory(obj):
 
     return None
 
+
+def getargs(obj):
+    try:
+        seq_list = obj[tags.SEQ]
+        obj_dict = obj[tags.OBJECT]
+    except KeyError:
+        return []
+    typeref = loadclass(obj_dict)
+    if not typeref:
+        return []
+    if hasattr(typeref, '_fields'):
+        if len(typeref._fields) == len(seq_list):
+            return seq_list
+    return []
 
 def loadrepr(reprstr):
     """Returns an instance of the object from the object's repr() string.

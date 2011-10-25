@@ -17,7 +17,10 @@ import jsonpickle
 from jsonpickle import handlers
 from jsonpickle import tags
 
-from samples import Thing, ThingWithSlots, ThingWithProps, BrokenReprThing, DictSubclass, ListSubclass, SetSubclass, ListSubclassWithInit
+from samples import (
+        Thing, ThingWithSlots, ThingWithProps, BrokenReprThing,
+        DictSubclass, ListSubclass, SetSubclass,
+        ListSubclassWithInit, NamedTuple)
 
 
 class PicklingTestCase(unittest.TestCase):
@@ -189,6 +192,19 @@ class PicklingTestCase(unittest.TestCase):
         self.assertEqual(new_deque[1], 1)
         self.assertEqual(old_deque[2], 2)
         self.assertEqual(new_deque[2], 2)
+
+    def test_namedtuple_roundtrip(self):
+        old_nt = NamedTuple(0, 1, 2)
+        encoded = jsonpickle.encode(old_nt)
+        new_nt = jsonpickle.decode(encoded)
+        self.assertEqual(type(old_nt), type(new_nt))
+        self.assertTrue(old_nt is not new_nt)
+        self.assertEqual(old_nt.a, new_nt.a)
+        self.assertEqual(old_nt.b, new_nt.b)
+        self.assertEqual(old_nt.c, new_nt.c)
+        self.assertEqual(old_nt[0], new_nt[0])
+        self.assertEqual(old_nt[1], new_nt[1])
+        self.assertEqual(old_nt[2], new_nt[2])
 
     def test_class(self):
         inst = Thing('test name')
