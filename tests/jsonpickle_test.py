@@ -177,6 +177,19 @@ class PicklingTestCase(unittest.TestCase):
         self.assertEqual(defaultdict.default_factory, list)
         self.assertEqual(newdefaultdict.default_factory, list)
 
+    def test_deque_roundtrip(self):
+        """Make sure we can handle collections.deque"""
+        old_deque = collections.deque([0, 1, 2])
+        encoded = jsonpickle.encode(old_deque)
+        new_deque = jsonpickle.decode(encoded)
+        self.assertNotEqual(encoded, 'nil')
+        self.assertEqual(old_deque[0], 0)
+        self.assertEqual(new_deque[0], 0)
+        self.assertEqual(old_deque[1], 1)
+        self.assertEqual(new_deque[1], 1)
+        self.assertEqual(old_deque[2], 2)
+        self.assertEqual(new_deque[2], 2)
+
     def test_class(self):
         inst = Thing('test name')
         inst.child = Thing('child name')

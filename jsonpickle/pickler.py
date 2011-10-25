@@ -139,9 +139,8 @@ class Pickler(object):
                 # reference tag in the data. This avoids infinite recursion
                 # when processing cyclical objects.
                 return self._pop(self._getref(obj))
-
-            return self._pop(data)
         # else, what else? (methods, functions, old style classes...)
+        return None
 
     def _flatten_obj_instance(self, obj):
         """Recursively flatten an instance and return a json-friendly dict
@@ -152,6 +151,7 @@ class Pickler(object):
         has_slots = not has_dict and hasattr(obj, '__slots__')
         has_getstate = has_dict and hasattr(obj, '__getstate__')
         has_getstate_support = has_getstate and hasattr(obj, '__setstate__')
+
         HandlerClass = handlers.registry.get(type(obj))
 
         if (has_class and not util.is_repr(obj) and
@@ -183,9 +183,6 @@ class Pickler(object):
         if util.is_dictionary_subclass(obj):
             return self._flatten_dict_obj(obj, data)
 
-        if util.is_noncomplex(obj):
-            return [self.flatten(v) for v in obj]
-
         if has_dict:
             # Support objects that subclasses list and set
             if util.is_collection_subclass(obj):
@@ -204,6 +201,12 @@ class Pickler(object):
             # hack for zope persistent objects; this unghostifies the object
             getattr(obj, '_', None)
             return self._flatten_dict_obj(obj.__dict__, data)
+
+        if util.is_collection_subclass(obj):
+            return self._flatten_collection_obj(obj, data)
+
+        if util.is_noncomplex(obj):
+            return [self.flatten(v) for v in obj]
 
         if has_slots:
             return self._flatten_newstyle_with_slots(obj, data)
@@ -242,8 +245,9 @@ class Pickler(object):
 
     def _flatten_collection_obj(self, obj, data):
         """Return a json-friendly dict for a collection subclass."""
-        self._flatten_dict_obj(obj.__dict__, data)
-        value = [ self.flatten(v) for v in obj ]
+        if hasattr(obj, '__dict__'):
+            self._flatten_dict_obj(obj.__dict__, data)
+        value = [self.flatten(v) for v in obj]
         if self.unpicklable:
             data[tags.SEQ] = value
         else:
