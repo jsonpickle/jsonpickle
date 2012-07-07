@@ -28,7 +28,7 @@ class IsPrimitiveTestCase(unittest.TestCase):
         self.assertTrue(is_primitive(float(3)))
 
     def test_long(self):
-        self.assertTrue(is_primitive(long(3)))
+        self.assertTrue(is_primitive(int(3)))
 
     def test_bool(self):
         self.assertTrue(is_primitive(True))
@@ -42,9 +42,9 @@ class IsPrimitiveTestCase(unittest.TestCase):
         self.assertTrue(is_primitive(''))
 
     def test_unicode(self):
-        self.assertTrue(is_primitive(u'hello'))
-        self.assertTrue(is_primitive(u''))
-        self.assertTrue(is_primitive(unicode('hello')))
+        self.assertTrue(is_primitive('hello'))
+        self.assertTrue(is_primitive(''))
+        self.assertTrue(is_primitive(str('hello')))
 
     def test_list(self):
         self.assertFalse(is_primitive([]))
