@@ -226,7 +226,7 @@ class Pickler(object):
         """Flatten a key/value pair into the passed-in dictionary."""
         if not util.is_picklable(k, v):
             return data
-        if type(k) not in str:
+        if not isinstance(k, str):
             try:
                 k = repr(k)
             except:
