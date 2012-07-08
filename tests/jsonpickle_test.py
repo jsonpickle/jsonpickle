@@ -560,13 +560,13 @@ class JSONPickleTestCase(unittest.TestCase):
                 backend in jsonpickle.json._encoder_options or
                 backend in jsonpickle.json._decoder_exceptions)
 
-    def test_load_backend_skips_bad_inputs(self):
+    def test_load_backend_skips_bad_encode(self):
         """Test that we ignore bad encoders"""
 
         jsonpickle.load_backend('os.path', 'bad!', 'split', AttributeError)
         self.failIf(self._backend_is_partially_loaded('os.path'))
 
-    def test_load_backend_skips_bad_inputs(self):
+    def test_load_backend_skips_bad_decode(self):
         """Test that we ignore bad decoders"""
 
         jsonpickle.load_backend('os.path', 'join', 'bad!', AttributeError)
