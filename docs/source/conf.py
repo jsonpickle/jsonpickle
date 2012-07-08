@@ -22,7 +22,7 @@ import jsonpickle
 sys.path.insert(1, os.path.abspath(os.path.join('..', '..', 'thirdparty', 'sphinx-to-github')))
 try:
     import sphinxtogithub
-except ImportError, e:
+except ImportError as e:
     raise ImportError('Could not import sphinxtogithub\nIs the git submodule populated at thirdparty/sphinx-to-github? At the project root run:\n\tgit submodule init\n\tgit submodule update')
 
 # -- General configuration -----------------------------------------------------
@@ -46,8 +46,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'jsonpickle'
-copyright = u'2008-2011, John Paulett'
+project = 'jsonpickle'
+copyright = '2008-2011, John Paulett'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -129,7 +129,7 @@ html_theme = 'default'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = filter(os.path.exists, ['_static'])
+html_static_path = list(filter(os.path.exists, ['_static']))
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
@@ -181,8 +181,8 @@ htmlhelp_basename = 'jsonpickledoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'jsonpickle.tex', u'jsonpickle Documentation',
-   u'John Paulett', 'manual'),
+  ('index', 'jsonpickle.tex', 'jsonpickle Documentation',
+   'John Paulett', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
