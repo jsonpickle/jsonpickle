@@ -46,7 +46,8 @@ def main():
 
 def _check_dependencies():
     # check to see if any of the supported backends is installed
-    backends = _jsonpickle.SUPPORTED_BACKENDS
+    from jsonpickle.pluginmgr import SUPPORTED_BACKENDS
+    backends = SUPPORTED_BACKENDS
     if not any([_is_installed(module) for module in backends]):
         print >> sys.stderr, ('No supported JSON backend found. '
                               'Must install one of %s' % (', '.join(backends)))
