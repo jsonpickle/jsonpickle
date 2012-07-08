@@ -32,6 +32,6 @@ if doc['feed']['title'] != unpickled['feed']['title']:
     print 'Not a match'
 """ % mod
 
-print 'Using %s' % mod
+print('Using %s' % mod)
 json_test = timeit.Timer(stmt=json)
-print "%.9f sec/pass " % (json_test.timeit(number=number) / number)
+print("%.9f sec/pass " % (json_test.timeit(number=number) / number))

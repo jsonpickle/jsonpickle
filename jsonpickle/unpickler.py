@@ -111,7 +111,7 @@ class Unpickler(object):
                 instance.__setstate__(state)
                 return self._pop(instance)
 
-            for k, v in sorted(obj.iteritems(), key=operator.itemgetter(0)):
+            for k, v in sorted(iter(obj.items()), key=operator.itemgetter(0)):
                 # ignore the reserved attribute
                 if k in tags.RESERVED:
                     continue
@@ -148,7 +148,7 @@ class Unpickler(object):
 
         if util.is_dictionary(obj):
             data = {}
-            for k, v in sorted(obj.iteritems(), key=operator.itemgetter(0)):
+            for k, v in sorted(iter(obj.items()), key=operator.itemgetter(0)):
                 self._namestack.append(k)
                 data[k] = self.restore(v)
                 self._namestack.pop()
