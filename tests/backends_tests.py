@@ -66,7 +66,7 @@ class DemjsonTestCase(BackendTestCase):
         self.set_preferred_backend('demjson')
         
     def test(self):
-        expected_pickled = u'{"things":[{"child":null,"name":"data","py/object":"samples.Thing"}]}'
+        expected_pickled = '{"things":[{"child":null,"name":"data","py/object":"samples.Thing"}]}'
         self.assertEncodeDecode(expected_pickled)
 
 

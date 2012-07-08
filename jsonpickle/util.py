@@ -17,7 +17,9 @@ from jsonpickle import tags
 from jsonpickle.compat import set
 
 COLLECTIONS = set, list, tuple
-PRIMITIVES = str, unicode, int, float, bool, long
+# TODO: 2to3: No more longs and unicode
+#PRIMITIVES = str, unicode, int, float, bool, long
+PRIMITIVES = str, int, float, bool
 NEEDS_REPR = (datetime.datetime, datetime.time, datetime.date,
               datetime.timedelta)
 
@@ -37,7 +39,7 @@ def is_type(obj):
     #FIXME "<class" seems like a hack. It will incorrectly return True
     # for any class that does not define a custom __repr__ in a
     # module that starts with "class" (e.g. "classify.SomeClass")
-    return type(obj) is types.TypeType or repr(obj).startswith('<class')
+    return type(obj) is type or repr(obj).startswith('<class')
 
 def is_object(obj):
     """Returns True is obj is a reference to an object instance.
@@ -52,7 +54,7 @@ def is_object(obj):
     False
     """
     return (isinstance(obj, object) and
-            type(obj) is not types.TypeType and
+            type(obj) is not type and
             type(obj) is not types.FunctionType)
 
 def is_primitive(obj):
@@ -223,6 +225,8 @@ def is_installed(module):
     try:
         __import__(module)
         return True
-    except ImportError, e:
+
+    # TODO: 2to3: check exception argument - none needed here
+    except ImportError as e:
         return False
 
