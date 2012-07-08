@@ -319,6 +319,14 @@ class PicklingTestCase(unittest.TestCase):
         inflated = self.unpickler.restore(flattened)
         self.assertEqual(obj, inflated)
 
+    def test_datetime_inside_int_keys(self):
+        t = datetime.time(hour=10)
+        s = jsonpickle.encode({1:t, 2:t})
+        d = jsonpickle.decode(s)
+        self.assertEqual(d["1"], d["2"])
+        self.assertTrue(d["1"] is d["2"])
+        self.assertTrue(isinstance(d["1"], datetime.time))
+
     def test_broken_repr_dict_key(self):
         """Tests that we can pickle dictionaries with keys that have
         broken __repr__ implementations.

@@ -75,7 +75,9 @@ class Unpickler(object):
             return self._pop(typeref)
 
         if has_tag(obj, tags.REPR):
-            return self._pop(loadrepr(obj[tags.REPR]))
+            obj = loadrepr(obj[tags.REPR])
+            self._mkref(obj)
+            return self._pop(obj)
 
         if has_tag(obj, tags.OBJECT):
 
