@@ -7,7 +7,6 @@
 # you should have received as part of this distribution.
 
 import os
-import sys
 import doctest
 import unittest
 import datetime
@@ -18,6 +17,7 @@ from jsonpickle import handlers
 from jsonpickle import tags
 
 from samples import Thing, ThingWithSlots, ThingWithProps, BrokenReprThing, DictSubclass, ListSubclass, SetSubclass, ListSubclassWithInit
+
 
 class PicklingTestCase(unittest.TestCase):
     def setUp(self):

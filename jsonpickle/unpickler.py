@@ -201,6 +201,7 @@ class Unpickler(object):
             self._objs.append(obj)
         return idx
 
+
 def loadclass(module_and_name):
     """Loads the module and returns the class.
 
@@ -221,6 +222,7 @@ def loadclass(module_and_name):
     except:
         return None
 
+
 def loadrepr(reprstr):
     """Returns an instance of the object from the object's repr() string.
     It involves the dynamic specification of code.
@@ -237,6 +239,7 @@ def loadrepr(reprstr):
         localname = module.split('.', 1)[0]
     mylocals[localname] = __import__(module)
     return eval(evalstr)
+
 
 def has_tag(obj, tag):
     """Helper class that tests to see if the obj is a dictionary
