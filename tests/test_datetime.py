@@ -9,7 +9,7 @@
 import unittest
 import datetime
 
-import jsonpickle
+import jsonpickle._handlers
 
 
 # UTC implementation from Python 2.7 docs
@@ -29,15 +29,45 @@ utc = UTC()
 
 
 class DateTimeTests(unittest.TestCase):
+    def _roundtrip(self, object):
+        """
+        pickle and then unpickle object, then assert the new object is the
+        same as the original.
+        """
+        pickled = jsonpickle.encode(object)
+        unpickled = jsonpickle.decode(pickled)
+        self.assertEquals(object, unpickled)
+
+    def test_datetime(self):
+        """
+        jsonpickle should pickle a datetime object
+        """
+        self._roundtrip(datetime.datetime.now())
+
+    def test_date(self):
+        """
+        jsonpickle should pickle a date object
+        """
+        self._roundtrip(datetime.datetime.today())
+
+    def test_time(self):
+        """
+        jsonpickle should pickle a time object
+        """
+        self._roundtrip(datetime.datetime.now().time())
+
+    def test_timedelta(self):
+        """
+        jsonpickle should pickle a timedelta object
+        """
+        self._roundtrip(datetime.timedelta(days=3))
+
     def test_utc(self):
         """
         jsonpickle should be able to encode and decode a datetime with a
         simple, pickleable UTC tzinfo.
         """
-        now = datetime.datetime.utcnow().replace(tzinfo=utc)
-        pickled = jsonpickle.encode(now)
-        unpickled = jsonpickle.decode(pickled)
-        self.assertEquals(now, unpickled)
+        self._roundtrip(datetime.datetime.utcnow().replace(tzinfo=utc))
 
 def suite():
     suite = unittest.TestSuite()
