@@ -409,7 +409,6 @@ class PicklingTestCase(unittest.TestCase):
 
     def test_supports_getstate_setstate(self):
         obj = ThingWithProps('object-which-defines-getstate-setstate')
-        print dir(obj)
         flattened = self.pickler.flatten(obj)
         self.assertTrue(flattened[tags.STATE].get('__identity__'))
         self.assertTrue(flattened[tags.STATE].get('nom'))
