@@ -223,6 +223,6 @@ def is_installed(module):
     try:
         __import__(module)
         return True
-    except ImportError, e:
+    except ImportError as e:
         return False
 
