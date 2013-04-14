@@ -1,0 +1,5 @@
+feedparser
+simplejson
+demjson
+jsonlib
+yajl
