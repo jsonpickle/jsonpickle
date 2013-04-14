@@ -65,28 +65,5 @@ task :tests => [] do
   }
 end
 
-task :tag => [:tests] do
-  sh "git tag #{VERSION}"
-  sh "git push origin #{VERSION}"
-end
-
-task :reset_tag => [] do
-  sh "git tag -d #{VERSION}"
-  sh "git push origin :refs/tags/#{VERSION}"
-end
-
-task :publish => [:tests, :tag] do
-  # http://guide.python-distribute.org/quickstart.html
-  # python setup.py sdist
-  # python setup.py register
-  # python setup.py sdist upload
-  # Manual upload to PypI
-  # http://pypi.python.org/pypi/THE-PROJECT
-  # Go to 'edit' link
-  # Update version and save
-  # Go to 'files' link and upload the file
-  virtual_env("python setup.py sdist upload")
-end
-
 task :default => [:tests]
 

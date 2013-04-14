@@ -12,12 +12,13 @@ determining the type of an object.
 import time
 import types
 import datetime
+from six import string_types
 
 from jsonpickle import tags
 from jsonpickle.compat import set
 
 COLLECTIONS = set, list, tuple
-PRIMITIVES = str, unicode, int, float, bool, long
+PRIMITIVES = str, int, float, bool, long
 NEEDS_REPR = (datetime.datetime, datetime.time, datetime.date,
               datetime.timedelta)
 
@@ -66,6 +67,8 @@ def is_primitive(obj):
     False
     """
     if obj is None:
+        return True
+    elif isinstance(obj, string_types):
         return True
     elif type(obj) in PRIMITIVES:
         return True
