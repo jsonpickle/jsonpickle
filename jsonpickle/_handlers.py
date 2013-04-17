@@ -1,5 +1,6 @@
-import jsonpickle
 import datetime
+
+import jsonpickle
 
 class DatetimeHandler(jsonpickle.handlers.BaseHandler):
 	"""
