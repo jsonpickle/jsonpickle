@@ -9,8 +9,7 @@
 import unittest
 import datetime
 
-import jsonpickle._handlers
-
+import jsonpickle
 
 # UTC implementation from Python 2.7 docs
 class UTC(datetime.tzinfo):
