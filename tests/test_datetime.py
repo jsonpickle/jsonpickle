@@ -68,6 +68,17 @@ class DateTimeTests(unittest.TestCase):
         """
         self._roundtrip(datetime.datetime.utcnow().replace(tzinfo=utc))
 
+    def test_unpickleable(self):
+        """
+        If 'unpickleable' is set on the Pickler, the date objects should be
+        simple, human-readable strings.
+        """
+        obj = datetime.datetime.now()
+        pickler = jsonpickle.Pickler(unpicklable=False)
+        flattened = pickler.flatten(obj)
+        self.assertEqual(str(obj), flattened)
+
+
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(DateTimeTests, 'test_utc'))

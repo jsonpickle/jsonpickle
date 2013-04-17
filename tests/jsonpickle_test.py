@@ -7,7 +7,6 @@
 # you should have received as part of this distribution.
 
 import os
-import sys
 import doctest
 import unittest
 import datetime
@@ -319,14 +318,6 @@ class PicklingTestCase(unittest.TestCase):
         flattened = pickler.flatten(obj)
         self.assertTrue('<BrokenReprThing "test">' in flattened)
         self.assertTrue(flattened['<BrokenReprThing "test">'])
-
-    def test_repr_not_unpickable(self):
-        obj = datetime.datetime.now()
-        pickler = jsonpickle.pickler.Pickler(unpicklable=False)
-        flattened = pickler.flatten(obj)
-        self.assertFalse(tags.REPR in flattened)
-        self.assertFalse(tags.OBJECT in flattened)
-        self.assertEqual(str(obj), flattened)
 
     def test_thing_with_module(self):
         obj = Thing('with-module')
