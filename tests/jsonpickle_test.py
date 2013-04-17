@@ -309,16 +309,6 @@ class PicklingTestCase(unittest.TestCase):
         flattened = self.pickler.flatten(set(['one', 2, 3]))
         self.assertEqual(sorted(flattened), sorted(['one', 2, 3]))
 
-    def test_datetime(self):
-        obj = datetime.datetime.now()
-
-        flattened = self.pickler.flatten(obj)
-        self.assertTrue(repr(obj) in flattened[tags.REPR])
-        self.assertTrue('datetime' in flattened[tags.REPR])
-
-        inflated = self.unpickler.restore(flattened)
-        self.assertEqual(obj, inflated)
-
     def test_broken_repr_dict_key(self):
         """Tests that we can pickle dictionaries with keys that have
         broken __repr__ implementations.
@@ -355,36 +345,6 @@ class PicklingTestCase(unittest.TestCase):
         flattened = self.pickler.flatten(obj)
         inflated = self.unpickler.restore(flattened)
         self.assertEqual(inflated.submodule, sysconfig)
-
-    def test_datetime_date(self):
-        obj = datetime.datetime.now().date()
-
-        flattened = self.pickler.flatten(obj)
-        self.assertTrue(repr(obj) in flattened[tags.REPR])
-        self.assertTrue('datetime' in flattened[tags.REPR])
-
-        inflated = self.unpickler.restore(flattened)
-        self.assertEqual(obj, inflated)
-
-    def test_datetime_time(self):
-        obj = datetime.datetime.now().time()
-
-        flattened = self.pickler.flatten(obj)
-        self.assertTrue(repr(obj) in flattened[tags.REPR])
-        self.assertTrue('datetime' in flattened[tags.REPR])
-
-        inflated = self.unpickler.restore(flattened)
-        self.assertEqual(obj, inflated)
-
-    def test_datetime_timedelta(self):
-        obj = datetime.timedelta(5)
-
-        flattened = self.pickler.flatten(obj)
-        self.assertTrue(repr(obj) in flattened[tags.REPR])
-        self.assertTrue('datetime' in flattened[tags.REPR])
-
-        inflated = self.unpickler.restore(flattened)
-        self.assertEqual(obj, inflated)
 
     def test_type_reference(self):
         """This test ensures that users can store references to types.
