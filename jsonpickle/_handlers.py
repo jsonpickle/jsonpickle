@@ -40,7 +40,6 @@ class SimpleReduceHandler(jsonpickle.handlers.BaseHandler):
         cls, args = map(unpickler.restore, obj['__reduce__'])
         return cls.__new__(cls, *args)
 
-jsonpickle.util.NEEDS_REPR = ()
 jsonpickle.handlers.registry.register(datetime.datetime, DatetimeHandler)
 jsonpickle.handlers.registry.register(datetime.date, DatetimeHandler)
 jsonpickle.handlers.registry.register(datetime.time, DatetimeHandler)

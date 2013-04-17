@@ -59,6 +59,9 @@ added to JSON.
 from jsonpickle.pickler import Pickler
 from jsonpickle.unpickler import Unpickler
 
+# ensure built-in handlers are loaded
+__import__('jsonpickle._handlers')
+
 __version__ = '0.4.1dev'
 __all__ = ('encode', 'decode')
 
@@ -108,7 +111,7 @@ class JSONPluginMgr(object):
         ## Experimental support
         self.load_backend('jsonlib', 'write', 'read', 'ReadError')
         self.load_backend('yajl', 'dumps', 'loads', ValueError)
-        
+
 
     def _verify(self):
         """Ensures that we've loaded at least one JSON backend."""
@@ -124,7 +127,7 @@ class JSONPluginMgr(object):
 
         This method loads a backend and sets up references to that
         backend's encode/decode functions and exception classes.
-        
+
         :param encode_name: is the name of the backend's encode method.
           The method should take an object and return a string.
         :param decode_name: names the backend's method for the reverse
@@ -134,7 +137,7 @@ class JSONPluginMgr(object):
           to the appropriate exception class itself.  If it is a name,
           then the assumption is that an exception class of that name
           can be found in the backend module's namespace.
-            
+
         """
         try:
             ## Load the JSON backend
@@ -233,7 +236,7 @@ class JSONPluginMgr(object):
         before any other backend.
 
         For example::
-        
+
             set_preferred_backend('simplejson')
 
         If the backend is not one of the built-in jsonpickle backends
@@ -259,7 +262,7 @@ class JSONPluginMgr(object):
         the appropriate backend's encode method.
 
         For example::
-        
+
             set_encoder_options('simplejson', sort_keys=True, indent=4)
             set_encoder_options('demjson', compactly=False)
 

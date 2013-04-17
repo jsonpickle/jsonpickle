@@ -11,15 +11,13 @@ determining the type of an object.
 """
 import time
 import types
-import datetime
 
 from jsonpickle import tags
 from jsonpickle.compat import set
 
 COLLECTIONS = set, list, tuple
 PRIMITIVES = str, unicode, int, float, bool, long
-NEEDS_REPR = (datetime.datetime, datetime.time, datetime.date,
-              datetime.timedelta)
+NEEDS_REPR = ()
 
 def is_type(obj):
     """Returns True is obj is a reference to a type.
