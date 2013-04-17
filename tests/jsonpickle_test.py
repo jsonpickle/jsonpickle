@@ -638,6 +638,7 @@ class UnicodeMixin(unicode, Mixin):
 
 
 class UnicodeMixinHandler(handlers.BaseHandler):
+    _handles = UnicodeMixin,
     def flatten(self, obj, data):
         data['value'] = obj
         return data
@@ -647,12 +648,6 @@ class UnicodeMixinHandler(handlers.BaseHandler):
 
 
 class ExternalHandlerTestCase(unittest.TestCase):
-    def setUp(self):
-        handlers.registry.register(UnicodeMixin, UnicodeMixinHandler)
-
-    def tearDown(self):
-        handlers.registry.unregister(UnicodeMixin)
-
     def test_unicode_mixin(self):
         obj = UnicodeMixin('test')
         self.assertEqual(type(obj), UnicodeMixin)
