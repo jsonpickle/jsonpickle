@@ -9,8 +9,10 @@ class DatetimeHandler(jsonpickle.handlers.BaseHandler):
     object.
     """
     def flatten(self, obj, data):
+        pickler = self._base
+        if not pickler.unpicklable:
+            return unicode(obj)
         cls, args = obj.__reduce__()
-        pickler = jsonpickle.Pickler()
         args = [args[0].encode('base64')] + map(pickler.flatten, args[1:])
         data['__reduce__'] = (pickler.flatten(cls), args)
         return data
@@ -31,7 +33,9 @@ class SimpleReduceHandler(jsonpickle.handlers.BaseHandler):
     implements the reduce protocol.
     """
     def flatten(self, obj, data):
-        pickler = jsonpickle.Pickler()
+        pickler = self._base
+        if not pickler.unpicklable:
+            return unicode(obj)
         data['__reduce__'] = map(pickler.flatten, obj.__reduce__())
         return data
 
