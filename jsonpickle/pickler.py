@@ -103,49 +103,59 @@ class Pickler(object):
         """
         self._push()
 
-        if self._depth == self._max_depth:
-            return self._pop(repr(obj))
+        max_reached = self._depth == self._max_depth
+        flatten_func = self._get_flattener(obj) if not max_reached else repr
+
+        return self._pop(flatten_func(obj))
+
+    def _get_flattener(self, obj):
 
         if util.is_primitive(obj):
-            return self._pop(obj)
+            return lambda obj: obj
+
+        list_recurse = lambda obj: [self.flatten(v) for v in obj]
 
         if util.is_list(obj):
             if self._mkref(obj):
-                return self._pop([self.flatten(v) for v in obj])
+                return list_recurse
             else:
-                return self._getref(obj)
+                self._push()
+                return self._getref
 
         # We handle tuples and sets by encoding them in a "(tuple|set)dict"
         if util.is_tuple(obj):
-            if self.unpicklable:
-                return self._pop({tags.TUPLE: [self.flatten(v) for v in obj]})
-            else:
-                return self._pop([self.flatten(v) for v in obj])
+            if not self.unpickleable:
+                return list_recurse
+            return lambda obj: {tags.TUPLE: [self.flatten(v) for v in obj]}
 
         if util.is_set(obj):
-            if self.unpicklable:
-                return self._pop({tags.SET: [self.flatten(v) for v in obj]})
-            else:
-                return self._pop([self.flatten(v) for v in obj])
+            if not self.unpickleable:
+                return list_recurse
+            return lambda obj: {tags.SET: [self.flatten(v) for v in obj]}
 
         if util.is_dictionary(obj):
-            return self._pop(self._flatten_dict_obj(obj, obj.__class__()))
+            return self._flatten_dict_obj
 
         if util.is_type(obj):
-            return self._pop(_mktyperef(obj))
+            return _mktyperef
 
         if util.is_object(obj):
-            if self._mkref(obj):
-                # We've never seen this object so return its
-                # json representation.
-                return self._pop(self._flatten_obj_instance(obj))
-            else:
-                # We've seen this object before so place an object
-                # reference tag in the data. This avoids infinite recursion
-                # when processing cyclical objects.
-                return self._pop(self._getref(obj))
+            return self._ref_obj_instance
+
         # else, what else? (methods, functions, old style classes...)
         return None
+
+    def _ref_obj_instance(self, obj):
+        """Reference an existing object or flatten if new
+        """
+        if self._mkref(obj):
+            # We've never seen this object so return its
+            # json representation.
+            return self._flatten_obj_instance(obj)
+        # We've seen this object before so place an object
+        # reference tag in the data. This avoids infinite recursion
+        # when processing cyclical objects.
+        return self._getref(obj)
 
     def _flatten_obj_instance(self, obj):
         """Recursively flatten an instance and return a json-friendly dict
@@ -209,9 +219,12 @@ class Pickler(object):
         if has_slots:
             return self._flatten_newstyle_with_slots(obj, data)
 
-    def _flatten_dict_obj(self, obj, data):
+    def _flatten_dict_obj(self, obj, data=None):
         """Recursively call flatten() and return json-friendly dict
         """
+        if data is None:
+            data = obj.__class__()
+
         flatten = self._flatten_key_value_pair
         for k, v in sorted(obj.items(), key=operator.itemgetter(0)):
             flatten(k, v, data)
