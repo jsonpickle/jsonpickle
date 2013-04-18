@@ -154,8 +154,7 @@ class Pickler(object):
         has_getstate_support = has_getstate and hasattr(obj, '__setstate__')
         HandlerClass = handlers.registry.get(type(obj))
 
-        if (has_class and not util.is_repr(obj) and
-                not util.is_module(obj)):
+        if has_class and not util.is_module(obj):
             module, name = _getclassdetail(obj)
             if self.unpicklable is True:
                 data[tags.OBJECT] = '%s.%s' % (module, name)
