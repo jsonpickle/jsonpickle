@@ -7,17 +7,21 @@
 # you should have received as part of this distribution.
 
 import os
-import sys
-import doctest
-import unittest
+import collections
 import datetime
+import doctest
 import time
+import unittest
 
 import jsonpickle
 from jsonpickle import handlers
 from jsonpickle import tags
 
-from samples import Thing, ThingWithSlots, ThingWithProps, BrokenReprThing, DictSubclass, ListSubclass, SetSubclass, ListSubclassWithInit
+from samples import (
+        Thing, ThingWithSlots, ThingWithProps, BrokenReprThing,
+        DictSubclass, ListSubclass, SetSubclass,
+        ListSubclassWithInit, NamedTuple)
+
 
 class PicklingTestCase(unittest.TestCase):
     def setUp(self):
@@ -158,6 +162,49 @@ class PicklingTestCase(unittest.TestCase):
         data = [1,2,3]
         newdata = jsonpickle.decode(jsonpickle.encode(data))
         self.assertEqual(data, newdata)
+
+    def test_defaultdict_roundtrip(self):
+        """Make sure we can handle collections.defaultdict(list)"""
+        # setup
+        defaultdict = collections.defaultdict(list)
+        defaultdict['a'] = 1
+        defaultdict['b'].append(2)
+        defaultdict['c'] = collections.defaultdict(dict)
+        # jsonpickle work your magic
+        encoded = jsonpickle.encode(defaultdict)
+        newdefaultdict = jsonpickle.decode(encoded)
+        # jsonpickle never fails
+        self.assertEqual(newdefaultdict['a'], 1)
+        self.assertEqual(newdefaultdict['b'], [2])
+        self.assertEqual(type(newdefaultdict['c']), collections.defaultdict)
+        self.assertEqual(defaultdict.default_factory, list)
+        self.assertEqual(newdefaultdict.default_factory, list)
+
+    def test_deque_roundtrip(self):
+        """Make sure we can handle collections.deque"""
+        old_deque = collections.deque([0, 1, 2])
+        encoded = jsonpickle.encode(old_deque)
+        new_deque = jsonpickle.decode(encoded)
+        self.assertNotEqual(encoded, 'nil')
+        self.assertEqual(old_deque[0], 0)
+        self.assertEqual(new_deque[0], 0)
+        self.assertEqual(old_deque[1], 1)
+        self.assertEqual(new_deque[1], 1)
+        self.assertEqual(old_deque[2], 2)
+        self.assertEqual(new_deque[2], 2)
+
+    def test_namedtuple_roundtrip(self):
+        old_nt = NamedTuple(0, 1, 2)
+        encoded = jsonpickle.encode(old_nt)
+        new_nt = jsonpickle.decode(encoded)
+        self.assertEqual(type(old_nt), type(new_nt))
+        self.assertTrue(old_nt is not new_nt)
+        self.assertEqual(old_nt.a, new_nt.a)
+        self.assertEqual(old_nt.b, new_nt.b)
+        self.assertEqual(old_nt.c, new_nt.c)
+        self.assertEqual(old_nt[0], new_nt[0])
+        self.assertEqual(old_nt[1], new_nt[1])
+        self.assertEqual(old_nt[2], new_nt[2])
 
     def test_class(self):
         inst = Thing('test name')

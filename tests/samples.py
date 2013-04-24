@@ -6,6 +6,7 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 
+import collections
 from jsonpickle.compat import set
 
 
@@ -83,6 +84,8 @@ class ListSubclassWithInit(list):
 class SetSubclass(set):
     pass
 
+
+NamedTuple = collections.namedtuple('NamedTuple', 'a, b, c')
 
 class BrokenReprThing(Thing):
     def __repr__(self):

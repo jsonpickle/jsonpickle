@@ -132,7 +132,9 @@ def is_collection_subclass(obj):
     True
     """
     #TODO add UserDict
-    return issubclass(obj.__class__, COLLECTIONS) and not is_collection(obj)
+    return ((issubclass(obj.__class__, COLLECTIONS) or
+                is_list_like(obj)) and
+            not is_collection(obj))
 
 def is_noncomplex(obj):
     """Returns True if *obj* is a special (weird) class, that is more complex
@@ -226,3 +228,5 @@ def is_installed(module):
     except ImportError, e:
         return False
 
+def is_list_like(obj):
+    return hasattr(obj, '__getitem__') and hasattr(obj, 'append')
