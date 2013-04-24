@@ -154,28 +154,21 @@ class Pickler(object):
 
         HandlerClass = handlers.registry.get(type(obj))
 
-        if (has_class and not util.is_repr(obj) and
-                not util.is_module(obj)):
+        if has_class and not util.is_module(obj):
             module, name = _getclassdetail(obj)
             if self.unpicklable is True:
                 data[tags.OBJECT] = '%s.%s' % (module, name)
             # Check for a custom handler
             if HandlerClass:
                 handler = HandlerClass(self)
-                return handler.flatten(obj, data)
+                flat_obj = handler.flatten(obj, data)
+                self._mkref(flat_obj)
+                return flat_obj
 
         if util.is_module(obj):
             if self.unpicklable is True:
                 data[tags.REPR] = '%s/%s' % (obj.__name__,
                                              obj.__name__)
-            else:
-                data = unicode(obj)
-            return data
-
-        if util.is_repr(obj):
-            if self.unpicklable is True:
-                data[tags.REPR] = '%s/%s' % (obj.__class__.__module__,
-                                             repr(obj))
             else:
                 data = unicode(obj)
             return data

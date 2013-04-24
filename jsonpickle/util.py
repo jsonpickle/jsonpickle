@@ -11,15 +11,12 @@ determining the type of an object.
 """
 import time
 import types
-import datetime
 
 from jsonpickle import tags
 from jsonpickle.compat import set
 
 COLLECTIONS = set, list, tuple
 PRIMITIVES = str, unicode, int, float, bool, long
-NEEDS_REPR = (datetime.datetime, datetime.time, datetime.date,
-              datetime.timedelta)
 
 def is_type(obj):
     """Returns True is obj is a reference to a type.
@@ -145,17 +142,6 @@ def is_noncomplex(obj):
     if type(obj) is time.struct_time:
         return True
     return False
-
-def is_repr(obj):
-    """Returns True if the *obj* must be encoded and decoded using the
-    :func:`repr` function. Including:
-
-        * :class:`~datetime.datetime`
-        * :class:`~datetime.date`
-        * :class:`~datetime.time`
-        * :class:`~datetime.timedelta`
-    """
-    return isinstance(obj, NEEDS_REPR)
 
 def is_function(obj):
     """Returns true if passed a function

@@ -7,6 +7,7 @@
 # you should have received as part of this distribution.
 
 import collections
+import sys
 import datetime
 import doctest
 import os
@@ -361,8 +362,8 @@ class PicklingTestCase(unittest.TestCase):
         obj = datetime.datetime.now()
 
         flattened = self.pickler.flatten(obj)
-        self.assertTrue(repr(obj) in flattened[tags.REPR])
-        self.assertTrue('datetime' in flattened[tags.REPR])
+        self.assertTrue(tags.OBJECT in flattened)
+        self.assertTrue('__reduce__' in flattened)
 
         inflated = self.unpickler.restore(flattened)
         self.assertEqual(obj, inflated)
@@ -386,14 +387,6 @@ class PicklingTestCase(unittest.TestCase):
         self.assertTrue('<BrokenReprThing "test">' in flattened)
         self.assertTrue(flattened['<BrokenReprThing "test">'])
 
-    def test_repr_not_unpickable(self):
-        obj = datetime.datetime.now()
-        pickler = jsonpickle.pickler.Pickler(unpicklable=False)
-        flattened = pickler.flatten(obj)
-        self.assertFalse(tags.REPR in flattened)
-        self.assertFalse(tags.OBJECT in flattened)
-        self.assertEqual(str(obj), flattened)
-
     def test_thing_with_module(self):
         obj = Thing('with-module')
         obj.themodule = os
@@ -411,36 +404,6 @@ class PicklingTestCase(unittest.TestCase):
         flattened = self.pickler.flatten(obj)
         inflated = self.unpickler.restore(flattened)
         self.assertEqual(inflated.submodule, sysconfig)
-
-    def test_datetime_date(self):
-        obj = datetime.datetime.now().date()
-
-        flattened = self.pickler.flatten(obj)
-        self.assertTrue(repr(obj) in flattened[tags.REPR])
-        self.assertTrue('datetime' in flattened[tags.REPR])
-
-        inflated = self.unpickler.restore(flattened)
-        self.assertEqual(obj, inflated)
-
-    def test_datetime_time(self):
-        obj = datetime.datetime.now().time()
-
-        flattened = self.pickler.flatten(obj)
-        self.assertTrue(repr(obj) in flattened[tags.REPR])
-        self.assertTrue('datetime' in flattened[tags.REPR])
-
-        inflated = self.unpickler.restore(flattened)
-        self.assertEqual(obj, inflated)
-
-    def test_datetime_timedelta(self):
-        obj = datetime.timedelta(5)
-
-        flattened = self.pickler.flatten(obj)
-        self.assertTrue(repr(obj) in flattened[tags.REPR])
-        self.assertTrue('datetime' in flattened[tags.REPR])
-
-        inflated = self.unpickler.restore(flattened)
-        self.assertEqual(obj, inflated)
 
     def test_type_reference(self):
         """This test ensures that users can store references to types.
