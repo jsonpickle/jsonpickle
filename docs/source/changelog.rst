@@ -4,6 +4,8 @@ Version 0.5.0 - TBD
 -------------------
 
     * We now support namedtuple, deque, and defaultdict.
+    * Better support for complicated structures e.g.
+      datetime inside dicts.
 
 Version 0.4.0 - June 21, 2011
 -----------------------------

@@ -6,10 +6,10 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 
-import os
 import collections
 import datetime
 import doctest
+import os
 import time
 import unittest
 
@@ -21,6 +21,7 @@ from samples import (
         Thing, ThingWithSlots, ThingWithProps, BrokenReprThing,
         DictSubclass, ListSubclass, SetSubclass,
         ListSubclassWithInit, NamedTuple)
+
 
 
 class PicklingTestCase(unittest.TestCase):
@@ -366,6 +367,14 @@ class PicklingTestCase(unittest.TestCase):
         inflated = self.unpickler.restore(flattened)
         self.assertEqual(obj, inflated)
 
+    def test_datetime_inside_int_keys(self):
+        t = datetime.time(hour=10)
+        s = jsonpickle.encode({1:t, 2:t})
+        d = jsonpickle.decode(s)
+        self.assertEqual(d["1"], d["2"])
+        self.assertTrue(d["1"] is d["2"])
+        self.assertTrue(isinstance(d["1"], datetime.time))
+
     def test_broken_repr_dict_key(self):
         """Tests that we can pickle dictionaries with keys that have
         broken __repr__ implementations.
@@ -607,13 +616,13 @@ class JSONPickleTestCase(unittest.TestCase):
                 backend in jsonpickle.json._encoder_options or
                 backend in jsonpickle.json._decoder_exceptions)
 
-    def test_load_backend_skips_bad_inputs(self):
+    def test_load_backend_skips_bad_encode(self):
         """Test that we ignore bad encoders"""
 
         jsonpickle.load_backend('os.path', 'bad!', 'split', AttributeError)
         self.failIf(self._backend_is_partially_loaded('os.path'))
 
-    def test_load_backend_skips_bad_inputs(self):
+    def test_load_backend_skips_bad_decode(self):
         """Test that we ignore bad decoders"""
 
         jsonpickle.load_backend('os.path', 'join', 'bad!', AttributeError)
