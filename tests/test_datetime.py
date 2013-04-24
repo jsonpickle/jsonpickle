@@ -28,14 +28,14 @@ utc = UTC()
 
 
 class DateTimeTests(unittest.TestCase):
-    def _roundtrip(self, object):
+    def _roundtrip(self, obj):
         """
         pickle and then unpickle object, then assert the new object is the
         same as the original.
         """
-        pickled = jsonpickle.encode(object)
+        pickled = jsonpickle.encode(obj)
         unpickled = jsonpickle.decode(pickled)
-        self.assertEquals(object, unpickled)
+        self.assertEquals(obj, unpickled)
 
     def test_datetime(self):
         """
