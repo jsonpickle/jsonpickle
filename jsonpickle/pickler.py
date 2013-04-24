@@ -76,24 +76,26 @@ class Pickler(object):
         return value
 
     def _mkref(self, obj):
-        # Do not use references if not unpicklable.
-        if self.unpicklable is False:
-            return True
-        objid = id(obj)
-        if self.make_refs:
+        if self.make_refs and self.unpicklable:
+            # Do not use references if not unpicklable.
+            objid = id(obj)
             if objid in self._objs:
                 # We've seen this object before so place an object
                 # reference tag in the data. This avoids infinite recursion
                 # when processing cyclical objects.
-                return self._getref(obj)
+                return self._reference(obj)
             self._objs[objid] = '/' + '/'.join(self._namestack)
             # We've never seen this object so return its
             # json representation.
             return self._flatten_obj_instance(obj)
-        # Refs support is turned off, just flatten it
-        return self._flatten_obj_instance(obj)
+        else:
+            # Refs support is turned off, just flatten it.
+            # This means either unpicklable is False
+            # ("we cannot unpickle"), or the caller requested that
+            # we disable it by passing make_refs=False.
+            return self._flatten_obj_instance(obj)
 
-    def _getref(self, obj):
+    def _reference(self, obj):
         return {tags.REF: self._objs.get(id(obj))}
 
     def flatten(self, obj):
