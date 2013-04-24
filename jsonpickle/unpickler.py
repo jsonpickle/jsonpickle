@@ -75,7 +75,9 @@ class Unpickler(object):
             return self._pop(typeref)
 
         if has_tag(obj, tags.REPR):
-            return self._pop(loadrepr(obj[tags.REPR]))
+            obj = loadrepr(obj[tags.REPR])
+            self._mkref(obj)
+            return self._pop(obj)
 
         if has_tag(obj, tags.OBJECT):
 
@@ -211,6 +213,7 @@ class Unpickler(object):
             self._objs.append(obj)
         return idx
 
+
 def loadclass(module_and_name):
     """Loads the module and returns the class.
 
@@ -230,6 +233,7 @@ def loadclass(module_and_name):
         return getattr(sys.modules[module], name)
     except:
         return None
+
 
 def loadfactory(obj):
     try:
@@ -263,6 +267,7 @@ def getargs(obj):
             return seq_list
     return []
 
+
 def loadrepr(reprstr):
     """Returns an instance of the object from the object's repr() string.
     It involves the dynamic specification of code.
@@ -279,6 +284,7 @@ def loadrepr(reprstr):
         localname = module.split('.', 1)[0]
     mylocals[localname] = __import__(module)
     return eval(evalstr)
+
 
 def has_tag(obj, tag):
     """Helper class that tests to see if the obj is a dictionary
