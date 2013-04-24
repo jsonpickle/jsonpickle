@@ -56,6 +56,29 @@ Experimental backends:
 
 .. autofunction:: jsonpickle.set_encoder_options
 
+Customizing JSON output
+-----------------------
+
+jsonpickle supports the standard :mod:`pickle` `__getstate__` and `__setstate__`
+protocol for representating object instances.
+
+.. method:: object.__getstate__()
+
+   Classes can further influence how their instances are pickled; if the class
+   defines the method :meth:`__getstate__`, it is called and the return state is
+   pickled as the contents for the instance, instead of the contents of the
+   instance's dictionary.  If there is no :meth:`__getstate__` method, the
+   instance's :attr:`__dict__` is pickled.
+
+.. method:: object.__setstate__(state)
+
+   Upon unpickling, if the class also defines the method :meth:`__setstate__`,
+   it is called with the unpickled state. [#]_ If there is no
+   :meth:`__setstate__` method, the pickled state must be a dictionary and its
+   items are assigned to the new instance's dictionary.  If a class defines both
+   :meth:`__getstate__` and :meth:`__setstate__`, the state object needn't be a
+   dictionary and these methods can do what they want. [#]_
+
 :mod:`jsonpickle.handlers` -- Custom Serialization Handlers
 -----------------------------------------------------------
 
