@@ -4,6 +4,7 @@ Version 0.5.0 - TBD
 -------------------
 
     * We now support namedtuple, deque, and defaultdict.
+    * Datetimes with timezones are now fully supported.
     * Better support for complicated structures e.g.
       datetime inside dicts.
 
