@@ -83,15 +83,16 @@ class Unpickler(object):
 
             cls = loadclass(obj[tags.OBJECT])
             if not cls:
+                self._mkref(obj)
                 return self._pop(obj)
 
             # check custom handlers
             HandlerClass = handlers.registry.get(cls)
             if HandlerClass:
                 handler = HandlerClass(self)
-                live_obj = handler.restore(obj)
-                self._mkref(live_obj)
-                return self._pop(live_obj)
+                instance = handler.restore(obj)
+                self._mkref(instance)
+                return self._pop(instance)
 
             factory = loadfactory(obj)
             args = getargs(obj)
