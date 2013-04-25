@@ -1,28 +1,29 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (C) 2008 John Paulett (john -at- paulett.org)
+# Copyright (C) 2009, 2011, 2013 David Aguilar
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 
 import collections
-import sys
 import datetime
 import doctest
 import os
 import time
 import unittest
 
+from six import u
 import jsonpickle
 from jsonpickle import handlers
 from jsonpickle import tags
+from jsonpickle.compat import unicode
 
 from samples import (
         Thing, ThingWithSlots, ThingWithProps, BrokenReprThing,
         DictSubclass, ListSubclass, SetSubclass,
         ListSubclassWithInit, NamedTuple)
-
 
 
 class PicklingTestCase(unittest.TestCase):
@@ -35,8 +36,8 @@ class PicklingTestCase(unittest.TestCase):
         self.assertEqual('a string', self.unpickler.restore('a string'))
 
     def test_unicode(self):
-        self.assertEqual(u'a string', self.pickler.flatten(u'a string'))
-        self.assertEqual(u'a string', self.unpickler.restore(u'a string'))
+        self.assertEqual(u('a string'), self.pickler.flatten('a string'))
+        self.assertEqual(u('a string'), self.unpickler.restore('a string'))
 
     def test_int(self):
         self.assertEqual(3, self.pickler.flatten(3))
@@ -527,7 +528,7 @@ class JSONPickleTestCase(unittest.TestCase):
         pickled = jsonpickle.encode({Thing('random'): True})
         unpickled = jsonpickle.decode(pickled)
         self.assertEqual(unpickled,
-                         {u'samples.Thing("random")': True})
+                         {u('samples.Thing("random")'): True})
 
     def test_list_of_objects(self):
         """Test that objects in lists are referenced correctly"""
@@ -628,7 +629,8 @@ class ExternalHandlerTestCase(unittest.TestCase):
 
     def test_unicode_mixin(self):
         obj = UnicodeMixin('test')
-        self.assertEqual(unicode(obj), u'test')
+        self.assertEqual(type(obj), UnicodeMixin)
+        self.assertEqual(unicode(obj), u('test'))
 
         # Encode into JSON
         content = jsonpickle.encode(obj)
@@ -637,7 +639,7 @@ class ExternalHandlerTestCase(unittest.TestCase):
         new_obj = jsonpickle.decode(content)
         new_obj += ' passed'
 
-        self.assertEqual(unicode(new_obj), u'test passed')
+        self.assertEqual(unicode(new_obj), u('test passed'))
         self.assertEqual(type(new_obj), UnicodeMixin)
         self.assertTrue(new_obj.ok())
 

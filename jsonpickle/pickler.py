@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (C) 2008 John Paulett (john -at- paulett.org)
+# Copyright (C) 2009, 2011, 2013 David Aguilar
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
@@ -208,7 +209,7 @@ class Pickler(object):
         """Recursively call flatten() and return json-friendly dict
         """
         flatten = self._flatten_key_value_pair
-        for k, v in sorted(obj.iteritems(), key=operator.itemgetter(0)):
+        for k, v in sorted(obj.items(), key=operator.itemgetter(0)):
             flatten(k, v, data)
 
         # the collections.defaultdict protocol

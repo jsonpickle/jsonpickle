@@ -11,6 +11,7 @@ import doctest
 import time
 import datetime
 
+from six import u
 import jsonpickle.util
 from jsonpickle.util import *
 from samples import Thing, ListSubclass, DictSubclass
@@ -42,8 +43,8 @@ class IsPrimitiveTestCase(unittest.TestCase):
         self.assertTrue(is_primitive(''))
 
     def test_unicode(self):
-        self.assertTrue(is_primitive(u'hello'))
-        self.assertTrue(is_primitive(u''))
+        self.assertTrue(is_primitive(u('hello')))
+        self.assertTrue(is_primitive(u('')))
         self.assertTrue(is_primitive(unicode('hello')))
 
     def test_list(self):

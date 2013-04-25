@@ -222,7 +222,7 @@ class JSONPluginMgr(object):
         for idx, name in enumerate(self._backend_names):
             try:
                 return self._decoders[name](string)
-            except self._decoder_exceptions[name], e:
+            except self._decoder_exceptions[name] as e:
                 if idx == len(self._backend_names) - 1:
                     raise e
                 else:

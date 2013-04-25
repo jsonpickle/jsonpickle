@@ -14,9 +14,13 @@ import types
 
 from jsonpickle import tags
 from jsonpickle.compat import set
+from jsonpickle.compat import unicode
 
-COLLECTIONS = set, list, tuple
-PRIMITIVES = str, unicode, int, float, bool, long
+
+COLLECTIONS = (list, set, tuple)
+COLLECTIONS_SET = set(COLLECTIONS)
+PRIMITIVES = set((str, unicode, bool, float, int, long))
+
 
 def is_type(obj):
     """Returns True is obj is a reference to a type.
@@ -36,6 +40,7 @@ def is_type(obj):
     # module that starts with "class" (e.g. "classify.SomeClass")
     return type(obj) is types.TypeType or repr(obj).startswith('<class')
 
+
 def is_object(obj):
     """Returns True is obj is a reference to an object instance.
 
@@ -51,6 +56,7 @@ def is_object(obj):
     return (isinstance(obj, object) and
             type(obj) is not types.TypeType and
             type(obj) is not types.FunctionType)
+
 
 def is_primitive(obj):
     """Helper method to see if the object is a basic data type. Strings,
@@ -82,7 +88,8 @@ def is_collection(obj):
     >>> is_collection([4])
     True
     """
-    return type(obj) in COLLECTIONS
+    return type(obj) in COLLECTIONS_SET
+
 
 def is_list(obj):
     """Helper method to see if the object is a Python list.
@@ -92,6 +99,7 @@ def is_list(obj):
     """
     return type(obj) is list
 
+
 def is_set(obj):
     """Helper method to see if the object is a Python set.
 
@@ -100,6 +108,7 @@ def is_set(obj):
     """
     return type(obj) is set
 
+
 def is_tuple(obj):
     """Helper method to see if the object is a Python tuple.
 
@@ -107,6 +116,7 @@ def is_tuple(obj):
     True
     """
     return type(obj) is tuple
+
 
 def is_dictionary_subclass(obj):
     """Returns True if *obj* is a subclass of the dict type. *obj* must be
@@ -119,9 +129,10 @@ def is_dictionary_subclass(obj):
     return (hasattr(obj, '__class__') and
             issubclass(obj.__class__, dict) and not is_dictionary(obj))
 
+
 def is_collection_subclass(obj):
-    """Returns True if *obj* is a subclass of a collection type, such as list
-    set, tuple, etc.. *obj* must be a subclass and not the actual builtin, such
+    """Returns True if *obj* is a subclass of list, set or tuple.
+    *obj* must be a subclass and not the actual builtin, such
     as list, set, tuple, etc..
 
     >>> class Temp(list): pass
@@ -133,6 +144,7 @@ def is_collection_subclass(obj):
                 is_list_like(obj)) and
             not is_collection(obj))
 
+
 def is_noncomplex(obj):
     """Returns True if *obj* is a special (weird) class, that is more complex
     than primitive data types, but is not a full object. Including:
@@ -142,6 +154,7 @@ def is_noncomplex(obj):
     if type(obj) is time.struct_time:
         return True
     return False
+
 
 def is_function(obj):
     """Returns true if passed a function
@@ -173,6 +186,7 @@ def is_function(obj):
                      'instancemethod',
                      'method-wrapper'))
 
+
 def is_module(obj):
     """Returns True if passed a module
 
@@ -182,6 +196,7 @@ def is_module(obj):
 
     """
     return type(obj) is types.ModuleType
+
 
 def is_picklable(name, value):
     """Return True if an object cannot be pickled
@@ -199,6 +214,7 @@ def is_picklable(name, value):
         return False
     return not is_function(value)
 
+
 def is_installed(module):
     """Tests to see if ``module`` is available on the sys.path
 
@@ -211,8 +227,9 @@ def is_installed(module):
     try:
         __import__(module)
         return True
-    except ImportError, e:
+    except ImportError as e:
         return False
+
 
 def is_list_like(obj):
     return hasattr(obj, '__getitem__') and hasattr(obj, 'append')

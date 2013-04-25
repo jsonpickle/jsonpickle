@@ -1,5 +1,6 @@
 from samples import Thing
 
+from six import u
 import jsonpickle
 import unittest
 import warnings
@@ -16,15 +17,15 @@ class BackendTestCase(unittest.TestCase):
         backend = args[0]
 
         self._is_installed(backend)
-        
+
         jsonpickle.load_backend(*args)
         jsonpickle.set_preferred_backend(backend)
 
     def set_preferred_backend(self, backend):
         self._is_installed(backend)
-        
+
         jsonpickle.set_preferred_backend(backend)
-        
+
     def tearDown(self):
         # always reset to default backend
         jsonpickle.set_preferred_backend('json')
@@ -35,11 +36,11 @@ class BackendTestCase(unittest.TestCase):
         self.assertEqual(expected_pickled, pickled)
         unpickled = jsonpickle.decode(pickled)
         self.assertEqual(SAMPLE_DATA['things'][0].name, unpickled['things'][0].name)
-        
+
 class JsonTestCase(BackendTestCase):
     def setUp(self):
         self.set_preferred_backend('json')
-        
+
     def test(self):
         expected_pickled = '{"things": [{"py/object": "samples.Thing", "name": "data", "child": null}]}'
         self.assertEncodeDecode(expected_pickled)
@@ -47,7 +48,7 @@ class JsonTestCase(BackendTestCase):
 class SimpleJsonTestCase(BackendTestCase):
     def setUp(self):
         self.set_preferred_backend('simplejson')
-        
+
     def test(self):
         expected_pickled = '{"things": [{"py/object": "samples.Thing", "name": "data", "child": null}]}'
         self.assertEncodeDecode(expected_pickled)
@@ -64,16 +65,16 @@ def has_module(module):
 class DemjsonTestCase(BackendTestCase):
     def setUp(self):
         self.set_preferred_backend('demjson')
-        
+
     def test(self):
-        expected_pickled = u'{"things":[{"child":null,"name":"data","py/object":"samples.Thing"}]}'
+        expected_pickled = u('{"things":[{"child":null,"name":"data","py/object":"samples.Thing"}]}')
         self.assertEncodeDecode(expected_pickled)
 
 
 class JsonlibTestCase(BackendTestCase):
     def setUp(self):
         self.set_preferred_backend('jsonlib')
-        
+
     def test(self):
         expected_pickled = '{"things":[{"py\/object":"samples.Thing","name":"data","child":null}]}'
         self.assertEncodeDecode(expected_pickled)
@@ -82,7 +83,7 @@ class JsonlibTestCase(BackendTestCase):
 class YajlTestCase(BackendTestCase):
     def setUp(self):
         self.set_preferred_backend('yajl')
-        
+
     def test(self):
         expected_pickled = '{"things":[{"py/object":"samples.Thing","name":"data","child":null}]}'
         self.assertEncodeDecode(expected_pickled)
