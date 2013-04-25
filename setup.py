@@ -8,15 +8,16 @@
 # you should have received as part of this distribution.
 
 from distutils.core import setup
-import jsonpickle as _jsonpickle
 import sys
 
 SETUP_ARGS = dict(
     name="jsonpickle",
-    version=_jsonpickle.__version__,
+    version='0.5.0-beta',
     description="Python library for serializing any "
                 "arbitrary object graph into JSON",
-    long_description = _jsonpickle.__doc__,
+    long_description =
+        "jsonpickle converts complex Python objects to and "
+        "from JSON.",
     author="John Paulett",
     author_email="john -at- paulett.org",
     url="http://jsonpickle.github.com/",
@@ -44,10 +45,31 @@ def main():
     setup(**SETUP_ARGS)
     return 0
 
+
+def _is_installed(module):
+    """Tests to see if ``module`` is available on the sys.path
+
+    >>> is_installed('sys')
+    True
+    >>> is_installed('hopefullythisisnotarealmodule')
+    False
+
+    """
+    try:
+        __import__(module)
+        return True
+    except ImportError as e:
+        return False
+
+
 def _check_dependencies():
     # check to see if any of the supported backends is installed
-    backends = _jsonpickle.SUPPORTED_BACKENDS
-    if not any([_jsonpickle.util.is_installed(module) for module in backends]):
+    backends = ('json',
+                'simplejson',
+                'demjson',
+                'django.util.simplejson')
+
+    if not any([_is_installed(module) for module in backends]):
         print >> sys.stderr, ('No supported JSON backend found. '
                               'Must install one of %s' % (', '.join(backends)))
         sys.exit(1)
