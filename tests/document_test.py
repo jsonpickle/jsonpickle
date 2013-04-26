@@ -33,7 +33,7 @@ class DocumentTestCase(unittest.TestCase):
         pickled = jsonpickle.encode(document)
         unpickled = jsonpickle.decode(pickled)
 
-        self.assertTrue(str(document) == str(unpickled))
+        self.assertEqual(str(document), str(unpickled))
 
 
 def suite():
