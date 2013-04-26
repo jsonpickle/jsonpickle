@@ -109,7 +109,10 @@ class Pickler(object):
             return self._pop(obj)
 
         if util.is_list(obj):
-            return self._pop([self.flatten(v) for v in obj])
+            if self._mkref(obj):
+                return self._pop([self.flatten(v) for v in obj])
+            else:
+                return self._getref(obj)
 
         # We handle tuples and sets by encoding them in a "(tuple|set)dict"
         if util.is_tuple(obj):

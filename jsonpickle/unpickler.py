@@ -150,7 +150,11 @@ class Unpickler(object):
             return self._pop(instance)
 
         if util.is_list(obj):
-            return self._pop([self.restore(v) for v in obj])
+            parent = []
+            self._mkref(parent)
+            children = [self.restore(v) for v in obj]
+            parent.extend(children)
+            return self._pop(parent)
 
         if has_tag(obj, tags.TUPLE):
             return self._pop(tuple([self.restore(v)

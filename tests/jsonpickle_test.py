@@ -608,6 +608,22 @@ class JSONPickleTestCase(unittest.TestCase):
 
         self.assertEqual(id(decoded.child.refs[0]), id(decoded))
 
+    def test_reference_to_list(self):
+        thing = Thing('parent')
+        thing.a = [1]
+        thing.b = thing.a
+        thing.b.append(thing.a)
+        thing.b.append([thing.a])
+
+        encoded = jsonpickle.encode(thing)
+        decoded = jsonpickle.decode(encoded)
+
+        self.assertEqual(decoded.a[0], 1)
+        self.assertEqual(decoded.b[0], 1)
+        self.assertEqual(id(decoded.a), id(decoded.b))
+        self.assertEqual(id(decoded.a), id(decoded.a[1]))
+        self.assertEqual(id(decoded.a), id(decoded.a[2][0]))
+
 
 # Test classes for ExternalHandlerTestCase
 class Mixin(object):
