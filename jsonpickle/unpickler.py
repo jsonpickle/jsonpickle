@@ -65,6 +65,7 @@ class Unpickler(object):
         if has_tag(obj, tags.ID):
             return self._pop(self._objs[obj[tags.ID]])
 
+        # Backwards compatibility
         if has_tag(obj, tags.REF):
             return self._pop(self._namedict.get(obj[tags.REF]))
 
@@ -74,25 +75,22 @@ class Unpickler(object):
                 return self._pop(obj)
             return self._pop(typeref)
 
+        # Backwards compatibility
         if has_tag(obj, tags.REPR):
             obj = loadrepr(obj[tags.REPR])
-            self._mkref(obj)
-            return self._pop(obj)
+            return self._pop(self._mkref(obj))
 
         if has_tag(obj, tags.OBJECT):
-
             cls = loadclass(obj[tags.OBJECT])
             if not cls:
-                self._mkref(obj)
-                return self._pop(obj)
+                return self._pop(self._mkref(obj))
 
             # check custom handlers
             HandlerClass = handlers.registry.get(cls)
             if HandlerClass:
                 handler = HandlerClass(self)
                 instance = handler.restore(obj)
-                self._mkref(instance)
-                return self._pop(instance)
+                return self._pop(self._mkref(instance))
 
             factory = loadfactory(obj)
             args = getargs(obj)
@@ -114,8 +112,7 @@ class Unpickler(object):
                     instance = cls()
                 except TypeError:
                     # fail gracefully if the constructor requires arguments
-                    self._mkref(obj)
-                    return self._pop(obj)
+                    return self._pop(self._mkref(obj))
 
             # Add to the instance table to allow being referenced by a
             # downstream object
@@ -156,17 +153,20 @@ class Unpickler(object):
             return self._pop([self.restore(v) for v in obj])
 
         if has_tag(obj, tags.TUPLE):
-            return self._pop(tuple([self.restore(v) for v in obj[tags.TUPLE]]))
+            return self._pop(tuple([self.restore(v)
+                                    for v in obj[tags.TUPLE]]))
 
         if has_tag(obj, tags.SET):
-            return self._pop(set([self.restore(v) for v in obj[tags.SET]]))
+            return self._pop(set([self.restore(v)
+                                  for v in obj[tags.SET]]))
 
         if util.is_dictionary(obj):
             data = {}
             for k, v in sorted(obj.items(), key=operator.itemgetter(0)):
                 self._namestack.append(k)
-                data[k] = self.restore(v)
+                data[k] = self._mkref(self.restore(v))
                 self._namestack.pop()
+
             return self._pop(data)
 
         return self._pop(obj)
@@ -210,11 +210,14 @@ class Unpickler(object):
         """
         obj_id = id(obj)
         try:
-            idx = self._obj_to_idx[obj_id]
+            self._obj_to_idx[obj_id]
         except KeyError:
-            idx = self._obj_to_idx[obj_id] = len(self._objs)
+            self._obj_to_idx[obj_id] = len(self._objs)
             self._objs.append(obj)
-        return idx
+            # Backwards compatibility: old versions of jsonpickle
+            # produced "py/ref" references.
+            self._namedict[self._refname()] = obj
+        return obj
 
 
 def loadclass(module_and_name):
