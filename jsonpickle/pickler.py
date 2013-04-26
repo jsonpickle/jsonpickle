@@ -113,13 +113,13 @@ class Pickler(object):
 
         # We handle tuples and sets by encoding them in a "(tuple|set)dict"
         if util.is_tuple(obj):
-            if self.unpicklable is True:
+            if self.unpicklable:
                 return self._pop({tags.TUPLE: [self.flatten(v) for v in obj]})
             else:
                 return self._pop([self.flatten(v) for v in obj])
 
         if util.is_set(obj):
-            if self.unpicklable is True:
+            if self.unpicklable:
                 return self._pop({tags.SET: [self.flatten(v) for v in obj]})
             else:
                 return self._pop([self.flatten(v) for v in obj])
@@ -157,7 +157,7 @@ class Pickler(object):
 
         if has_class and not util.is_module(obj):
             module, name = _getclassdetail(obj)
-            if self.unpicklable is True:
+            if self.unpicklable:
                 data[tags.OBJECT] = '%s.%s' % (module, name)
             # Check for a custom handler
             if HandlerClass:
@@ -167,7 +167,7 @@ class Pickler(object):
                 return flat_obj
 
         if util.is_module(obj):
-            if self.unpicklable is True:
+            if self.unpicklable:
                 data[tags.REPR] = '%s/%s' % (obj.__name__,
                                              obj.__name__)
             else:
