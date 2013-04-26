@@ -598,6 +598,16 @@ class JSONPickleTestCase(unittest.TestCase):
         jsonpickle.load_backend('os.path', 'join', 'split', 'bad!')
         self.failIf(self._backend_is_partially_loaded('os.path'))
 
+    def test_list_item_reference(self):
+        thing = Thing('parent')
+        thing.child = Thing('child')
+        thing.child.refs = [thing]
+
+        encoded = jsonpickle.encode(thing)
+        decoded = jsonpickle.decode(encoded)
+
+        self.assertEqual(id(decoded.child.refs[0]), id(decoded))
+
 
 # Test classes for ExternalHandlerTestCase
 class Mixin(object):
