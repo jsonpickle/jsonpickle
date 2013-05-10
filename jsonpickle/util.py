@@ -14,7 +14,7 @@ import types
 
 from jsonpickle import tags
 from jsonpickle.compat import set
-from jsonpickle.compat import unicode
+from jsonpickle.compat import unicode, long
 
 
 COLLECTIONS = (list, set, tuple)
@@ -38,7 +38,7 @@ def is_type(obj):
     #FIXME "<class" seems like a hack. It will incorrectly return True
     # for any class that does not define a custom __repr__ in a
     # module that starts with "class" (e.g. "classify.SomeClass")
-    return type(obj) is types.TypeType or repr(obj).startswith('<class')
+    return type(obj) is type or repr(obj).startswith('<class')
 
 
 def is_object(obj):
@@ -54,7 +54,7 @@ def is_object(obj):
     False
     """
     return (isinstance(obj, object) and
-            type(obj) is not types.TypeType and
+            type(obj) is not type and
             type(obj) is not types.FunctionType)
 
 

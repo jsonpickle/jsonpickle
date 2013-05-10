@@ -8,3 +8,8 @@ try:
     unicode = unicode
 except NameError:
     unicode = str
+
+try:
+    long = long
+except NameError:
+    long = int

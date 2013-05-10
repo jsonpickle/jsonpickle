@@ -11,6 +11,7 @@ import types
 import jsonpickle.util as util
 import jsonpickle.tags as tags
 import jsonpickle.handlers as handlers
+from jsonpickle.compat import unicode
 
 
 class Pickler(object):
@@ -232,7 +233,7 @@ class Pickler(object):
         """Flatten a key/value pair into the passed-in dictionary."""
         if not util.is_picklable(k, v):
             return data
-        if type(k) not in types.StringTypes:
+        if not isinstance(k, (str, unicode)):
             try:
                 k = repr(k)
             except:
