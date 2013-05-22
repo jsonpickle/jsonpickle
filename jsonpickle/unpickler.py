@@ -168,7 +168,7 @@ class Unpickler(object):
             data = {}
             for k, v in sorted(obj.items(), key=operator.itemgetter(0)):
                 self._namestack.append(k)
-                data[k] = self._mkref(self.restore(v))
+                data[k] = self.restore(v)
                 self._namestack.pop()
 
             return self._pop(data)

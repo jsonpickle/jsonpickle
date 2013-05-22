@@ -7,6 +7,7 @@
 # you should have received as part of this distribution.
 
 import collections
+import datetime
 from jsonpickle.compat import set
 
 
@@ -144,3 +145,10 @@ class Question(Node):
 
     def __repr__(self):
         return self.__str__()
+
+
+class ObjWithDate(object):
+    def __init__(self):
+        ts = datetime.datetime.now()
+        self.data = dict(a='a', ts=ts)
+        self.data_ref = dict(b='b', ts=ts)

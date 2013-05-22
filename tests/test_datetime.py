@@ -11,6 +11,9 @@ import datetime
 
 import jsonpickle
 
+from samples import ObjWithDate
+
+
 # UTC implementation from Python 2.7 docs
 class UTC(datetime.tzinfo):
     """UTC"""
@@ -77,6 +80,14 @@ class DateTimeTests(unittest.TestCase):
         pickler = jsonpickle.Pickler(unpicklable=False)
         flattened = pickler.flatten(obj)
         self.assertEqual(str(obj), flattened)
+
+    def test_object_with_datetime(self):
+        test_obj = ObjWithDate()
+        json = jsonpickle.encode(test_obj)
+        test_obj_decoded = jsonpickle.decode(json)
+        self.assertEqual(test_obj_decoded.data['ts'],
+                         test_obj_decoded.data_ref['ts'])
+
 
 
 def suite():
