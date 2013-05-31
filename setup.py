@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (C) 2008 John Paulett (john -at- paulett.org)
+# Copyright (C) 2009-2013 David Aguilar (davvid -at- gmail.com)
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
@@ -18,9 +19,9 @@ SETUP_ARGS = dict(
     long_description =
         "jsonpickle converts complex Python objects to and "
         "from JSON.",
-    author="John Paulett",
-    author_email="john -at- paulett.org",
-    url="http://jsonpickle.github.com/",
+    author="David Aguilar",
+    author_email="davvid -at- gmail.com",
+    url="http://jsonpickle.github.io/",
     license="BSD",
     platforms=['POSIX', 'Windows'],
     keywords=['json pickle', 'json', 'pickle', 'marshal',
@@ -30,7 +31,7 @@ SETUP_ARGS = dict(
         "Operating System :: OS Independent",
         "Programming Language :: Python",
         "Topic :: Software Development :: Libraries :: Python Modules",
-        "Development Status :: 4 - Beta",
+        "Development Status :: 5 - Stable",
         "Intended Audience :: Developers",
         "Programming Language :: JavaScript"
     ],
