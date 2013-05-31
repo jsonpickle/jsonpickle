@@ -59,12 +59,13 @@ added to JSON.
 from jsonpickle.pickler import Pickler
 from jsonpickle.unpickler import Unpickler
 from jsonpickle.backend import JSONBackend
+from jsonpickle.version import VERSION
 
 # ensure built-in handlers are loaded
 __import__('jsonpickle._handlers')
 
-__version__ = '0.5.0-beta'
 __all__ = ('encode', 'decode')
+__version__ = VERSION
 
 json = JSONBackend()
 

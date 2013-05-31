@@ -8,12 +8,18 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 
-from distutils.core import setup
+import os
 import sys
+from distutils.core import setup
+
+here = os.path.dirname(__file__)
+version = os.path.join(here, 'jsonpickle', 'version.py')
+scope = {}
+exec(open(version).read(), scope)
 
 SETUP_ARGS = dict(
     name="jsonpickle",
-    version='0.5.0-beta',
+    version=scope['VERSION'],
     description="Python library for serializing any "
                 "arbitrary object graph into JSON",
     long_description =
