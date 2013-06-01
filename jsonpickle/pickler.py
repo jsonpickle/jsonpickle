@@ -7,7 +7,6 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 import operator
-import types
 import jsonpickle.util as util
 import jsonpickle.tags as tags
 import jsonpickle.handlers as handlers
