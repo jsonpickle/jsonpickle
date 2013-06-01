@@ -1,4 +1,6 @@
+import sys
 import datetime
+import collections
 
 import jsonpickle
 
@@ -34,7 +36,9 @@ class SimpleReduceHandler(jsonpickle.handlers.BaseHandler):
     and its arguments are pickleable, this should pickle any object that
     implements the reduce protocol.
     """
-    _handles = datetime.timedelta,
+    _handles = [datetime.timedelta]
+    if sys.version_info >= (2, 7):
+        _handles.append(collections.OrderedDict)
 
     def flatten(self, obj, data):
         pickler = self._base

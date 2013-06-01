@@ -13,6 +13,7 @@ import doctest
 import os
 import time
 import unittest
+import sys
 
 from six import u
 import jsonpickle
@@ -641,6 +642,21 @@ class JSONPickleTestCase(unittest.TestCase):
         decoded = jsonpickle.decode(encoded)
 
         self.assertEqual(id(decoded), id(decoded.child.parent))
+
+
+    def test_ordered_dict(self):
+        if sys.version_info < (2, 7):
+            return
+
+        d = collections.OrderedDict()
+        d.update(c=3)
+        d.update(a=1)
+        d.update(b=2)
+
+        encoded = jsonpickle.encode(d)
+        decoded = jsonpickle.decode(encoded)
+
+        self.assertEqual(d, decoded)
 
 
 # Test classes for ExternalHandlerTestCase
