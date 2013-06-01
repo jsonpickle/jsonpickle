@@ -17,13 +17,13 @@ class CustomObject(object):
         return True
 
 class NullHandler(jsonpickle.handlers.BaseHandler):
+    _handles = CustomObject,
+
     def flatten(self, obj, data):
         return data
 
     def restore(self, obj):
         return CustomObject()
-
-jsonpickle.handlers.registry.register(CustomObject, NullHandler)
 
 class HandlerTests(unittest.TestCase):
     def roundtrip(self, ob):
