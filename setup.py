@@ -9,7 +9,6 @@
 # you should have received as part of this distribution.
 
 import os
-import sys
 try:
     import setuptools as setup_mod
 except ImportError:
@@ -49,41 +48,5 @@ SETUP_ARGS = dict(
 )
 
 
-def main():
-    if sys.argv[1] in ('install', 'build'):
-        _check_dependencies()
-    setup_mod.setup(**SETUP_ARGS)
-    return 0
-
-
-def _is_installed(module):
-    """Tests to see if ``module`` is available on the sys.path
-
-    >>> is_installed('sys')
-    True
-    >>> is_installed('hopefullythisisnotarealmodule')
-    False
-
-    """
-    try:
-        __import__(module)
-        return True
-    except ImportError as e:
-        return False
-
-
-def _check_dependencies():
-    # check to see if any of the supported backends is installed
-    backends = ('json',
-                'simplejson',
-                'demjson',
-                'django.util.simplejson')
-
-    if not any([_is_installed(module) for module in backends]):
-        print >> sys.stderr, ('No supported JSON backend found. '
-                              'Must install one of %s' % (', '.join(backends)))
-        sys.exit(1)
-
-
 if __name__ == '__main__':
-    sys.exit(main())
+    setup_mod.setup(**SETUP_ARGS)
