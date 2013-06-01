@@ -157,7 +157,7 @@ class Pickler(object):
         has_getstate = has_dict and hasattr(obj, '__getstate__')
         has_getstate_support = has_getstate and hasattr(obj, '__setstate__')
 
-        HandlerClass = handlers.registry.get(type(obj))
+        HandlerClass = handlers.BaseHandler._registry.get(type(obj))
 
         if has_class and not util.is_module(obj):
             module, name = _getclassdetail(obj)
