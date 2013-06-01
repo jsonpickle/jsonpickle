@@ -1,7 +1,23 @@
+
+class TypeRegistered(type):
+    """
+    As classes of this metaclass are created, they keep a registry in the
+    base class of all handler referenced by the keys in cls._handles.
+    """
+    def __init__(cls, name, bases, namespace):
+        super(TypeRegistered, cls).__init__(name, bases, namespace)
+        if not hasattr(cls, '_registry'):
+            cls._registry = {}
+        types_handled = getattr(cls, '_handles', [])
+        cls._registry.update((type_, cls) for type_ in types_handled)
+
 class BaseHandler(object):
     """
     Abstract base class for handlers.
     """
+
+    __metaclass__ = TypeRegistered
+
     def __init__(self, base):
         """
         Initialize a new handler to handle `type`.
@@ -31,42 +47,3 @@ class BaseHandler(object):
 
         """
         raise NotImplementedError("Abstract method.")
-
-
-class Registry(object):
-    REGISTRY = {}
-
-    def register(self, cls, handler):
-        """
-        Register handler.
-
-        :Parameters:
-          - `cls`: Object class
-          - `handler`: `BaseHandler` subclass
-
-        """
-        self.REGISTRY[cls] = handler
-        return handler
-
-    def unregister(self, cls):
-        """
-        Unregister hander.
-
-        :Parameters:
-          - `cls`: Object class
-        """
-        if cls in self.REGISTRY:
-            del self.REGISTRY[cls]
-
-    def get(self, cls):
-        """
-        Get the customer handler for `obj` (if any)
-
-        :Parameters:
-          - `cls`: class to handle
-
-        """
-        return self.REGISTRY.get(cls, None)
-
-
-registry = Registry()
