@@ -1,5 +1,5 @@
-VERSION = File.open('jsonpickle/version.py').gets.strip
-eval VERSION
+VERSION_FILE = File.open('jsonpickle/version.py').gets.strip
+eval VERSION_FILE
 PYTHON_ENVS = [:env26, :env27, :env32, :env33]
 PYTHON_EXECS = {:env26 => "python2.6", :env27 => "python2.7", :env32 => "python3.2", :env33 => "python3.3"}
 
