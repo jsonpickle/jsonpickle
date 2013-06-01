@@ -8,6 +8,7 @@
 
 import collections
 import datetime
+import jsonpickle
 from jsonpickle.compat import set
 
 
@@ -152,3 +153,12 @@ class ObjWithDate(object):
         ts = datetime.datetime.now()
         self.data = dict(a='a', ts=ts)
         self.data_ref = dict(b='b', ts=ts)
+
+
+class ObjWithJsonPickleRepr(object):
+
+    def __init__(self):
+        self.data = {'a': self}
+
+    def __repr__(self):
+        return jsonpickle.encode(self)

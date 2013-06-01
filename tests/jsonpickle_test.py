@@ -21,9 +21,17 @@ from jsonpickle import tags
 from jsonpickle.compat import unicode
 
 from samples import (
-        Thing, ThingWithSlots, ThingWithProps, BrokenReprThing,
-        DictSubclass, ListSubclass, SetSubclass,
-        ListSubclassWithInit, NamedTuple)
+        BrokenReprThing,
+        DictSubclass,
+        ListSubclass,
+        ListSubclassWithInit,
+        NamedTuple,
+        ObjWithJsonPickleRepr,
+        SetSubclass,
+        Thing,
+        ThingWithSlots,
+        ThingWithProps,
+        )
 
 
 class PicklingTestCase(unittest.TestCase):
@@ -623,6 +631,16 @@ class JSONPickleTestCase(unittest.TestCase):
         self.assertEqual(id(decoded.a), id(decoded.b))
         self.assertEqual(id(decoded.a), id(decoded.a[1]))
         self.assertEqual(id(decoded.a), id(decoded.a[2][0]))
+
+    def test_repr_using_jsonpickle(self):
+        thing = ObjWithJsonPickleRepr()
+        thing.child = ObjWithJsonPickleRepr()
+        thing.child.parent = thing
+
+        encoded = jsonpickle.encode(thing)
+        decoded = jsonpickle.decode(encoded)
+
+        self.assertEqual(id(decoded), id(decoded.child.parent))
 
 
 # Test classes for ExternalHandlerTestCase
