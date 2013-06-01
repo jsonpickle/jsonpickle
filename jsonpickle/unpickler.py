@@ -207,7 +207,7 @@ class Unpickler(object):
         >>> thing = Thing('referenced-thing')
         >>> u = Unpickler()
         >>> u._mkref(thing)
-        0
+        samples.Thing("referenced-thing")
         >>> u._objs[0]
         samples.Thing("referenced-thing")
 
