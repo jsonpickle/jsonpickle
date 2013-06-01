@@ -10,7 +10,10 @@
 
 import os
 import sys
-from distutils.core import setup
+try:
+    import setuptools as setup_mod
+except ImportError:
+    import distutils.core as setup_mod
 
 here = os.path.dirname(__file__)
 version = os.path.join(here, 'jsonpickle', 'version.py')
@@ -49,7 +52,7 @@ SETUP_ARGS = dict(
 def main():
     if sys.argv[1] in ('install', 'build'):
         _check_dependencies()
-    setup(**SETUP_ARGS)
+    setup_mod.setup(**SETUP_ARGS)
     return 0
 
 
