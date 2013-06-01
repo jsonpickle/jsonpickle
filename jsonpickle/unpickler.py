@@ -203,13 +203,21 @@ class Unpickler(object):
 
     def _mkref(self, obj):
         """
-        >>> from samples import Thing
+        >>> import jsonpickle.unpickler
+        >>> class Thing(object):
+        ...     def __init__(self, name):
+        ...         self.name = name
+        ...     def __repr__(self):
+        ...         return 'Thing("%s")' % self.name
+        >>> jsonpickle.unpickler.Thing = Thing
+
         >>> thing = Thing('referenced-thing')
         >>> u = Unpickler()
         >>> u._mkref(thing)
-        samples.Thing("referenced-thing")
+        Thing("referenced-thing")
+
         >>> u._objs[0]
-        samples.Thing("referenced-thing")
+        Thing("referenced-thing")
 
         """
         obj_id = id(obj)
@@ -227,8 +235,14 @@ class Unpickler(object):
 def loadclass(module_and_name):
     """Loads the module and returns the class.
 
-    >>> loadclass('samples.Thing')
-    <class 'samples.Thing'>
+    >>> import jsonpickle.unpickler
+    >>> class Thing(object):
+    ...     def __init__(self, name):
+    ...         self.name = name
+    >>> jsonpickle.unpickler.Thing = Thing
+
+    >>> loadclass('jsonpickle.unpickler.Thing')
+    <class 'jsonpickle.unpickler.Thing'>
 
     >>> loadclass('example.module.does.not.exist.Missing')
 
@@ -283,8 +297,17 @@ def loadrepr(reprstr):
     It involves the dynamic specification of code.
 
     >>> from jsonpickle import tags
-    >>> loadrepr('samples/samples.Thing("json")')
-    samples.Thing("json")
+    >>> import jsonpickle.unpickler
+
+    >>> class Thing(object):
+    ...     def __init__(self, name):
+    ...         self.name = name
+    ...     def __repr__(self):
+    ...         return 'Thing("%s")' % self.name
+    >>> jsonpickle.unpickler.Thing = Thing
+
+    >>> loadrepr('jsonpickle.unpickler/jsonpickle.unpickler.Thing("json")')
+    Thing("json")
 
     """
     module, evalstr = reprstr.split('/')

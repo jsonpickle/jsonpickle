@@ -11,7 +11,18 @@ It can take almost any Python object and turn the object into JSON.
 Additionally, it can reconstitute the object back into Python.
 
     >>> import jsonpickle
-    >>> from samples import Thing
+    >>> class Thing(object):
+    ...     def __init__(self, name):
+    ...         self.name = name
+    ...         self.child = None
+
+The object must be accessible globally via a module and must
+inherit from object (AKA new-style classes).
+
+For this example we'll place the "Thing" class in "jsonpickle"
+so that "import" can find it.
+
+    >>> jsonpickle.Thing = Thing
 
 Create an object.
 
@@ -23,7 +34,7 @@ Use jsonpickle to transform the object into a JSON string.
 
     >>> pickled = jsonpickle.encode(obj)
     >>> print pickled
-    {"py/object": "samples.Thing", "name": "A String", "child": null}
+    {"py/object": "jsonpickle.Thing", "name": "A String", "child": null}
 
 Use jsonpickle to recreate a Python object from a JSON string
 
