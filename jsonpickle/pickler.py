@@ -124,12 +124,12 @@ class Pickler(object):
 
         # We handle tuples and sets by encoding them in a "(tuple|set)dict"
         if util.is_tuple(obj):
-            if not self.unpickleable:
+            if not self.unpicklable:
                 return list_recurse
             return lambda obj: {tags.TUPLE: [self.flatten(v) for v in obj]}
 
         if util.is_set(obj):
-            if not self.unpickleable:
+            if not self.unpicklable:
                 return list_recurse
             return lambda obj: {tags.SET: [self.flatten(v) for v in obj]}
 
