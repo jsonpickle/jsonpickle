@@ -8,6 +8,8 @@ class DatetimeHandler(jsonpickle.handlers.BaseHandler):
     the payload. This handler encodes that payload to reconstruct the
     object.
     """
+    _handles = datetime.datetime, datetime.date, datetime.time
+
     def flatten(self, obj, data):
         pickler = self._base
         if not pickler.unpicklable:
@@ -32,6 +34,8 @@ class SimpleReduceHandler(jsonpickle.handlers.BaseHandler):
     and its arguments are pickleable, this should pickle any object that
     implements the reduce protocol.
     """
+    _handles = datetime.timedelta,
+
     def flatten(self, obj, data):
         pickler = self._base
         if not pickler.unpicklable:
@@ -43,8 +47,3 @@ class SimpleReduceHandler(jsonpickle.handlers.BaseHandler):
         unpickler = self._base
         cls, args = map(unpickler.restore, obj['__reduce__'])
         return cls.__new__(cls, *args)
-
-jsonpickle.handlers.registry.register(datetime.datetime, DatetimeHandler)
-jsonpickle.handlers.registry.register(datetime.date, DatetimeHandler)
-jsonpickle.handlers.registry.register(datetime.time, DatetimeHandler)
-jsonpickle.handlers.registry.register(datetime.timedelta, SimpleReduceHandler)
