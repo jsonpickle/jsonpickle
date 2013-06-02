@@ -118,6 +118,9 @@ class Unpickler(object):
             # downstream object
             self._mkref(instance)
 
+            if isinstance(instance, tuple):
+                return self._pop(instance)
+
             if hasattr(instance, '__setstate__') and has_tag(obj, tags.STATE):
                 state = self.restore(obj[tags.STATE])
                 instance.__setstate__(state)
