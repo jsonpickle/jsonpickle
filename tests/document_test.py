@@ -1,7 +1,7 @@
 import unittest
 import jsonpickle
 
-from samples import Document, Section, Question
+from jsonpickle._samples import Document, Section, Question
 
 class DocumentTestCase(unittest.TestCase):
     def test_cyclical(self):

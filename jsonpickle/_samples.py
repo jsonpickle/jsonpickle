@@ -8,6 +8,7 @@
 
 import collections
 import datetime
+
 import jsonpickle
 from jsonpickle.compat import set
 
@@ -18,7 +19,7 @@ class Thing(object):
         self.child = None
 
     def __repr__(self):
-        return 'samples.Thing("%s")' % self.name
+        return 'Thing("%s")' % self.name
 
 
 class ThingWithSlots(object):

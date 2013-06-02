@@ -9,12 +9,11 @@
 import unittest
 import doctest
 import time
-import datetime
 
 from six import u
 import jsonpickle.util
 from jsonpickle.util import *
-from samples import Thing, ListSubclass, DictSubclass
+from jsonpickle._samples import Thing, ListSubclass, DictSubclass
 
 class IsPrimitiveTestCase(unittest.TestCase):
     def test_int(self):

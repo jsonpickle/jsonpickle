@@ -16,12 +16,14 @@ import unittest
 import sys
 
 from six import u
+
 import jsonpickle
+
 from jsonpickle import handlers
 from jsonpickle import tags
 from jsonpickle.compat import unicode
 
-from samples import (
+from jsonpickle._samples import (
         BrokenReprThing,
         DictSubclass,
         ListSubclass,
@@ -333,11 +335,12 @@ class PicklingTestCase(unittest.TestCase):
 
         flattened = self.pickler.flatten(obj)
         self.assertEqual({'key1': 1,
-                          tags.OBJECT: 'samples.DictSubclass'
+                          tags.OBJECT:
+                            'jsonpickle._samples.DictSubclass'
                          },
                          flattened)
         self.assertEqual(flattened[tags.OBJECT],
-                         'samples.DictSubclass')
+                         'jsonpickle._samples.DictSubclass')
 
         inflated = self.unpickler.restore(flattened)
         self.assertEqual(1, inflated['key1'])
@@ -441,7 +444,7 @@ class PicklingTestCase(unittest.TestCase):
 
         flattened = self.pickler.flatten(obj)
         self.assertEqual(flattened['classref'], {
-                            tags.TYPE: 'samples.Thing',
+                            tags.TYPE: 'jsonpickle._samples.Thing',
                          })
 
         inflated = self.unpickler.restore(flattened)
@@ -475,8 +478,9 @@ class PicklingTestCase(unittest.TestCase):
 class JSONPickleTestCase(unittest.TestCase):
     def setUp(self):
         self.obj = Thing('A name')
-        self.expected_json = ('{"'+tags.OBJECT+'": "samples.Thing",'
-                              ' "name": "A name", "child": null}')
+        self.expected_json = (
+                '{"'+tags.OBJECT+'": "jsonpickle._samples.Thing",'
+                ' "name": "A name", "child": null}')
 
     def test_encode(self):
         pickled = jsonpickle.encode(self.obj)
@@ -534,10 +538,11 @@ class JSONPickleTestCase(unittest.TestCase):
         """Test that we handle random objects as keys.
 
         """
-        pickled = jsonpickle.encode({Thing('random'): True})
+        thing = Thing('random')
+        pickled = jsonpickle.encode({thing: True})
         unpickled = jsonpickle.decode(pickled)
         self.assertEqual(unpickled,
-                         {u('samples.Thing("random")'): True})
+                {u('Thing("random")'): True})
 
     def test_list_of_objects(self):
         """Test that objects in lists are referenced correctly"""

@@ -11,7 +11,7 @@ import datetime
 
 import jsonpickle
 
-from samples import ObjWithDate
+from jsonpickle._samples import ObjWithDate
 
 
 # UTC implementation from Python 2.7 docs

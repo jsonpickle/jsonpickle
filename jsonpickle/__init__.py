@@ -7,34 +7,26 @@
 # you should have received as part of this distribution.
 
 """Python library for serializing any arbitrary object graph into JSON.
-It can take almost any Python object and turn the object into JSON.
-Additionally, it can reconstitute the object back into Python.
 
-    >>> import jsonpickle
-    >>> class Thing(object):
-    ...     def __init__(self, name):
-    ...         self.name = name
-    ...         self.child = None
+jsonpickle can take almost any Python object and turn the object into JSON.
+Additionally, it can reconstitute the object back into Python.
 
 The object must be accessible globally via a module and must
 inherit from object (AKA new-style classes).
 
-For this example we'll place the "Thing" class in "jsonpickle"
-so that "import" can find it.
-
-    >>> jsonpickle.Thing = Thing
-
 Create an object.
 
+    >>> from jsonpickle._samples import Thing
     >>> obj = Thing('A String')
     >>> print obj.name
     A String
 
 Use jsonpickle to transform the object into a JSON string.
 
+    >>> import jsonpickle
     >>> pickled = jsonpickle.encode(obj)
-    >>> print pickled
-    {"py/object": "jsonpickle.Thing", "name": "A String", "child": null}
+    >>> print(pickled)
+    {"py/object": "jsonpickle._samples.Thing", "name": "A String", "child": null}
 
 Use jsonpickle to recreate a Python object from a JSON string
 
