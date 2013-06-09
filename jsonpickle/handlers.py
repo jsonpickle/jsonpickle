@@ -54,4 +54,4 @@ class BaseHandler(object):
 class registry:
     @staticmethod
     def register(handled_type, handler_class):
-        pass
+        BaseHandler._registry[handled_type] = handler_class
