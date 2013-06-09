@@ -9,8 +9,10 @@
 # you should have received as part of this distribution.
 
 import os
-import sys
-from distutils.core import setup
+try:
+    import setuptools as setup_mod
+except ImportError:
+    import distutils.core as setup_mod
 
 here = os.path.dirname(__file__)
 version = os.path.join(here, 'jsonpickle', 'version.py')
@@ -35,52 +37,18 @@ SETUP_ARGS = dict(
     classifiers=[
         "License :: OSI Approved :: BSD License",
         "Operating System :: OS Independent",
-        "Programming Language :: Python",
+        "Programming Language :: Python :: 2.6",
+        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3",
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Development Status :: 5 - Stable",
         "Intended Audience :: Developers",
-        "Programming Language :: JavaScript"
+        "Programming Language :: JavaScript",
     ],
     options={'clean': {'all': 1}},
     packages=["jsonpickle"],
 )
 
 
-def main():
-    if sys.argv[1] in ('install', 'build'):
-        _check_dependencies()
-    setup(**SETUP_ARGS)
-    return 0
-
-
-def _is_installed(module):
-    """Tests to see if ``module`` is available on the sys.path
-
-    >>> is_installed('sys')
-    True
-    >>> is_installed('hopefullythisisnotarealmodule')
-    False
-
-    """
-    try:
-        __import__(module)
-        return True
-    except ImportError as e:
-        return False
-
-
-def _check_dependencies():
-    # check to see if any of the supported backends is installed
-    backends = ('json',
-                'simplejson',
-                'demjson',
-                'django.util.simplejson')
-
-    if not any([_is_installed(module) for module in backends]):
-        print >> sys.stderr, ('No supported JSON backend found. '
-                              'Must install one of %s' % (', '.join(backends)))
-        sys.exit(1)
-
-
 if __name__ == '__main__':
-    sys.exit(main())
+    setup_mod.setup(**SETUP_ARGS)
