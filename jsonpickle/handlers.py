@@ -47,3 +47,11 @@ class BaseHandler(object):
 
         """
         raise NotImplementedError("Abstract method.")
+
+# for backward compatibility, provide 'registry'
+# jsonpickle 0.4 clients will call it with something like:
+# registry.register(handled_type, handler_class)
+class registry:
+    @staticmethod
+    def register(handled_type, handler_class):
+        BaseHandler._registry[handled_type] = handler_class
