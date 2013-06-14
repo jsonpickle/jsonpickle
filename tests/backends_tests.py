@@ -114,6 +114,21 @@ class YajlTestCase(BackendTestCase):
                 ']}')
         self.assertEncodeDecode(expected_pickled)
 
+
+
+class UJsonTestCase(BackendTestCase):
+    def setUp(self):
+        self.set_preferred_backend('ujson')
+
+    def test(self):
+        expected_pickled = (
+                '{"things":[{'
+                    '"py\/object":"jsonpickle._samples.Thing",'
+                    '"name":"data","child":null}'
+                ']}')
+        self.assertEncodeDecode(expected_pickled)
+
+
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(JsonTestCase))

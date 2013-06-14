@@ -4,3 +4,4 @@ simplejson
 demjson
 jsonlib
 yajl
+ujson
