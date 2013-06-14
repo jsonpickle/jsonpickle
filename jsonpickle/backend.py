@@ -39,6 +39,7 @@ class JSONBackend(object):
         ## Experimental support
         self.load_backend('jsonlib', 'write', 'read', 'ReadError')
         self.load_backend('yajl', 'dumps', 'loads', ValueError)
+        self.load_backend('ujson', 'dumps', 'loads', ValueError)
 
 
     def _verify(self):

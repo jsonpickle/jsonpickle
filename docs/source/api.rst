@@ -24,11 +24,11 @@ jsonpickle API
 Choosing and Loading Backends
 -----------------------------
 
-jsonpickle allows the user to specify what JSON backend to use 
+jsonpickle allows the user to specify what JSON backend to use
 when encoding and decoding. By default, jsonpickle will try to use, in
-the following order, `simplejson <http://simplejson.googlecode.com/svn/tags/simplejson-2.0.9/docs/index.html>`_, 
-:mod:`json`, and `demjson <http://deron.meranda.us/python/demjson/>`_. 
-The prefered backend can be set via :func:`jsonpickle.set_preferred_backend`.  
+the following order, `simplejson <http://simplejson.googlecode.com/svn/tags/simplejson-2.0.9/docs/index.html>`_,
+:mod:`json`, and `demjson <http://deron.meranda.us/python/demjson/>`_.
+The prefered backend can be set via :func:`jsonpickle.set_preferred_backend`.
 Additional JSON backends can be used via :func:`jsonpickle.load_backend`.
 
 For example, users of `Django <http://www.djangoproject.com/>`_ can use the
@@ -47,6 +47,7 @@ Experimental backends:
 
  * `jsonlib <http://pypi.python.org/pypi/jsonlib/>`_
  * yajl via `py-yajl <http://github.com/rtyler/py-yajl/>`_
+ * `ujson <https://pypi.python.org/pypi/ujson/>`_
 
 .. autofunction:: jsonpickle.set_preferred_backend
 
