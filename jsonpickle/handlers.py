@@ -1,4 +1,3 @@
-
 class TypeRegistered(type):
     """
     As classes of this metaclass are created, they keep a registry in the
@@ -9,7 +8,8 @@ class TypeRegistered(type):
         if not hasattr(cls, '_registry'):
             cls._registry = {}
         types_handled = getattr(cls, '_handles', [])
-        cls._registry.update((type_, cls) for type_ in types_handled)
+        for handled_type in types_handled:
+            cls.handles(handled_type)
 
 class BaseHandler(object):
     """
@@ -48,10 +48,18 @@ class BaseHandler(object):
         """
         raise NotImplementedError("Abstract method.")
 
+    @classmethod
+    def handles(handler, cls):
+        """
+        Register this handler for the given class
+        """
+        handler._registry[cls] = handler
+        return cls
+
 # for backward compatibility, provide 'registry'
 # jsonpickle 0.4 clients will call it with something like:
 # registry.register(handled_type, handler_class)
 class registry:
     @staticmethod
     def register(handled_type, handler_class):
-        BaseHandler._registry[handled_type] = handler_class
+        handler_class.handles(handled_type)
