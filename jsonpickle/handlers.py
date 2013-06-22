@@ -1,3 +1,25 @@
+"""
+Custom handlers may be created to handle other objects. Each custom handler
+must derive from BaseHandler and override ``.flatten`` and
+``.restore``.
+
+The handler may also declare a ``_handles`` class property which
+should be a sequence of types handled by that handler. See the `mod:_handlers`
+module for more examples of internal handlers implemented in jsonpickle.
+
+A handler may also be late-bound to other types by calling the ``.handles``
+method on the class. For example, the
+``class:SimpleReduceHandler`` is suitable for handling objects that implement
+the reduce protocol::
+
+    @SimpleReduceHandler.handles
+    class MyCustomObject(object):
+        ...
+
+        def __reduce__(self):
+            return MyCustomObject, self._get_args()
+"""
+
 class TypeRegistered(type):
     """
     As classes of this metaclass are created, they keep a registry in the
