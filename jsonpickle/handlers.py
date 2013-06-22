@@ -33,6 +33,13 @@ class TypeRegistered(type):
         for handled_type in types_handled:
             cls.handles(handled_type)
 
+    def handles(handler, cls):
+        """
+        Register this handler for the given class
+        """
+        handler._registry[cls] = handler
+        return cls
+
 class BaseHandler(object):
     """
     Abstract base class for handlers.
@@ -69,14 +76,6 @@ class BaseHandler(object):
 
         """
         raise NotImplementedError("Abstract method.")
-
-    @classmethod
-    def handles(handler, cls):
-        """
-        Register this handler for the given class
-        """
-        handler._registry[cls] = handler
-        return cls
 
 # for backward compatibility, provide 'registry'
 # jsonpickle 0.4 clients will call it with something like:
