@@ -83,8 +83,8 @@ protocol for representating object instances.
 :mod:`jsonpickle.handlers` -- Custom Serialization Handlers
 -----------------------------------------------------------
 
-The `jsonpickle.handlers.registry` allows plugging in custom
-serialization handlers at run-time.  This is useful when
+The `jsonpickle.handlers` module allows plugging in custom
+serialization handlers at run-time.  This feature is useful when
 jsonpickle is unable to serialize objects that are not
 under your direct control.
 
