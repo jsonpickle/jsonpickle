@@ -26,7 +26,6 @@ def decode(string, backend=None, context=None):
 class Unpickler(object):
     def __init__(self):
         ## The current recursion depth
-        self._depth = 0
         ## Maps reference names to object instances
         self._namedict = {}
         ## The namestack grows whenever we recurse into a child object
@@ -36,7 +35,7 @@ class Unpickler(object):
         self._obj_to_idx = {}
         self._objs = []
 
-    def _reset(self):
+    def reset(self):
         """Resets the object's internal state.
         """
         self._namedict = {}
@@ -44,21 +43,7 @@ class Unpickler(object):
         self._obj_to_idx = {}
         self._objs = []
 
-    def _push(self):
-        """Steps down one level in the namespace.
-        """
-        self._depth += 1
-
-    def _pop(self, value):
-        """Step up one level in the namespace and return the value.
-        If we're at the root, reset the unpickler's state.
-        """
-        self._depth -= 1
-        if self._depth == 0:
-            self._reset()
-        return value
-
-    def restore(self, obj):
+    def restore(self, obj, reset=True):
         """Restores a flattened object to its original python state.
 
         Simply returns any of the basic builtin types
@@ -69,42 +54,45 @@ class Unpickler(object):
         >>> u.restore({'key': 'value'})
         {'key': 'value'}
         """
-        self._push()
+        if reset:
+            self.reset()
+        return self._restore(obj)
 
+    def _restore(self, obj):
         if has_tag(obj, tags.ID):
-            return self._pop(self._objs[obj[tags.ID]])
+            return self._objs[obj[tags.ID]]
 
         # Backwards compatibility
         if has_tag(obj, tags.REF):
-            return self._pop(self._namedict.get(obj[tags.REF]))
+            return self._namedict.get(obj[tags.REF])
 
         if has_tag(obj, tags.TYPE):
             typeref = loadclass(obj[tags.TYPE])
-            if not typeref:
-                return self._pop(obj)
-            return self._pop(typeref)
+            if typeref is None:
+                return obj
+            return typeref
 
         # Backwards compatibility
         if has_tag(obj, tags.REPR):
             obj = loadrepr(obj[tags.REPR])
-            return self._pop(self._mkref(obj))
+            return self._mkref(obj)
 
         if has_tag(obj, tags.OBJECT):
             cls = loadclass(obj[tags.OBJECT])
-            if not cls:
-                return self._pop(self._mkref(obj))
+            if cls is None:
+                return self._mkref(obj)
 
             # check custom handlers
             HandlerClass = handlers.BaseHandler._registry.get(cls)
-            if HandlerClass:
+            if HandlerClass is not None:
                 handler = HandlerClass(self)
                 instance = handler.restore(obj)
-                return self._pop(self._mkref(instance))
+                return self._mkref(instance)
 
             factory = loadfactory(obj)
             args = getargs(obj)
             if args:
-                args = self.restore(args)
+                args = self._restore(args)
             try:
                 if hasattr(cls, '__new__'):
                     # new style classes
@@ -121,19 +109,19 @@ class Unpickler(object):
                     instance = cls()
                 except TypeError:
                     # fail gracefully if the constructor requires arguments
-                    return self._pop(self._mkref(obj))
+                    return self._mkref(obj)
 
             # Add to the instance table to allow being referenced by a
             # downstream object
             self._mkref(instance)
 
             if isinstance(instance, tuple):
-                return self._pop(instance)
+                return instance
 
             if hasattr(instance, '__setstate__') and has_tag(obj, tags.STATE):
-                state = self.restore(obj[tags.STATE])
+                state = self._restore(obj[tags.STATE])
                 instance.__setstate__(state)
-                return self._pop(instance)
+                return instance
 
             for k, v in sorted(obj.items(), key=operator.itemgetter(0)):
                 # ignore the reserved attribute
@@ -141,7 +129,7 @@ class Unpickler(object):
                     continue
                 self._namestack.append(k)
                 # step into the namespace
-                value = self.restore(v)
+                value = self._restore(v)
                 if (util.is_noncomplex(instance) or
                         util.is_dictionary_subclass(instance)):
                     instance[k] = value
@@ -154,38 +142,36 @@ class Unpickler(object):
             if has_tag(obj, tags.SEQ):
                 if hasattr(instance, 'append'):
                     for v in obj[tags.SEQ]:
-                        instance.append(self.restore(v))
+                        instance.append(self._restore(v))
                 if hasattr(instance, 'add'):
                     for v in obj[tags.SEQ]:
-                        instance.add(self.restore(v))
+                        instance.add(self._restore(v))
 
-            return self._pop(instance)
+            return instance
 
         if util.is_list(obj):
             parent = []
             self._mkref(parent)
-            children = [self.restore(v) for v in obj]
+            children = [self._restore(v) for v in obj]
             parent.extend(children)
-            return self._pop(parent)
+            return parent
 
         if has_tag(obj, tags.TUPLE):
-            return self._pop(tuple([self.restore(v)
-                                    for v in obj[tags.TUPLE]]))
+            return tuple([self._restore(v) for v in obj[tags.TUPLE]])
 
         if has_tag(obj, tags.SET):
-            return self._pop(set([self.restore(v)
-                                  for v in obj[tags.SET]]))
+            return set([self._restore(v) for v in obj[tags.SET]])
 
         if util.is_dictionary(obj):
             data = {}
             for k, v in sorted(obj.items(), key=operator.itemgetter(0)):
                 self._namestack.append(k)
-                data[k] = self.restore(v)
+                data[k] = self._restore(v)
                 self._namestack.pop()
 
-            return self._pop(data)
+            return data
 
-        return self._pop(obj)
+        return obj
 
     def _refname(self):
         """Calculates the name of the current location in the JSON stack.

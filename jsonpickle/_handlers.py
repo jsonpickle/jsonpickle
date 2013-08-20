@@ -27,9 +27,9 @@ class DatetimeHandler(jsonpickle.handlers.BaseHandler):
         cls, args = obj['__reduce__']
         value = args[0].decode('base64')
         unpickler = self._base
-        cls = unpickler.restore(cls)
-        params = map(unpickler.restore, args[1:])
-        params = (value,) + tuple(params)
+        restore = unpickler.restore
+        cls = restore(cls, reset=False)
+        params = (value,) + tuple([restore(i, reset=False) for i in args[1:]])
         return cls.__new__(cls, *params)
 
 
@@ -53,5 +53,6 @@ class SimpleReduceHandler(jsonpickle.handlers.BaseHandler):
 
     def restore(self, obj):
         unpickler = self._base
-        factory, args = map(unpickler.restore, obj['__reduce__'])
+        restore = unpickler.restore
+        factory, args = [restore(i, reset=False) for i in obj['__reduce__']]
         return factory(*args)
