@@ -71,122 +71,136 @@ class Unpickler(object):
 
     def _restore(self, obj):
         if has_tag(obj, tags.ID):
-            return self._objs[obj[tags.ID]]
+            restore = self._restore_id
+        elif has_tag(obj, tags.REF): # Backwards compatibility
+            restore = self._restore_ref
+        elif has_tag(obj, tags.TYPE):
+            restore = self._restore_type
+        elif has_tag(obj, tags.REPR): # Backwards compatibility
+            restore = self._restore_repr
+        elif has_tag(obj, tags.OBJECT):
+            restore = self._restore_object
+        elif util.is_list(obj):
+            restore = self._restore_list
+        elif has_tag(obj, tags.TUPLE):
+            restore = self._restore_tuple
+        elif has_tag(obj, tags.SET):
+            restore = self._restore_set
+        elif util.is_dictionary(obj):
+            restore = self._restore_dict
+        else:
+            restore = lambda x: x
+        return restore(obj)
 
-        # Backwards compatibility
-        if has_tag(obj, tags.REF):
-            return self._namedict.get(obj[tags.REF])
+    def _restore_id(self, obj):
+        return self._objs[obj[tags.ID]]
 
-        if has_tag(obj, tags.TYPE):
-            typeref = loadclass(obj[tags.TYPE])
-            if typeref is None:
-                return obj
-            return typeref
+    def _restore_ref(self, obj):
+        return self._namedict.get(obj[tags.REF])
 
-        # Backwards compatibility
-        if has_tag(obj, tags.REPR):
-            obj = loadrepr(obj[tags.REPR])
+    def _restore_type(self, obj):
+        typeref = loadclass(obj[tags.TYPE])
+        if typeref is None:
+            return obj
+        return typeref
+
+    def _restore_repr(self, obj):
+        obj = loadrepr(obj[tags.REPR])
+        return self._mkref(obj)
+
+    def _restore_object(self, obj):
+        cls = loadclass(obj[tags.OBJECT])
+        if cls is None:
             return self._mkref(obj)
+        handler = handlers.BaseHandler._registry.get(cls)
+        if handler is not None: # custom handler
+            instance = handler(self).restore(obj)
+            return self._mkref(instance)
+        else:
+            return self._restore_object_instance(obj, cls)
 
-        if has_tag(obj, tags.OBJECT):
-            cls = loadclass(obj[tags.OBJECT])
-            if cls is None:
+    def _restore_object_instance(self, obj, cls):
+        factory = loadfactory(obj)
+        args = getargs(obj)
+        if args:
+            args = self._restore(args)
+        try:
+            if hasattr(cls, '__new__'): # new style classes
+                if factory:
+                    instance = cls.__new__(cls, factory, *args)
+                    instance.default_factory = factory
+                else:
+                    instance = cls.__new__(cls, *args)
+            else:
+                instance = object.__new__(cls)
+        except TypeError: # old-style classes
+            try:
+                instance = cls()
+            except TypeError: # fail gracefully
                 return self._mkref(obj)
 
-            # check custom handlers
-            HandlerClass = handlers.BaseHandler._registry.get(cls)
-            if HandlerClass is not None:
-                handler = HandlerClass(self)
-                instance = handler.restore(obj)
-                return self._mkref(instance)
-
-            factory = loadfactory(obj)
-            args = getargs(obj)
-            if args:
-                args = self._restore(args)
-            try:
-                if hasattr(cls, '__new__'):
-                    # new style classes
-                    if factory:
-                        instance = cls.__new__(cls, factory, *args)
-                        instance.default_factory = factory
-                    else:
-                        instance = cls.__new__(cls, *args)
-                else:
-                    instance = object.__new__(cls)
-            except TypeError:
-                # old-style classes
-                try:
-                    instance = cls()
-                except TypeError:
-                    # fail gracefully if the constructor requires arguments
-                    return self._mkref(obj)
-
-            # Add to the instance table to allow being referenced by a
-            # downstream object
-            self._mkref(instance)
-
-            if isinstance(instance, tuple):
-                return instance
-
-            if hasattr(instance, '__setstate__') and has_tag(obj, tags.STATE):
-                state = self._restore(obj[tags.STATE])
-                instance.__setstate__(state)
-                return instance
-
-            for k, v in sorted(obj.items(), key=operator.itemgetter(0)):
-                # ignore the reserved attribute
-                if k in tags.RESERVED:
-                    continue
-                self._namestack.append(k)
-                # step into the namespace
-                value = self._restore(v)
-                if (util.is_noncomplex(instance) or
-                        util.is_dictionary_subclass(instance)):
-                    instance[k] = value
-                else:
-                    setattr(instance, k, value)
-                # step out
-                self._namestack.pop()
-
-            # Handle list and set subclasses
-            if has_tag(obj, tags.SEQ):
-                if hasattr(instance, 'append'):
-                    for v in obj[tags.SEQ]:
-                        instance.append(self._restore(v))
-                if hasattr(instance, 'add'):
-                    for v in obj[tags.SEQ]:
-                        instance.add(self._restore(v))
-
+        self._mkref(instance) # allow references in downstream objects
+        if isinstance(instance, tuple):
             return instance
 
-        if util.is_list(obj):
-            parent = []
-            self._mkref(parent)
-            children = [self._restore(v) for v in obj]
-            parent.extend(children)
-            return parent
+        return self._restore_object_instance_variables(obj, instance)
 
-        if has_tag(obj, tags.TUPLE):
-            return tuple([self._restore(v) for v in obj[tags.TUPLE]])
+    def _restore_object_instance_variables(self, obj, instance):
+        if hasattr(instance, '__setstate__') and has_tag(obj, tags.STATE):
+            state = self._restore(obj[tags.STATE])
+            instance.__setstate__(state)
+            return instance
 
-        if has_tag(obj, tags.SET):
-            return set([self._restore(v) for v in obj[tags.SET]])
+        for k, v in sorted(obj.items(), key=operator.itemgetter(0)):
+            # ignore the reserved attribute
+            if k in tags.RESERVED:
+                continue
+            self._namestack.append(k)
+            # step into the namespace
+            value = self._restore(v)
+            if (util.is_noncomplex(instance) or
+                    util.is_dictionary_subclass(instance)):
+                instance[k] = value
+            else:
+                setattr(instance, k, value)
+            # step out
+            self._namestack.pop()
 
-        if util.is_dictionary(obj):
-            data = {}
-            for k, v in sorted(obj.items(), key=operator.itemgetter(0)):
-                self._namestack.append(k)
-                if self.keys and k.startswith(tags.JSON_KEY):
-                    k = decode(k[len(tags.JSON_KEY):],
-                               backend=self.backend, context=self,
-                               keys=True, reset=False)
-                data[k] = self._restore(v)
-                self._namestack.pop()
+        # Handle list and set subclasses
+        if has_tag(obj, tags.SEQ):
+            if hasattr(instance, 'append'):
+                for v in obj[tags.SEQ]:
+                    instance.append(self._restore(v))
+            if hasattr(instance, 'add'):
+                for v in obj[tags.SEQ]:
+                    instance.add(self._restore(v))
 
-            return data
+        return instance
 
-        return obj
+    def _restore_list(self, obj):
+        parent = []
+        self._mkref(parent)
+        children = [self._restore(v) for v in obj]
+        parent.extend(children)
+        return parent
+
+    def _restore_tuple(self, obj):
+        return tuple([self._restore(v) for v in obj[tags.TUPLE]])
+
+    def _restore_set(self, obj):
+        return set([self._restore(v) for v in obj[tags.SET]])
+
+    def _restore_dict(self, obj):
+        data = {}
+        for k, v in sorted(obj.items(), key=operator.itemgetter(0)):
+            self._namestack.append(k)
+            if self.keys and k.startswith(tags.JSON_KEY):
+                k = decode(k[len(tags.JSON_KEY):],
+                           backend=self.backend, context=self,
+                           keys=True, reset=False)
+            data[k] = self._restore(v)
+            self._namestack.pop()
+        return data
 
     def _refname(self):
         """Calculates the name of the current location in the JSON stack.
