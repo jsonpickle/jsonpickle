@@ -80,7 +80,7 @@ class BaseHandler(object):
 # for backward compatibility, provide 'registry'
 # jsonpickle 0.4 clients will call it with something like:
 # registry.register(handled_type, handler_class)
-class registry:
+class registry(object):
     @staticmethod
     def register(handled_type, handler_class):
         handler_class.handles(handled_type)
