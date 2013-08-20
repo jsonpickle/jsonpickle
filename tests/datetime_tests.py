@@ -77,7 +77,7 @@ class DateTimeTests(unittest.TestCase):
         simple, human-readable strings.
         """
         obj = datetime.datetime.now()
-        pickler = jsonpickle.Pickler(unpicklable=False)
+        pickler = jsonpickle.pickler.Pickler(unpicklable=False)
         flattened = pickler.flatten(obj)
         self.assertEqual(str(obj), flattened)
 

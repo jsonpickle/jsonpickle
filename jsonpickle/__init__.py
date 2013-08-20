@@ -58,9 +58,8 @@ added to JSON.
     {"name": "A String", "child": null}
 
 """
-
-from jsonpickle.pickler import Pickler
-from jsonpickle.unpickler import Unpickler
+from jsonpickle import pickler
+from jsonpickle import unpickler
 from jsonpickle.backend import JSONBackend
 from jsonpickle.version import VERSION
 
@@ -79,7 +78,9 @@ load_backend = json.load_backend
 remove_backend = json.remove_backend
 
 
-def encode(value, unpicklable=True, max_depth=None):
+def encode(value,
+           unpicklable=True, make_refs=True, max_depth=None,
+           backend=None):
     """
     Return a JSON formatted representation of value, a Python object.
 
@@ -108,11 +109,16 @@ def encode(value, unpicklable=True, max_depth=None):
 
 
     """
-    j = Pickler(unpicklable=unpicklable,
-                max_depth=max_depth)
-    return json.encode(j.flatten(value))
+    if backend is None:
+        backend = json
+    return pickler.encode(value,
+                          make_refs=make_refs,
+                          backend=backend,
+                          max_depth=max_depth,
+                          unpicklable=unpicklable)
 
-def decode(string):
+
+def decode(string, backend=None):
     """
     Convert a JSON string into a Python object.
 
@@ -121,5 +127,6 @@ def decode(string):
     >>> decode('36')
     36
     """
-    j = Unpickler()
-    return j.restore(json.decode(string))
+    if backend is None:
+        backend = json
+    return unpickler.decode(string, backend=backend)

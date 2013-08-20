@@ -8,10 +8,19 @@
 
 import operator
 import sys
+
 import jsonpickle.util as util
 import jsonpickle.tags as tags
 import jsonpickle.handlers as handlers
+
 from jsonpickle.compat import set
+from jsonpickle.backend import JSONBackend
+
+
+def decode(string, backend=None, context=None):
+    backend = backend or JSONBackend()
+    context = context or Unpickler()
+    return context.restore(backend.decode(string))
 
 
 class Unpickler(object):

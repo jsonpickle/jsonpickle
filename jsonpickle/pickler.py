@@ -7,10 +7,22 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 import operator
+
 import jsonpickle.util as util
 import jsonpickle.tags as tags
 import jsonpickle.handlers as handlers
+
+from jsonpickle.backend import JSONBackend
 from jsonpickle.compat import unicode
+
+
+def encode(value, unpicklable=False, make_refs=True, max_depth=None,
+           backend=None, context=None):
+    backend = backend or JSONBackend()
+    context = context or Pickler(unpicklable=unpicklable,
+                                 make_refs=make_refs,
+                                 max_depth=max_depth)
+    return backend.encode(context.flatten(value))
 
 
 class Pickler(object):
@@ -25,13 +37,20 @@ class Pickler(object):
     object.  Setting it to zero or higher places a hard limit
     on how deep jsonpickle recurses into objects, dictionaries, etc.
 
+    Setting make_refs to False disables the referencing support.
+    Objects that are id()-identical won't be preserved across
+    encode()/decode() when make_refs is False, but the resulting
+    JSON stream is conceptually simpler.
+
     >>> p = Pickler()
     >>> p.flatten('hello world')
     'hello world'
+
     """
 
-    def __init__(self, unpicklable=True, max_depth=None):
+    def __init__(self, unpicklable=True, make_refs=True, max_depth=None):
         self.unpicklable = unpicklable
+        self.make_refs = make_refs
         ## The current recursion depth
         self._depth = -1
         ## The maximal recursion depth
@@ -57,15 +76,16 @@ class Pickler(object):
         return value
 
     def _mkref(self, obj):
-        # Do not use references if not unpicklable.
-        if self.unpicklable is False:
-            return True
         objid = id(obj)
         if objid not in self._objs:
             new_id = len(self._objs)
             self._objs[objid] = new_id
             return True
-        return False
+        # Do not use references if not unpicklable.
+        if not self.unpicklable or not self.make_refs:
+            return True
+        else:
+            return False
 
     def _getref(self, obj):
         return {tags.ID: self._objs.get(id(obj))}
@@ -103,7 +123,12 @@ class Pickler(object):
         self._push()
 
         max_reached = self._depth == self._max_depth
-        flatten_func = self._get_flattener(obj) if not max_reached else repr
+
+        if max_reached or (not self.make_refs and id(obj) in self._objs):
+            # break the cycle
+            flatten_func = repr
+        else:
+            flatten_func = self._get_flattener(obj)
 
         return self._pop(flatten_func(obj))
 

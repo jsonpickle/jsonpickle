@@ -400,6 +400,14 @@ class PicklingTestCase(unittest.TestCase):
         self.assertTrue('<BrokenReprThing "test">' in flattened)
         self.assertTrue(flattened['<BrokenReprThing "test">'])
 
+    def test_repr_not_unpickable(self):
+        obj = datetime.datetime.now()
+        pickler = jsonpickle.pickler.Pickler(unpicklable=False)
+        flattened = pickler.flatten(obj)
+        self.assertFalse(tags.REPR in flattened)
+        self.assertFalse(tags.OBJECT in flattened)
+        self.assertEqual(str(obj), flattened)
+
     def test_thing_with_module(self):
         obj = Thing('with-module')
         obj.themodule = os
@@ -475,6 +483,7 @@ class PicklingTestCase(unittest.TestCase):
         inflated = self.unpickler.restore(flattened)
         self.assertEqual(type(inflated), ListSubclassWithInit)
 
+
 class JSONPickleTestCase(unittest.TestCase):
     def setUp(self):
         self.obj = Thing('A name')
@@ -511,28 +520,32 @@ class JSONPickleTestCase(unittest.TestCase):
 
     def test_tuple_dict_keys(self):
         """Test that we handle dictionaries with tuples as keys.
-        We do not model this presently, so ensure that we at
-        least convert those tuples to repr strings.
 
-        TODO: handle dictionaries with non-stringy keys.
+        This is unsupported, but the behavior is known.
+
         """
-        pickled = jsonpickle.encode({(1, 2): 3,
-                                     (4, 5): { (7, 8): 9 }})
-        unpickled = jsonpickle.decode(pickled)
-        subdict = unpickled['(4, 5)']
+        tuple_dict = {(1, 2): 3, (4, 5): { (7, 8): 9 }}
+        pickled = jsonpickle.encode(tuple_dict)
+        expect = {'(1, 2)': 3, '(4, 5)': {'(7, 8)': 9}}
+        actual = jsonpickle.decode(pickled)
+        self.assertEqual(expect, actual)
 
-        self.assertEqual(unpickled['(1, 2)'], 3)
-        self.assertEqual(subdict['(7, 8)'], 9)
+        tuple_dict = {(1, 2): [1, 2]}
+        pickled = jsonpickle.encode(tuple_dict)
+        unpickled = jsonpickle.decode(pickled)
+        self.assertEqual(unpickled['(1, 2)'], [1, 2])
 
     def test_datetime_dict_keys(self):
         """Test that we handle datetime objects as keys.
-        We do not model this presently, so ensure that we at
-        least convert those tuples into repr strings.
+
+        This is an unsupported feature, but the behavior is known.
 
         """
-        pickled = jsonpickle.encode({datetime.datetime(2008, 12, 31): True})
-        unpickled = jsonpickle.decode(pickled)
-        self.assertTrue(unpickled['datetime.datetime(2008, 12, 31, 0, 0)'])
+        datetime_dict = {datetime.datetime(2008, 12, 31): True}
+        pickled = jsonpickle.encode(datetime_dict)
+        expect = {'datetime.datetime(2008, 12, 31, 0, 0)': True}
+        actual = jsonpickle.decode(pickled)
+        self.assertEqual(expect, actual)
 
     def test_object_dict_keys(self):
         """Test that we handle random objects as keys.
@@ -541,8 +554,14 @@ class JSONPickleTestCase(unittest.TestCase):
         thing = Thing('random')
         pickled = jsonpickle.encode({thing: True})
         unpickled = jsonpickle.decode(pickled)
-        self.assertEqual(unpickled,
-                {u('Thing("random")'): True})
+        self.assertEqual(unpickled, {u('Thing("random")'): True})
+
+    def test_int_dict_keys(self):
+        """Unsupported, but the behavior is known"""
+        int_dict = {1000: [1, 2]}
+        pickled = jsonpickle.encode(int_dict)
+        unpickled = jsonpickle.decode(pickled)
+        self.assertEqual(unpickled['1000'], [1, 2])
 
     def test_list_of_objects(self):
         """Test that objects in lists are referenced correctly"""
@@ -648,7 +667,6 @@ class JSONPickleTestCase(unittest.TestCase):
 
         self.assertEqual(id(decoded), id(decoded.child.parent))
 
-
     def test_ordered_dict(self):
         if sys.version_info < (2, 7):
             return
@@ -662,6 +680,32 @@ class JSONPickleTestCase(unittest.TestCase):
         decoded = jsonpickle.decode(encoded)
 
         self.assertEqual(d, decoded)
+
+    def test_make_refs_disabled_list(self):
+        obj_a = Thing('foo')
+        obj_b = Thing('bar')
+        coll = [obj_a, obj_b, obj_b]
+        encoded = jsonpickle.encode(coll, make_refs=False)
+        decoded = jsonpickle.decode(encoded)
+
+        self.assertEqual(len(decoded), 3)
+        self.assertTrue(decoded[0] is not decoded[1])
+        self.assertTrue(decoded[1] is not decoded[2])
+
+    def test_make_refs_disabled_reference_to_list(self):
+        thing = Thing('parent')
+        thing.a = [1]
+        thing.b = thing.a
+        thing.b.append(thing.a)
+        thing.b.append([thing.a])
+
+        encoded = jsonpickle.encode(thing, make_refs=False)
+        decoded = jsonpickle.decode(encoded)
+
+        self.assertEqual(decoded.a[0], 1)
+        self.assertEqual(decoded.b[0:3], '[1,')
+        self.assertEqual(decoded.a[1][0:3], '[1,')
+        self.assertEqual(decoded.a[2][0][0:3], '[1,')
 
 
 # Test classes for ExternalHandlerTestCase
