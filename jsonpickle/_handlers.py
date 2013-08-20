@@ -4,6 +4,7 @@ import collections
 
 import jsonpickle
 
+
 class DatetimeHandler(jsonpickle.handlers.BaseHandler):
     """
     Datetime objects use __reduce__, and they generate binary strings encoding
@@ -17,12 +18,9 @@ class DatetimeHandler(jsonpickle.handlers.BaseHandler):
         if not pickler.unpicklable:
             return unicode(obj)
         cls, args = obj.__reduce__()
-
-        def flatten(obj):
-            return pickler.flatten(obj, reset=False)
-
-        args = [args[0].encode('base64')] + [flatten(i) for i in args[1:]]
-        data['__reduce__'] = (flatten(cls), args)
+        flatten = pickler.flatten
+        args = [args[0].encode('base64')] + [flatten(i, reset=False) for i in args[1:]]
+        data['__reduce__'] = (flatten(cls, reset=False), args)
         return data
 
     def restore(self, obj):
@@ -33,6 +31,7 @@ class DatetimeHandler(jsonpickle.handlers.BaseHandler):
         params = map(unpickler.restore, args[1:])
         params = (value,) + tuple(params)
         return cls.__new__(cls, *params)
+
 
 class SimpleReduceHandler(jsonpickle.handlers.BaseHandler):
     """
@@ -48,9 +47,8 @@ class SimpleReduceHandler(jsonpickle.handlers.BaseHandler):
         pickler = self._base
         if not pickler.unpicklable:
             return unicode(obj)
-        def flatten(obj):
-            return pickler.flatten(obj, reset=False)
-        data['__reduce__'] = [flatten(i) for i in obj.__reduce__()]
+        flatten = pickler.flatten
+        data['__reduce__'] = [flatten(i, reset=False) for i in obj.__reduce__()]
         return data
 
     def restore(self, obj):
