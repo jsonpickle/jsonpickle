@@ -58,9 +58,9 @@ class Pickler(object):
         ## Maps id(obj) to reference IDs
         self._objs = {}
 
-    def _reset(self):
-        self._depth = -1
+    def reset(self):
         self._objs = {}
+        self._depth = -1
 
     def _push(self):
         """Steps down one level in the namespace.
@@ -73,7 +73,7 @@ class Pickler(object):
         """
         self._depth -= 1
         if self._depth == -1:
-            self._reset()
+            self.reset()
         return value
 
     def _mkref(self, obj):
@@ -122,7 +122,7 @@ class Pickler(object):
         {'key': 'value'}
         """
         if reset:
-            self._reset()
+            self.reset()
         return self._flatten(obj)
 
     def _flatten(self, obj):
