@@ -80,8 +80,8 @@ remove_backend = json.remove_backend
 
 
 def encode(value,
-           unpicklable=True, make_refs=True, max_depth=None,
-           backend=None):
+           unpicklable=True, make_refs=True, keys=False,
+           max_depth=None, backend=None):
     """
     Return a JSON formatted representation of value, a Python object.
 
@@ -93,6 +93,17 @@ def encode(value,
     If set to a non-negative integer then jsonpickle will not recurse
     deeper than 'max_depth' steps into the object.  Anything deeper
     than 'max_depth' is represented using a Python repr() of the object.
+
+    The keyword argument 'make_refs' defaults to True.
+    If set to False jsonpickle's referencing support is disabled.
+    Objects that are id()-identical won't be preserved across
+    encode()/decode(), but the resulting JSON stream will be conceptually
+    simpler.  jsonpickle detects cyclical objects and will break the
+    cycle by calling repr() instead of recursing when make_refs is set False.
+
+    The keyword argument 'keys' defaults to False.
+    If set to True then jsonpickle will encode non-string dictionary keys
+    instead of coercing them into strings via `repr()`.
 
     >>> encode('my string')
     '"my string"'
@@ -113,15 +124,20 @@ def encode(value,
     if backend is None:
         backend = json
     return pickler.encode(value,
-                          make_refs=make_refs,
                           backend=backend,
-                          max_depth=max_depth,
-                          unpicklable=unpicklable)
+                          unpicklable=unpicklable,
+                          make_refs=make_refs,
+                          keys=keys,
+                          max_depth=max_depth)
 
 
-def decode(string, backend=None):
+def decode(string, backend=None, keys=False):
     """
     Convert a JSON string into a Python object.
+
+    The keyword argument 'keys' defaults to False.
+    If set to True then jsonpickle will decode non-string dictionary keys
+    into python objects via the jsonpickle protocol.
 
     >>> str(decode('"my string"'))
     'my string'
@@ -130,4 +146,4 @@ def decode(string, backend=None):
     """
     if backend is None:
         backend = json
-    return unpickler.decode(string, backend=backend)
+    return unpickler.decode(string, backend=backend, keys=keys)

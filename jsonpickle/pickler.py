@@ -16,41 +16,36 @@ from jsonpickle.backend import JSONBackend
 from jsonpickle.compat import unicode
 
 
-def encode(value, unpicklable=False, make_refs=True, max_depth=None,
+def encode(value,
+           unpicklable=False, make_refs=True, keys=False,
+           max_depth=None, reset=True,
            backend=None, context=None):
-    backend = backend or JSONBackend()
-    context = context or Pickler(unpicklable=unpicklable,
-                                 make_refs=make_refs,
-                                 max_depth=max_depth)
-    return backend.encode(context.flatten(value))
+    backend = _make_backend(backend)
+    if context is None:
+        context = Pickler(unpicklable=unpicklable,
+                          make_refs=make_refs,
+                          keys=keys,
+                          backend=backend,
+                          max_depth=max_depth)
+    return backend.encode(context.flatten(value, reset=reset))
+
+
+def _make_backend(backend):
+    if backend is None:
+        return JSONBackend()
+    else:
+        return backend
 
 
 class Pickler(object):
-    """Converts a Python object to a JSON representation.
 
-    Setting unpicklable to False removes the ability to regenerate
-    the objects into object types beyond what the standard
-    simplejson library supports.
-
-    Setting max_depth to a negative number means there is no
-    limit to the depth jsonpickle should recurse into an
-    object.  Setting it to zero or higher places a hard limit
-    on how deep jsonpickle recurses into objects, dictionaries, etc.
-
-    Setting make_refs to False disables the referencing support.
-    Objects that are id()-identical won't be preserved across
-    encode()/decode() when make_refs is False, but the resulting
-    JSON stream is conceptually simpler.
-
-    >>> p = Pickler()
-    >>> p.flatten('hello world')
-    'hello world'
-
-    """
-
-    def __init__(self, unpicklable=True, make_refs=True, max_depth=None):
+    def __init__(self,
+                unpicklable=True, make_refs=True, max_depth=None,
+                backend=None, keys=False):
         self.unpicklable = unpicklable
         self.make_refs = make_refs
+        self.backend = _make_backend(backend)
+        self.keys = keys
         ## The current recursion depth
         self._depth = -1
         ## The maximal recursion depth
@@ -277,10 +272,16 @@ class Pickler(object):
         if not util.is_picklable(k, v):
             return data
         if not isinstance(k, (str, unicode)):
-            try:
-                k = repr(k)
-            except:
-                k = unicode(k)
+            if self.keys:
+                k = tags.JSON_KEY + encode(k,
+                                           reset=False, keys=True,
+                                           context=self, backend=self.backend,
+                                           make_refs=self.make_refs)
+            else:
+                try:
+                    k = repr(k)
+                except:
+                    k = unicode(k)
         data[k] = self._flatten(v)
         return data
 

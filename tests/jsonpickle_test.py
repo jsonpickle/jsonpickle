@@ -381,13 +381,21 @@ class PicklingTestCase(unittest.TestCase):
         inflated = self.unpickler.restore(flattened)
         self.assertEqual(obj, inflated)
 
-    def test_datetime_inside_int_keys(self):
+    def test_datetime_inside_int_keys_defaults(self):
         t = datetime.time(hour=10)
         s = jsonpickle.encode({1:t, 2:t})
         d = jsonpickle.decode(s)
         self.assertEqual(d["1"], d["2"])
         self.assertTrue(d["1"] is d["2"])
         self.assertTrue(isinstance(d["1"], datetime.time))
+
+    def test_datetime_inside_int_keys_with_keys_enabled(self):
+        t = datetime.time(hour=10)
+        s = jsonpickle.encode({1:t, 2:t}, keys=True)
+        d = jsonpickle.decode(s, keys=True)
+        self.assertEqual(d[1], d[2])
+        self.assertTrue(d[1] is d[2])
+        self.assertTrue(isinstance(d[1], datetime.time))
 
     def test_broken_repr_dict_key(self):
         """Tests that we can pickle dictionaries with keys that have
@@ -518,12 +526,8 @@ class JSONPickleTestCase(unittest.TestCase):
         self.assertEqual(unpickled['é'.decode('utf-8')], 'é'.decode('utf-8'))
         self.assertTrue('é'.decode('utf-8') in unpickled)
 
-    def test_tuple_dict_keys(self):
-        """Test that we handle dictionaries with tuples as keys.
-
-        This is unsupported, but the behavior is known.
-
-        """
+    def test_tuple_dict_keys_default(self):
+        """Test that we handle dictionaries with tuples as keys."""
         tuple_dict = {(1, 2): 3, (4, 5): { (7, 8): 9 }}
         pickled = jsonpickle.encode(tuple_dict)
         expect = {'(1, 2)': 3, '(4, 5)': {'(7, 8)': 9}}
@@ -535,16 +539,33 @@ class JSONPickleTestCase(unittest.TestCase):
         unpickled = jsonpickle.decode(pickled)
         self.assertEqual(unpickled['(1, 2)'], [1, 2])
 
-    def test_datetime_dict_keys(self):
-        """Test that we handle datetime objects as keys.
+    def test_tuple_dict_keys_with_keys_enabled(self):
+        """Test that we handle dictionaries with tuples as keys."""
+        tuple_dict = {(1, 2): 3, (4, 5): { (7, 8): 9 }}
+        pickled = jsonpickle.encode(tuple_dict, keys=True)
+        expect = tuple_dict
+        actual = jsonpickle.decode(pickled, keys=True)
+        self.assertEqual(expect, actual)
 
-        This is an unsupported feature, but the behavior is known.
+        tuple_dict = {(1, 2): [1, 2]}
+        pickled = jsonpickle.encode(tuple_dict, keys=True)
+        unpickled = jsonpickle.decode(pickled, keys=True)
+        self.assertEqual(unpickled[(1, 2)], [1, 2])
 
-        """
+    def test_datetime_dict_keys_defaults(self):
+        """Test that we handle datetime objects as keys."""
         datetime_dict = {datetime.datetime(2008, 12, 31): True}
         pickled = jsonpickle.encode(datetime_dict)
         expect = {'datetime.datetime(2008, 12, 31, 0, 0)': True}
         actual = jsonpickle.decode(pickled)
+        self.assertEqual(expect, actual)
+
+    def test_datetime_dict_keys_with_keys_enabled(self):
+        """Test that we handle datetime objects as keys."""
+        datetime_dict = {datetime.datetime(2008, 12, 31): True}
+        pickled = jsonpickle.encode(datetime_dict, keys=True)
+        expect = datetime_dict
+        actual = jsonpickle.decode(pickled, keys=True)
         self.assertEqual(expect, actual)
 
     def test_object_dict_keys(self):
@@ -556,12 +577,17 @@ class JSONPickleTestCase(unittest.TestCase):
         unpickled = jsonpickle.decode(pickled)
         self.assertEqual(unpickled, {u('Thing("random")'): True})
 
-    def test_int_dict_keys(self):
-        """Unsupported, but the behavior is known"""
+    def test_int_dict_keys_defaults(self):
         int_dict = {1000: [1, 2]}
         pickled = jsonpickle.encode(int_dict)
         unpickled = jsonpickle.decode(pickled)
         self.assertEqual(unpickled['1000'], [1, 2])
+
+    def test_int_dict_keys_with_keys_enabled(self):
+        int_dict = {1000: [1, 2]}
+        pickled = jsonpickle.encode(int_dict, keys=True)
+        unpickled = jsonpickle.decode(pickled, keys=True)
+        self.assertEqual(unpickled[1000], [1, 2])
 
     def test_list_of_objects(self):
         """Test that objects in lists are referenced correctly"""
