@@ -17,8 +17,12 @@ class DatetimeHandler(jsonpickle.handlers.BaseHandler):
         if not pickler.unpicklable:
             return unicode(obj)
         cls, args = obj.__reduce__()
-        args = [args[0].encode('base64')] + map(pickler.flatten, args[1:])
-        data['__reduce__'] = (pickler.flatten(cls), args)
+
+        def flatten(obj):
+            return pickler.flatten(obj, reset=False)
+
+        args = [args[0].encode('base64')] + [flatten(i) for i in args[1:]]
+        data['__reduce__'] = (flatten(cls), args)
         return data
 
     def restore(self, obj):
@@ -44,7 +48,9 @@ class SimpleReduceHandler(jsonpickle.handlers.BaseHandler):
         pickler = self._base
         if not pickler.unpicklable:
             return unicode(obj)
-        data['__reduce__'] = map(pickler.flatten, obj.__reduce__())
+        def flatten(obj):
+            return pickler.flatten(obj, reset=False)
+        data['__reduce__'] = [flatten(i) for i in obj.__reduce__()]
         return data
 
     def restore(self, obj):

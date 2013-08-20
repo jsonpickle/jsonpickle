@@ -59,6 +59,7 @@ class Pickler(object):
         self._objs = {}
 
     def _reset(self):
+        self._depth = -1
         self._objs = {}
 
     def _push(self):
@@ -90,7 +91,7 @@ class Pickler(object):
     def _getref(self, obj):
         return {tags.ID: self._objs.get(id(obj))}
 
-    def flatten(self, obj):
+    def flatten(self, obj, reset=True):
         """Takes an object and returns a JSON-safe representation of it.
 
         Simply returns any of the basic builtin datatypes
@@ -120,6 +121,11 @@ class Pickler(object):
         >>> p.flatten({'key': 'value'})
         {'key': 'value'}
         """
+        if reset:
+            self._reset()
+        return self._flatten(obj)
+
+    def _flatten(self, obj):
         self._push()
 
         max_reached = self._depth == self._max_depth
@@ -137,7 +143,7 @@ class Pickler(object):
         if util.is_primitive(obj):
             return lambda obj: obj
 
-        list_recurse = lambda obj: [self.flatten(v) for v in obj]
+        list_recurse = lambda obj: [self._flatten(v) for v in obj]
 
         if util.is_list(obj):
             if self._mkref(obj):
@@ -150,12 +156,12 @@ class Pickler(object):
         if util.is_tuple(obj):
             if not self.unpicklable:
                 return list_recurse
-            return lambda obj: {tags.TUPLE: [self.flatten(v) for v in obj]}
+            return lambda obj: {tags.TUPLE: [self._flatten(v) for v in obj]}
 
         if util.is_set(obj):
             if not self.unpicklable:
                 return list_recurse
-            return lambda obj: {tags.SET: [self.flatten(v) for v in obj]}
+            return lambda obj: {tags.SET: [self._flatten(v) for v in obj]}
 
         if util.is_dictionary(obj):
             return self._flatten_dict_obj
@@ -223,7 +229,7 @@ class Pickler(object):
             # Support objects with __getstate__(); this ensures that
             # both __setstate__() and __getstate__() are implemented
             if has_getstate_support:
-                state = self.flatten(obj.__getstate__())
+                state = self._flatten(obj.__getstate__())
                 if self.unpicklable:
                     data[tags.STATE] = state
                 else:
@@ -238,7 +244,7 @@ class Pickler(object):
             return self._flatten_collection_obj(obj, data)
 
         if util.is_noncomplex(obj):
-            return [self.flatten(v) for v in obj]
+            return [self._flatten(v) for v in obj]
 
         if has_slots:
             return self._flatten_newstyle_with_slots(obj, data)
@@ -275,14 +281,14 @@ class Pickler(object):
                 k = repr(k)
             except:
                 k = unicode(k)
-        data[k] = self.flatten(v)
+        data[k] = self._flatten(v)
         return data
 
     def _flatten_collection_obj(self, obj, data):
         """Return a json-friendly dict for a collection subclass."""
         if hasattr(obj, '__dict__'):
             self._flatten_dict_obj(obj.__dict__, data)
-        value = [self.flatten(v) for v in obj]
+        value = [self._flatten(v) for v in obj]
         if self.unpicklable:
             data[tags.SEQ] = value
         else:
