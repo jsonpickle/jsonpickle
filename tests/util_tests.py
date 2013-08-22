@@ -10,8 +10,8 @@ import unittest
 import doctest
 import time
 
-from six import u
 import jsonpickle.util
+from jsonpickle.compat import unicode
 from jsonpickle.util import is_dictionary
 from jsonpickle.util import is_dictionary_subclass
 from jsonpickle.util import is_list
@@ -52,8 +52,8 @@ class PrimitiveTestCase(unittest.TestCase):
         self.assertTrue(is_primitive(''))
 
     def test_unicode(self):
-        self.assertTrue(is_primitive(u('hello')))
-        self.assertTrue(is_primitive(u('')))
+        self.assertTrue(is_primitive(unicode('hello')))
+        self.assertTrue(is_primitive(unicode('')))
         self.assertTrue(is_primitive(unicode('hello')))
 
     def test_list(self):

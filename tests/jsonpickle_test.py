@@ -15,8 +15,6 @@ import time
 import unittest
 import sys
 
-from six import u
-
 import jsonpickle
 
 from jsonpickle import handlers
@@ -47,8 +45,8 @@ class PicklingTestCase(unittest.TestCase):
         self.assertEqual('a string', self.unpickler.restore('a string'))
 
     def test_unicode(self):
-        self.assertEqual(u('a string'), self.pickler.flatten('a string'))
-        self.assertEqual(u('a string'), self.unpickler.restore('a string'))
+        self.assertEqual(unicode('a string'), self.pickler.flatten('a string'))
+        self.assertEqual(unicode('a string'), self.unpickler.restore('a string'))
 
     def test_int(self):
         self.assertEqual(3, self.pickler.flatten(3))
@@ -575,7 +573,7 @@ class JSONPickleTestCase(unittest.TestCase):
         thing = Thing('random')
         pickled = jsonpickle.encode({thing: True})
         unpickled = jsonpickle.decode(pickled)
-        self.assertEqual(unpickled, {u('Thing("random")'): True})
+        self.assertEqual(unpickled, {unicode('Thing("random")'): True})
 
     def test_int_dict_keys_defaults(self):
         int_dict = {1000: [1, 2]}
@@ -760,7 +758,7 @@ class ExternalHandlerTestCase(unittest.TestCase):
     def test_unicode_mixin(self):
         obj = UnicodeMixin('test')
         self.assertEqual(type(obj), UnicodeMixin)
-        self.assertEqual(unicode(obj), u('test'))
+        self.assertEqual(unicode(obj), unicode('test'))
 
         # Encode into JSON
         content = jsonpickle.encode(obj)
@@ -769,7 +767,7 @@ class ExternalHandlerTestCase(unittest.TestCase):
         new_obj = jsonpickle.decode(content)
         new_obj += ' passed'
 
-        self.assertEqual(unicode(new_obj), u('test passed'))
+        self.assertEqual(unicode(new_obj), unicode('test passed'))
         self.assertEqual(type(new_obj), UnicodeMixin)
         self.assertTrue(new_obj.ok())
 

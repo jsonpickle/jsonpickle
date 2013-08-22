@@ -1,9 +1,9 @@
-from jsonpickle._samples import Thing
-
-from six import u
-import jsonpickle
 import unittest
 from warnings import warn
+
+import jsonpickle
+from jsonpickle._samples import Thing
+from jsonpickle.compat import unicode
 
 SAMPLE_DATA = {'things': [Thing('data')]}
 
@@ -80,7 +80,7 @@ class DemjsonTestCase(BackendTestCase):
         self.set_preferred_backend('demjson')
 
     def test(self):
-        expected_pickled = u(
+        expected_pickled = unicode(
                 '{"things":[{'
                     '"child":null,'
                     '"name":"data",'
