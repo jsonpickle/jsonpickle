@@ -12,7 +12,15 @@ import time
 
 from six import u
 import jsonpickle.util
-from jsonpickle.util import *
+from jsonpickle.util import is_dictionary
+from jsonpickle.util import is_dictionary_subclass
+from jsonpickle.util import is_list
+from jsonpickle.util import is_noncomplex
+from jsonpickle.util import is_primitive
+from jsonpickle.util import is_set
+from jsonpickle.util import is_sequence
+from jsonpickle.util import is_sequence_subclass
+from jsonpickle.util import is_tuple
 from jsonpickle._samples import Thing, ListSubclass, DictSubclass
 
 
