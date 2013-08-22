@@ -1,5 +1,7 @@
 include COPYING README.rst
+include Rakefile
 include *.py
+include jsonpickle/*.py
 include tests/*.py
 include docs/source/**
-
+include *.txt
