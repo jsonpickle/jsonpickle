@@ -26,7 +26,7 @@ Choosing and Loading Backends
 
 jsonpickle allows the user to specify what JSON backend to use
 when encoding and decoding. By default, jsonpickle will try to use, in
-the following order, `simplejson <http://simplejson.googlecode.com/svn/tags/simplejson-2.0.9/docs/index.html>`_,
+the following order: `simplejson <http://undefined.org/python/#simplejson>`_,
 :mod:`json`, and `demjson <http://deron.meranda.us/python/demjson/>`_.
 The prefered backend can be set via :func:`jsonpickle.set_preferred_backend`.
 Additional JSON backends can be used via :func:`jsonpickle.load_backend`.
@@ -74,11 +74,12 @@ protocol for representating object instances.
 .. method:: object.__setstate__(state)
 
    Upon unpickling, if the class also defines the method :meth:`__setstate__`,
-   it is called with the unpickled state. [#]_ If there is no
+   it is called with the unpickled state. If there is no
    :meth:`__setstate__` method, the pickled state must be a dictionary and its
    items are assigned to the new instance's dictionary.  If a class defines both
    :meth:`__getstate__` and :meth:`__setstate__`, the state object needn't be a
-   dictionary and these methods can do what they want. [#]_
+   dictionary and these methods can do what they want.
+
 
 :mod:`jsonpickle.handlers` -- Custom Serialization Handlers
 -----------------------------------------------------------
@@ -97,19 +98,12 @@ Low Level API
 
 Typically this low level functionality is not needed by clients.
 
-:class:`jsonpickle.JSONPluginMgr` -- Management of JSON Backends
-----------------------------------------------------------------
-
-.. autoclass:: jsonpickle.JSONPluginMgr
-    :members:
-
 :mod:`jsonpickle.pickler` -- Python to JSON
 -------------------------------------------
 
 .. automodule:: jsonpickle.pickler
     :members:
     :undoc-members:
-
 
 :mod:`jsonpickle.unpickler` -- JSON to Python
 ---------------------------------------------
@@ -118,6 +112,11 @@ Typically this low level functionality is not needed by clients.
     :members:
     :undoc-members:
 
+:mod:`jsonpickle.backend` -- JSON Backend Management
+----------------------------------------------------
+
+.. automodule:: jsonpickle.backend
+    :members:
 
 :mod:`jsonpickle.util` -- Helper functions
 ------------------------------------------

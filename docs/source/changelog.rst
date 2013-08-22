@@ -1,12 +1,18 @@
 Change Log
 ==========
-Version 0.5.0 - TBD
--------------------
+Version 0.5.0 - August 22, 2013
+-------------------------------
 
+    * Non-string dictionary keys (e.g. ints, objects) are now supported
+      by passing `keys=True` to :func:`jsonpickle.encode` and
+      :func:`jsonpickle.decode`.
     * We now support namedtuple, deque, and defaultdict.
     * Datetimes with timezones are now fully supported.
     * Better support for complicated structures e.g.
       datetime inside dicts.
+    * jsonpickle added support for references and cyclical data structures
+      in 0.4.0.  This can be disabled by passing `make_refs=False` to
+      :func:`jsonpickle.encode`.
 
 Version 0.4.0 - June 21, 2011
 -----------------------------
@@ -14,20 +20,20 @@ Version 0.4.0 - June 21, 2011
     * Switch build from setuptools to distutils
     * Consistent dictionary key ordering
     * Fix areas with improper support for unpicklable=False
-    * Added support for cyclical data structures (`#16 
-      <https://github.com/jsonpickle/jsonpickle/issues/16>`_).
+    * Added support for cyclical data structures
+      (`#16 <https://github.com/jsonpickle/jsonpickle/issues/16>`_).
     * Experimental support for  `jsonlib <http://pypi.python.org/pypi/jsonlib/>`_
       and `py-yajl <http://github.com/rtyler/py-yajl/>`_ backends.
     * New contributers David K. Hess and Alec Thomas
 
     .. warning::
 
-        To support cyclical data structures (`#16 
-        <https://github.com/jsonpickle/jsonpickle/issues/16>`_), the storage format
-        has been modified.  Efforts have been made to ensure backwards-compatibility.
-        jsonpickle 0.4.0 can read data encoded by jsonpickle 0.3.1, but earlier
-        versions of jsonpickle may be unable to read data encoded by jsonpickle 
-        0.4.0.
+        To support cyclical data structures
+        (`#16 <https://github.com/jsonpickle/jsonpickle/issues/16>`_),
+        the storage format has been modified.  Efforts have been made to
+        ensure backwards-compatibility.  jsonpickle 0.4.0 can read data
+        encoded by jsonpickle 0.3.1, but earlier versions of jsonpickle may be
+        unable to read data encoded by jsonpickle 0.4.0.
 
 
 Version 0.3.1 - December 12, 2009
@@ -38,8 +44,8 @@ Version 0.3.1 - December 12, 2009
 Version 0.3.0 - December 11, 2009
 ---------------------------------
 
-    * Officially migrated to git from subversion. Project home now at 
-      `<http://jsonpickle.github.com/>`_. Thanks to Michael Jone's 
+    * Officially migrated to git from subversion. Project home now at
+      `<http://jsonpickle.github.com/>`_. Thanks to Michael Jone's
       `sphinx-to-github <http://github.com/michaeljones/sphinx-to-github>`_.
     * Fortified jsonpickle against common error conditions.
     * Added support for:
@@ -54,7 +60,7 @@ Version 0.3.0 - December 11, 2009
     * Support for user-defined serialization handlers via the
       jsonpickle.handlers registry.
     * Removed cjson support per John Millikin's recommendation.
-    * General improvements to style, including :pep:`257` compliance and 
+    * General improvements to style, including :pep:`257` compliance and
       refactored project layout.
     * Steps towards Python 2.3 and Python 3 support.
     * New contributors Dan Buch and Ian Schenck.

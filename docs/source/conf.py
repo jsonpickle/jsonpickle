@@ -22,8 +22,13 @@ import jsonpickle
 sys.path.insert(1, os.path.abspath(os.path.join('..', '..', 'thirdparty', 'sphinx-to-github')))
 try:
     import sphinxtogithub
+    sphinxtogithub # import side-effects
 except ImportError, e:
-    raise ImportError('Could not import sphinxtogithub\nIs the git submodule populated at thirdparty/sphinx-to-github? At the project root run:\n\tgit submodule init\n\tgit submodule update')
+    raise ImportError('Could not import sphinxtogithub\n'
+                      'Is the git submodule populated at thirdparty/sphinx-to-github?\n'
+                      'At the project root run:\n'
+                      '\tgit submodule init\n'
+                      '\tgit submodule update')
 
 # -- General configuration -----------------------------------------------------
 
@@ -47,7 +52,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'jsonpickle'
-copyright = u'2008-2011, John Paulett'
+copyright = u'2008-2011, John Paulett; 2009-2013, David Aguilar'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

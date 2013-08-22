@@ -2,11 +2,11 @@
 jsonpickle Documentation
 ========================
 
-`jsonpickle <http://jsonpickle.github.com>`_ is a Python library for 
+`jsonpickle <http://jsonpickle.github.com>`_ is a Python library for
 serialization and deserialization of complex Python objects to and from
 JSON.  The standard Python libraries for encoding Python into JSON, such as
-the stdlib's json, simplejson, and demjson, can only handle Python 
-primitives that have a direct JSON equivalent (e.g. dicts, lists, strings, 
+the stdlib's json, simplejson, and demjson, can only handle Python
+primitives that have a direct JSON equivalent (e.g. dicts, lists, strings,
 ints, etc.).  jsonpickle builds on top of these libraries and allows more
 complex data structures to be serialized to JSON. jsonpickle is highly
 configurable and extendable--allowing the user to choose the JSON backend
@@ -24,16 +24,16 @@ Download & Install
 ==================
 
 The easiest way to get jsonpickle is via PyPi_ with pip_::
-   
+
     $ pip install -U jsonpickle
- 
+
 For Python 2.6+, jsonpickle has no required dependencies (it uses the standard
-library's :mod:`json` module by default). For Python 2.5 or earlier, you must 
+library's :mod:`json` module by default). For Python 2.5 or earlier, you must
 install a supported JSON backend (including simplejson or demjson). For example::
 
     $ pip install simplejson
 
-You can also download_ or :ref:`checkout <jsonpickle-contrib-checkout>` the
+You can also download or :ref:`checkout <jsonpickle-contrib-checkout>` the
 latest code and install from source::
 
     $ python setup.py install
@@ -92,6 +92,7 @@ License
 =======
 
 jsonpickle is provided under a
-`New BSD license <http://github.com/jsonpickle/jsonpickle/raw/master/COPYING>`_,
+`New BSD license <https://github.com/jsonpickle/jsonpickle/raw/master/COPYING>`_,
 
 Copyright (C) 2008-2011 John Paulett (john -at- paulett.org)
+Copyright (C) 2009-2013 David Aguilar (davvid -at- gmail.com)
