@@ -17,8 +17,8 @@ from jsonpickle.compat import set
 from jsonpickle.compat import unicode, long
 
 
-COLLECTIONS = (list, set, tuple)
-COLLECTIONS_SET = set(COLLECTIONS)
+SEQUENCES = (list, set, tuple)
+SEQUENCES_SET = set(SEQUENCES)
 PRIMITIVES = set((str, unicode, bool, float, int, long))
 
 
@@ -76,16 +76,18 @@ def is_dictionary(obj):
 
     >>> is_dictionary({'key':'value'})
     True
+
     """
     return type(obj) is dict
 
-def is_collection(obj):
-    """Helper method to see if the object is a Python collection (list,
-    set, or tuple).
-    >>> is_collection([4])
+def is_sequence(obj):
+    """Helper method to see if the object is a sequence (list, set, or tuple).
+
+    >>> is_sequence([4])
     True
+
     """
-    return type(obj) in COLLECTIONS_SET
+    return type(obj) in SEQUENCES_SET
 
 
 def is_list(obj):
@@ -123,23 +125,24 @@ def is_dictionary_subclass(obj):
     >>> is_dictionary_subclass(Temp())
     True
     """
+    #TODO add UserDict
     return (hasattr(obj, '__class__') and
             issubclass(obj.__class__, dict) and not is_dictionary(obj))
 
 
-def is_collection_subclass(obj):
+def is_sequence_subclass(obj):
     """Returns True if *obj* is a subclass of list, set or tuple.
+
     *obj* must be a subclass and not the actual builtin, such
     as list, set, tuple, etc..
 
     >>> class Temp(list): pass
-    >>> is_collection_subclass(Temp())
+    >>> is_sequence_subclass(Temp())
     True
     """
-    #TODO add UserDict
-    return ((issubclass(obj.__class__, COLLECTIONS) or
+    return ((issubclass(obj.__class__, SEQUENCES) or
                 is_list_like(obj)) and
-            not is_collection(obj))
+            not is_sequence(obj))
 
 
 def is_noncomplex(obj):

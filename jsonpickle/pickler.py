@@ -218,8 +218,8 @@ class Pickler(object):
 
         if has_dict:
             # Support objects that subclasses list and set
-            if util.is_collection_subclass(obj):
-                return self._flatten_collection_obj(obj, data)
+            if util.is_sequence_subclass(obj):
+                return self._flatten_sequence_obj(obj, data)
 
             # Support objects with __getstate__(); this ensures that
             # both __setstate__() and __getstate__() are implemented
@@ -235,8 +235,8 @@ class Pickler(object):
             getattr(obj, '_', None)
             return self._flatten_dict_obj(obj.__dict__, data)
 
-        if util.is_collection_subclass(obj):
-            return self._flatten_collection_obj(obj, data)
+        if util.is_sequence_subclass(obj):
+            return self._flatten_sequence_obj(obj, data)
 
         if util.is_noncomplex(obj):
             return [self._flatten(v) for v in obj]
@@ -285,8 +285,8 @@ class Pickler(object):
         data[k] = self._flatten(v)
         return data
 
-    def _flatten_collection_obj(self, obj, data):
-        """Return a json-friendly dict for a collection subclass."""
+    def _flatten_sequence_obj(self, obj, data):
+        """Return a json-friendly dict for a sequence subclass."""
         if hasattr(obj, '__dict__'):
             self._flatten_dict_obj(obj.__dict__, data)
         value = [self._flatten(v) for v in obj]

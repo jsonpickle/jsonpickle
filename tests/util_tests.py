@@ -15,7 +15,9 @@ import jsonpickle.util
 from jsonpickle.util import *
 from jsonpickle._samples import Thing, ListSubclass, DictSubclass
 
-class IsPrimitiveTestCase(unittest.TestCase):
+
+class PrimitiveTestCase(unittest.TestCase):
+
     def test_int(self):
         self.assertTrue(is_primitive(0))
         self.assertTrue(is_primitive(3))
@@ -64,7 +66,9 @@ class IsPrimitiveTestCase(unittest.TestCase):
     def test_object(self):
         self.assertFalse(is_primitive(Thing('test')))
 
-class IsCollection(unittest.TestCase):
+
+class SequenceTestCase(unittest.TestCase):
+
     def test_list(self):
         self.assertTrue(is_list([1, 2]))
 
@@ -84,28 +88,40 @@ class IsCollection(unittest.TestCase):
         self.assertFalse(is_set(1))
         self.assertFalse(is_tuple(1))
 
-class IsDictionary(unittest.TestCase):
+    def test_is_sequence(self):
+        self.assertTrue(is_sequence([]))
+        self.assertTrue(is_sequence(tuple()))
+        self.assertTrue(is_sequence(set()))
+
+
+class DictionaryTestCase(unittest.TestCase):
+
     def test_dict(self):
         self.assertTrue(is_dictionary({'key':'value'}))
 
     def test_list(self):
         self.assertFalse(is_dictionary([1, 2]))
 
-class IsDictionarySubclass(unittest.TestCase):
+
+class DictionarySubclassTestCase(unittest.TestCase):
+
     def test_subclass(self):
         self.assertTrue(is_dictionary_subclass(DictSubclass()))
 
     def test_dict(self):
         self.assertFalse(is_dictionary_subclass({'key':'value'}))
 
-class IsCollectionSubclass(unittest.TestCase):
+
+class SequenceSubclassTestCase(unittest.TestCase):
+
     def test_subclass(self):
-        self.assertTrue(is_collection_subclass(ListSubclass()))
+        self.assertTrue(is_sequence_subclass(ListSubclass()))
 
     def test_list(self):
-        self.assertFalse(is_collection_subclass([]))
+        self.assertFalse(is_sequence_subclass([]))
 
-class IsNonComplex(unittest.TestCase):
+
+class NonComplexTestCase(unittest.TestCase):
     def setUp(self):
         self.time = time.struct_time('123456789')
 
@@ -115,14 +131,15 @@ class IsNonComplex(unittest.TestCase):
     def test_other(self):
         self.assertFalse(is_noncomplex('a'))
 
+
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(IsPrimitiveTestCase))
-    suite.addTest(unittest.makeSuite(IsCollection))
-    suite.addTest(unittest.makeSuite(IsDictionary))
-    suite.addTest(unittest.makeSuite(IsDictionarySubclass))
-    suite.addTest(unittest.makeSuite(IsCollectionSubclass))
-    suite.addTest(unittest.makeSuite(IsNonComplex))
+    suite.addTest(unittest.makeSuite(DictionaryTestCase))
+    suite.addTest(unittest.makeSuite(DictionarySubclassTestCase))
+    suite.addTest(unittest.makeSuite(NonComplexTestCase))
+    suite.addTest(unittest.makeSuite(PrimitiveTestCase))
+    suite.addTest(unittest.makeSuite(SequenceTestCase))
+    suite.addTest(unittest.makeSuite(SequenceSubclassTestCase))
     suite.addTest(doctest.DocTestSuite(jsonpickle.util))
     return suite
 
