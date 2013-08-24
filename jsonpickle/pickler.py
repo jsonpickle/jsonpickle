@@ -305,13 +305,6 @@ def _mktyperef(obj):
     return {tags.TYPE: '%s.%s' % _translate_type(obj.__module__, obj.__name__)}
 
 
-def _translate_module(module):
-    if PY3 and module == 'builtins':
-        return '__builtin__'
-    else:
-        return module
-
-
 def _translate_type(module, name):
     if PY3 and module == 'builtins':
         if name.endswith('Error') or name.endswith('Warning'):
@@ -340,4 +333,4 @@ def _getclassdetail(obj):
     cls = obj.__class__
     module = getattr(cls, '__module__')
     name = getattr(cls, '__name__')
-    return _translate_module(module), name
+    return util.rename_module(module), name
