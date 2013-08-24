@@ -185,7 +185,7 @@ def is_function(obj):
         return True
     if not hasattr(obj, '__class__'):
         return False
-    module = rename_module(obj.__class__.__module__)
+    module = translate_module_name(obj.__class__.__module__)
     name = obj.__class__.__name__
     return (module == '__builtin__' and
             name in ('function',
@@ -242,8 +242,36 @@ def is_list_like(obj):
     return hasattr(obj, '__getitem__') and hasattr(obj, 'append')
 
 
-def rename_module(module):
-    if PY3 and module == 'builtins':
+def translate_module_name(module):
+    """Rename builtin modules to a consistent (Python2) module name
+
+    This is used so that references to Python's `builtins` module can
+    be loaded in both Python 2 and 3.  We remap to the "__builtin__"
+    name and unmap it when importing.
+
+    See untranslate_module_name() for the reverse operation.
+
+    """
+    if (PY3 and module == 'builtins') or module == 'exceptions':
+        # We map the Python2 `exceptions` module to `__builtin__` because
+        # `__builtin__` is a superset and contains everything that is
+        # available in `exceptions`, which makes the translation simpler.
         return '__builtin__'
     else:
         return module
+
+
+def untranslate_module_name(module):
+    """Rename module names mention in JSON to names that we can import
+
+    This reverses the translation applied by translate_module_name() to
+    a module name available to the current version of Python.
+
+    """
+    if PY3:
+        # remap `__builtin__` and `exceptions` to the `builtins` module
+        if module == '__builtin__':
+            module = 'builtins'
+        elif module == 'exceptions':
+            module = 'builtins'
+    return module

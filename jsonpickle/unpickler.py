@@ -15,7 +15,6 @@ import jsonpickle.tags as tags
 import jsonpickle.handlers as handlers
 
 from jsonpickle.compat import set
-from jsonpickle.compat import PY3
 from jsonpickle.backend import JSONBackend
 
 
@@ -269,11 +268,7 @@ def loadclass(module_and_name):
     """
     try:
         module, name = module_and_name.rsplit('.', 1)
-        if PY3:
-            if module == '__builtin__':
-                module = 'builtins'
-            elif module == 'exceptions':
-                module = 'builtins'
+        module = util.untranslate_module_name(module)
         __import__(module)
         return getattr(sys.modules[module], name)
     except:

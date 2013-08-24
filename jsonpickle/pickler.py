@@ -299,19 +299,11 @@ def _mktyperef(obj):
     """Return a typeref dictionary
 
     >>> _mktyperef(AssertionError)
-    {'py/type': 'exceptions.AssertionError'}
+    {'py/type': '__builtin__.AssertionError'}
 
     """
-    return {tags.TYPE: '%s.%s' % _translate_type(obj.__module__, obj.__name__)}
-
-
-def _translate_type(module, name):
-    if PY3 and module == 'builtins':
-        if name.endswith('Error') or name.endswith('Warning'):
-            module = 'exceptions'
-        else:
-            module = '__builtin__'
-    return (module, name)
+    return {tags.TYPE: '%s.%s' %
+            (util.translate_module_name(obj.__module__), obj.__name__)}
 
 
 def _getclassdetail(obj):
@@ -333,4 +325,4 @@ def _getclassdetail(obj):
     cls = obj.__class__
     module = getattr(cls, '__module__')
     name = getattr(cls, '__name__')
-    return util.rename_module(module), name
+    return util.translate_module_name(module), name
