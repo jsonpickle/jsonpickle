@@ -1,5 +1,12 @@
 Change Log
 ==========
+Version 0.6.0 - August 24, 2013
+-------------------------------
+
+    * Python 3 support!
+    * :class:`time.struct_time` is now serialized using the built-in
+      :class:`jsonpickle.handlers.SimpleReduceHandler`.
+
 Version 0.5.0 - August 22, 2013
 -------------------------------
 
