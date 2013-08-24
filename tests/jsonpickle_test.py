@@ -20,6 +20,7 @@ import jsonpickle
 from jsonpickle import handlers
 from jsonpickle import tags
 from jsonpickle.compat import unicode
+from jsonpickle.compat import unichr
 
 from jsonpickle._samples import (
         BrokenReprThing,
@@ -28,6 +29,7 @@ from jsonpickle._samples import (
         ListSubclassWithInit,
         NamedTuple,
         ObjWithJsonPickleRepr,
+        OldStyleClass,
         SetSubclass,
         Thing,
         ThingWithSlots,
@@ -310,9 +312,7 @@ class PicklingTestCase(unittest.TestCase):
         self.assertEqual(newobj.b.name, 'b')
 
     def test_oldstyleclass(self):
-        from pickle import _EmptyClass
-
-        obj = _EmptyClass()
+        obj = OldStyleClass()
         obj.value = 1234
 
         flattened = self.pickler.flatten(obj)
@@ -322,10 +322,11 @@ class PicklingTestCase(unittest.TestCase):
         self.assertEqual(1234, inflated.value)
 
     def test_struct_time(self):
-        t = time.struct_time('123456789')
+        expect = time.struct_time('123456789')
 
-        flattened = self.pickler.flatten(t)
-        self.assertEqual(['1', '2', '3', '4', '5', '6', '7', '8', '9'], flattened)
+        flattened = self.pickler.flatten(expect)
+        actual = self.unpickler.restore(flattened)
+        self.assertEqual(expect, actual)
 
     def test_dictsubclass(self):
         obj = DictSubclass()
@@ -363,11 +364,14 @@ class PicklingTestCase(unittest.TestCase):
         flattened = self.pickler.flatten(('one', 2, 3))
         self.assertEqual(flattened, ['one', 2, 3])
 
-    def test_set_notunpicklable(self):
+    def test_set_not_unpicklable(self):
         self.pickler.unpicklable = False
 
         flattened = self.pickler.flatten(set(['one', 2, 3]))
-        self.assertEqual(sorted(flattened), sorted(['one', 2, 3]))
+        self.assertTrue('one' in flattened)
+        self.assertTrue(2 in flattened)
+        self.assertTrue(3 in flattened)
+        self.assertTrue(isinstance(flattened, list))
 
     def test_datetime(self):
         obj = datetime.datetime.now()
@@ -491,6 +495,7 @@ class PicklingTestCase(unittest.TestCase):
 
 
 class JSONPickleTestCase(unittest.TestCase):
+
     def setUp(self):
         self.obj = Thing('A name')
         self.expected_json = (
@@ -498,12 +503,17 @@ class JSONPickleTestCase(unittest.TestCase):
                 ' "name": "A name", "child": null}')
 
     def test_encode(self):
+        expect = self.obj
         pickled = jsonpickle.encode(self.obj)
-        self.assertEqual(self.expected_json, pickled)
+        actual = jsonpickle.decode(pickled)
+        self.assertEqual(expect.name, actual.name)
+        self.assertEqual(expect.child, actual.child)
 
     def test_encode_notunpicklable(self):
+        expect = {'name': 'A name', 'child': None}
         pickled = jsonpickle.encode(self.obj, unpicklable=False)
-        self.assertEqual('{"name": "A name", "child": null}', pickled)
+        actual = jsonpickle.decode(pickled)
+        self.assertEqual(expect['name'], actual['name'])
 
     def test_decode(self):
         unpickled = jsonpickle.decode(self.expected_json)
@@ -511,18 +521,22 @@ class JSONPickleTestCase(unittest.TestCase):
         self.assertEqual(type(self.obj), type(unpickled))
 
     def test_json(self):
+        expect = self.obj
         pickled = jsonpickle.encode(self.obj)
-        self.assertEqual(self.expected_json, pickled)
+        actual = jsonpickle.decode(pickled)
+        self.assertEqual(actual.name, expect.name)
+        self.assertEqual(actual.child, expect.child)
 
         unpickled = jsonpickle.decode(self.expected_json)
         self.assertEqual(self.obj.name, unpickled.name)
         self.assertEqual(type(self.obj), type(unpickled))
 
     def test_unicode_dict_keys(self):
-        pickled = jsonpickle.encode({'é'.decode('utf-8'): 'é'.decode('utf-8')})
+        uni = unichr(0x1234)
+        pickled = jsonpickle.encode({uni: uni})
         unpickled = jsonpickle.decode(pickled)
-        self.assertEqual(unpickled['é'.decode('utf-8')], 'é'.decode('utf-8'))
-        self.assertTrue('é'.decode('utf-8') in unpickled)
+        self.assertTrue(uni in unpickled)
+        self.assertEqual(unpickled[uni], uni)
 
     def test_tuple_dict_keys_default(self):
         """Test that we handle dictionaries with tuples as keys."""

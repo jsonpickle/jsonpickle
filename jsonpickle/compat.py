@@ -1,3 +1,8 @@
+import sys
+
+# True if we are running on Python 3.
+PY3 = sys.version_info[0] == 3
+
 try:
     set = set
 except NameError:
@@ -13,3 +18,8 @@ try:
     long = long
 except NameError:
     long = int
+
+try:
+    unichr = unichr
+except NameError:
+    unichr = chr

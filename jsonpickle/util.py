@@ -14,7 +14,9 @@ import types
 
 from jsonpickle import tags
 from jsonpickle.compat import set
-from jsonpickle.compat import unicode, long
+from jsonpickle.compat import unicode
+from jsonpickle.compat import long
+from jsonpickle.compat import PY3
 
 
 SEQUENCES = (list, set, tuple)
@@ -35,7 +37,10 @@ def is_type(obj):
     >>> is_type(Klass)
     True
     """
-    return type(obj) is type or type(obj) is types.ClassType
+    if PY3:
+        return type(obj) is type
+    else:
+        return type(obj) is type or type(obj) is types.ClassType
 
 
 def is_object(obj):
@@ -172,6 +177,8 @@ def is_function(obj):
     >>> is_function(1)
     False
     """
+    if PY3 and type(obj) is types.BuiltinFunctionType:
+        return True
     if type(obj) is types.FunctionType:
         return True
     if not is_object(obj):

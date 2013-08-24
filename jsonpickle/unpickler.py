@@ -15,6 +15,7 @@ import jsonpickle.tags as tags
 import jsonpickle.handlers as handlers
 
 from jsonpickle.compat import set
+from jsonpickle.compat import PY3
 from jsonpickle.backend import JSONBackend
 
 
@@ -259,15 +260,20 @@ def loadclass(module_and_name):
     >>> loadclass('jsonpickle._samples.Thing')
     <class 'jsonpickle._samples.Thing'>
 
-    >>> loadclass('example.module.does.not.exist.Missing')
+    >>> loadclass('does.not.exist')
 
 
-    >>> loadclass('samples.MissingThing')
-
+    >>> loadclass('__builtin__.int')()
+    0
 
     """
     try:
         module, name = module_and_name.rsplit('.', 1)
+        if PY3:
+            if module == '__builtin__':
+                module = 'builtins'
+            elif module == 'exceptions':
+                module = 'builtins'
         __import__(module)
         return getattr(sys.modules[module], name)
     except:

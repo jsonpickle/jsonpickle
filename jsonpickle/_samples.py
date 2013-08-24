@@ -163,3 +163,7 @@ class ObjWithJsonPickleRepr(object):
 
     def __repr__(self):
         return jsonpickle.encode(self)
+
+
+class OldStyleClass:
+    pass

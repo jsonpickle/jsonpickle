@@ -4,6 +4,7 @@ from warnings import warn
 import jsonpickle
 from jsonpickle._samples import Thing
 from jsonpickle.compat import unicode
+from jsonpickle.compat import PY3
 
 SAMPLE_DATA = {'things': [Thing('data')]}
 
@@ -31,19 +32,22 @@ class BackendTestCase(unittest.TestCase):
         # always reset to default backend
         jsonpickle.set_preferred_backend('json')
 
-    def assertEncodeDecode(self, expected_pickled):
-        pickled = jsonpickle.encode(SAMPLE_DATA)
-
-        self.assertEqual(expected_pickled, pickled)
-        unpickled = jsonpickle.decode(pickled)
+    def assertEncodeDecode(self, json_input):
+        actual = jsonpickle.decode(json_input)
         self.assertEqual(SAMPLE_DATA['things'][0].name,
-                         unpickled['things'][0].name)
+                         actual['things'][0].name)
+
+        pickled = jsonpickle.encode(SAMPLE_DATA)
+        actual = jsonpickle.decode(pickled)
+        self.assertEqual(SAMPLE_DATA['things'][0].name,
+                         actual['things'][0].name)
+
 
 class JsonTestCase(BackendTestCase):
     def setUp(self):
         self.set_preferred_backend('json')
 
-    def test(self):
+    def test_backend(self):
         expected_pickled = (
                 '{"things": [{'
                     '"py/object": "jsonpickle._samples.Thing",'
@@ -52,11 +56,12 @@ class JsonTestCase(BackendTestCase):
                 ']}')
         self.assertEncodeDecode(expected_pickled)
 
+
 class SimpleJsonTestCase(BackendTestCase):
     def setUp(self):
         self.set_preferred_backend('simplejson')
 
-    def test(self):
+    def test_backend(self):
         expected_pickled = (
                 '{"things": [{'
                     '"py/object": "jsonpickle._samples.Thing",'
@@ -75,11 +80,12 @@ def has_module(module):
         return False
     return True
 
+
 class DemjsonTestCase(BackendTestCase):
     def setUp(self):
         self.set_preferred_backend('demjson')
 
-    def test(self):
+    def test_backend(self):
         expected_pickled = unicode(
                 '{"things":[{'
                     '"child":null,'
@@ -93,7 +99,7 @@ class JsonlibTestCase(BackendTestCase):
     def setUp(self):
         self.set_preferred_backend('jsonlib')
 
-    def test(self):
+    def test_backend(self):
         expected_pickled = (
                 '{"things":[{'
                     '"py\/object":"jsonpickle._samples.Thing",'
@@ -106,7 +112,7 @@ class YajlTestCase(BackendTestCase):
     def setUp(self):
         self.set_preferred_backend('yajl')
 
-    def test(self):
+    def test_backend(self):
         expected_pickled = (
                 '{"things":[{'
                     '"py/object":"jsonpickle._samples.Thing",'
@@ -120,7 +126,7 @@ class UJsonTestCase(BackendTestCase):
     def setUp(self):
         self.set_preferred_backend('ujson')
 
-    def test(self):
+    def test_backend(self):
         expected_pickled = (
                 '{"things":[{'
                     '"py\/object":"jsonpickle._samples.Thing",'
@@ -133,11 +139,11 @@ def suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(JsonTestCase))
     suite.addTest(unittest.makeSuite(SimpleJsonTestCase))
-    if has_module('demjson'):
+    if not PY3 and has_module('demjson'):
         suite.addTest(unittest.makeSuite(DemjsonTestCase))
-    if has_module('yajl'):
+    if not PY3 and has_module('yajl'):
         suite.addTest(unittest.makeSuite(YajlTestCase))
-    if has_module('jsonlib'):
+    if not PY3 and has_module('jsonlib'):
         suite.addTest(unittest.makeSuite(JsonlibTestCase))
     return suite
 

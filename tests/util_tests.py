@@ -12,6 +12,7 @@ import time
 
 import jsonpickle.util
 from jsonpickle.compat import unicode
+from jsonpickle.compat import long
 from jsonpickle.util import is_dictionary
 from jsonpickle.util import is_dictionary_subclass
 from jsonpickle.util import is_list

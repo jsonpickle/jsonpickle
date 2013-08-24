@@ -19,21 +19,19 @@ Create an object.
 
     >>> from jsonpickle._samples import Thing
     >>> obj = Thing('A String')
-    >>> print obj.name
-    A String
+    >>> obj.name
+    'A String'
 
 Use jsonpickle to transform the object into a JSON string.
 
     >>> import jsonpickle
     >>> pickled = jsonpickle.encode(obj)
-    >>> print(pickled)
-    {"py/object": "jsonpickle._samples.Thing", "name": "A String", "child": null}
 
 Use jsonpickle to recreate a Python object from a JSON string
 
     >>> unpickled = jsonpickle.decode(pickled)
-    >>> str(unpickled.name)
-    'A String'
+    >>> print(unpickled.name)
+    A String
 
 .. warning::
 
@@ -43,7 +41,7 @@ Use jsonpickle to recreate a Python object from a JSON string
 The new object has the same type and data, but essentially is now a copy of
 the original.
 
-    >>> obj == unpickled
+    >>> obj is unpickled
     False
     >>> obj.name == unpickled.name
     True
@@ -55,8 +53,13 @@ pass in the keyword unpicklable=False to prevent extra information from being
 added to JSON.
 
     >>> oneway = jsonpickle.encode(obj, unpicklable=False)
-    >>> print oneway
-    {"name": "A String", "child": null}
+    >>> result = jsonpickle.decode(oneway)
+    >>> print(result['name'])
+    A String
+
+    >>> print(result['child'])
+    None
+
 
 """
 from jsonpickle import pickler

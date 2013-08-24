@@ -14,6 +14,7 @@ import jsonpickle.handlers as handlers
 
 from jsonpickle.backend import JSONBackend
 from jsonpickle.compat import unicode
+from jsonpickle.compat import PY3
 
 
 def encode(value,
@@ -94,8 +95,6 @@ class Pickler(object):
         >>> p = Pickler()
         >>> p.flatten('hello world')
         'hello world'
-        >>> p.flatten(u'hello world')
-        u'hello world'
         >>> p.flatten(49)
         49
         >>> p.flatten(350.0)
@@ -297,16 +296,30 @@ class Pickler(object):
         return data
 
 def _mktyperef(obj):
-    """Return a typeref dictionary.  Used for references.
+    """Return a typeref dictionary
 
-    >>> from jsonpickle import tags
-    >>> _mktyperef(AssertionError)[tags.TYPE].rsplit('.', 1)[0]
-    'exceptions'
+    >>> _mktyperef(AssertionError)
+    {'py/type': 'exceptions.AssertionError'}
 
-    >>> _mktyperef(AssertionError)[tags.TYPE].rsplit('.', 1)[-1]
-    'AssertionError'
     """
-    return {tags.TYPE: '%s.%s' % (obj.__module__, obj.__name__)}
+    return {tags.TYPE: '%s.%s' % _translate_type(obj.__module__, obj.__name__)}
+
+
+def _translate_module(module):
+    if PY3 and module == 'builtins':
+        return '__builtin__'
+    else:
+        return module
+
+
+def _translate_type(module, name):
+    if PY3 and module == 'builtins':
+        if name.endswith('Error') or name.endswith('Warning'):
+            module = 'exceptions'
+        else:
+            module = '__builtin__'
+    return (module, name)
+
 
 def _getclassdetail(obj):
     """Helper class to return the class of an object.
@@ -320,8 +333,11 @@ def _getclassdetail(obj):
     ('__builtin__', 'NoneType')
     >>> _getclassdetail(False)
     ('__builtin__', 'bool')
+    >>> _getclassdetail(AttributeError)
+    ('__builtin__', 'type')
+
     """
     cls = obj.__class__
     module = getattr(cls, '__module__')
     name = getattr(cls, '__name__')
-    return module, name
+    return _translate_module(module), name
