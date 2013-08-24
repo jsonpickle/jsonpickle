@@ -14,7 +14,6 @@ import jsonpickle.handlers as handlers
 
 from jsonpickle.backend import JSONBackend
 from jsonpickle.compat import unicode
-from jsonpickle.compat import PY3
 
 
 def encode(value,
