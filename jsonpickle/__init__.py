@@ -65,7 +65,7 @@ from jsonpickle.backend import JSONBackend
 from jsonpickle.version import VERSION
 
 # ensure built-in handlers are loaded
-__import__('jsonpickle._handlers')
+__import__('jsonpickle.handlers')
 
 __all__ = ('encode', 'decode')
 __version__ = VERSION

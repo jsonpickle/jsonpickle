@@ -745,13 +745,15 @@ class UnicodeMixin(unicode, Mixin):
 
 
 class UnicodeMixinHandler(handlers.BaseHandler):
-    _handles = UnicodeMixin,
+
     def flatten(self, obj, data):
         data['value'] = obj
         return data
 
     def restore(self, obj):
         return UnicodeMixin(obj['value'])
+
+handlers.register(UnicodeMixin, UnicodeMixinHandler)
 
 
 class ExternalHandlerTestCase(unittest.TestCase):

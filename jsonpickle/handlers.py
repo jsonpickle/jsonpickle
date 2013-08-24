@@ -1,86 +1,136 @@
 """
 Custom handlers may be created to handle other objects. Each custom handler
-must derive from BaseHandler and override ``.flatten`` and
-``.restore``.
+must derive from :class:`jsonpickle.handlers.BaseHandler` and
+implement ``flatten`` and ``restore``.
 
-The handler may also declare a ``_handles`` class property which
-should be a sequence of types handled by that handler. See the `mod:_handlers`
-module for more examples of internal handlers implemented in jsonpickle.
+A handler can be bound to other types by calling :func:`jsonpickle.handlers.register`.
 
-A handler may also be late-bound to other types by calling the ``.handles``
-method on the class. For example, the
-``class:SimpleReduceHandler`` is suitable for handling objects that implement
-the reduce protocol::
+:class:`jsonpickle.customhandlers.SimpleReduceHandler` is suitable for handling
+objects that implement the reduce protocol::
 
-    @SimpleReduceHandler.handles
-    class MyCustomObject(object):
+    from jsonpickle import handlers
+
+    class MyCustomObject(handlers.BaseHandler):
         ...
 
         def __reduce__(self):
             return MyCustomObject, self._get_args()
+
+    handlers.register(MyCustomObject, handlers.SimpleReduceHandler)
+
 """
 
-class TypeRegistered(type):
-    """
-    As classes of this metaclass are created, they keep a registry in the
-    base class of all handler referenced by the keys in cls._handles.
-    """
-    def __init__(cls, name, bases, namespace):
-        super(TypeRegistered, cls).__init__(name, bases, namespace)
-        if not hasattr(cls, '_registry'):
-            cls._registry = {}
-        types_handled = getattr(cls, '_handles', [])
-        for handled_type in types_handled:
-            cls.handles(handled_type)
+import base64
+import sys
+import datetime
+import time
+import collections
 
-    def handles(handler, cls):
+from jsonpickle.compat import unicode
+
+
+class Registry(object):
+
+    def __init__(self):
+        self._handlers = {}
+
+    def register(self, cls, handler):
+        """Register the a custom handler for a class
+
+        :param cls: The custom object class to handle
+        :param handler: The custom handler class
+
         """
-        Register this handler for the given class
-        """
-        handler._registry[cls] = handler
-        return cls
+        self._handlers[cls] = handler
+
+    def get(self, cls):
+        return self._handlers.get(cls)
+
+registry = Registry()
+register = registry.register
+get = registry.get
+
 
 class BaseHandler(object):
-    """
-    Abstract base class for handlers.
-    """
 
-    __metaclass__ = TypeRegistered
-
-    def __init__(self, base):
+    def __init__(self, context):
         """
-        Initialize a new handler to handle `type`.
+        Initialize a new handler to handle a registered type.
 
         :Parameters:
-          - `base`: reference to pickler/unpickler
+          - `context`: reference to pickler/unpickler
 
         """
-        self._base = base
+        self.context = context
 
     def flatten(self, obj, data):
-        """
-        Flatten `obj` into a json-friendly form.
-
-        :Parameters:
-          - `obj`: object of `type`
-
-        """
-        raise NotImplementedError("Abstract method.")
+        """Flatten `obj` into a json-friendly form and write result in `data`"""
+        raise NotImplementedError('You must implement flatten() in %s' %
+                                  self.__class__)
 
     def restore(self, obj):
-        """
-        Restores the `obj` to `type`
+        """Restore the json-friendly `obj` to the registered type"""
+        raise NotImplementedError('You must implement restore() in %s' %
+                                  self.__class__)
 
-        :Parameters:
-          - `object`: json-friendly object
 
-        """
-        raise NotImplementedError("Abstract method.")
 
-# for backward compatibility, provide 'registry'
-# jsonpickle 0.4 clients will call it with something like:
-# registry.register(handled_type, handler_class)
-class registry(object):
-    @staticmethod
-    def register(handled_type, handler_class):
-        handler_class.handles(handled_type)
+class DatetimeHandler(BaseHandler):
+
+    """Custom handler for datetime objects
+
+    Datetime objects use __reduce__, and they generate binary strings encoding
+    the payload. This handler encodes that payload to reconstruct the
+    object.
+
+    """
+    def flatten(self, obj, data):
+        pickler = self.context
+        if not pickler.unpicklable:
+            return unicode(obj)
+        cls, args = obj.__reduce__()
+        flatten = pickler.flatten
+        args = [base64.b64encode(args[0])] + [flatten(i, reset=False) for i in args[1:]]
+        data['__reduce__'] = (flatten(cls, reset=False), args)
+        return data
+
+    def restore(self, obj):
+        cls, args = obj['__reduce__']
+        value = base64.b64decode(args[0])
+        unpickler = self.context
+        restore = unpickler.restore
+        cls = restore(cls, reset=False)
+        params = (value,) + tuple([restore(i, reset=False) for i in args[1:]])
+        return cls.__new__(cls, *params)
+
+register(datetime.datetime, DatetimeHandler)
+register(datetime.date, DatetimeHandler)
+register(datetime.time, DatetimeHandler)
+
+
+class SimpleReduceHandler(BaseHandler):
+    """
+    Follow the __reduce__ protocol to pickle an object. As long as the factory
+    and its arguments are pickleable, this should pickle any object that
+    implements the reduce protocol.
+    """
+
+    def flatten(self, obj, data):
+        pickler = self.context
+        if not pickler.unpicklable:
+            return unicode(obj)
+        flatten = pickler.flatten
+        data['__reduce__'] = [flatten(i, reset=False) for i in obj.__reduce__()]
+        return data
+
+    def restore(self, obj):
+        unpickler = self.context
+        restore = unpickler.restore
+        factory, args = [restore(i, reset=False) for i in obj['__reduce__']]
+        return factory(*args)
+
+
+register(time.struct_time, SimpleReduceHandler)
+register(datetime.timedelta, SimpleReduceHandler)
+if sys.version_info >= (2, 7):
+    register(collections.OrderedDict, SimpleReduceHandler)

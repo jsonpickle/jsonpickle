@@ -113,7 +113,7 @@ class Unpickler(object):
         cls = loadclass(obj[tags.OBJECT])
         if cls is None:
             return self._mkref(obj)
-        handler = handlers.BaseHandler._registry.get(cls)
+        handler = handlers.get(cls)
         if handler is not None: # custom handler
             instance = handler(self).restore(obj)
             return self._mkref(instance)
