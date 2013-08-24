@@ -629,13 +629,27 @@ class JSONPickleTestCase(unittest.TestCase):
         unpickled = jsonpickle.decode(pickled, keys=True)
         self.assertEqual(list(unpickled.keys()), list(unpickled.values()))
 
+    def test_object_keys_to_list(self):
+        """Test that objects in dict values are referenced correctly
+        """
+        j = Thing('random')
+        object_dict = {j: [j, j]}
+        pickled = jsonpickle.encode(object_dict, keys=True)
+        unpickled = jsonpickle.decode(pickled, keys=True)
+        obj = list(unpickled.keys())[0]
+        self.assertEqual(j.name, obj.name)
+        self.assertTrue(obj is unpickled[obj][0])
+        self.assertTrue(obj is unpickled[obj][1])
+
     def test_refs_in_objects(self):
         """Test that objects in lists are referenced correctly"""
         a = Thing('a')
         b = Thing('b')
         pickled = jsonpickle.encode([a, b, b])
         unpickled = jsonpickle.decode(pickled)
+        self.assertNotEqual(unpickled[0], unpickled[1])
         self.assertEqual(unpickled[1], unpickled[2])
+        self.assertTrue(unpickled[1] is unpickled[2])
 
     def test_refs_recursive(self):
         """Test that complicated recursive refs work"""
