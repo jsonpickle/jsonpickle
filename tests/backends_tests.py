@@ -139,6 +139,7 @@ def suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(JsonTestCase))
     suite.addTest(unittest.makeSuite(SimpleJsonTestCase))
+    suite.addTest(unittest.makeSuite(UJsonTestCase))
     if not PY3 and has_module('demjson'):
         suite.addTest(unittest.makeSuite(DemjsonTestCase))
     if not PY3 and has_module('yajl'):
