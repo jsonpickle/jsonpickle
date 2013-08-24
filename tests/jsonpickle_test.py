@@ -493,6 +493,13 @@ class PicklingTestCase(unittest.TestCase):
         inflated = self.unpickler.restore(flattened)
         self.assertEqual(type(inflated), ListSubclassWithInit)
 
+    def test_builtin_error(self):
+        expect = AssertionError
+        json = jsonpickle.encode(expect)
+        actual = jsonpickle.decode(json)
+        self.assertEqual(expect, actual)
+        self.assertTrue(expect is actual)
+
 
 class JSONPickleTestCase(unittest.TestCase):
 
