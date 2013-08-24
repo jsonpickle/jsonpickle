@@ -8,6 +8,7 @@
 
 import unittest
 import datetime
+import time
 
 import jsonpickle
 
@@ -88,11 +89,18 @@ class DateTimeTests(unittest.TestCase):
         self.assertEqual(test_obj_decoded.data['ts'],
                          test_obj_decoded.data_ref['ts'])
 
+    def test_struct_time(self):
+        expect = time.struct_time([1,2,3,4,5,6,7,8,9])
+        json = jsonpickle.encode(expect)
+        actual = jsonpickle.decode(json)
+        self.assertEqual(type(actual), time.struct_time)
+        self.assertEqual(expect, actual)
+
 
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(DateTimeTests, 'test_utc'))
+    suite.addTest(unittest.makeSuite(DateTimeTests))
     return suite
 
 if __name__ == '__main__':
