@@ -15,6 +15,7 @@ from jsonpickle.compat import unicode
 from jsonpickle.compat import long
 from jsonpickle.util import is_dictionary
 from jsonpickle.util import is_dictionary_subclass
+from jsonpickle.util import is_function
 from jsonpickle.util import is_list
 from jsonpickle.util import is_noncomplex
 from jsonpickle.util import is_primitive
@@ -132,6 +133,27 @@ class UtilTestCase(unittest.TestCase):
 
     def test_is_noncomplex_other(self):
         self.assertFalse(is_noncomplex('a'))
+
+    def test_is_function_builtins(self):
+        self.assertTrue(is_function(globals))
+
+    def test_is_function_lambda(self):
+        self.assertTrue(is_function(lambda: False))
+
+    def test_is_function_instance_method(self):
+        class Foo(object):
+            def method(self):
+                pass
+            @staticmethod
+            def staticmethod():
+                pass
+            @classmethod
+            def classmethod(cls):
+                pass
+        f = Foo()
+        self.assertTrue(is_function(f.method))
+        self.assertTrue(is_function(f.staticmethod))
+        self.assertTrue(is_function(f.classmethod))
 
 
 def suite():

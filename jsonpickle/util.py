@@ -177,15 +177,15 @@ def is_function(obj):
     >>> is_function(1)
     False
     """
-    if PY3 and type(obj) is types.BuiltinFunctionType:
+    if type(obj) in (types.FunctionType,
+                     types.MethodType,
+                     types.LambdaType,
+                     types.BuiltinFunctionType,
+                     types.BuiltinMethodType):
         return True
-    if type(obj) is types.FunctionType:
-        return True
-    if not is_object(obj):
-        return False
     if not hasattr(obj, '__class__'):
         return False
-    module = obj.__class__.__module__
+    module = rename_module(obj.__class__.__module__)
     name = obj.__class__.__name__
     return (module == '__builtin__' and
             name in ('function',
