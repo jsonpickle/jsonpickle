@@ -16,12 +16,11 @@ class BackendTestCase(unittest.TestCase):
 
     def _is_installed(self, backend):
         if not jsonpickle.util.is_installed(backend):
-            msg = '%s not available; please install' % backend
             if hasattr(self, 'skipTest'):
                 doit = self.skipTest
             else:
                 doit = self.fail
-            doit(msg)
+            doit('%s not available; please install' % backend)
 
     def set_backend(self, *args):
         backend = args[0]

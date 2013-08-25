@@ -61,7 +61,11 @@ class FeedParserTest(unittest.TestCase):
         try:
             import feedparser
         except ImportError as e:
-            self.fail("feedparser module not available, please install")
+            if hasattr(self, 'skipTest'):
+                doit = self.skipTest
+            else:
+                doit = self.fail
+            doit('feedparser module not available, please install')
         self.doc = feedparser.parse(RSS_DOC)
 
     def test(self):
