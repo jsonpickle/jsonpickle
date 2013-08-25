@@ -4,6 +4,11 @@ import sys
 PY3 = sys.version_info[0] == 3
 
 try:
+    bytes = bytes
+except NameError:
+    bytes = str
+
+try:
     set = set
 except NameError:
     from sets import Set as set

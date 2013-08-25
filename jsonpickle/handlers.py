@@ -27,6 +27,8 @@ import time
 import collections
 
 from jsonpickle.compat import unicode
+from jsonpickle.compat import bytes
+from jsonpickle.compat import PY3
 
 
 class Registry(object):
@@ -96,12 +98,16 @@ class DatetimeHandler(BaseHandler):
 
     def restore(self, obj):
         cls, args = obj['__reduce__']
-        value = base64.b64decode(args[0])
         unpickler = self.context
         restore = unpickler.restore
         cls = restore(cls, reset=False)
+        payload = args[0]
+        if PY3 and type(payload) is not bytes:
+            payload = bytes(payload, 'ascii')
+        value = base64.b64decode(payload)
         params = (value,) + tuple([restore(i, reset=False) for i in args[1:]])
         return cls.__new__(cls, *params)
+
 
 register(datetime.datetime, DatetimeHandler)
 register(datetime.date, DatetimeHandler)
