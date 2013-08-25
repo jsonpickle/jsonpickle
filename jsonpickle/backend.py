@@ -1,3 +1,5 @@
+from jsonpickle.compat import PY32
+
 class JSONBackend(object):
     """Manages encoding and decoding using various backends.
 
@@ -31,12 +33,10 @@ class JSONBackend(object):
         ## Whether we've loaded any backends successfully
         self._verified = False
 
-        ## Try loading simplejson and demjson
-        self.load_backend('simplejson', 'dumps', 'loads', ValueError)
+        if not PY32:
+            self.load_backend('simplejson', 'dumps', 'loads', ValueError)
         self.load_backend('json', 'dumps', 'loads', ValueError)
         self.load_backend('demjson', 'encode', 'decode', 'JSONDecodeError')
-
-        ## Experimental support
         self.load_backend('jsonlib', 'write', 'read', 'ReadError')
         self.load_backend('yajl', 'dumps', 'loads', ValueError)
         self.load_backend('ujson', 'dumps', 'loads', ValueError)

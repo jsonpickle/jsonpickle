@@ -2,6 +2,8 @@ import sys
 
 # True if we are running on Python 3.
 PY3 = sys.version_info[0] == 3
+PY32 = PY3 and sys.version_info[1] == 2
+PY2 = not PY3
 
 try:
     bytes = bytes

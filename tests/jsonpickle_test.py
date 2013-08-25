@@ -21,6 +21,7 @@ from jsonpickle import handlers
 from jsonpickle import tags
 from jsonpickle.compat import unicode
 from jsonpickle.compat import unichr
+from jsonpickle.compat import PY32
 
 from jsonpickle._samples import (
         BrokenReprThing,
@@ -672,7 +673,11 @@ class JSONPickleTestCase(unittest.TestCase):
         """Test that we can call jsonpickle.load_backend()
 
         """
+        if PY32:
+            self.skipTest('no simplejson for python 3.2')
+            return
         jsonpickle.load_backend('simplejson', 'dumps', 'loads', ValueError)
+        self.assertTrue(True)
 
     def test_set_preferred_backend_allows_magic(self):
         """Tests that we can use the pluggable backends magically

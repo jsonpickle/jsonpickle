@@ -1,10 +1,13 @@
+import sys
 import unittest
 from warnings import warn
 
 import jsonpickle
 from jsonpickle._samples import Thing
 from jsonpickle.compat import unicode
+from jsonpickle.compat import PY2
 from jsonpickle.compat import PY3
+from jsonpickle.compat import PY32
 
 SAMPLE_DATA = {'things': [Thing('data')]}
 
@@ -25,7 +28,6 @@ class BackendTestCase(unittest.TestCase):
 
     def set_preferred_backend(self, backend):
         self._is_installed(backend)
-
         jsonpickle.set_preferred_backend(backend)
 
     def tearDown(self):
@@ -33,14 +35,15 @@ class BackendTestCase(unittest.TestCase):
         jsonpickle.set_preferred_backend('json')
 
     def assertEncodeDecode(self, json_input):
+        expect = SAMPLE_DATA
         actual = jsonpickle.decode(json_input)
-        self.assertEqual(SAMPLE_DATA['things'][0].name,
-                         actual['things'][0].name)
+        self.assertEqual(expect['things'][0].name, actual['things'][0].name)
+        self.assertEqual(expect['things'][0].child, actual['things'][0].child)
 
         pickled = jsonpickle.encode(SAMPLE_DATA)
         actual = jsonpickle.decode(pickled)
-        self.assertEqual(SAMPLE_DATA['things'][0].name,
-                         actual['things'][0].name)
+        self.assertEqual(expect['things'][0].name, actual['things'][0].name)
+        self.assertEqual(expect['things'][0].child, actual['things'][0].child)
 
 
 class JsonTestCase(BackendTestCase):
@@ -59,9 +62,14 @@ class JsonTestCase(BackendTestCase):
 
 class SimpleJsonTestCase(BackendTestCase):
     def setUp(self):
+        if PY32:
+            return
         self.set_preferred_backend('simplejson')
 
     def test_backend(self):
+        if PY32:
+            self.skipTest('no simplejson for python3.2')
+            return
         expected_pickled = (
                 '{"things": [{'
                     '"py/object": "jsonpickle._samples.Thing",'
@@ -83,9 +91,13 @@ def has_module(module):
 
 class DemjsonTestCase(BackendTestCase):
     def setUp(self):
-        self.set_preferred_backend('demjson')
+        if PY2:
+            self.set_preferred_backend('demjson')
 
     def test_backend(self):
+        if PY3:
+            self.skipTest('no demjson for python3')
+            return
         expected_pickled = unicode(
                 '{"things":[{'
                     '"child":null,'
@@ -97,9 +109,13 @@ class DemjsonTestCase(BackendTestCase):
 
 class JsonlibTestCase(BackendTestCase):
     def setUp(self):
-        self.set_preferred_backend('jsonlib')
+        if PY2:
+            self.set_preferred_backend('jsonlib')
 
     def test_backend(self):
+        if PY3:
+            self.skipTest('no jsonlib for python3')
+            return
         expected_pickled = (
                 '{"things":[{'
                     '"py\/object":"jsonpickle._samples.Thing",'
@@ -110,9 +126,13 @@ class JsonlibTestCase(BackendTestCase):
 
 class YajlTestCase(BackendTestCase):
     def setUp(self):
-        self.set_preferred_backend('yajl')
+        if PY2:
+            self.set_preferred_backend('yajl')
 
     def test_backend(self):
+        if PY3:
+            self.skipTest('no yajl for python3')
+            return
         expected_pickled = (
                 '{"things":[{'
                     '"py/object":"jsonpickle._samples.Thing",'
@@ -121,8 +141,8 @@ class YajlTestCase(BackendTestCase):
         self.assertEncodeDecode(expected_pickled)
 
 
-
 class UJsonTestCase(BackendTestCase):
+
     def setUp(self):
         self.set_preferred_backend('ujson')
 
@@ -134,19 +154,21 @@ class UJsonTestCase(BackendTestCase):
                 ']}')
         self.assertEncodeDecode(expected_pickled)
 
-
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(JsonTestCase))
-    suite.addTest(unittest.makeSuite(SimpleJsonTestCase))
     suite.addTest(unittest.makeSuite(UJsonTestCase))
-    if not PY3 and has_module('demjson'):
-        suite.addTest(unittest.makeSuite(DemjsonTestCase))
-    if not PY3 and has_module('yajl'):
-        suite.addTest(unittest.makeSuite(YajlTestCase))
-    if not PY3 and has_module('jsonlib'):
-        suite.addTest(unittest.makeSuite(JsonlibTestCase))
+    if not PY32:
+        suite.addTest(unittest.makeSuite(SimpleJsonTestCase))
+    if PY2:
+        if has_module('demjson'):
+            suite.addTest(unittest.makeSuite(DemjsonTestCase))
+        if has_module('yajl'):
+            suite.addTest(unittest.makeSuite(YajlTestCase))
+        if has_module('jsonlib'):
+            suite.addTest(unittest.makeSuite(JsonlibTestCase))
     return suite
+
 
 if __name__ == '__main__':
     unittest.main(defaultTest='suite')
