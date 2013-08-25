@@ -1,5 +1,10 @@
 Change Log
 ==========
+Version 0.6.1 - August 25, 2013
+-------------------------------
+
+    * Python 3.2 support, and additional fixes for Python 3.
+
 Version 0.6.0 - August 24, 2013
 -------------------------------
 
