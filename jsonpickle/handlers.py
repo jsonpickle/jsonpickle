@@ -20,12 +20,12 @@ objects that implement the reduce protocol::
 
 """
 
-import base64
 import sys
 import datetime
 import time
 import collections
 
+from jsonpickle import util
 from jsonpickle.compat import unicode
 from jsonpickle.compat import bytes
 from jsonpickle.compat import PY3
@@ -92,7 +92,8 @@ class DatetimeHandler(BaseHandler):
             return unicode(obj)
         cls, args = obj.__reduce__()
         flatten = pickler.flatten
-        args = [base64.b64encode(args[0])] + [flatten(i, reset=False) for i in args[1:]]
+        payload = util.b64encode(args[0])
+        args = [payload] + [flatten(i, reset=False) for i in args[1:]]
         data['__reduce__'] = (flatten(cls, reset=False), args)
         return data
 
@@ -101,10 +102,7 @@ class DatetimeHandler(BaseHandler):
         unpickler = self.context
         restore = unpickler.restore
         cls = restore(cls, reset=False)
-        payload = args[0]
-        if PY3 and type(payload) is not bytes:
-            payload = bytes(payload, 'ascii')
-        value = base64.b64decode(payload)
+        value = util.b64decode(args[0])
         params = (value,) + tuple([restore(i, reset=False) for i in args[1:]])
         return cls.__new__(cls, *params)
 

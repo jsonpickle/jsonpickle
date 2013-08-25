@@ -9,6 +9,7 @@
 """Helper functions for pickling and unpickling.  Most functions assist in
 determining the type of an object.
 """
+import base64
 import time
 import types
 
@@ -275,3 +276,16 @@ def untranslate_module_name(module):
         elif module == 'exceptions':
             module = 'builtins'
     return module
+
+
+def b64encode(data):
+    payload = base64.b64encode(data)
+    if PY3 and type(payload) is bytes:
+        payload = payload.decode('ascii')
+    return payload
+
+
+def b64decode(payload):
+    if PY3 and type(payload) is not bytes:
+        payload = bytes(payload, 'ascii')
+    return base64.b64decode(payload)
