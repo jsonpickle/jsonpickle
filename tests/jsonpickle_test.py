@@ -487,6 +487,30 @@ class PicklingTestCase(unittest.TestCase):
         for x in range(len(coll)):
             self.assertEqual(repr(coll[x]), repr(inflated[x]))
 
+    def test_references_in_number_keyed_dict(self):
+        """
+        Make sure a dictionary with numbers as keys and objects as values
+        can make the round trip.
+
+        Because JSON must coerce integers to strings in dict keys, the sort
+        order may have a tendency to change between pickling and unpickling,
+        and this could affect the object references.
+        """
+        one = Thing('one')
+        two = Thing('two')
+        twelve = Thing('twelve')
+        two.child = twelve
+        obj = {
+            1: one,
+            2: two,
+            12: twelve,
+        }
+        assert sorted(obj.keys()) != map(int, sorted(map(str, obj.keys())))
+        flattened = self.pickler.flatten(obj)
+        inflated = self.unpickler.restore(flattened)
+        assert len(inflated) == 3
+        assert inflated['12'].name == 'twelve'
+
     def test_list_subclass_with_init(self):
         obj = ListSubclassWithInit('foo')
         self.assertEqual(obj.attr, 'foo')
