@@ -18,7 +18,6 @@ class CustomObject(object):
 
 
 class NullHandler(jsonpickle.handlers.BaseHandler):
-    _handles = CustomObject,
 
     def flatten(self, obj, data):
         return data
