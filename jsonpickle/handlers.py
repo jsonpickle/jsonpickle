@@ -27,8 +27,6 @@ import collections
 
 from jsonpickle import util
 from jsonpickle.compat import unicode
-from jsonpickle.compat import bytes
-from jsonpickle.compat import PY3
 
 
 class Registry(object):
