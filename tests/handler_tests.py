@@ -48,7 +48,8 @@ class HandlerTests(unittest.TestCase):
         encoded = jsonpickle.encode(expect)
         actual = jsonpickle.decode(encoded)
         self.assertEqual(expect.name, actual.name)
-        self.assertTrue(expect.creator is NullHandler)
+        self.assertTrue(expect.creator is None)
+        self.assertTrue(actual.creator is NullHandler)
 
     def test_references(self):
         """
@@ -67,7 +68,7 @@ class HandlerTests(unittest.TestCase):
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(HandlerTests, 'test_references'))
+    suite.addTest(unittest.makeSuite(HandlerTests))
     return suite
 
 
