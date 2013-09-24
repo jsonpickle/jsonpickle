@@ -10,6 +10,7 @@
 determining the type of an object.
 """
 import base64
+import operator
 import time
 import types
 
@@ -289,3 +290,7 @@ def b64decode(payload):
     if PY3 and type(payload) is not bytes:
         payload = bytes(payload, 'ascii')
     return base64.b64decode(payload)
+
+
+def itemgetter(obj, getter=operator.itemgetter(0)):
+    return unicode(getter(obj))

@@ -505,11 +505,12 @@ class PicklingTestCase(unittest.TestCase):
             2: two,
             12: twelve,
         }
-        assert sorted(obj.keys()) != map(int, sorted(map(str, obj.keys())))
+        self.assertNotEqual(list(sorted(obj.keys())),
+                            list(map(int, sorted(map(str, obj.keys())))))
         flattened = self.pickler.flatten(obj)
         inflated = self.unpickler.restore(flattened)
-        assert len(inflated) == 3
-        assert inflated['12'].name == 'twelve'
+        self.assertEqual(len(inflated), 3)
+        self.assertEqual(inflated['12'].name, 'twelve')
 
     def test_list_subclass_with_init(self):
         obj = ListSubclassWithInit('foo')

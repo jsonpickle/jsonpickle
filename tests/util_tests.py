@@ -23,6 +23,7 @@ from jsonpickle.util import is_set
 from jsonpickle.util import is_sequence
 from jsonpickle.util import is_sequence_subclass
 from jsonpickle.util import is_tuple
+from jsonpickle.util import itemgetter
 from jsonpickle._samples import Thing, ListSubclass, DictSubclass
 
 
@@ -154,6 +155,11 @@ class UtilTestCase(unittest.TestCase):
         self.assertTrue(is_function(f.method))
         self.assertTrue(is_function(f.staticmethod))
         self.assertTrue(is_function(f.classmethod))
+
+    def test_itemgetter(self):
+        expect = '0'
+        actual = itemgetter((0, 'zero'))
+        self.assertEqual(expect, actual)
 
 
 def suite():

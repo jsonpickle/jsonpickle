@@ -249,7 +249,7 @@ class Pickler(object):
             data = obj.__class__()
 
         flatten = self._flatten_key_value_pair
-        for k, v in sorted(obj.items(), key=operator.itemgetter(0)):
+        for k, v in sorted(obj.items(), key=util.itemgetter):
             flatten(k, v, data)
 
         # the collections.defaultdict protocol

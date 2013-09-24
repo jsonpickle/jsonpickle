@@ -152,7 +152,7 @@ class Unpickler(object):
             instance.__setstate__(state)
             return instance
 
-        for k, v in sorted(obj.items(), key=operator.itemgetter(0)):
+        for k, v in sorted(obj.items(), key=util.itemgetter):
             # ignore the reserved attribute
             if k in tags.RESERVED:
                 continue
