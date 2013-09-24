@@ -16,6 +16,7 @@ class CustomObject(object):
     def __eq__(self, other):
         return True
 
+
 class NullHandler(jsonpickle.handlers.BaseHandler):
     _handles = CustomObject,
 
@@ -25,7 +26,12 @@ class NullHandler(jsonpickle.handlers.BaseHandler):
     def restore(self, obj):
         return CustomObject()
 
+
 class HandlerTests(unittest.TestCase):
+
+    def setUp(self):
+        jsonpickle.handlers.register(CustomObject, NullHandler)
+
     def roundtrip(self, ob):
         encoded = jsonpickle.encode(ob)
         decoded = jsonpickle.decode(encoded)
@@ -41,13 +47,15 @@ class HandlerTests(unittest.TestCase):
         subject = dict(a=ob, b=ob, c=ob)
         # ensure the subject can be roundtripped
         new_subject = self.roundtrip(subject)
-        assert new_subject['a'] is new_subject['b']
-        assert new_subject['b'] is new_subject['c']
+        self.assertTrue(new_subject['a'] is new_subject['b'])
+        self.assertTrue(new_subject['b'] is new_subject['c'])
+
 
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(HandlerTests, 'test_references'))
     return suite
+
 
 if __name__ == '__main__':
     unittest.main(defaultTest='suite')

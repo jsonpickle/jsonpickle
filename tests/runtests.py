@@ -21,6 +21,7 @@ import thirdparty_tests
 import backends_tests
 import document_test
 import datetime_tests
+import handler_tests
 
 def suite():
     suite = unittest.TestSuite()
@@ -31,6 +32,7 @@ def suite():
     suite.addTest(thirdparty_tests.suite())
     suite.addTest(backends_tests.suite())
     suite.addTest(datetime_tests.suite())
+    suite.addTest(handler_tests.suite())
     return suite
 
 def main():
