@@ -13,17 +13,22 @@ import jsonpickle
 
 class CustomObject(object):
     "A class to be serialized by a custom handler"
+    def __init__(self, name=None, creator=None):
+        self.name = name
+        self.creator = creator
+
     def __eq__(self, other):
-        return True
+        return self.name == other.name
 
 
 class NullHandler(jsonpickle.handlers.BaseHandler):
 
     def flatten(self, obj, data):
+        data['name'] = obj.name
         return data
 
     def restore(self, obj):
-        return CustomObject()
+        return CustomObject(obj['name'], creator=NullHandler)
 
 
 class HandlerTests(unittest.TestCase):
@@ -37,6 +42,14 @@ class HandlerTests(unittest.TestCase):
         self.assertEqual(decoded, ob)
         return decoded
 
+    def test_custom_handler(self):
+        """Ensure that the custom handler is indeed used"""
+        expect = CustomObject('hello')
+        encoded = jsonpickle.encode(expect)
+        actual = jsonpickle.decode(encoded)
+        self.assertEqual(expect.name, actual.name)
+        self.assertTrue(expect.creator is NullHandler)
+
     def test_references(self):
         """
         Ensure objects handled by a custom handler are properly dereferenced.
@@ -46,6 +59,8 @@ class HandlerTests(unittest.TestCase):
         subject = dict(a=ob, b=ob, c=ob)
         # ensure the subject can be roundtripped
         new_subject = self.roundtrip(subject)
+        self.assertEqual(new_subject['a'], new_subject['b'])
+        self.assertEqual(new_subject['b'], new_subject['c'])
         self.assertTrue(new_subject['a'] is new_subject['b'])
         self.assertTrue(new_subject['b'] is new_subject['c'])
 
