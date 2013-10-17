@@ -189,18 +189,14 @@ class Pickler(object):
         has_getstate = has_dict and hasattr(obj, '__getstate__')
         has_getstate_support = has_getstate and hasattr(obj, '__setstate__')
 
-        HandlerClass = handlers.get(type(obj))
-
         if has_class and not util.is_module(obj):
             module, name = _getclassdetail(obj)
             if self.unpicklable:
                 data[tags.OBJECT] = '%s.%s' % (module, name)
             # Check for a custom handler
-            if HandlerClass:
-                handler = HandlerClass(self)
-                flat_obj = handler.flatten(obj, data)
-                self._mkref(flat_obj)
-                return flat_obj
+            handler = handlers.get(type(obj))
+            if handler is not None:
+                return handler(self).flatten(obj, data)
 
         if util.is_module(obj):
             if self.unpicklable:

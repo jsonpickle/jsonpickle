@@ -93,11 +93,7 @@ class Unpickler(object):
         return restore(obj)
 
     def _restore_id(self, obj):
-        instance = self._objs[obj[tags.ID]]
-        if handlers.get(type(instance)):
-            self._obj_to_idx[id(instance)] = len(self._objs)
-            self._objs.append(instance)
-        return instance
+        return self._objs[obj[tags.ID]]
 
     def _restore_ref(self, obj):
         return self._namedict.get(obj[tags.REF])
