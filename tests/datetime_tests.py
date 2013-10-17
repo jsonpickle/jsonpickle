@@ -31,7 +31,88 @@ class UTC(datetime.tzinfo):
 utc = UTC()
 
 
+class TimestampedVariable(object):
+    def __init__(self, value=None):
+        self._value = value
+        self._dt_read = datetime.datetime.utcnow()
+        self._dt_write = self._dt_read
+
+    def get(self, default_value=None):
+        if self._dt_read == None and self._dt_write == None:
+            value = default_value
+            self._value = value
+            self._dt_write = datetime.datetime.utcnow()
+        else:
+            value = self._value
+        self._dt_read = datetime.datetime.utcnow()
+        return value
+
+    def set(self, new_value):
+        self._dt_write = datetime.datetime.utcnow()
+        self._value = new_value
+
+    def __repr__(self):
+        dt_now = datetime.datetime.utcnow()
+        td_read = dt_now - self._dt_read
+        td_write = dt_now - self._dt_write
+        s = '<TimestampedVariable>\n'
+        s += '  value: ' + str(self._value) + '\n'
+        s += '  dt_read : ' + str(self._dt_read) + ' (%s ago)' % td_read + '\n'
+        s += '  dt_write: ' + str(self._dt_write) + ' (%s ago)' % td_write + '\n'
+        return s
+
+    def erasable(self, td=datetime.timedelta(seconds=1)):
+        dt_now = datetime.datetime.utcnow()
+        td_read = dt_now - self._dt_read
+        td_write = dt_now - self._dt_write
+        return( ( td_read > td ) and ( td_write > td ) )
+
+
+class PersistantVariables(object):
+
+    def __init__(self):
+        self._data = {}
+
+    def __getitem__(self, key):
+        if key not in self._data:
+            self._data[key] = TimestampedVariable(None)
+
+        return self._data[key]
+
+    def __setitem__(self, key, value):
+        if key not in self._data:
+            self._data[key] = TimestampedVariable(value)
+
+        return self._data[key]
+
+    def __repr__(self):
+        return str(self._data)
+
+
+class DateTimeInnerReferenceTestCase(unittest.TestCase):
+
+    def test_object_with_inner_datetime_refs(self):
+        pvars = PersistantVariables()
+        pvars['z'] = 1
+        pvars['z2'] = 2
+        pickled = jsonpickle.encode(pvars)
+        obj = jsonpickle.decode(pickled)
+
+        # ensure the references are valid
+        self.assertTrue(obj['z']._dt_read is obj['z']._dt_write)
+        self.assertTrue(obj['z2']._dt_read is obj['z2']._dt_write)
+
+        # ensure the values are valid
+        self.assertEqual(obj['z'].get(), 1)
+        self.assertEqual(obj['z2'].get(), 2)
+
+        # ensure get() updates _dt_read
+        self.assertTrue(obj['z']._dt_read is not obj['z']._dt_write)
+        self.assertTrue(obj['z2']._dt_read is not obj['z2']._dt_write)
+
+
 class DateTimeTests(unittest.TestCase):
+
     def _roundtrip(self, obj):
         """
         pickle and then unpickle object, then assert the new object is the
@@ -101,6 +182,7 @@ class DateTimeTests(unittest.TestCase):
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(DateTimeTests))
+    suite.addTest(unittest.makeSuite(DateTimeInnerReferenceTestCase))
     return suite
 
 if __name__ == '__main__':

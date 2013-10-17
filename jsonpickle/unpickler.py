@@ -7,7 +7,6 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 
-import operator
 import sys
 
 import jsonpickle.util as util
@@ -94,7 +93,11 @@ class Unpickler(object):
         return restore(obj)
 
     def _restore_id(self, obj):
-        return self._objs[obj[tags.ID]]
+        instance = self._objs[obj[tags.ID]]
+        if handlers.get(type(instance)):
+            self._obj_to_idx[id(instance)] = len(self._objs)
+            self._objs.append(instance)
+        return instance
 
     def _restore_ref(self, obj):
         return self._namedict.get(obj[tags.REF])
