@@ -98,6 +98,7 @@ class BrokenReprThing(Thing):
 
 
 class Node(object):
+
     def __init__(self, name):
         self._name = name
         self._children = []
@@ -111,18 +112,18 @@ class Node(object):
 
 
 class Document(Node):
+
     def __init__(self, name):
         Node.__init__(self, name)
 
     def __str__(self):
-        ret_str ='Document "%s"\n' %self._name
+        ret_str ='Document "%s"\n' % self._name
         for c in self._children:
             ret_str += repr(c)
-
         return ret_str
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
 class Section(Node):
     def __init__(self, name):
