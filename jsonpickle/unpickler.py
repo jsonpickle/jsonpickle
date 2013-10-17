@@ -193,7 +193,7 @@ class Unpickler(object):
 
     def _restore_dict(self, obj):
         data = {}
-        for k, v in sorted(obj.items(), key=operator.itemgetter(0)):
+        for k, v in sorted(obj.items(), key=util.itemgetter):
             self._namestack.append(k)
             if self.keys and k.startswith(tags.JSON_KEY):
                 k = decode(k[len(tags.JSON_KEY):],
