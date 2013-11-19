@@ -24,6 +24,7 @@ import sys
 import datetime
 import time
 import collections
+import decimal
 
 from jsonpickle import util
 from jsonpickle.compat import unicode
@@ -136,3 +137,5 @@ register(time.struct_time, SimpleReduceHandler)
 register(datetime.timedelta, SimpleReduceHandler)
 if sys.version_info >= (2, 7):
     register(collections.OrderedDict, SimpleReduceHandler)
+if sys.version_info >= (3, 0):
+    register(decimal.Decimal, SimpleReduceHandler)
