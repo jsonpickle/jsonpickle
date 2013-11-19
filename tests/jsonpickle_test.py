@@ -14,6 +14,7 @@ import os
 import time
 import unittest
 import sys
+import decimal
 
 import jsonpickle
 
@@ -525,6 +526,12 @@ class PicklingTestCase(unittest.TestCase):
         actual = jsonpickle.decode(json)
         self.assertEqual(expect, actual)
         self.assertTrue(expect is actual)
+
+    def test_decimal(self):
+        obj = decimal.Decimal(1)
+        flattened = self.pickler.flatten(obj)
+        inflated = self.unpickler.restore(flattened)
+        self.assertEqual(type(inflated), decimal.Decimal)
 
 
 class JSONPickleTestCase(unittest.TestCase):
