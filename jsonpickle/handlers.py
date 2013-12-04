@@ -119,9 +119,9 @@ class DatetimeHandler(BaseHandler):
         return cls.__new__(cls, *params)
 
 
-register(datetime.datetime, DatetimeHandler)
-register(datetime.date, DatetimeHandler)
-register(datetime.time, DatetimeHandler)
+DatetimeHandler.handles(datetime.datetime)
+DatetimeHandler.handles(datetime.date)
+DatetimeHandler.handles(datetime.time)
 
 
 class SimpleReduceHandler(BaseHandler):
@@ -146,9 +146,9 @@ class SimpleReduceHandler(BaseHandler):
         return factory(*args)
 
 
-register(time.struct_time, SimpleReduceHandler)
-register(datetime.timedelta, SimpleReduceHandler)
+SimpleReduceHandler.handles(time.struct_time)
+SimpleReduceHandler.handles(datetime.timedelta)
 if sys.version_info >= (2, 7):
-    register(collections.OrderedDict, SimpleReduceHandler)
+    SimpleReduceHandler.handles(collections.OrderedDict)
 if sys.version_info >= (3, 0):
-    register(decimal.Decimal, SimpleReduceHandler)
+    SimpleReduceHandler.handles(decimal.Decimal)
