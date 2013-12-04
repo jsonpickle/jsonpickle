@@ -74,6 +74,19 @@ class BaseHandler(object):
         raise NotImplementedError('You must implement restore() in %s' %
                                   self.__class__)
 
+    @classmethod
+    def handles(self, cls):
+        """
+        Register this handler for the given class. Suitable as a decorator,
+        e.g.::
+
+            @SimpleReduceHandler.handles
+            class MyCustomClass:
+                def __reduce__(self):
+                    ...
+        """
+        registry.register(cls, self)
+        return cls
 
 
 class DatetimeHandler(BaseHandler):
