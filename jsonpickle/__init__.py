@@ -80,6 +80,7 @@ set_preferred_backend = json.set_preferred_backend
 set_encoder_options = json.set_encoder_options
 load_backend = json.load_backend
 remove_backend = json.remove_backend
+enable_fallthrough = json.enable_fallthrough
 
 
 def encode(value,
