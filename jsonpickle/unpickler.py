@@ -30,6 +30,9 @@ def _make_backend(backend):
     else:
         return backend
 
+def _supports_getstate(obj, instance):
+    return hasattr(instance, '__setstate__') and has_tag(obj, tags.STATE)
+
 
 class Unpickler(object):
     def __init__(self, backend=None, keys=False):
@@ -146,11 +149,6 @@ class Unpickler(object):
         return self._restore_object_instance_variables(obj, instance)
 
     def _restore_object_instance_variables(self, obj, instance):
-        if hasattr(instance, '__setstate__') and has_tag(obj, tags.STATE):
-            state = self._restore(obj[tags.STATE])
-            instance.__setstate__(state)
-            return instance
-
         for k, v in sorted(obj.items(), key=util.itemgetter):
             # ignore the reserved attribute
             if k in tags.RESERVED:
@@ -175,6 +173,14 @@ class Unpickler(object):
                 for v in obj[tags.SEQ]:
                     instance.add(self._restore(v))
 
+        if _supports_getstate(obj, instance):
+            self._restore_state(obj, instance)
+
+        return instance
+
+    def _restore_state(self, obj, instance):
+        state = self._restore(obj[tags.STATE])
+        instance.__setstate__(state)
         return instance
 
     def _restore_list(self, obj):

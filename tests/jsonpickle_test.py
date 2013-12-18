@@ -27,6 +27,7 @@ from jsonpickle.compat import PY32
 from jsonpickle._samples import (
         BrokenReprThing,
         DictSubclass,
+        GetstateDict,
         ListSubclass,
         ListSubclassWithInit,
         NamedTuple,
@@ -359,6 +360,52 @@ class PicklingTestCase(unittest.TestCase):
 
         inflated = self.unpickler.restore(flattened)
         self.assertEqual(1, inflated['key1'])
+
+    def test_getstate_dict_subclass_structure(self):
+        obj = GetstateDict('test')
+        obj['key1'] = 1
+
+        flattened = self.pickler.flatten(obj)
+        self.assertTrue(tags.OBJECT in flattened)
+        self.assertEqual('jsonpickle._samples.GetstateDict',
+                         flattened[tags.OBJECT])
+        self.assertTrue(tags.STATE in flattened)
+        self.assertTrue(tags.TUPLE in flattened[tags.STATE])
+        self.assertEqual(['test', {'key1': 1}],
+                         flattened[tags.STATE][tags.TUPLE])
+
+    def test_getstate_dict_subclass_roundtrip_simple(self):
+        obj = GetstateDict('test')
+        obj['key1'] = 1
+
+        flattened = self.pickler.flatten(obj)
+        inflated = self.unpickler.restore(flattened)
+
+        self.assertEqual(1, inflated['key1'])
+        self.assertEqual(inflated.name, 'test')
+
+    def test_getstate_dict_subclass_roundtrip_cyclical(self):
+        obj = GetstateDict('test')
+        obj['key1'] = 1
+
+        # The "name" field of obj2 points to obj (reference)
+        obj2 = GetstateDict(obj)
+        # The "obj2" key in obj points to obj2 (cyclical reference)
+        obj['obj2'] = obj2
+
+        flattened = self.pickler.flatten(obj)
+        inflated = self.unpickler.restore(flattened)
+
+        # The dict must be preserved
+        self.assertEqual(1, inflated['key1'])
+
+        # __getstate__/__setstate__ must have been run
+        self.assertEqual(inflated.name, 'test')
+        self.assertEqual(inflated.active, True)
+        self.assertEqual(inflated['obj2'].active, True)
+
+        # The reference must be preserved
+        self.assertTrue(inflated is inflated['obj2'].name)
 
     def test_tuple_notunpicklable(self):
         self.pickler.unpicklable = False

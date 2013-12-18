@@ -76,6 +76,22 @@ class DictSubclass(dict):
     name = 'Test'
 
 
+class GetstateDict(dict):
+
+    def __init__(self, name, **kwargs):
+        dict.__init__(self, **kwargs)
+        self.name = name
+        self.active = False
+
+    def __getstate__(self):
+        return (self.name, dict(self.items()))
+
+    def __setstate__(self, state):
+        self.name, vals = state
+        self.update(vals)
+        self.active = True
+
+
 class ListSubclass(list):
     pass
 

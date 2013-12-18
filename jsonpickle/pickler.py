@@ -186,7 +186,10 @@ class Pickler(object):
         has_class = hasattr(obj, '__class__')
         has_dict = hasattr(obj, '__dict__')
         has_slots = not has_dict and hasattr(obj, '__slots__')
-        has_getstate = has_dict and hasattr(obj, '__getstate__')
+
+        # Support objects with __getstate__(); this ensures that
+        # both __setstate__() and __getstate__() are implemented
+        has_getstate = hasattr(obj, '__getstate__')
         has_getstate_support = has_getstate and hasattr(obj, '__setstate__')
 
         if has_class and not util.is_module(obj):
@@ -207,22 +210,18 @@ class Pickler(object):
             return data
 
         if util.is_dictionary_subclass(obj):
-            return self._flatten_dict_obj(obj, data)
+            self._flatten_dict_obj(obj, data)
+            if has_getstate_support:
+                self._getstate(obj, data)
+            return data
 
         if has_dict:
             # Support objects that subclasses list and set
             if util.is_sequence_subclass(obj):
                 return self._flatten_sequence_obj(obj, data)
 
-            # Support objects with __getstate__(); this ensures that
-            # both __setstate__() and __getstate__() are implemented
             if has_getstate_support:
-                state = self._flatten(obj.__getstate__())
-                if self.unpicklable:
-                    data[tags.STATE] = state
-                else:
-                    data = state
-                return data
+                return self._getstate(obj, data)
 
             # hack for zope persistent objects; this unghostifies the object
             getattr(obj, '_', None)
@@ -288,6 +287,15 @@ class Pickler(object):
         else:
             return value
         return data
+
+    def _getstate(self, obj, data):
+        state = self._flatten(obj.__getstate__())
+        if self.unpicklable:
+            data[tags.STATE] = state
+        else:
+            data = state
+        return data
+
 
 def _mktyperef(obj):
     """Return a typeref dictionary
