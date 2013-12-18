@@ -5,6 +5,8 @@ Version 0.7.0 - ???
 
     * Added ``handles`` decorator to :class:`jsonpickle.handlers.BaseHandler`,
       enabling simple declaration of a handler for a class.
+    * `__getstate__()` and `__setstate__()` are now honored
+      when pickling objects that subclass :class:`dict`.
 
 Version 0.6.1 - August 25, 2013
 -------------------------------
