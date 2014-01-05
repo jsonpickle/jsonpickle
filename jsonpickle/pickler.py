@@ -225,7 +225,7 @@ class Pickler(object):
 
             # hack for zope persistent objects; this unghostifies the object
             getattr(obj, '_', None)
-            return self._flatten_dict_obj(obj.__dict__, data)
+            return self._flatten_dict_obj(obj.__dict__(), data)
 
         if util.is_sequence_subclass(obj):
             return self._flatten_sequence_obj(obj, data)
@@ -280,7 +280,7 @@ class Pickler(object):
     def _flatten_sequence_obj(self, obj, data):
         """Return a json-friendly dict for a sequence subclass."""
         if hasattr(obj, '__dict__'):
-            self._flatten_dict_obj(obj.__dict__, data)
+            self._flatten_dict_obj(obj.__dict__(), data)
         value = [self._flatten(v) for v in obj]
         if self.unpicklable:
             data[tags.SEQ] = value
