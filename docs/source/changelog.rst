@@ -7,6 +7,7 @@ Version 0.7.0 - ???
       enabling simple declaration of a handler for a class.
     * `__getstate__()` and `__setstate__()` are now honored
       when pickling objects that subclass :class:`dict`.
+    * jsonpickle can now serialize :class:`collections.Counter` objects.
 
 Version 0.6.1 - August 25, 2013
 -------------------------------

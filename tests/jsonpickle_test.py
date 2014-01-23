@@ -223,6 +223,27 @@ class PicklingTestCase(unittest.TestCase):
         self.assertEqual(old_nt[1], new_nt[1])
         self.assertEqual(old_nt[2], new_nt[2])
 
+    def test_counter_roundtrip(self):
+        if sys.version_info < (2, 7):
+            # collections.Counter was introduced in Python 2.7
+            return
+        counter = collections.Counter({1: 2})
+        encoded = jsonpickle.encode(counter)
+        decoded = jsonpickle.decode(encoded)
+        self.assertTrue(type(decoded) is collections.Counter)
+        # the integer key becomes a string when keys=False
+        self.assertEqual(decoded.get('1'), 2)
+
+    def test_counter_roundtrip_with_keys(self):
+        if sys.version_info < (2, 7):
+            # collections.Counter was introduced in Python 2.7
+            return
+        counter = collections.Counter({1: 2})
+        encoded = jsonpickle.encode(counter, keys=True)
+        decoded = jsonpickle.decode(encoded, keys=True)
+        self.assertTrue(type(decoded) is collections.Counter)
+        self.assertEqual(decoded.get(1), 2)
+
     def test_class(self):
         inst = Thing('test name')
         inst.child = Thing('child name')

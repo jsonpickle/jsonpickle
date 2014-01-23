@@ -150,5 +150,6 @@ SimpleReduceHandler.handles(time.struct_time)
 SimpleReduceHandler.handles(datetime.timedelta)
 if sys.version_info >= (2, 7):
     SimpleReduceHandler.handles(collections.OrderedDict)
+    SimpleReduceHandler.handles(collections.Counter)
 if sys.version_info >= (3, 0):
     SimpleReduceHandler.handles(decimal.Decimal)
