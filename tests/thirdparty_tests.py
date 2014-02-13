@@ -71,7 +71,7 @@ class FeedParserTest(unittest.TestCase):
     def test(self):
         pickled = jsonpickle.encode(self.doc)
         unpickled = jsonpickle.decode(pickled)
-        self.assertEquals(self.doc['feed']['title'], unpickled['feed']['title'])
+        self.assertEqual(self.doc['feed']['title'], unpickled['feed']['title'])
 
 
 def suite():
