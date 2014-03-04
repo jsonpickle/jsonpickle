@@ -14,6 +14,7 @@ from jsonpickle.compat import set
 
 
 class Thing(object):
+
     def __init__(self, name):
         self.name = name
         self.child = None
@@ -23,7 +24,9 @@ class Thing(object):
 
 
 class ThingWithSlots(object):
+
     __slots__ = ('a', 'b')
+
     def __init__(self, a, b):
         self.a = a
         self.b = b
@@ -96,9 +99,24 @@ class ListSubclass(list):
     pass
 
 class ListSubclassWithInit(list):
+
     def __init__(self, attr):
         self.attr = attr
         super(ListSubclassWithInit, self).__init__()
+
+
+class GetstateReturnsList(object):
+
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def __getstate__(self):
+        return [self.x, self.y]
+
+    def __setstate__(self, state):
+        self.x, self.y = state[0], state[1]
+
 
 class SetSubclass(set):
     pass

@@ -51,10 +51,13 @@ class Pickler(object):
         self._max_depth = max_depth
         ## Maps id(obj) to reference IDs
         self._objs = {}
+        ## Avoids garbage collection
+        self._seen = []
 
     def reset(self):
         self._objs = {}
         self._depth = -1
+        self._seen = []
 
     def _push(self):
         """Steps down one level in the namespace.
@@ -119,7 +122,10 @@ class Pickler(object):
 
     def _flatten(self, obj):
         self._push()
+        return self._pop(self._flatten_obj(obj))
 
+    def _flatten_obj(self, obj):
+        self._seen.append(obj)
         max_reached = self._depth == self._max_depth
 
         if max_reached or (not self.make_refs and id(obj) in self._objs):
@@ -128,14 +134,17 @@ class Pickler(object):
         else:
             flatten_func = self._get_flattener(obj)
 
-        return self._pop(flatten_func(obj))
+        return flatten_func(obj)
+
+    def _list_recurse(self, obj):
+        return [self._flatten(v) for v in obj]
 
     def _get_flattener(self, obj):
 
         if util.is_primitive(obj):
             return lambda obj: obj
 
-        list_recurse = lambda obj: [self._flatten(v) for v in obj]
+        list_recurse = self._list_recurse
 
         if util.is_list(obj):
             if self._mkref(obj):
@@ -289,7 +298,7 @@ class Pickler(object):
         return data
 
     def _getstate(self, obj, data):
-        state = self._flatten(obj.__getstate__())
+        state = self._flatten_obj(obj.__getstate__())
         if self.unpicklable:
             data[tags.STATE] = state
         else:

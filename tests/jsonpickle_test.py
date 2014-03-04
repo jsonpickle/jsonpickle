@@ -28,6 +28,7 @@ from jsonpickle._samples import (
         BrokenReprThing,
         DictSubclass,
         GetstateDict,
+        GetstateReturnsList,
         ListSubclass,
         ListSubclassWithInit,
         NamedTuple,
@@ -44,6 +45,10 @@ class PicklingTestCase(unittest.TestCase):
     def setUp(self):
         self.pickler = jsonpickle.pickler.Pickler()
         self.unpickler = jsonpickle.unpickler.Unpickler()
+
+    def tearDown(self):
+        self.pickler.reset()
+        self.unpickler.reset()
 
     def test_string(self):
         self.assertEqual('a string', self.pickler.flatten('a string'))
@@ -427,6 +432,24 @@ class PicklingTestCase(unittest.TestCase):
 
         # The reference must be preserved
         self.assertTrue(inflated is inflated['obj2'].name)
+
+    def test_getstate_list_simple(self):
+        obj = GetstateReturnsList(1, 2)
+        flattened = self.pickler.flatten(obj)
+        inflated = self.unpickler.restore(flattened)
+        self.assertEqual(inflated.x, 1)
+        self.assertEqual(inflated.y, 2)
+
+    def test_getstate_list_inside_list(self):
+        obj1 = GetstateReturnsList(1, 2)
+        obj2 = GetstateReturnsList(3, 4)
+        obj = [obj1, obj2]
+        flattened = self.pickler.flatten(obj)
+        inflated = self.unpickler.restore(flattened)
+        self.assertEqual(inflated[0].x, 1)
+        self.assertEqual(inflated[0].y, 2)
+        self.assertEqual(inflated[1].x, 3)
+        self.assertEqual(inflated[1].y, 4)
 
     def test_tuple_notunpicklable(self):
         self.pickler.unpicklable = False
