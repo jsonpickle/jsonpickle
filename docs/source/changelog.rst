@@ -1,7 +1,7 @@
 Change Log
 ==========
-Version 0.7.0 - ???
--------------------------------
+Version 0.7.0 - March 15, 2014
+------------------------------
 
     * Added ``handles`` decorator to :class:`jsonpickle.handlers.BaseHandler`,
       enabling simple declaration of a handler for a class.
