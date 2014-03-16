@@ -13,6 +13,9 @@ Version 0.7.0 - ???
     * Decimal objects are supported in Python 3.
     * jsonpickle's "fallthrough-on-error" behavior can now be disabled.
     * Simpler API for registering custom handlers.
+    * A new "safe-mode" is provided which avoids eval().
+      Backwards-compatible deserialization of repr-serialized objects
+      is disabled in this mode.  e.g. `decode(string, safe=True)`
 
 Version 0.6.1 - August 25, 2013
 -------------------------------

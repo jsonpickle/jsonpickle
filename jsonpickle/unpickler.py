@@ -17,10 +17,11 @@ from jsonpickle.compat import set
 from jsonpickle.backend import JSONBackend
 
 
-def decode(string, backend=None, context=None, keys=False, reset=True):
+def decode(string, backend=None, context=None, keys=False, reset=True,
+           safe=False):
     backend = _make_backend(backend)
     if context is None:
-        context = Unpickler(keys=keys, backend=backend)
+        context = Unpickler(keys=keys, backend=backend, safe=safe)
     return context.restore(backend.decode(string), reset=reset)
 
 
@@ -35,11 +36,13 @@ def _supports_getstate(obj, instance):
 
 
 class Unpickler(object):
-    def __init__(self, backend=None, keys=False):
+
+    def __init__(self, backend=None, keys=False, safe=False):
         ## The current recursion depth
         ## Maps reference names to object instances
         self.backend = _make_backend(backend)
         self.keys = keys
+        self.safe = safe
 
         self._namedict = {}
         ## The namestack grows whenever we recurse into a child object
@@ -108,6 +111,9 @@ class Unpickler(object):
         return typeref
 
     def _restore_repr(self, obj):
+        if self.safe:
+            # eval() is not allowed in safe mode
+            return None
         obj = loadrepr(obj[tags.REPR])
         return self._mkref(obj)
 

@@ -519,6 +519,14 @@ class PicklingTestCase(unittest.TestCase):
         inflated = self.unpickler.restore(flattened)
         self.assertEqual(inflated.themodule, os)
 
+    def test_thing_with_module_safe(self):
+        obj = Thing('with-module')
+        obj.themodule = os
+        flattened = self.pickler.flatten(obj)
+        self.unpickler.safe = True
+        inflated = self.unpickler.restore(flattened)
+        self.assertEqual(inflated.themodule, None)
+
     def test_thing_with_submodule(self):
         from distutils import sysconfig
 
