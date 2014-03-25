@@ -1,5 +1,9 @@
 Change Log
 ==========
+Version 0.7.1 - April ??, 2014
+------------------------------
+    * Added support for Python 3.4.
+
 Version 0.7.0 - March 15, 2014
 ------------------------------
 

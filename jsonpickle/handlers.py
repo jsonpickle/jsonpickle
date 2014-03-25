@@ -132,24 +132,46 @@ class SimpleReduceHandler(BaseHandler):
     """
 
     def flatten(self, obj, data):
-        pickler = self.context
-        if not pickler.unpicklable:
-            return unicode(obj)
-        flatten = pickler.flatten
+        flatten = self.context.flatten
         data['__reduce__'] = [flatten(i, reset=False) for i in obj.__reduce__()]
         return data
 
     def restore(self, obj):
-        unpickler = self.context
-        restore = unpickler.restore
+        restore = self.context.restore
         factory, args = [restore(i, reset=False) for i in obj['__reduce__']]
         return factory(*args)
+
+
+class OrderedDictReduceHandler(SimpleReduceHandler):
+    """Serialize OrderedDict on Python 3.4+
+
+    Python 3.4+ returns multiple entries in an OrderedDict's
+    reduced form.  Previous versions return a two-item tuple.
+    OrderedDictReduceHandler makes the formats compatible.
+
+    """
+    def flatten(self, obj, data):
+        # __reduce__() on older pythons returned a list of
+        # [key, value] list pairs inside a tuple.
+        # Recreate that structure so that the file format
+        # is consistent between python versions.
+        flatten = self.context.flatten
+        reduced = obj.__reduce__()
+        factory = flatten(reduced[0], reset=False)
+        pairs = [list(x) for x in reduced[-1]]
+        args = flatten((pairs,), reset=False)
+        data['__reduce__'] = [factory, args]
+        return data
 
 
 SimpleReduceHandler.handles(time.struct_time)
 SimpleReduceHandler.handles(datetime.timedelta)
 if sys.version_info >= (2, 7):
-    SimpleReduceHandler.handles(collections.OrderedDict)
     SimpleReduceHandler.handles(collections.Counter)
+    if sys.version_info >= (3, 4):
+        OrderedDictReduceHandler.handles(collections.OrderedDict)
+    else:
+        SimpleReduceHandler.handles(collections.OrderedDict)
+
 if sys.version_info >= (3, 0):
     SimpleReduceHandler.handles(decimal.Decimal)
