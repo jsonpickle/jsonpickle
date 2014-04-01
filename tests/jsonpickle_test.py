@@ -910,6 +910,24 @@ class JSONPickleTestCase(unittest.TestCase):
 
         self.assertEqual(d, decoded)
 
+    def test_ordered_dict_int_keys(self):
+        if sys.version_info < (2, 7):
+            return
+        d = {
+            1: collections.OrderedDict([(2, -2), (3, -3)]),
+            4: collections.OrderedDict([(5, -5), (6, -6)]),
+        }
+        encoded = jsonpickle.encode(d, keys=True)
+        decoded = jsonpickle.decode(encoded, keys=True)
+
+        self.assertEqual(collections.OrderedDict, type(decoded[1]))
+        self.assertEqual(collections.OrderedDict, type(decoded[4]))
+        self.assertEqual(-2, decoded[1][2])
+        self.assertEqual(-3, decoded[1][3])
+        self.assertEqual(-5, decoded[4][5])
+        self.assertEqual(-6, decoded[4][6])
+        self.assertEqual(d, decoded)
+
     def test_make_refs_disabled_list(self):
         obj_a = Thing('foo')
         obj_b = Thing('bar')
