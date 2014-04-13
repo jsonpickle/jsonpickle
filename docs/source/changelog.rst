@@ -3,6 +3,7 @@ Change Log
 Version 0.7.1 - April ??, 2014
 ------------------------------
     * Added support for Python 3.4.
+    * Added support for :class:`posix.stat_result`.
 
 Version 0.7.0 - March 15, 2014
 ------------------------------

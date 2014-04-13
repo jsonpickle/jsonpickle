@@ -175,3 +175,9 @@ if sys.version_info >= (2, 7):
 
 if sys.version_info >= (3, 0):
     SimpleReduceHandler.handles(decimal.Decimal)
+
+try:
+    import posix
+    SimpleReduceHandler.handles(posix.stat_result)
+except ImportError:
+    pass

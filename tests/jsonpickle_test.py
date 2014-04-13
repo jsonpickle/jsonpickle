@@ -954,6 +954,16 @@ class JSONPickleTestCase(unittest.TestCase):
         self.assertEqual(decoded.a[1][0:3], '[1,')
         self.assertEqual(decoded.a[2][0][0:3], '[1,')
 
+    def test_posix_stat_result(self):
+        try:
+            import posix
+        except ImportError:
+            return
+        expect = posix.stat(__file__)
+        encoded = jsonpickle.encode(expect)
+        actual = jsonpickle.decode(encoded)
+        self.assertEqual(expect, actual)
+
 
 # Test classes for ExternalHandlerTestCase
 class Mixin(object):
