@@ -208,7 +208,7 @@ def is_module(obj):
 
 
 def is_picklable(name, value):
-    """Return True if an object cannot be pickled
+    """Return True if an object can be pickled
 
     >>> import os
     >>> is_picklable('os', os)
