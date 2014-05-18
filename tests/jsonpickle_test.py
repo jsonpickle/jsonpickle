@@ -342,6 +342,15 @@ class PicklingTestCase(unittest.TestCase):
         self.assertFalse(newobj.b)
         self.assertEqual(newobj.c, None)
 
+    def test_newstyleslots_inherited_deleted_attr(self):
+        obj = ThingWithInheritedSlots(True, False, None)
+        del obj.c
+        jsonstr = jsonpickle.encode(obj)
+        newobj = jsonpickle.decode(jsonstr)
+        self.assertTrue(newobj.a)
+        self.assertFalse(newobj.b)
+        self.assertFalse(hasattr(newobj, 'c'))
+
     def test_newstyleslots_with_children(self):
         obj = ThingWithSlots(Thing('a'), Thing('b'))
         jsonstr = jsonpickle.encode(obj)

@@ -269,7 +269,12 @@ class Pickler(object):
         allslots = [getattr(cls, '__slots__', tuple())
                         for cls in type(obj).mro()]
         for k in chain(*allslots):
-            self._flatten_key_value_pair(k, getattr(obj, k), data)
+            try:
+                value = getattr(obj, k)
+            except AttributeError:
+                # The attribute may have been deleted
+                continue
+            self._flatten_key_value_pair(k, value, data)
         return data
 
     def _flatten_key_value_pair(self, k, v, data):
