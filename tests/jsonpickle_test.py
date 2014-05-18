@@ -37,6 +37,7 @@ from jsonpickle._samples import (
         SetSubclass,
         Thing,
         ThingWithSlots,
+        ThingWithInheritedSlots,
         ThingWithProps,
         )
 
@@ -333,12 +334,28 @@ class PicklingTestCase(unittest.TestCase):
         self.assertTrue(newobj.a)
         self.assertFalse(newobj.b)
 
+    def test_newstyleslots_inherited(self):
+        obj = ThingWithInheritedSlots(True, False, None)
+        jsonstr = jsonpickle.encode(obj)
+        newobj = jsonpickle.decode(jsonstr)
+        self.assertTrue(newobj.a)
+        self.assertFalse(newobj.b)
+        self.assertEqual(newobj.c, None)
+
     def test_newstyleslots_with_children(self):
         obj = ThingWithSlots(Thing('a'), Thing('b'))
         jsonstr = jsonpickle.encode(obj)
         newobj = jsonpickle.decode(jsonstr)
         self.assertEqual(newobj.a.name, 'a')
         self.assertEqual(newobj.b.name, 'b')
+
+    def test_newstyleslots_with_children_inherited(self):
+        obj = ThingWithInheritedSlots(Thing('a'), Thing('b'), Thing('c'))
+        jsonstr = jsonpickle.encode(obj)
+        newobj = jsonpickle.decode(jsonstr)
+        self.assertEqual(newobj.a.name, 'a')
+        self.assertEqual(newobj.b.name, 'b')
+        self.assertEqual(newobj.c.name, 'c')
 
     def test_oldstyleclass(self):
         obj = OldStyleClass()

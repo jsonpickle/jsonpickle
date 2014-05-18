@@ -1,7 +1,13 @@
 Change Log
 ==========
+Version 0.7.2 - TBD, Summer 2014
+
+    * We now propery serialize classes that inherit from classes
+      that use `__slots__` and add additional slots in the derived class.
+
 Version 0.7.1 - May 6, 2014
 ------------------------------
+
     * Added support for Python 3.4.
     * Added support for :class:`posix.stat_result`.
 

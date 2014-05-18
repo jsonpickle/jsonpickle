@@ -31,6 +31,14 @@ class ThingWithSlots(object):
         self.a = a
         self.b = b
 
+class ThingWithInheritedSlots(ThingWithSlots):
+
+    __slots__ = ('c',)
+
+    def __init__(self, a, b, c):
+        ThingWithSlots.__init__(self, a, b)
+        self.c = c
+
 
 class ThingWithProps(object):
 

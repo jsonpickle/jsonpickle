@@ -7,6 +7,8 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 
+from itertools import chain
+
 import jsonpickle.util as util
 import jsonpickle.tags as tags
 import jsonpickle.handlers as handlers
@@ -264,7 +266,9 @@ class Pickler(object):
     def _flatten_newstyle_with_slots(self, obj, data):
         """Return a json-friendly dict for new-style objects with __slots__.
         """
-        for k in obj.__slots__:
+        allslots = [getattr(cls, '__slots__', tuple())
+                        for cls in type(obj).mro()]
+        for k in chain(*allslots):
             self._flatten_key_value_pair(k, getattr(obj, k), data)
         return data
 
