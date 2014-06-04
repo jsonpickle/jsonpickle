@@ -5,6 +5,10 @@ Version 0.7.2 - TBD, Summer 2014
     * We now propery serialize classes that inherit from classes
       that use `__slots__` and add additional slots in the derived class.
 
+    * jsonpickle can now serialize objects that implement `__getstate__()` but
+      not `__setstate__()`.  The result of `__getstate__()` is returned as-is
+      when doing a round-trip from Python objects to jsonpickle and back.
+
 Version 0.7.1 - May 6, 2014
 ------------------------------
 

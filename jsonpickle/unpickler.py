@@ -31,9 +31,6 @@ def _make_backend(backend):
     else:
         return backend
 
-def _supports_getstate(obj, instance):
-    return hasattr(instance, '__setstate__') and has_tag(obj, tags.STATE)
-
 
 class Unpickler(object):
 
@@ -179,14 +176,20 @@ class Unpickler(object):
                 for v in obj[tags.SEQ]:
                     instance.add(self._restore(v))
 
-        if _supports_getstate(obj, instance):
-            self._restore_state(obj, instance)
+        if has_tag(obj, tags.STATE):
+            instance = self._restore_state(obj, instance)
 
         return instance
 
     def _restore_state(self, obj, instance):
-        state = self._restore(obj[tags.STATE])
-        instance.__setstate__(state)
+        if hasattr(instance, '__setstate__'):
+            state = self._restore(obj[tags.STATE])
+            instance.__setstate__(state)
+        else:
+            # __setstate__ is not implemented so that means that the best
+            # we can do is return the result of __getstate__() rather than
+            # return an empty shell of an object.
+            instance = self._restore(obj[tags.STATE])
         return instance
 
     def _restore_list(self, obj):

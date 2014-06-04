@@ -201,7 +201,6 @@ class Pickler(object):
         # Support objects with __getstate__(); this ensures that
         # both __setstate__() and __getstate__() are implemented
         has_getstate = hasattr(obj, '__getstate__')
-        has_getstate_support = has_getstate and hasattr(obj, '__setstate__')
 
         if has_class and not util.is_module(obj):
             module, name = _getclassdetail(obj)
@@ -222,7 +221,7 @@ class Pickler(object):
 
         if util.is_dictionary_subclass(obj):
             self._flatten_dict_obj(obj, data)
-            if has_getstate_support:
+            if has_getstate:
                 self._getstate(obj, data)
             return data
 
@@ -231,7 +230,7 @@ class Pickler(object):
             if util.is_sequence_subclass(obj):
                 return self._flatten_sequence_obj(obj, data)
 
-            if has_getstate_support:
+            if has_getstate:
                 return self._getstate(obj, data)
 
             # hack for zope persistent objects; this unghostifies the object

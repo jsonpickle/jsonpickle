@@ -27,6 +27,7 @@ from jsonpickle.compat import PY32
 from jsonpickle._samples import (
         BrokenReprThing,
         DictSubclass,
+        GetstateOnly,
         GetstateDict,
         GetstateReturnsList,
         ListSubclass,
@@ -476,6 +477,18 @@ class PicklingTestCase(unittest.TestCase):
         self.assertEqual(inflated[0].y, 2)
         self.assertEqual(inflated[1].x, 3)
         self.assertEqual(inflated[1].y, 4)
+
+    def test_getstate_with_getstate_only(self):
+        obj = GetstateOnly()
+        a = obj.a = 'this object implements'
+        b = obj.b = '__getstate__ but not __setstate__'
+        expect = [a, b]
+        flat = self.pickler.flatten(obj)
+        actual = flat[tags.STATE]
+        self.assertEqual(expect, actual)
+
+        restored = self.unpickler.restore(flat)
+        self.assertEqual(expect, restored)
 
     def test_tuple_notunpicklable(self):
         self.pickler.unpicklable = False

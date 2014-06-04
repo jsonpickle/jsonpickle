@@ -87,6 +87,15 @@ class DictSubclass(dict):
     name = 'Test'
 
 
+class GetstateOnly(object):
+    def __init__(self, a=1, b=2):
+        self.a = a
+        self.b = b
+
+    def __getstate__(self):
+        return [self.a, self.b]
+
+
 class GetstateDict(dict):
 
     def __init__(self, name, **kwargs):
