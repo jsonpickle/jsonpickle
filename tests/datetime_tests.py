@@ -11,7 +11,7 @@ import datetime
 import time
 
 import jsonpickle
-
+from jsonpickle import tags
 from jsonpickle._samples import ObjWithDate
 
 
@@ -111,7 +111,7 @@ class DateTimeInnerReferenceTestCase(unittest.TestCase):
         self.assertTrue(obj['z2']._dt_read is not obj['z2']._dt_write)
 
 
-class DateTimeTests(unittest.TestCase):
+class DateTimeSimpleTestCase(unittest.TestCase):
 
     def _roundtrip(self, obj):
         """
@@ -170,6 +170,17 @@ class DateTimeTests(unittest.TestCase):
         self.assertEqual(test_obj_decoded.data['ts'],
                          test_obj_decoded.data_ref['ts'])
 
+
+class DateTimeAdvancedTestCase(unittest.TestCase):
+
+    def setUp(self):
+        self.pickler = jsonpickle.pickler.Pickler()
+        self.unpickler = jsonpickle.unpickler.Unpickler()
+
+    def tearDown(self):
+        self.pickler.reset()
+        self.unpickler.reset()
+
     def test_struct_time(self):
         expect = time.struct_time([1,2,3,4,5,6,7,8,9])
         json = jsonpickle.encode(expect)
@@ -177,11 +188,68 @@ class DateTimeTests(unittest.TestCase):
         self.assertEqual(type(actual), time.struct_time)
         self.assertEqual(expect, actual)
 
+    def test_struct_time_chars(self):
+        expect = time.struct_time('123456789')
+
+        flattened = self.pickler.flatten(expect)
+        actual = self.unpickler.restore(flattened)
+        self.assertEqual(expect, actual)
+
+    def test_datetime_structure(self):
+        obj = datetime.datetime.now()
+
+        flattened = self.pickler.flatten(obj)
+        self.assertTrue(tags.OBJECT in flattened)
+        self.assertTrue('__reduce__' in flattened)
+
+        inflated = self.unpickler.restore(flattened)
+        self.assertEqual(obj, inflated)
+
+    def test_datetime_inside_int_keys_defaults(self):
+        t = datetime.time(hour=10)
+        s = jsonpickle.encode({1:t, 2:t})
+        d = jsonpickle.decode(s)
+        self.assertEqual(d["1"], d["2"])
+        self.assertTrue(d["1"] is d["2"])
+        self.assertTrue(isinstance(d["1"], datetime.time))
+
+    def test_datetime_inside_int_keys_with_keys_enabled(self):
+        t = datetime.time(hour=10)
+        s = jsonpickle.encode({1:t, 2:t}, keys=True)
+        d = jsonpickle.decode(s, keys=True)
+        self.assertEqual(d[1], d[2])
+        self.assertTrue(d[1] is d[2])
+        self.assertTrue(isinstance(d[1], datetime.time))
+
+    def test_datetime_repr_not_unpicklable(self):
+        obj = datetime.datetime.now()
+        pickler = jsonpickle.pickler.Pickler(unpicklable=False)
+        flattened = pickler.flatten(obj)
+        self.assertFalse(tags.REPR in flattened)
+        self.assertFalse(tags.OBJECT in flattened)
+        self.assertEqual(str(obj), flattened)
+
+    def test_datetime_dict_keys_defaults(self):
+        """Test that we handle datetime objects as keys."""
+        datetime_dict = {datetime.datetime(2008, 12, 31): True}
+        pickled = jsonpickle.encode(datetime_dict)
+        expect = {'datetime.datetime(2008, 12, 31, 0, 0)': True}
+        actual = jsonpickle.decode(pickled)
+        self.assertEqual(expect, actual)
+
+    def test_datetime_dict_keys_with_keys_enabled(self):
+        """Test that we handle datetime objects as keys."""
+        datetime_dict = {datetime.datetime(2008, 12, 31): True}
+        pickled = jsonpickle.encode(datetime_dict, keys=True)
+        expect = datetime_dict
+        actual = jsonpickle.decode(pickled, keys=True)
+        self.assertEqual(expect, actual)
 
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(DateTimeTests))
+    suite.addTest(unittest.makeSuite(DateTimeSimpleTestCase))
+    suite.addTest(unittest.makeSuite(DateTimeAdvancedTestCase))
     suite.addTest(unittest.makeSuite(DateTimeInnerReferenceTestCase))
     return suite
 

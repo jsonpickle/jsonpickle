@@ -8,10 +8,8 @@
 # you should have received as part of this distribution.
 
 import collections
-import datetime
 import doctest
 import os
-import time
 import unittest
 import sys
 import decimal
@@ -395,13 +393,6 @@ class PicklingTestCase(unittest.TestCase):
         inflated = self.unpickler.restore(flattened)
         self.assertEqual(1234, inflated.value)
 
-    def test_struct_time(self):
-        expect = time.struct_time('123456789')
-
-        flattened = self.pickler.flatten(expect)
-        actual = self.unpickler.restore(flattened)
-        self.assertEqual(expect, actual)
-
     def test_dictsubclass(self):
         obj = DictSubclass()
         obj['key1'] = 1
@@ -523,32 +514,6 @@ class PicklingTestCase(unittest.TestCase):
         self.assertTrue(3 in flattened)
         self.assertTrue(isinstance(flattened, list))
 
-    def test_datetime(self):
-        obj = datetime.datetime.now()
-
-        flattened = self.pickler.flatten(obj)
-        self.assertTrue(tags.OBJECT in flattened)
-        self.assertTrue('__reduce__' in flattened)
-
-        inflated = self.unpickler.restore(flattened)
-        self.assertEqual(obj, inflated)
-
-    def test_datetime_inside_int_keys_defaults(self):
-        t = datetime.time(hour=10)
-        s = jsonpickle.encode({1:t, 2:t})
-        d = jsonpickle.decode(s)
-        self.assertEqual(d["1"], d["2"])
-        self.assertTrue(d["1"] is d["2"])
-        self.assertTrue(isinstance(d["1"], datetime.time))
-
-    def test_datetime_inside_int_keys_with_keys_enabled(self):
-        t = datetime.time(hour=10)
-        s = jsonpickle.encode({1:t, 2:t}, keys=True)
-        d = jsonpickle.decode(s, keys=True)
-        self.assertEqual(d[1], d[2])
-        self.assertTrue(d[1] is d[2])
-        self.assertTrue(isinstance(d[1], datetime.time))
-
     def test_broken_repr_dict_key(self):
         """Tests that we can pickle dictionaries with keys that have
         broken __repr__ implementations.
@@ -559,14 +524,6 @@ class PicklingTestCase(unittest.TestCase):
         flattened = pickler.flatten(obj)
         self.assertTrue('<BrokenReprThing "test">' in flattened)
         self.assertTrue(flattened['<BrokenReprThing "test">'])
-
-    def test_repr_not_unpickable(self):
-        obj = datetime.datetime.now()
-        pickler = jsonpickle.pickler.Pickler(unpicklable=False)
-        flattened = pickler.flatten(obj)
-        self.assertFalse(tags.REPR in flattened)
-        self.assertFalse(tags.OBJECT in flattened)
-        self.assertEqual(str(obj), flattened)
 
     def test_thing_with_module(self):
         obj = Thing('with-module')
@@ -759,22 +716,6 @@ class JSONPickleTestCase(unittest.TestCase):
         pickled = jsonpickle.encode(tuple_dict, keys=True)
         unpickled = jsonpickle.decode(pickled, keys=True)
         self.assertEqual(unpickled[(1, 2)], [1, 2])
-
-    def test_datetime_dict_keys_defaults(self):
-        """Test that we handle datetime objects as keys."""
-        datetime_dict = {datetime.datetime(2008, 12, 31): True}
-        pickled = jsonpickle.encode(datetime_dict)
-        expect = {'datetime.datetime(2008, 12, 31, 0, 0)': True}
-        actual = jsonpickle.decode(pickled)
-        self.assertEqual(expect, actual)
-
-    def test_datetime_dict_keys_with_keys_enabled(self):
-        """Test that we handle datetime objects as keys."""
-        datetime_dict = {datetime.datetime(2008, 12, 31): True}
-        pickled = jsonpickle.encode(datetime_dict, keys=True)
-        expect = datetime_dict
-        actual = jsonpickle.decode(pickled, keys=True)
-        self.assertEqual(expect, actual)
 
     def test_object_dict_keys(self):
         """Test that we handle random objects as keys.
