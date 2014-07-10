@@ -204,6 +204,24 @@ class PicklingTestCase(unittest.TestCase):
         self.assertEqual(defaultdict.default_factory, list)
         self.assertEqual(newdefaultdict.default_factory, list)
 
+    def test_defaultdict_roundtrip_simple_lambda(self):
+        """Make sure we can handle collections.defaultdict(lambda: defaultdict(int))"""
+        # setup a sparse collections.defaultdict with simple lambdas
+        defaultdict = collections.defaultdict(lambda: collections.defaultdict(int))
+        defaultdict[0] = 'zero'
+        defaultdict[1] = collections.defaultdict(lambda: collections.defaultdict(dict))
+        defaultdict[1][0] = 'zero'
+        # roundtrip
+        encoded = jsonpickle.encode(defaultdict, keys=True)
+        newdefaultdict = jsonpickle.decode(encoded, keys=True)
+        self.assertEqual(newdefaultdict[0], 'zero')
+        self.assertEqual(type(newdefaultdict[1]), collections.defaultdict)
+        self.assertEqual(newdefaultdict[1][0], 'zero')
+        self.assertEqual(newdefaultdict[1][1], {}) # inner defaultdict
+        self.assertEqual(newdefaultdict[2][0], 0) # outer defaultdict
+        self.assertEqual(type(newdefaultdict[3]), collections.defaultdict)
+        self.assertEqual(newdefaultdict[3].default_factory, int) # outer-most defaultdict
+
     def test_deque_roundtrip(self):
         """Make sure we can handle collections.deque"""
         old_deque = collections.deque([0, 1, 2])

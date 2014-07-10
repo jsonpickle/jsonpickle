@@ -258,7 +258,15 @@ class Pickler(object):
 
         # the collections.defaultdict protocol
         if hasattr(obj, 'default_factory') and callable(obj.default_factory):
-            flatten('default_factory', obj.default_factory, data)
+            factory = obj.default_factory
+            if util.is_type(factory):
+                # Reference the type
+                value = _mktyperef(factory)
+            else:
+                # Create an instance from the factory and assume that the
+                # resulting instance is a suitable examplar.
+                value = self._flatten(handlers.CloneFactory(factory()))
+            data['default_factory'] = value
 
         return data
 

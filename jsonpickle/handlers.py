@@ -20,6 +20,7 @@ objects that implement the reduce protocol::
 
 """
 
+import copy
 import sys
 import datetime
 import time
@@ -181,3 +182,17 @@ try:
     SimpleReduceHandler.handles(posix.stat_result)
 except ImportError:
     pass
+
+
+class CloneFactory(object):
+    """Serialization proxy for collections.defaultdict's default_factory"""
+
+    def __init__(self, exemplar):
+        self.exemplar = exemplar
+
+    def __call__(self, copy=copy.copy):
+        """Create new instances by making copies of the provided exemplar"""
+        return copy(self.exemplar)
+
+    def __repr__(self):
+        return ('<CloneFactory object at 0x%x (%s)>' % (id(self), self.exemplar))

@@ -125,8 +125,16 @@ class Unpickler(object):
         else:
             return self._restore_object_instance(obj, cls)
 
+    def _loadfactory(self, obj):
+        try:
+            default_factory = obj['default_factory']
+        except KeyError:
+            return None
+        del obj['default_factory']
+        return self._restore(default_factory)
+
     def _restore_object_instance(self, obj, cls):
-        factory = loadfactory(obj)
+        factory = self._loadfactory(obj)
         args = getargs(obj)
         if args:
             args = self._restore(args)
@@ -310,24 +318,6 @@ def loadclass(module_and_name):
         return getattr(sys.modules[module], name)
     except:
         return None
-
-
-def loadfactory(obj):
-    try:
-        default_factory = obj['default_factory']
-    except KeyError:
-        return None
-    try:
-        type_tag = default_factory[tags.TYPE]
-    except:
-        return None
-
-    typeref = loadclass(type_tag)
-    if typeref:
-        del obj['default_factory']
-        return typeref
-
-    return None
 
 
 def getargs(obj):
