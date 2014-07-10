@@ -152,11 +152,13 @@ class Unpickler(object):
         return self._restore_object_instance_variables(obj, instance)
 
     def _restore_object_instance_variables(self, obj, instance):
+        restore_key = self._restore_key_fn()
         for k, v in sorted(obj.items(), key=util.itemgetter):
             # ignore the reserved attribute
             if k in tags.RESERVED:
                 continue
             self._namestack.append(k)
+            k = restore_key(k)
             # step into the namespace
             value = self._restore(v)
             if (util.is_noncomplex(instance) or
