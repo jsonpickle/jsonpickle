@@ -207,15 +207,36 @@ class Unpickler(object):
 
     def _restore_dict(self, obj):
         data = {}
+        restore_key = self._restore_key_fn()
         for k, v in sorted(obj.items(), key=util.itemgetter):
             self._namestack.append(k)
-            if self.keys and k.startswith(tags.JSON_KEY):
-                k = decode(k[len(tags.JSON_KEY):],
-                           backend=self.backend, context=self,
-                           keys=True, reset=False)
+            k = restore_key(k)
             data[k] = self._restore(v)
             self._namestack.pop()
         return data
+
+    def _restore_key_fn(self):
+        """Return a callable that restores keys
+
+        This function is responsible for restoring non-string keys
+        when we are decoding with `keys=True`.
+
+        """
+        # This function is called before entering a tight loop
+        # where the returned function will be called.
+        # We return a specific function after checking self.keys
+        # instead of doing so in the body of the function to
+        # avoid conditional branching inside a tight loop.
+        if self.keys:
+            def restore_key(key):
+                if key.startswith(tags.JSON_KEY):
+                    key = decode(key[len(tags.JSON_KEY):],
+                                 backend=self.backend, context=self,
+                                 keys=True, reset=False)
+                return key
+        else:
+            restore_key = lambda key: key
+        return restore_key
 
     def _refname(self):
         """Calculates the name of the current location in the JSON stack.
