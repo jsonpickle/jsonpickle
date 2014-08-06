@@ -126,12 +126,12 @@ DatetimeHandler.handles(datetime.time)
 
 
 class SimpleReduceHandler(BaseHandler):
-    """
-    Follow the __reduce__ protocol to pickle an object. As long as the factory
-    and its arguments are pickleable, this should pickle any object that
-    implements the reduce protocol.
-    """
+    """Follow the __reduce__ protocol to pickle an object.
 
+    As long as the factory and its arguments are pickleable, this should
+    pickle any object that implements the reduce protocol.
+
+    """
     def flatten(self, obj, data):
         flatten = self.context.flatten
         data['__reduce__'] = [flatten(i, reset=False) for i in obj.__reduce__()]
