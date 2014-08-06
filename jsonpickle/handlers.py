@@ -29,6 +29,7 @@ import decimal
 
 from jsonpickle import util
 from jsonpickle.compat import unicode
+from jsonpickle.compat import queue
 
 
 class Registry(object):
@@ -182,6 +183,22 @@ try:
     SimpleReduceHandler.handles(posix.stat_result)
 except ImportError:
     pass
+
+
+class QueueHandler(BaseHandler):
+    """Opaquely serializes Queue objects
+
+    Queues contains mutex and condition variables which cannot be serialized.
+    Construct a new Queue instance when restoring.
+
+    """
+    def flatten(self, obj, data):
+        return data
+
+    def restore(self, obj):
+        return queue.Queue()
+
+QueueHandler.handles(queue.Queue)
 
 
 class CloneFactory(object):

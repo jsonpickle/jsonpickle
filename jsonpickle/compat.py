@@ -31,3 +31,11 @@ try:
     unichr = unichr
 except NameError:
     unichr = chr
+
+
+try:
+    # Python3
+    import queue
+except ImportError:
+    # Python2
+    import Queue as queue

@@ -7,6 +7,7 @@ import jsonpickle
 from jsonpickle import handlers
 from jsonpickle import tags
 from jsonpickle.compat import unicode
+from jsonpickle.compat import queue
 
 from jsonpickle._samples import (
         BrokenReprThing,
@@ -21,6 +22,7 @@ from jsonpickle._samples import (
         OldStyleClass,
         SetSubclass,
         Thing,
+        ThingWithQueue,
         ThingWithSlots,
         ThingWithInheritedSlots,
         )
@@ -394,6 +396,16 @@ class AdvancedObjectsTestCase(unittest.TestCase):
 
         restored = self.unpickler.restore(flat)
         self.assertEqual(expect, restored)
+
+    def test_thing_with_queue(self):
+        obj = ThingWithQueue()
+        flattened = self.pickler.flatten(obj)
+        restored = self.unpickler.restore(flattened)
+        self.assertEqual(type(restored.child_1), type(queue.Queue()))
+        self.assertEqual(type(restored.child_2), type(queue.Queue()))
+        # Check references
+        self.assertTrue(restored.child_1 is restored.childref_1)
+        self.assertTrue(restored.child_2 is restored.childref_2)
 
 
 # Test classes for ExternalHandlerTestCase

@@ -207,7 +207,7 @@ class Pickler(object):
             if self.unpicklable:
                 data[tags.OBJECT] = '%s.%s' % (module, name)
             # Check for a custom handler
-            handler = handlers.get(type(obj))
+            handler = handlers.get(obj.__class__)
             if handler is not None:
                 return handler(self).flatten(obj, data)
 

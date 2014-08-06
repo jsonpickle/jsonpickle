@@ -11,6 +11,7 @@ import datetime
 
 import jsonpickle
 from jsonpickle.compat import set
+from jsonpickle.compat import queue
 
 
 class Thing(object):
@@ -81,6 +82,15 @@ class ThingWithProps(object):
 
     def __eq__(self, other):
         return self.identity == other.identity
+
+
+class ThingWithQueue(object):
+
+    def __init__(self):
+        self.child_1 = queue.Queue()
+        self.child_2 = queue.Queue()
+        self.childref_1 = self.child_1
+        self.childref_2 = self.child_2
 
 
 class DictSubclass(dict):
@@ -175,6 +185,7 @@ class Document(Node):
 
     def __repr__(self):
         return str(self)
+
 
 class Section(Node):
     def __init__(self, name):
