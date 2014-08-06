@@ -190,9 +190,9 @@ class CloneFactory(object):
     def __init__(self, exemplar):
         self.exemplar = exemplar
 
-    def __call__(self, copy=copy.copy):
+    def __call__(self, clone=copy.copy):
         """Create new instances by making copies of the provided exemplar"""
-        return copy(self.exemplar)
+        return clone(self.exemplar)
 
     def __repr__(self):
         return ('<CloneFactory object at 0x%x (%s)>' % (id(self), self.exemplar))
