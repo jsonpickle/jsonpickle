@@ -1,6 +1,8 @@
 Change Log
 ==========
-Version 0.7.2 - TBD, Summer 2014
+
+Version 0.7.2 - August 6, 2014
+------------------------------
 
     * We now properly serialize classes that inherit from classes
       that use `__slots__` and add additional slots in the derived class.
