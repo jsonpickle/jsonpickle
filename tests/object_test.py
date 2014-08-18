@@ -25,6 +25,7 @@ from jsonpickle._samples import (
         ThingWithQueue,
         ThingWithSlots,
         ThingWithInheritedSlots,
+        ThingWithFunctionRefs,
         )
 
 
@@ -406,6 +407,19 @@ class AdvancedObjectsTestCase(unittest.TestCase):
         # Check references
         self.assertTrue(restored.child_1 is restored.childref_1)
         self.assertTrue(restored.child_2 is restored.childref_2)
+
+    def test_thing_with_func(self):
+        obj = ThingWithFunctionRefs()
+        obj.ref = obj
+        flattened = self.pickler.flatten(obj)
+        restored = self.unpickler.restore(flattened)
+        self.assertTrue(restored.fn1 is restored.fn2)
+
+        expect = 'success'
+        actual = restored.fn1(expect)
+        self.assertEqual(expect, actual)
+
+        self.assertTrue(restored is restored.ref)
 
 
 # Test classes for ExternalHandlerTestCase

@@ -93,6 +93,17 @@ class ThingWithQueue(object):
         self.childref_2 = self.child_2
 
 
+def func(x):
+    return x
+
+
+class ThingWithFunctionRefs(object):
+
+    def __init__(self):
+        self.fn1 = func
+        self.fn2 = func
+
+
 class DictSubclass(dict):
     name = 'Test'
 

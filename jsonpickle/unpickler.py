@@ -83,6 +83,8 @@ class Unpickler(object):
             restore = self._restore_repr
         elif has_tag(obj, tags.OBJECT):
             restore = self._restore_object
+        elif has_tag(obj, tags.FUNCTION):
+            restore = self._restore_function
         elif util.is_list(obj):
             restore = self._restore_list
         elif has_tag(obj, tags.TUPLE):
@@ -124,6 +126,9 @@ class Unpickler(object):
             return self._mkref(instance)
         else:
             return self._restore_object_instance(obj, cls)
+
+    def _restore_function(self, obj):
+        return loadclass(obj[tags.FUNCTION])
 
     def _loadfactory(self, obj):
         try:

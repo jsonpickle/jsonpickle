@@ -196,6 +196,25 @@ def is_function(obj):
                      'method-wrapper'))
 
 
+def is_module_function(obj):
+    """Return True if `obj` is a module-global function
+
+    >>> import os
+    >>> is_module_function(os.path.exists)
+    True
+
+    >>> is_module_function(lambda: None)
+    False
+
+    """
+
+    return (hasattr(obj, '__class__') and
+            obj.__class__ is types.FunctionType and
+            hasattr(obj, '__module__') and
+            hasattr(obj, '__name__') and
+            obj.__name__ != '<lambda>')
+
+
 def is_module(obj):
     """Returns True if passed a module
 
@@ -216,12 +235,15 @@ def is_picklable(name, value):
 
     >>> def foo(): pass
     >>> is_picklable('foo', foo)
+    True
+
+    >>> is_picklable('foo', lambda: None)
     False
 
     """
     if name in tags.RESERVED:
         return False
-    return not is_function(value)
+    return is_module_function(value) or not is_function(value)
 
 
 def is_installed(module):

@@ -175,7 +175,10 @@ class Pickler(object):
         if util.is_object(obj):
             return self._ref_obj_instance
 
-        # else, what else? (methods, functions, old style classes...)
+        if util.is_module_function(obj):
+            return self._flatten_function
+
+        # instance methods, lambdas, old style classes...
         return None
 
     def _ref_obj_instance(self, obj):
@@ -245,6 +248,15 @@ class Pickler(object):
 
         if has_slots:
             return self._flatten_newstyle_with_slots(obj, data)
+
+    def _flatten_function(self, obj):
+        if self.unpicklable:
+            data = {tags.FUNCTION: '%s.%s' % (obj.__module__, obj.__name__)}
+        else:
+            data = None
+
+        return data
+
 
     def _flatten_dict_obj(self, obj, data=None):
         """Recursively call flatten() and return json-friendly dict
@@ -354,3 +366,8 @@ def _getclassdetail(obj):
     module = getattr(cls, '__module__')
     name = getattr(cls, '__name__')
     return util.translate_module_name(module), name
+
+def _getfunctiondetail(fn):
+    module = fn.__module__
+    name = fn.__name__
+    return module, name

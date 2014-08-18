@@ -17,7 +17,8 @@ TUPLE = 'py/tuple'
 SET = 'py/set'
 SEQ = 'py/seq'
 STATE = 'py/state'
+FUNCTION = 'py/function'
 JSON_KEY = 'json://'
 
 # All reserved tag names
-RESERVED = set([OBJECT, TYPE, REPR, REF, TUPLE, SET, SEQ, STATE])
+RESERVED = set([OBJECT, TYPE, REPR, REF, TUPLE, SET, SEQ, STATE, FUNCTION])

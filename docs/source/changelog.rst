@@ -1,5 +1,11 @@
 Change Log
 ==========
+Version 0.8.0 - TBD, Fall 2014
+------------------------------
+
+    * We now support serializing objects that contain references to
+      module-level functions
+      (`#77 <https://github.com/jsonpickle/jsonpickle/issues/77>`_).
 
 Version 0.7.2 - August 6, 2014
 ------------------------------
