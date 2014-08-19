@@ -326,6 +326,11 @@ def loadclass(module_and_name):
 
 
 def getargs(obj):
+
+    # let saved newargs take precedence over everything
+    if has_tag(obj, tags.NEWARGS):
+        return obj[tags.NEWARGS]
+
     try:
         seq_list = obj[tags.SEQ]
         obj_dict = obj[tags.OBJECT]

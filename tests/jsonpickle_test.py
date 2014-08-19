@@ -10,6 +10,7 @@
 import doctest
 import os
 import unittest
+import collections
 
 import jsonpickle
 
@@ -585,6 +586,43 @@ class JSONPickleTestCase(unittest.TestCase):
         self.assertEqual(decoded.a[1][0:3], '[1,')
         self.assertEqual(decoded.a[2][0][0:3], '[1,')
 
+class PicklableNamedTuple(object):
+    """
+    A picklable namedtuple wrapper, to demonstrate the need
+    for protocol 2 compatibility. Yes, this is contrived in
+    its use of new, but it demonstrates the issue.
+    """
+
+    def __new__(cls, propnames, vals):
+        # it's necessary to use the correct class name for class resolution
+        # classes that fake their own names may never be unpicklable
+        ntuple = collections.namedtuple(cls.__name__, propnames)
+        ntuple.__getnewargs__ = (lambda self: (propnames, vals))
+        instance = ntuple.__new__(ntuple, *vals)
+        return instance
+
+class PicklingProtocol2TestCase(unittest.TestCase):
+
+    def test_pickle_newargs(self):
+        """
+        Ensure we can pickle and unpickle an object whose class needs arguments
+        to __new__ and get back the same typle
+        """
+        instance = PicklableNamedTuple(('a', 'b'), (1, 2))
+        encoded = jsonpickle.encode(instance)
+        decoded = jsonpickle.decode(encoded)
+        self.assertEqual(instance, decoded)
+
+    def test_validate_reconstruct_by_newargs(self):
+        """
+        Ensure that the exemplar tuple's __getnewargs__ works
+        This is necessary to know whether the breakage exists 
+        in jsonpickle or not
+        """
+        instance = PicklableNamedTuple(('a', 'b'), (1, 2))
+        newinstance = PicklableNamedTuple.__new__(PicklableNamedTuple, 
+                                                 *(instance.__getnewargs__()))
+        self.assertEqual(instance, newinstance)
 
 def suite():
     suite = unittest.TestSuite()
