@@ -603,7 +603,7 @@ class PicklableNamedTuple(object):
         return instance
 
 
-class PickleProtocal2Thing(object):
+class PickleProtocol2Thing(object):
 
     def __init__(self, *args):
         self.args = args
@@ -636,20 +636,20 @@ class PicklingProtocol2TestCase(unittest.TestCase):
         self.assertEqual(instance, newinstance)
 
     def test_handles_nested_objects(self):
-        child = PickleProtocal2Thing(None)
-        instance = PickleProtocal2Thing(child, child)
+        child = PickleProtocol2Thing(None)
+        instance = PickleProtocol2Thing(child, child)
 
         encoded = jsonpickle.encode(instance)
         decoded = jsonpickle.decode(encoded)
 
-        self.assertEqual(PickleProtocal2Thing, decoded.__class__)
-        self.assertEqual(PickleProtocal2Thing, decoded.args[0].__class__)
-        self.assertEqual(PickleProtocal2Thing, decoded.args[1].__class__)
+        self.assertEqual(PickleProtocol2Thing, decoded.__class__)
+        self.assertEqual(PickleProtocol2Thing, decoded.args[0].__class__)
+        self.assertEqual(PickleProtocol2Thing, decoded.args[1].__class__)
         self.assertTrue(decoded.args[0] is decoded.args[1])
 
     def test_handles_cyclical_objects(self):
-        child = PickleProtocal2Thing(None)
-        instance = PickleProtocal2Thing(child, child)
+        child = PickleProtocol2Thing(None)
+        instance = PickleProtocol2Thing(child, child)
         child.args = (instance,) # create a cycle
         # TODO we do not properly restore references inside of lists.
         # Change the above tuple into a list to show the breakage.
@@ -658,14 +658,14 @@ class PicklingProtocol2TestCase(unittest.TestCase):
         decoded = jsonpickle.decode(encoded)
 
         # Ensure the right objects were constructed
-        self.assertEqual(PickleProtocal2Thing, decoded.__class__)
-        self.assertEqual(PickleProtocal2Thing, decoded.args[0].__class__)
-        self.assertEqual(PickleProtocal2Thing, decoded.args[1].__class__)
-        self.assertEqual(PickleProtocal2Thing, decoded.args[0].args[0].__class__)
-        self.assertEqual(PickleProtocal2Thing, decoded.args[1].args[0].__class__)
+        self.assertEqual(PickleProtocol2Thing, decoded.__class__)
+        self.assertEqual(PickleProtocol2Thing, decoded.args[0].__class__)
+        self.assertEqual(PickleProtocol2Thing, decoded.args[1].__class__)
+        self.assertEqual(PickleProtocol2Thing, decoded.args[0].args[0].__class__)
+        self.assertEqual(PickleProtocol2Thing, decoded.args[1].args[0].__class__)
 
         # It's turtles all the way down
-        self.assertEqual(PickleProtocal2Thing, decoded.args[0].args[0]
+        self.assertEqual(PickleProtocol2Thing, decoded.args[0].args[0]
                                                       .args[0].args[0]
                                                       .args[0].args[0]
                                                       .args[0].args[0]
