@@ -8,18 +8,31 @@ that need to be specially handled.
 """
 from jsonpickle.compat import set
 
+
+FUNCTION = 'py/function'
 ID = 'py/id'
+JSON_KEY = 'json://'
+NEWARGS = 'py/newargs'
 OBJECT = 'py/object'
-TYPE = 'py/type'
 REPR = 'py/repr'
 REF = 'py/ref'
-TUPLE = 'py/tuple'
+STATE = 'py/state'
 SET = 'py/set'
 SEQ = 'py/seq'
-STATE = 'py/state'
-FUNCTION = 'py/function'
-NEWARGS = 'py/newargs'
-JSON_KEY = 'json://'
+TUPLE = 'py/tuple'
+TYPE = 'py/type'
 
 # All reserved tag names
-RESERVED = set([OBJECT, TYPE, REPR, REF, TUPLE, SET, SEQ, STATE, FUNCTION, NEWARGS])
+RESERVED = set([
+    FUNCTION,
+    ID,
+    NEWARGS,
+    OBJECT,
+    REF,
+    REPR,
+    SEQ,
+    SET,
+    STATE,
+    TUPLE,
+    TYPE,
+])
