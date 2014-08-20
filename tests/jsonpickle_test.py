@@ -647,6 +647,39 @@ class PicklingProtocol2TestCase(unittest.TestCase):
         self.assertEqual(PickleProtocal2Thing, decoded.args[1].__class__)
         self.assertTrue(decoded.args[0] is decoded.args[1])
 
+    def test_handles_cyclical_objects(self):
+        child = PickleProtocal2Thing(None)
+        instance = PickleProtocal2Thing(child, child)
+        child.args = (instance,) # create a cycle
+        # TODO we do not properly restore references inside of lists.
+        # Change the above tuple into a list to show the breakage.
+
+        encoded = jsonpickle.encode(instance)
+        decoded = jsonpickle.decode(encoded)
+
+        # Ensure the right objects were constructed
+        self.assertEqual(PickleProtocal2Thing, decoded.__class__)
+        self.assertEqual(PickleProtocal2Thing, decoded.args[0].__class__)
+        self.assertEqual(PickleProtocal2Thing, decoded.args[1].__class__)
+        self.assertEqual(PickleProtocal2Thing, decoded.args[0].args[0].__class__)
+        self.assertEqual(PickleProtocal2Thing, decoded.args[1].args[0].__class__)
+
+        # It's turtles all the way down
+        self.assertEqual(PickleProtocal2Thing, decoded.args[0].args[0]
+                                                      .args[0].args[0]
+                                                      .args[0].args[0]
+                                                      .args[0].args[0]
+                                                      .args[0].args[0]
+                                                      .args[0].args[0]
+                                                      .args[0].args[0]
+                                                      .args[0].__class__)
+        # Ensure that references are properly constructed
+        self.assertTrue(decoded.args[0] is decoded.args[1])
+        self.assertTrue(decoded is decoded.args[0].args[0])
+        self.assertTrue(decoded is decoded.args[1].args[0])
+        self.assertTrue(decoded.args[0] is decoded.args[0].args[0].args[0])
+        self.assertTrue(decoded.args[0] is decoded.args[0].args[1].args[0])
+
 
 def suite():
     suite = unittest.TestSuite()
