@@ -200,6 +200,7 @@ class Pickler(object):
         has_class = hasattr(obj, '__class__')
         has_dict = hasattr(obj, '__dict__')
         has_slots = not has_dict and hasattr(obj, '__slots__')
+        has_getnewargs = hasattr(obj, '__getnewargs__')
 
         # Support objects with __getstate__(); this ensures that
         # both __setstate__() and __getstate__() are implemented
@@ -213,6 +214,9 @@ class Pickler(object):
             handler = handlers.get(obj.__class__)
             if handler is not None:
                 return handler(self).flatten(obj, data)
+
+            if has_getnewargs:
+                data[tags.NEWARGS] = obj.__getnewargs__()
 
         if util.is_module(obj):
             if self.unpicklable:
