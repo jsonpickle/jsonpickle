@@ -612,6 +612,15 @@ class PickleProtocol2Thing(object):
         return self.args
 
 
+class PickleProtocol2ChildThing(object):
+
+    def __init__(self, child):
+        self.child = child
+
+    def __getnewargs__(self):
+        return ([self.child],)
+
+
 class PicklingProtocol2TestCase(unittest.TestCase):
 
     def test_pickle_newargs(self):
@@ -679,6 +688,17 @@ class PicklingProtocol2TestCase(unittest.TestCase):
         self.assertTrue(decoded is decoded.args[1].args[0])
         self.assertTrue(decoded.args[0] is decoded.args[0].args[0].args[0])
         self.assertTrue(decoded.args[0] is decoded.args[0].args[1].args[0])
+
+    def test_handles_cyclical_objects_in_lists(self):
+        child = PickleProtocol2ChildThing(None)
+        instance = PickleProtocol2ChildThing([child, child])
+        child.child = instance # create a cycle
+
+        encoded = jsonpickle.encode(instance)
+        decoded = jsonpickle.decode(encoded)
+
+        self.assertTrue(decoded is decoded.child[0].child)
+        self.assertTrue(decoded is decoded.child[1].child)
 
 
 def suite():

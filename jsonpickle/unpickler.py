@@ -64,6 +64,14 @@ class _Proxy(object):
         self.instance = None
 
 
+def _obj_setattr(obj, attr, proxy):
+    setattr(obj, attr, proxy.instance)
+
+
+def _obj_setvalue(obj, idx, proxy):
+    obj[idx] = proxy.instance
+
+
 class Unpickler(object):
 
     def __init__(self, backend=None, keys=False, safe=False):
@@ -112,8 +120,8 @@ class Unpickler(object):
 
     def _finalize(self):
         """Replace proxies with their corresponding instances"""
-        for (obj, attr, proxy) in self._proxies:
-            setattr(obj, attr, proxy.instance)
+        for (obj, attr, proxy, method) in self._proxies:
+            method(obj, attr, proxy)
 
     def _restore(self, obj):
         if has_tag(obj, tags.ID):
@@ -217,6 +225,7 @@ class Unpickler(object):
 
     def _restore_object_instance_variables(self, obj, instance):
         restore_key = self._restore_key_fn()
+        method = _obj_setattr
         for k, v in sorted(obj.items(), key=util.itemgetter):
             # ignore the reserved attribute
             if k in tags.RESERVED:
@@ -234,7 +243,7 @@ class Unpickler(object):
             # This instance has an instance variable named `k` that is
             # currently a proxy and must be replaced
             if type(value) is _Proxy:
-                self._proxies.append((instance, k, value))
+                self._proxies.append((instance, k, value, method))
 
             # step out
             self._namestack.pop()
@@ -269,6 +278,11 @@ class Unpickler(object):
         self._mkref(parent)
         children = [self._restore(v) for v in obj]
         parent.extend(children)
+        method = _obj_setvalue
+        proxies = [(parent, idx, value, method)
+                    for idx, value in enumerate(parent)
+                        if type(value) is _Proxy]
+        self._proxies.extend(proxies)
         return parent
 
     def _restore_tuple(self, obj):
