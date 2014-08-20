@@ -586,6 +586,7 @@ class JSONPickleTestCase(unittest.TestCase):
         self.assertEqual(decoded.a[1][0:3], '[1,')
         self.assertEqual(decoded.a[2][0][0:3], '[1,')
 
+
 class PicklableNamedTuple(object):
     """
     A picklable namedtuple wrapper, to demonstrate the need
@@ -600,6 +601,16 @@ class PicklableNamedTuple(object):
         ntuple.__getnewargs__ = (lambda self: (propnames, vals))
         instance = ntuple.__new__(ntuple, *vals)
         return instance
+
+
+class PickleProtocal2Thing(object):
+
+    def __init__(self, *args):
+        self.args = args
+
+    def __getnewargs__(self):
+        return self.args
+
 
 class PicklingProtocol2TestCase(unittest.TestCase):
 
@@ -616,17 +627,31 @@ class PicklingProtocol2TestCase(unittest.TestCase):
     def test_validate_reconstruct_by_newargs(self):
         """
         Ensure that the exemplar tuple's __getnewargs__ works
-        This is necessary to know whether the breakage exists 
+        This is necessary to know whether the breakage exists
         in jsonpickle or not
         """
         instance = PicklableNamedTuple(('a', 'b'), (1, 2))
-        newinstance = PicklableNamedTuple.__new__(PicklableNamedTuple, 
+        newinstance = PicklableNamedTuple.__new__(PicklableNamedTuple,
                                                  *(instance.__getnewargs__()))
         self.assertEqual(instance, newinstance)
+
+    def test_handles_nested_objects(self):
+        child = PickleProtocal2Thing(None)
+        instance = PickleProtocal2Thing(child, child)
+
+        encoded = jsonpickle.encode(instance)
+        decoded = jsonpickle.decode(encoded)
+
+        self.assertEqual(PickleProtocal2Thing, decoded.__class__)
+        self.assertEqual(PickleProtocal2Thing, decoded.args[0].__class__)
+        self.assertEqual(PickleProtocal2Thing, decoded.args[1].__class__)
+        self.assertTrue(decoded.args[0] is decoded.args[1])
+
 
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(PicklingTestCase))
+    suite.addTest(unittest.makeSuite(PicklingProtocol2TestCase))
     suite.addTest(unittest.makeSuite(JSONPickleTestCase))
     suite.addTest(doctest.DocTestSuite(jsonpickle.pickler))
     suite.addTest(doctest.DocTestSuite(jsonpickle.unpickler))

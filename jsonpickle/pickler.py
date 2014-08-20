@@ -216,7 +216,7 @@ class Pickler(object):
                 return handler(self).flatten(obj, data)
 
             if has_getnewargs:
-                data[tags.NEWARGS] = obj.__getnewargs__()
+                data[tags.NEWARGS] = self._flatten(obj.__getnewargs__())
 
         if util.is_module(obj):
             if self.unpicklable:

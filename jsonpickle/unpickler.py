@@ -32,6 +32,38 @@ def _make_backend(backend):
         return backend
 
 
+class _Proxy(object):
+    """Proxies are dummy objects that are later replaced by real instances
+
+    The `restore()` function has to solve a tricky problem when pickling
+    objects with cyclical references -- the parent instance does not yet
+    exist.
+
+    The problem is that `__getnewargs__()`, `__getstate__()`, custom handlers,
+    and cyclical objects graphs are allowed to reference the yet-to-be-created
+    object via the referencing machinery.
+
+    In other words, objects are allowed to depend on themselves for
+    construction!
+
+    We solve this problem by placing dummy Proxy objects into the referencing
+    machinery so that we can construct the child objects before constructing
+    the parent.  Objects are initially created with Proxy attribute values
+    instead of real references.
+
+    We collect all objects that contain references to proxies and run
+    a final sweep over them to swap in the real instance.  This is done
+    at the very end of the top-level `restore()`.
+
+    The `instance` attribute below is replaced with the real instance
+    after `__new__()` has been used to construct the object and is used
+    when swapping proxies with real instances.
+
+    """
+    def __init__(self):
+        self.instance = None
+
+
 class Unpickler(object):
 
     def __init__(self, backend=None, keys=False, safe=False):
@@ -48,6 +80,7 @@ class Unpickler(object):
         ## Maps objects to their index in the _objs list
         self._obj_to_idx = {}
         self._objs = []
+        self._proxies = []
 
     def reset(self):
         """Resets the object's internal state.
@@ -56,6 +89,7 @@ class Unpickler(object):
         self._namestack = []
         self._obj_to_idx = {}
         self._objs = []
+        self._proxies = []
 
     def restore(self, obj, reset=True):
         """Restores a flattened object to its original python state.
@@ -70,7 +104,16 @@ class Unpickler(object):
         """
         if reset:
             self.reset()
-        return self._restore(obj)
+        value = self._restore(obj)
+        if reset:
+            self._finalize()
+
+        return value
+
+    def _finalize(self):
+        """Replace proxies with their corresponding instances"""
+        for (obj, attr, proxy) in self._proxies:
+            setattr(obj, attr, proxy.instance)
 
     def _restore(self, obj):
         if has_tag(obj, tags.ID):
@@ -141,6 +184,12 @@ class Unpickler(object):
     def _restore_object_instance(self, obj, cls):
         factory = self._loadfactory(obj)
         args = getargs(obj)
+
+        # This is a placeholder proxy object which allows child objects to
+        # reference the parent object before it has been instantiated.
+        proxy = _Proxy()
+        self._mkref(proxy)
+
         if args:
             args = self._restore(args)
         try:
@@ -158,7 +207,9 @@ class Unpickler(object):
             except TypeError: # fail gracefully
                 return self._mkref(obj)
 
-        self._mkref(instance) # allow references in downstream objects
+        proxy.instance = instance
+        self._swapref(proxy, instance)
+
         if isinstance(instance, tuple):
             return instance
 
@@ -179,6 +230,12 @@ class Unpickler(object):
                 instance[k] = value
             else:
                 setattr(instance, k, value)
+
+            # This instance has an instance variable named `k` that is
+            # currently a proxy and must be replaced
+            if type(value) is _Proxy:
+                self._proxies.append((instance, k, value))
+
             # step out
             self._namestack.pop()
 
@@ -302,6 +359,16 @@ class Unpickler(object):
             self._namedict[self._refname()] = obj
         return obj
 
+    def _swapref(self, proxy, instance):
+        proxy_id = id(proxy)
+        instance_id = id(instance)
+
+        self._obj_to_idx[instance_id] = self._obj_to_idx[proxy_id]
+        del self._obj_to_idx[proxy_id]
+
+        self._objs[-1] = instance
+        self._namedict[self._refname()] = instance
+
 
 def loadclass(module_and_name):
     """Loads the module and returns the class.
@@ -326,11 +393,10 @@ def loadclass(module_and_name):
 
 
 def getargs(obj):
-
-    # let saved newargs take precedence over everything
+    """Return arguments suitable for __new__()"""
+    # Let saved newargs take precedence over everything
     if has_tag(obj, tags.NEWARGS):
         return obj[tags.NEWARGS]
-
     try:
         seq_list = obj[tags.SEQ]
         obj_dict = obj[tags.OBJECT]
