@@ -263,14 +263,30 @@ class Unpickler(object):
         return instance
 
     def _restore_state(self, obj, instance):
+        state = self._restore(obj[tags.STATE])
+        has_slots = (isinstance(state, tuple) and len(state) == 2 
+                     and isinstance(state[1], dict))
+        has_slots_and_dict = has_slots and isinstance(state[0], dict)
         if hasattr(instance, '__setstate__'):
-            state = self._restore(obj[tags.STATE])
             instance.__setstate__(state)
-        else:
+        elif isinstance(state, dict):
+            # implements described default handling
+            # of state for object with instance dict
+            # and no slots
+            for k, v in sorted(state.items(), key=util.itemgetter):
+                setattr(instance, k, v)
+        elif has_slots:
+            for k, v in sorted(state[1].items(), key=util.itemgetter):
+                setattr(instance, k, v)
+            if has_slots_and_dict:
+                for k, v in sorted(state[0].items(), key=util.itemgetter):
+                    setattr(instance, k, v)
+        elif not hasattr(instance, '__getnewargs__'):
             # __setstate__ is not implemented so that means that the best
             # we can do is return the result of __getstate__() rather than
             # return an empty shell of an object.
-            instance = self._restore(obj[tags.STATE])
+            # However, if there were newargs, it's not an empty shell
+            instance = state
         return instance
 
     def _restore_list(self, obj):

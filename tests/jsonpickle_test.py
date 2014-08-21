@@ -611,6 +611,38 @@ class PickleProtocol2Thing(object):
     def __getnewargs__(self):
         return self.args
 
+class PickleProtocol2GetState(PickleProtocol2Thing):
+    def __new__(cls, *args):
+        instance = super(PickleProtocol2GetState, cls).__new__(cls, *args)
+        instance.newargs = args
+        return instance
+
+    def __getstate__(self):
+        return "I am magic"
+
+class PickleProtocol2GetStateDict(PickleProtocol2Thing):
+    def __getstate__(self):
+        return {'magic': True}
+
+class PickleProtocol2GetStateSlots(PickleProtocol2Thing):
+    def __getstate__(self):
+        return (None, {'slotmagic': True})
+
+class PickleProtocol2GetStateSlotsDict(PickleProtocol2Thing):
+    def __getstate__(self):
+        return ({'dictmagic': True}, {'slotmagic': True})
+
+
+class PickleProtocol2GetSetState(PickleProtocol2GetState):
+    def __setstate__(self, state):
+        """
+        Contrived example, easy to test
+        """
+        if state == "I am magic":
+            self.magic = True
+        else:
+            self.magic = False
+
 
 class PickleProtocol2ChildThing(object):
 
@@ -643,6 +675,59 @@ class PicklingProtocol2TestCase(unittest.TestCase):
         newinstance = PicklableNamedTuple.__new__(PicklableNamedTuple,
                                                  *(instance.__getnewargs__()))
         self.assertEqual(instance, newinstance)
+
+    def test_getnewargs_priority(self):
+        """
+        Ensure newargs are used before py/state when decoding
+        (As per PEP 307, classes are not supposed to implement
+        all three magic methods)
+        """
+        instance = PickleProtocol2GetState('whatevs')
+        encoded = jsonpickle.encode(instance)
+        decoded = jsonpickle.decode(encoded)
+        self.assertEqual(decoded.newargs, ('whatevs',))
+
+    def test_restore_dict_state(self):
+        """
+        Ensure that if getstate returns a dict, and there is no custom
+        __setstate__, the dict is used as a source of variables to restore
+        """
+        instance = PickleProtocol2GetStateDict('whatevs')
+        encoded = jsonpickle.encode(instance)
+        decoded = jsonpickle.decode(encoded)
+        self.assertTrue(decoded.magic)
+
+    def test_restore_slots_state(self):
+        """
+        Ensure that if getstate returns a 2-tuple with a dict in the second
+        position, and there is no custom __setstate__, the dict is used as a
+        source of variables to restore
+        """
+        instance = PickleProtocol2GetStateSlots('whatevs')
+        encoded = jsonpickle.encode(instance)
+        decoded = jsonpickle.decode(encoded)
+        self.assertTrue(decoded.slotmagic)
+
+    def test_restore_slots_state(self):
+        """
+        Ensure that if getstate returns a 2-tuple with a dict in both positions,
+        and there is no custom __setstate__, the dicts are used as a source of
+        variables to restore
+        """
+        instance = PickleProtocol2GetStateSlotsDict('whatevs')
+        encoded = jsonpickle.encode(instance)
+        decoded = jsonpickle.decode(encoded)
+        self.assertTrue(decoded.slotmagic)
+        self.assertTrue(decoded.dictmagic)
+
+    def test_setstate(self):
+        """
+        Ensure output of getstate is passed to setstate
+        """
+        instance = PickleProtocol2GetSetState('whatevs')
+        encoded = jsonpickle.encode(instance)
+        decoded = jsonpickle.decode(encoded)
+        self.assertTrue(decoded.magic)
 
     def test_handles_nested_objects(self):
         child = PickleProtocol2Thing(None)
