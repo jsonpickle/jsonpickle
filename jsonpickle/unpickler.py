@@ -223,12 +223,13 @@ class Unpickler(object):
 
         return self._restore_object_instance_variables(obj, instance)
 
-    def _restore_object_instance_variables(self, obj, instance):
+    def _restore_from_dict(self, obj, instance, ignorereserved=True):
         restore_key = self._restore_key_fn()
         method = _obj_setattr
+
         for k, v in sorted(obj.items(), key=util.itemgetter):
             # ignore the reserved attribute
-            if k in tags.RESERVED:
+            if ignorereserved and k in tags.RESERVED:
                 continue
             self._namestack.append(k)
             k = restore_key(k)
@@ -247,6 +248,10 @@ class Unpickler(object):
 
             # step out
             self._namestack.pop()
+        
+
+    def _restore_object_instance_variables(self, obj, instance):
+        self._restore_from_dict(obj, instance)
 
         # Handle list and set subclasses
         if has_tag(obj, tags.SEQ):
@@ -263,14 +268,28 @@ class Unpickler(object):
         return instance
 
     def _restore_state(self, obj, instance):
+        state = self._restore(obj[tags.STATE])
+        has_slots = (isinstance(state, tuple) and len(state) == 2 
+                     and isinstance(state[1], dict))
+        has_slots_and_dict = has_slots and isinstance(state[0], dict)
         if hasattr(instance, '__setstate__'):
-            state = self._restore(obj[tags.STATE])
             instance.__setstate__(state)
-        else:
+        elif isinstance(state, dict):
+            # implements described default handling
+            # of state for object with instance dict
+            # and no slots
+            self._restore_from_dict(state, instance, ignorereserved=False)
+        elif has_slots:
+            self._restore_from_dict(state[1], instance, ignorereserved=False)
+            if has_slots_and_dict:
+                self._restore_from_dict(state[0], 
+                                        instance, ignorereserved=False)
+        elif not hasattr(instance, '__getnewargs__'):
             # __setstate__ is not implemented so that means that the best
             # we can do is return the result of __getstate__() rather than
             # return an empty shell of an object.
-            instance = self._restore(obj[tags.STATE])
+            # However, if there were newargs, it's not an empty shell
+            instance = state
         return instance
 
     def _restore_list(self, obj):

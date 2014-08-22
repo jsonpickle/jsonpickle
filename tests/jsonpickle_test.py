@@ -611,6 +611,62 @@ class PickleProtocol2Thing(object):
     def __getnewargs__(self):
         return self.args
 
+    def __eq__(self, other):
+        """
+        WIthout this, PickleProtocol2Thing(u'slotmagic') != 
+                      PickleProtocol2Thing(u'slotmagic')
+        """
+
+        if (self.__dict__ == other.__dict__ and 
+            dir(self) == dir(other)):
+            for prop in dir(self):
+                selfprop = getattr(self, prop)
+                if (not isinstance(selfprop, collections.Callable) and
+                    prop[0] != '_'):
+                    if selfprop != getattr(other, prop):
+                        return False
+            return True
+        else:
+            return False
+            
+
+
+# these two instances are used below and in tests
+slotmagic = PickleProtocol2Thing(u'slotmagic')
+dictmagic = PickleProtocol2Thing(u'dictmagic')
+
+class PickleProtocol2GetState(PickleProtocol2Thing):
+    def __new__(cls, *args):
+        instance = super(PickleProtocol2GetState, cls).__new__(cls, *args)
+        instance.newargs = args
+        return instance
+
+    def __getstate__(self):
+        return "I am magic"
+
+class PickleProtocol2GetStateDict(PickleProtocol2Thing):
+    def __getstate__(self):
+        return {'magic': True}
+
+class PickleProtocol2GetStateSlots(PickleProtocol2Thing):
+    def __getstate__(self):
+        return (None, {'slotmagic': slotmagic})
+
+class PickleProtocol2GetStateSlotsDict(PickleProtocol2Thing):
+    def __getstate__(self):
+        return ({'dictmagic': dictmagic}, {'slotmagic': slotmagic})
+
+
+class PickleProtocol2GetSetState(PickleProtocol2GetState):
+    def __setstate__(self, state):
+        """
+        Contrived example, easy to test
+        """
+        if state == "I am magic":
+            self.magic = True
+        else:
+            self.magic = False
+
 
 class PickleProtocol2ChildThing(object):
 
@@ -643,6 +699,64 @@ class PicklingProtocol2TestCase(unittest.TestCase):
         newinstance = PicklableNamedTuple.__new__(PicklableNamedTuple,
                                                  *(instance.__getnewargs__()))
         self.assertEqual(instance, newinstance)
+
+    def test_getnewargs_priority(self):
+        """
+        Ensure newargs are used before py/state when decoding
+        (As per PEP 307, classes are not supposed to implement
+        all three magic methods)
+        """
+        instance = PickleProtocol2GetState('whatevs')
+        encoded = jsonpickle.encode(instance)
+        decoded = jsonpickle.decode(encoded)
+        self.assertEqual(decoded.newargs, ('whatevs',))
+
+    def test_restore_dict_state(self):
+        """
+        Ensure that if getstate returns a dict, and there is no custom
+        __setstate__, the dict is used as a source of variables to restore
+        """
+        instance = PickleProtocol2GetStateDict('whatevs')
+        encoded = jsonpickle.encode(instance)
+        decoded = jsonpickle.decode(encoded)
+        self.assertTrue(decoded.magic)
+
+    def test_restore_slots_state(self):
+        """
+        Ensure that if getstate returns a 2-tuple with a dict in the second
+        position, and there is no custom __setstate__, the dict is used as a
+        source of variables to restore
+        """
+        instance = PickleProtocol2GetStateSlots('whatevs')
+        encoded = jsonpickle.encode(instance)
+        decoded = jsonpickle.decode(encoded)
+        self.assertEqual(decoded.slotmagic.__dict__, slotmagic.__dict__)
+        self.assertEqual(decoded.slotmagic, slotmagic)
+
+    def test_restore_slots_dict_state(self):
+        """
+        Ensure that if getstate returns a 2-tuple with a dict in both positions,
+        and there is no custom __setstate__, the dicts are used as a source of
+        variables to restore
+        """
+        instance = PickleProtocol2GetStateSlotsDict('whatevs')
+        encoded = jsonpickle.encode(instance)
+        decoded = jsonpickle.decode(encoded)
+        # Unfortunately PickleProtocol2Thing instances don't test equal to each
+        # other, so we can't just use assertEqual on the instances
+        assert PickleProtocol2Thing(u'slotmagic') == PickleProtocol2Thing(u'slotmagic')
+        self.assertEqual(decoded.slotmagic.__dict__, slotmagic.__dict__)
+        self.assertEqual(decoded.slotmagic, slotmagic)
+        self.assertEqual(decoded.dictmagic, dictmagic)
+
+    def test_setstate(self):
+        """
+        Ensure output of getstate is passed to setstate
+        """
+        instance = PickleProtocol2GetSetState('whatevs')
+        encoded = jsonpickle.encode(instance)
+        decoded = jsonpickle.decode(encoded)
+        self.assertTrue(decoded.magic)
 
     def test_handles_nested_objects(self):
         child = PickleProtocol2Thing(None)
