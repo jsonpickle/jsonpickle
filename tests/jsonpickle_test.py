@@ -628,12 +628,11 @@ class PickleProtocol2Thing(object):
             return True
         else:
             return False
-            
 
 
 # these two instances are used below and in tests
-slotmagic = PickleProtocol2Thing(u'slotmagic')
-dictmagic = PickleProtocol2Thing(u'dictmagic')
+slotmagic = PickleProtocol2Thing('slotmagic')
+dictmagic = PickleProtocol2Thing('dictmagic')
 
 class PickleProtocol2GetState(PickleProtocol2Thing):
     def __new__(cls, *args):
@@ -744,7 +743,8 @@ class PicklingProtocol2TestCase(unittest.TestCase):
         decoded = jsonpickle.decode(encoded)
         # Unfortunately PickleProtocol2Thing instances don't test equal to each
         # other, so we can't just use assertEqual on the instances
-        assert PickleProtocol2Thing(u'slotmagic') == PickleProtocol2Thing(u'slotmagic')
+        self.assertTrue(PickleProtocol2Thing('slotmagic') ==
+                        PickleProtocol2Thing('slotmagic'))
         self.assertEqual(decoded.slotmagic.__dict__, slotmagic.__dict__)
         self.assertEqual(decoded.slotmagic, slotmagic)
         self.assertEqual(decoded.dictmagic, dictmagic)
