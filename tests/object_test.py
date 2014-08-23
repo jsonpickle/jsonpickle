@@ -23,10 +23,42 @@ from jsonpickle._samples import (
         SetSubclass,
         Thing,
         ThingWithQueue,
-        ThingWithSlots,
-        ThingWithInheritedSlots,
         ThingWithFunctionRefs,
         )
+
+
+class ThingWithSlots(object):
+
+    __slots__ = ('a', 'b')
+
+    def __init__(self, a, b):
+        self.a = a
+        self.b = b
+
+
+class ThingWithInheritedSlots(ThingWithSlots):
+
+    __slots__ = ('c',)
+
+    def __init__(self, a, b, c):
+        ThingWithSlots.__init__(self, a, b)
+        self.c = c
+
+
+class ThingWithIterableSlots(object):
+
+    __slots__ = iter('ab')
+
+    def __init__(self, a, b):
+        self.a = a
+        self.b = b
+
+
+class ThingWithStringSlots(object):
+    __slots__ = 'ab'
+
+    def __init__(self, a, b):
+        self.ab = a + b
 
 
 class AdvancedObjectsTestCase(unittest.TestCase):
@@ -121,6 +153,36 @@ class AdvancedObjectsTestCase(unittest.TestCase):
         self.assertTrue(type(decoded) is collections.Counter)
         self.assertEqual(decoded.get(1), 2)
 
+    def test_list_with_fd(self):
+        fd = open(__file__, 'r')
+        fd.close()
+        obj = [fd]
+        jsonstr = jsonpickle.encode(obj)
+        newobj = jsonpickle.decode(jsonstr)
+        self.assertEqual([None], newobj)
+
+    def test_thing_with_fd(self):
+        fd = open(__file__, 'r')
+        fd.close()
+        obj = Thing(fd)
+        jsonstr = jsonpickle.encode(obj)
+        newobj = jsonpickle.decode(jsonstr)
+        self.assertEqual(None, newobj.child)
+
+    def test_dict_with_fd(self):
+        fd = open(__file__, 'r')
+        fd.close()
+        obj = {'fd': fd}
+        jsonstr = jsonpickle.encode(obj)
+        newobj = jsonpickle.decode(jsonstr)
+        self.assertEqual(None, newobj['fd'])
+
+    def test_thing_with_lamda(self):
+        obj = Thing(lambda: True)
+        jsonstr = jsonpickle.encode(obj)
+        newobj = jsonpickle.decode(jsonstr)
+        self.assertEqual(None, newobj.child)
+
     def test_newstyleslots(self):
         obj = ThingWithSlots(True, False)
         jsonstr = jsonpickle.encode(obj)
@@ -159,6 +221,19 @@ class AdvancedObjectsTestCase(unittest.TestCase):
         self.assertEqual(newobj.a.name, 'a')
         self.assertEqual(newobj.b.name, 'b')
         self.assertEqual(newobj.c.name, 'c')
+
+    def test_newstyleslots_iterable(self):
+        obj = ThingWithIterableSlots('a', 'b')
+        jsonstr = jsonpickle.encode(obj)
+        newobj = jsonpickle.decode(jsonstr)
+        self.assertEqual(newobj.a, 'a')
+        self.assertEqual(newobj.b, 'b')
+
+    def test_newstyleslots_string_slot(self):
+        obj = ThingWithStringSlots('a', 'b')
+        jsonstr = jsonpickle.encode(obj)
+        newobj = jsonpickle.decode(jsonstr)
+        self.assertEqual(newobj.ab, 'ab')
 
     def test_list_subclass(self):
         obj = ListSubclass()

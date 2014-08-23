@@ -7,6 +7,7 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 
+import warnings
 from itertools import chain
 
 import jsonpickle.util as util
@@ -18,16 +19,22 @@ from jsonpickle.compat import unicode
 
 
 def encode(value,
-           unpicklable=False, make_refs=True, keys=False,
-           max_depth=None, reset=True,
-           backend=None, context=None):
+           unpicklable=False,
+           make_refs=True,
+           keys=False,
+           max_depth=None,
+           reset=True,
+           backend=None,
+           warn=False,
+           context=None):
     backend = _make_backend(backend)
     if context is None:
         context = Pickler(unpicklable=unpicklable,
                           make_refs=make_refs,
                           keys=keys,
                           backend=backend,
-                          max_depth=max_depth)
+                          max_depth=max_depth,
+                          warn=warn)
     return backend.encode(context.flatten(value, reset=reset))
 
 
@@ -41,12 +48,17 @@ def _make_backend(backend):
 class Pickler(object):
 
     def __init__(self,
-                unpicklable=True, make_refs=True, max_depth=None,
-                backend=None, keys=False):
+                unpicklable=True,
+                make_refs=True,
+                max_depth=None,
+                backend=None,
+                keys=False,
+                warn=False):
         self.unpicklable = unpicklable
         self.make_refs = make_refs
         self.backend = _make_backend(backend)
         self.keys = keys
+        self.warn = warn
         ## The current recursion depth
         self._depth = -1
         ## The maximal recursion depth
@@ -136,6 +148,10 @@ class Pickler(object):
         else:
             flatten_func = self._get_flattener(obj)
 
+        if flatten_func is None:
+            self._pickle_warning(obj)
+            return None
+
         return flatten_func(obj)
 
     def _list_recurse(self, obj):
@@ -179,6 +195,7 @@ class Pickler(object):
             return self._flatten_function
 
         # instance methods, lambdas, old style classes...
+        self._pickle_warning(obj)
         return None
 
     def _ref_obj_instance(self, obj):
@@ -218,6 +235,17 @@ class Pickler(object):
             if has_getnewargs:
                 data[tags.NEWARGS] = self._flatten(obj.__getnewargs__())
 
+        if has_getstate:
+            try:
+                state = obj.__getstate__()
+            except TypeError:
+                # Has getstate but it cannot be called, e.g. file descriptors
+                # in Python3
+                self._pickle_warning(obj)
+                return None
+            else:
+                return self._getstate(state, data)
+
         if util.is_module(obj):
             if self.unpicklable:
                 data[tags.REPR] = '%s/%s' % (obj.__name__,
@@ -228,17 +256,12 @@ class Pickler(object):
 
         if util.is_dictionary_subclass(obj):
             self._flatten_dict_obj(obj, data)
-            if has_getstate:
-                self._getstate(obj, data)
             return data
 
         if has_dict:
             # Support objects that subclasses list and set
             if util.is_sequence_subclass(obj):
                 return self._flatten_sequence_obj(obj, data)
-
-            if has_getstate:
-                return self._getstate(obj, data)
 
             # hack for zope persistent objects; this unghostifies the object
             getattr(obj, '_', None)
@@ -252,6 +275,9 @@ class Pickler(object):
 
         if has_slots:
             return self._flatten_newstyle_with_slots(obj, data)
+
+        self._pickle_warning(obj)
+        return None
 
     def _flatten_function(self, obj):
         if self.unpicklable:
@@ -286,19 +312,30 @@ class Pickler(object):
 
         return data
 
-    def _flatten_newstyle_with_slots(self, obj, data):
-        """Return a json-friendly dict for new-style objects with __slots__.
-        """
-        allslots = [getattr(cls, '__slots__', tuple())
-                        for cls in type(obj).mro()]
+    def _flatten_obj_attrs(self, obj, attrs, data):
         flatten = self._flatten_key_value_pair
-        for k in chain(*allslots):
+        ok = False
+        for k in attrs:
             try:
                 value = getattr(obj, k)
+                flatten(k, value, data)
             except AttributeError:
                 # The attribute may have been deleted
                 continue
-            flatten(k, value, data)
+            ok = True
+        return ok
+
+    def _flatten_newstyle_with_slots(self, obj, data):
+        """Return a json-friendly dict for new-style objects with __slots__.
+        """
+        allslots = [_wrap_string_slot(getattr(cls, '__slots__', tuple()))
+                        for cls in obj.__class__.mro()]
+
+        if not self._flatten_obj_attrs(obj, chain(*allslots), data):
+            attrs = [x for x in dir(obj)
+                        if not x.startswith('__') and not x.endswith('__')]
+            self._flatten_obj_attrs(obj, attrs, data)
+
         return data
 
     def _flatten_key_value_pair(self, k, v, data):
@@ -331,12 +368,17 @@ class Pickler(object):
         return data
 
     def _getstate(self, obj, data):
-        state = self._flatten_obj(obj.__getstate__())
+        state = self._flatten_obj(obj)
         if self.unpicklable:
             data[tags.STATE] = state
         else:
             data = state
         return data
+
+    def _pickle_warning(self, obj):
+        if self.warn:
+            msg = 'jsonpickle cannot pickle %r: replaced with None' % obj
+            warnings.warn(msg)
 
 
 def _mktyperef(obj):
@@ -375,3 +417,11 @@ def _getfunctiondetail(fn):
     module = fn.__module__
     name = fn.__name__
     return module, name
+
+
+def _wrap_string_slot(string):
+    """Converts __slots__ = 'a' into __slots__ = ('a',)
+    """
+    if isinstance(string, (str, unicode)):
+        return (string,)
+    return string

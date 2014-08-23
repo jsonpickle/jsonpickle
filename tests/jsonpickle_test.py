@@ -613,36 +613,32 @@ class PickleProtocol2Thing(object):
 
     def __eq__(self, other):
         """
-        WIthout this, PickleProtocol2Thing(u'slotmagic') != 
-                      PickleProtocol2Thing(u'slotmagic')
+        Make PickleProtocol2Thing('slotmagic') ==
+             PickleProtocol2Thing('slotmagic')
         """
-
-        if (self.__dict__ == other.__dict__ and 
-            dir(self) == dir(other)):
+        if self.__dict__ == other.__dict__ and dir(self) == dir(other):
             for prop in dir(self):
                 selfprop = getattr(self, prop)
-                if (not isinstance(selfprop, collections.Callable) and
-                    prop[0] != '_'):
+                if not callable(selfprop) and prop[0] != '_':
                     if selfprop != getattr(other, prop):
                         return False
             return True
         else:
             return False
-            
 
 
 # these two instances are used below and in tests
-slotmagic = PickleProtocol2Thing(u'slotmagic')
-dictmagic = PickleProtocol2Thing(u'dictmagic')
+slotmagic = PickleProtocol2Thing('slotmagic')
+dictmagic = PickleProtocol2Thing('dictmagic')
 
 class PickleProtocol2GetState(PickleProtocol2Thing):
     def __new__(cls, *args):
-        instance = super(PickleProtocol2GetState, cls).__new__(cls, *args)
+        instance = super(PickleProtocol2GetState, cls).__new__(cls)
         instance.newargs = args
         return instance
 
     def __getstate__(self):
-        return "I am magic"
+        return 'I am magic'
 
 class PickleProtocol2GetStateDict(PickleProtocol2Thing):
     def __getstate__(self):
@@ -742,9 +738,9 @@ class PicklingProtocol2TestCase(unittest.TestCase):
         instance = PickleProtocol2GetStateSlotsDict('whatevs')
         encoded = jsonpickle.encode(instance)
         decoded = jsonpickle.decode(encoded)
-        # Unfortunately PickleProtocol2Thing instances don't test equal to each
-        # other, so we can't just use assertEqual on the instances
-        assert PickleProtocol2Thing(u'slotmagic') == PickleProtocol2Thing(u'slotmagic')
+
+        self.assertEqual(PickleProtocol2Thing('slotmagic'),
+                         PickleProtocol2Thing('slotmagic'))
         self.assertEqual(decoded.slotmagic.__dict__, slotmagic.__dict__)
         self.assertEqual(decoded.slotmagic, slotmagic)
         self.assertEqual(decoded.dictmagic, dictmagic)

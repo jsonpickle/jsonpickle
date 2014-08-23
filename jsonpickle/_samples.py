@@ -24,23 +24,6 @@ class Thing(object):
         return 'Thing("%s")' % self.name
 
 
-class ThingWithSlots(object):
-
-    __slots__ = ('a', 'b')
-
-    def __init__(self, a, b):
-        self.a = a
-        self.b = b
-
-class ThingWithInheritedSlots(ThingWithSlots):
-
-    __slots__ = ('c',)
-
-    def __init__(self, a, b, c):
-        ThingWithSlots.__init__(self, a, b)
-        self.c = c
-
-
 class ThingWithProps(object):
 
     def __init__(self, name='', dogs='reliable', monkies='tricksy'):

@@ -248,7 +248,6 @@ class Unpickler(object):
 
             # step out
             self._namestack.pop()
-        
 
     def _restore_object_instance_variables(self, obj, instance):
         self._restore_from_dict(obj, instance)

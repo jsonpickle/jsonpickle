@@ -7,6 +7,13 @@ Version 0.8.0 - TBD, Fall 2014
       module-level functions
       (`#77 <https://github.com/jsonpickle/jsonpickle/issues/77>`_).
 
+    * Better Pickle Protocol v2 support
+      (`#78 <https://github.com/jsonpickle/jsonpickle/issues/78>`_).
+
+    * Support for string __slots__ and iterable __slots__
+      (`#67 <https://github.com/jsonpickle/jsonpickle/issues/66>`_)
+      (`#68 <https://github.com/jsonpickle/jsonpickle/issues/67>`_).
+
 Version 0.7.2 - August 6, 2014
 ------------------------------
 
