@@ -23,10 +23,36 @@ from jsonpickle._samples import (
         SetSubclass,
         Thing,
         ThingWithQueue,
-        ThingWithSlots,
-        ThingWithInheritedSlots,
         ThingWithFunctionRefs,
         )
+
+
+
+class ThingWithSlots(object):
+
+    __slots__ = ('a', 'b')
+
+    def __init__(self, a, b):
+        self.a = a
+        self.b = b
+
+
+class ThingWithInheritedSlots(ThingWithSlots):
+
+    __slots__ = ('c',)
+
+    def __init__(self, a, b, c):
+        ThingWithSlots.__init__(self, a, b)
+        self.c = c
+
+
+class ThingWithIterableSlots(object):
+
+    __slots__ = iter('ab')
+
+    def __init__(self, a, b):
+        self.a = a
+        self.b = b
 
 
 class AdvancedObjectsTestCase(unittest.TestCase):
