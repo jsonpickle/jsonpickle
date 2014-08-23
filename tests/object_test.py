@@ -27,7 +27,6 @@ from jsonpickle._samples import (
         )
 
 
-
 class ThingWithSlots(object):
 
     __slots__ = ('a', 'b')
@@ -153,6 +152,36 @@ class AdvancedObjectsTestCase(unittest.TestCase):
         decoded = jsonpickle.decode(encoded, keys=True)
         self.assertTrue(type(decoded) is collections.Counter)
         self.assertEqual(decoded.get(1), 2)
+
+    def test_list_with_fd(self):
+        fd = open(__file__, 'r')
+        fd.close()
+        obj = [fd]
+        jsonstr = jsonpickle.encode(obj)
+        newobj = jsonpickle.decode(jsonstr)
+        self.assertEqual([None], newobj)
+
+    def test_thing_with_fd(self):
+        fd = open(__file__, 'r')
+        fd.close()
+        obj = Thing(fd)
+        jsonstr = jsonpickle.encode(obj)
+        newobj = jsonpickle.decode(jsonstr)
+        self.assertEqual(None, newobj.child)
+
+    def test_dict_with_fd(self):
+        fd = open(__file__, 'r')
+        fd.close()
+        obj = {'fd': fd}
+        jsonstr = jsonpickle.encode(obj)
+        newobj = jsonpickle.decode(jsonstr)
+        self.assertEqual(None, newobj['fd'])
+
+    def test_thing_with_lamda(self):
+        obj = Thing(lambda: True)
+        jsonstr = jsonpickle.encode(obj)
+        newobj = jsonpickle.decode(jsonstr)
+        self.assertEqual(None, newobj.child)
 
     def test_newstyleslots(self):
         obj = ThingWithSlots(True, False)

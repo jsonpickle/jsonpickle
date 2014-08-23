@@ -7,6 +7,7 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 
+import warnings
 from itertools import chain
 
 import jsonpickle.util as util
@@ -18,16 +19,22 @@ from jsonpickle.compat import unicode
 
 
 def encode(value,
-           unpicklable=False, make_refs=True, keys=False,
-           max_depth=None, reset=True,
-           backend=None, context=None):
+           unpicklable=False,
+           make_refs=True,
+           keys=False,
+           max_depth=None,
+           reset=True,
+           backend=None,
+           warn=False,
+           context=None):
     backend = _make_backend(backend)
     if context is None:
         context = Pickler(unpicklable=unpicklable,
                           make_refs=make_refs,
                           keys=keys,
                           backend=backend,
-                          max_depth=max_depth)
+                          max_depth=max_depth,
+                          warn=warn)
     return backend.encode(context.flatten(value, reset=reset))
 
 
@@ -41,12 +48,17 @@ def _make_backend(backend):
 class Pickler(object):
 
     def __init__(self,
-                unpicklable=True, make_refs=True, max_depth=None,
-                backend=None, keys=False):
+                unpicklable=True,
+                make_refs=True,
+                max_depth=None,
+                backend=None,
+                keys=False,
+                warn=False):
         self.unpicklable = unpicklable
         self.make_refs = make_refs
         self.backend = _make_backend(backend)
         self.keys = keys
+        self.warn = warn
         ## The current recursion depth
         self._depth = -1
         ## The maximal recursion depth
@@ -136,6 +148,10 @@ class Pickler(object):
         else:
             flatten_func = self._get_flattener(obj)
 
+        if flatten_func is None:
+            self._pickle_warning(obj)
+            return None
+
         return flatten_func(obj)
 
     def _list_recurse(self, obj):
@@ -179,6 +195,7 @@ class Pickler(object):
             return self._flatten_function
 
         # instance methods, lambdas, old style classes...
+        self._pickle_warning(obj)
         return None
 
     def _ref_obj_instance(self, obj):
@@ -219,7 +236,15 @@ class Pickler(object):
                 data[tags.NEWARGS] = self._flatten(obj.__getnewargs__())
 
         if has_getstate:
-            return self._getstate(obj, data)
+            try:
+                state = obj.__getstate__()
+            except TypeError:
+                # Has getstate but it cannot be called, e.g. file descriptors
+                # in Python3
+                self._pickle_warning(obj)
+                return None
+            else:
+                return self._getstate(state, data)
 
         if util.is_module(obj):
             if self.unpicklable:
@@ -250,6 +275,9 @@ class Pickler(object):
 
         if has_slots:
             return self._flatten_newstyle_with_slots(obj, data)
+
+        self._pickle_warning(obj)
+        return None
 
     def _flatten_function(self, obj):
         if self.unpicklable:
@@ -340,12 +368,17 @@ class Pickler(object):
         return data
 
     def _getstate(self, obj, data):
-        state = self._flatten_obj(obj.__getstate__())
+        state = self._flatten_obj(obj)
         if self.unpicklable:
             data[tags.STATE] = state
         else:
             data = state
         return data
+
+    def _pickle_warning(self, obj):
+        if self.warn:
+            msg = 'jsonpickle cannot pickle %r: replaced with None' % obj
+            warnings.warn(msg)
 
 
 def _mktyperef(obj):

@@ -84,30 +84,32 @@ enable_fallthrough = json.enable_fallthrough
 
 
 def encode(value,
-           unpicklable=True, make_refs=True, keys=False,
-           max_depth=None, backend=None):
+           unpicklable=True,
+           make_refs=True,
+           keys=False,
+           max_depth=None,
+           backend=None,
+           warn=False):
     """
     Return a JSON formatted representation of value, a Python object.
 
-    The keyword argument 'unpicklable' defaults to True.
-    If set to False, the output will not contain the information
-    necessary to turn the JSON data back into Python objects.
-
-    The keyword argument 'max_depth' defaults to None.
-    If set to a non-negative integer then jsonpickle will not recurse
-    deeper than 'max_depth' steps into the object.  Anything deeper
-    than 'max_depth' is represented using a Python repr() of the object.
-
-    The keyword argument 'make_refs' defaults to True.
-    If set to False jsonpickle's referencing support is disabled.
-    Objects that are id()-identical won't be preserved across
-    encode()/decode(), but the resulting JSON stream will be conceptually
-    simpler.  jsonpickle detects cyclical objects and will break the
-    cycle by calling repr() instead of recursing when make_refs is set False.
-
-    The keyword argument 'keys' defaults to False.
-    If set to True then jsonpickle will encode non-string dictionary keys
-    instead of coercing them into strings via `repr()`.
+    :param unpicklable: If set to False then the output will not contain the
+        information necessary to turn the JSON data back into Python objects,
+        but a simpler JSON stream is produced.
+    :param max_depth: If set to a non-negative integer then jsonpickle will
+        not recurse deeper than 'max_depth' steps into the object.  Anything
+        deeper than 'max_depth' is represented using a Python repr() of the
+        object.
+    :param make_refs: If set to False jsonpickle's referencing support is
+        disabled.  Objects that are id()-identical won't be preserved across
+        encode()/decode(), but the resulting JSON stream will be conceptually
+        simpler.  jsonpickle detects cyclical objects and will break the cycle
+        by calling repr() instead of recursing when make_refs is set False.
+    :param keys: If set to True then jsonpickle will encode non-string
+        dictionary keys instead of coercing them into strings via `repr()`.
+    :param warn: If set to True then jsonpickle will warn when it
+        returns None for an object which it cannot pickle
+        (e.g. file descriptors).
 
     >>> encode('my string')
     '"my string"'
@@ -132,7 +134,8 @@ def encode(value,
                           unpicklable=unpicklable,
                           make_refs=make_refs,
                           keys=keys,
-                          max_depth=max_depth)
+                          max_depth=max_depth,
+                          warn=warn)
 
 
 def decode(string, backend=None, keys=False):
