@@ -300,7 +300,7 @@ class Pickler(object):
     def _flatten_newstyle_with_slots(self, obj, data):
         """Return a json-friendly dict for new-style objects with __slots__.
         """
-        allslots = [getattr(cls, '__slots__', tuple())
+        allslots = [_wrap_string_slot(getattr(cls, '__slots__', tuple()))
                         for cls in obj.__class__.mro()]
 
         if not self._flatten_obj_attrs(obj, chain(*allslots), data):
@@ -384,3 +384,11 @@ def _getfunctiondetail(fn):
     module = fn.__module__
     name = fn.__name__
     return module, name
+
+
+def _wrap_string_slot(string):
+    """Converts __slots__ = 'a' into __slots__ = ('a',)
+    """
+    if isinstance(string, (str, unicode)):
+        return (string,)
+    return string

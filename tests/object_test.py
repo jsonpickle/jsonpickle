@@ -55,6 +55,13 @@ class ThingWithIterableSlots(object):
         self.b = b
 
 
+class ThingWithStringSlots(object):
+    __slots__ = 'ab'
+
+    def __init__(self, a, b):
+        self.ab = a + b
+
+
 class AdvancedObjectsTestCase(unittest.TestCase):
 
     def setUp(self):
@@ -192,6 +199,12 @@ class AdvancedObjectsTestCase(unittest.TestCase):
         newobj = jsonpickle.decode(jsonstr)
         self.assertEqual(newobj.a, 'a')
         self.assertEqual(newobj.b, 'b')
+
+    def test_newstyleslots_string_slot(self):
+        obj = ThingWithStringSlots('a', 'b')
+        jsonstr = jsonpickle.encode(obj)
+        newobj = jsonpickle.decode(jsonstr)
+        self.assertEqual(newobj.ab, 'ab')
 
     def test_list_subclass(self):
         obj = ListSubclass()
