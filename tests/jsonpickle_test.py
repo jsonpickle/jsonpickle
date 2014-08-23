@@ -633,7 +633,7 @@ dictmagic = PickleProtocol2Thing('dictmagic')
 
 class PickleProtocol2GetState(PickleProtocol2Thing):
     def __new__(cls, *args):
-        instance = super(PickleProtocol2GetState, cls).__new__(cls, *args)
+        instance = super(PickleProtocol2GetState, cls).__new__(cls)
         instance.newargs = args
         return instance
 
