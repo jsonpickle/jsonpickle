@@ -186,6 +186,13 @@ class AdvancedObjectsTestCase(unittest.TestCase):
         self.assertEqual(newobj.b.name, 'b')
         self.assertEqual(newobj.c.name, 'c')
 
+    def test_newstyleslots_iterable(self):
+        obj = ThingWithIterableSlots('a', 'b')
+        jsonstr = jsonpickle.encode(obj)
+        newobj = jsonpickle.decode(jsonstr)
+        self.assertEqual(newobj.a, 'a')
+        self.assertEqual(newobj.b, 'b')
+
     def test_list_subclass(self):
         obj = ListSubclass()
         obj.extend([1, 2, 3])

@@ -218,6 +218,9 @@ class Pickler(object):
             if has_getnewargs:
                 data[tags.NEWARGS] = self._flatten(obj.__getnewargs__())
 
+        if has_getstate:
+            return self._getstate(obj, data)
+
         if util.is_module(obj):
             if self.unpicklable:
                 data[tags.REPR] = '%s/%s' % (obj.__name__,
@@ -228,17 +231,12 @@ class Pickler(object):
 
         if util.is_dictionary_subclass(obj):
             self._flatten_dict_obj(obj, data)
-            if has_getstate:
-                self._getstate(obj, data)
             return data
 
         if has_dict:
             # Support objects that subclasses list and set
             if util.is_sequence_subclass(obj):
                 return self._flatten_sequence_obj(obj, data)
-
-            if has_getstate:
-                return self._getstate(obj, data)
 
             # hack for zope persistent objects; this unghostifies the object
             getattr(obj, '_', None)
@@ -286,19 +284,30 @@ class Pickler(object):
 
         return data
 
+    def _flatten_obj_attrs(self, obj, attrs, data):
+        flatten = self._flatten_key_value_pair
+        ok = False
+        for k in attrs:
+            try:
+                value = getattr(obj, k)
+                flatten(k, value, data)
+            except AttributeError:
+                # The attribute may have been deleted
+                continue
+            ok = True
+        return ok
+
     def _flatten_newstyle_with_slots(self, obj, data):
         """Return a json-friendly dict for new-style objects with __slots__.
         """
         allslots = [getattr(cls, '__slots__', tuple())
-                        for cls in type(obj).mro()]
-        flatten = self._flatten_key_value_pair
-        for k in chain(*allslots):
-            try:
-                value = getattr(obj, k)
-            except AttributeError:
-                # The attribute may have been deleted
-                continue
-            flatten(k, value, data)
+                        for cls in obj.__class__.mro()]
+
+        if not self._flatten_obj_attrs(obj, chain(*allslots), data):
+            attrs = [x for x in dir(obj)
+                        if not x.startswith('__') and not x.endswith('__')]
+            self._flatten_obj_attrs(obj, attrs, data)
+
         return data
 
     def _flatten_key_value_pair(self, k, v, data):
