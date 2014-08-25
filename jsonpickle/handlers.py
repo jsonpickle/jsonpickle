@@ -20,12 +20,12 @@ objects that implement the reduce protocol::
 
 """
 
-import copy
-import sys
-import datetime
-import time
 import collections
+import copy
+import datetime
 import decimal
+import sys
+import time
 
 from jsonpickle import util
 from jsonpickle.compat import unicode
@@ -111,8 +111,8 @@ class DatetimeHandler(BaseHandler):
         data['__reduce__'] = (flatten(cls, reset=False), args)
         return data
 
-    def restore(self, obj):
-        cls, args = obj['__reduce__']
+    def restore(self, data):
+        cls, args = data['__reduce__']
         unpickler = self.context
         restore = unpickler.restore
         cls = restore(cls, reset=False)
@@ -138,9 +138,9 @@ class SimpleReduceHandler(BaseHandler):
         data['__reduce__'] = [flatten(i, reset=False) for i in obj.__reduce__()]
         return data
 
-    def restore(self, obj):
+    def restore(self, data):
         restore = self.context.restore
-        factory, args = [restore(i, reset=False) for i in obj['__reduce__']]
+        factory, args = [restore(i, reset=False) for i in data['__reduce__']]
         return factory(*args)
 
 
@@ -195,7 +195,7 @@ class QueueHandler(BaseHandler):
     def flatten(self, obj, data):
         return data
 
-    def restore(self, obj):
+    def restore(self, data):
         return queue.Queue()
 
 QueueHandler.handles(queue.Queue)

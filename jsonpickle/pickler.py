@@ -413,6 +413,7 @@ def _getclassdetail(obj):
     name = getattr(cls, '__name__')
     return util.translate_module_name(module), name
 
+
 def _getfunctiondetail(fn):
     module = fn.__module__
     name = fn.__name__
