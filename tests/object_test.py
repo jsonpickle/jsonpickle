@@ -1,5 +1,6 @@
 import collections
 import decimal
+import re
 import sys
 import unittest
 
@@ -585,6 +586,16 @@ class AdvancedObjectsTestCase(unittest.TestCase):
         actual1 = restored.fn(expect)
         self.assertEqual(expect, actual1)
         self.assertTrue(restored is restored.ref)
+
+    def test_thing_with_compiled_regex(self):
+        rgx = re.compile(r'(.*)(cat)')
+        obj = Thing(rgx)
+
+        flattened = self.pickler.flatten(obj)
+        restored = self.unpickler.restore(flattened)
+        match = restored.name.match('fatcat')
+        self.assertEqual('fat', match.group(1))
+        self.assertEqual('cat', match.group(2))
 
 
 # Test classes for ExternalHandlerTestCase

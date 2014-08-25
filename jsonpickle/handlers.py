@@ -24,6 +24,7 @@ import collections
 import copy
 import datetime
 import decimal
+import re
 import sys
 import time
 
@@ -44,10 +45,12 @@ class Registry(object):
         :param handler: The custom handler class
 
         """
-        self._handlers[cls] = handler
+        key = util.importable_name(cls)
+        self._handlers[key] = handler
 
-    def get(self, cls):
-        return self._handlers.get(cls)
+    def get(self, class_name):
+        return self._handlers.get(class_name)
+
 
 registry = Registry()
 register = registry.register
@@ -124,6 +127,19 @@ class DatetimeHandler(BaseHandler):
 DatetimeHandler.handles(datetime.datetime)
 DatetimeHandler.handles(datetime.date)
 DatetimeHandler.handles(datetime.time)
+
+
+class RegexHandler(BaseHandler):
+    """Flatten _sre.SRE_Pattern (compiled regex) objects"""
+
+    def flatten(self, obj, data):
+        data['pattern'] = obj.pattern
+        return data
+
+    def restore(self, data):
+        return re.compile(data['pattern'])
+
+RegexHandler.handles(type(re.compile('')))
 
 
 class SimpleReduceHandler(BaseHandler):

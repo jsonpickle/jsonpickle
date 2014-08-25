@@ -223,14 +223,23 @@ class Pickler(object):
         # both __setstate__() and __getstate__() are implemented
         has_getstate = hasattr(obj, '__getstate__')
 
-        if has_class and not util.is_module(obj):
-            module, name = _getclassdetail(obj)
+        if has_class:
+            cls = obj.__class__
+        else:
+            cls = type(obj)
+
+        # Check for a custom handler
+        class_name = util.importable_name(cls)
+        handler = handlers.get(class_name)
+        if handler is not None:
             if self.unpicklable:
-                data[tags.OBJECT] = '%s.%s' % (module, name)
-            # Check for a custom handler
-            handler = handlers.get(obj.__class__)
-            if handler is not None:
-                return handler(self).flatten(obj, data)
+                data[tags.OBJECT] = class_name
+            return handler(self).flatten(obj, data)
+
+        if has_class and not util.is_module(obj):
+            if self.unpicklable:
+                class_name = util.importable_name(cls)
+                data[tags.OBJECT] = class_name
 
             if has_getnewargs:
                 data[tags.NEWARGS] = self._flatten(obj.__getnewargs__())
@@ -281,7 +290,7 @@ class Pickler(object):
 
     def _flatten_function(self, obj):
         if self.unpicklable:
-            data = {tags.FUNCTION: '%s.%s' % (obj.__module__, obj.__name__)}
+            data = {tags.FUNCTION: util.importable_name(obj)}
         else:
             data = None
 
@@ -388,36 +397,7 @@ def _mktyperef(obj):
     {'py/type': '__builtin__.AssertionError'}
 
     """
-    return {tags.TYPE: '%s.%s' %
-            (util.translate_module_name(obj.__module__), obj.__name__)}
-
-
-def _getclassdetail(obj):
-    """Helper class to return the class of an object.
-
-    >>> class Example(object): pass
-    >>> _getclassdetail(Example())
-    ('jsonpickle.pickler', 'Example')
-    >>> _getclassdetail(25)
-    ('__builtin__', 'int')
-    >>> _getclassdetail(None)
-    ('__builtin__', 'NoneType')
-    >>> _getclassdetail(False)
-    ('__builtin__', 'bool')
-    >>> _getclassdetail(AttributeError)
-    ('__builtin__', 'type')
-
-    """
-    cls = obj.__class__
-    module = getattr(cls, '__module__')
-    name = getattr(cls, '__name__')
-    return util.translate_module_name(module), name
-
-
-def _getfunctiondetail(fn):
-    module = fn.__module__
-    name = fn.__name__
-    return module, name
+    return {tags.TYPE: util.importable_name(obj)}
 
 
 def _wrap_string_slot(string):

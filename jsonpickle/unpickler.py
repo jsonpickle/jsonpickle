@@ -168,15 +168,17 @@ class Unpickler(object):
         return self._mkref(obj)
 
     def _restore_object(self, obj):
-        cls = loadclass(obj[tags.OBJECT])
-        if cls is None:
-            return self._mkref(obj)
-        handler = handlers.get(cls)
+        class_name = obj[tags.OBJECT]
+        handler = handlers.get(class_name)
         if handler is not None: # custom handler
             instance = handler(self).restore(obj)
             return self._mkref(instance)
-        else:
-            return self._restore_object_instance(obj, cls)
+
+        cls = loadclass(class_name)
+        if cls is None:
+            return self._mkref(obj)
+
+        return self._restore_object_instance(obj, cls)
 
     def _restore_function(self, obj):
         return loadclass(obj[tags.FUNCTION])
