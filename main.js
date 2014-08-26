@@ -1,6 +1,8 @@
 /**
  * jsonpickleJS -- interpretation of python jsonpickle in Javascript
  * main.js -- main loader -- this should be the only file that most users care about.
+ * 
+ * Copyright (c) 2014 Michael Scott Cuthbert and cuthbertLab
  */
 
 if (typeof jsonpickle == 'undefined') {
