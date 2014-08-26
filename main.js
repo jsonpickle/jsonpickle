@@ -1,4 +1,7 @@
-// main loader for requirejs powered jsonpickle...
+/**
+ * jsonpickleJS -- interpretation of python jsonpickle in Javascript
+ * main.js -- main loader -- this should be the only file that most users care about.
+ */
 
 if (typeof jsonpickle == 'undefined') {
     jsonpickle = {}; // global for now...
