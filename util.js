@@ -71,8 +71,6 @@ define(['./tags'], function(tags) {
         return util.is_list(obj);
     };
     
-    
-    
     if (typeof jsonpickle != "undefined") {
         jsonpickle.util = util;
     }

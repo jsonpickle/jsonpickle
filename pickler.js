@@ -65,7 +65,7 @@ define(['./util', './handlers', './tags'], function(util, handlers, tags) {
 
     pickler.Pickler.prototype._mkref = function (obj) {
         var found_id = this._get_id_in_objs(obj);
-        console.log(found_id);
+        //console.log(found_id);
         if (found_id != -1) {
             return false;
 //            if (this.unpicklable == false || this.make_refs == false) {
@@ -79,8 +79,8 @@ define(['./util', './handlers', './tags'], function(util, handlers, tags) {
     };
     pickler.Pickler.prototype._get_id_in_objs = function (obj) {
         var objLength = this._objs.length;
-        console.log('sought obj', obj);
-        console.log('stored objs: ', this._objs);
+//        console.log('sought obj', obj);
+//        console.log('stored objs: ', this._objs);
         for (var i = 0; i < objLength; i++) {
             if (obj === this._objs[i]) {                
                 return i;
