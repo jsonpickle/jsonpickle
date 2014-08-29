@@ -15,23 +15,22 @@ Additionally, it can reconstitute the object back into Python.
 The object must be accessible globally via a module and must
 inherit from object (AKA new-style classes).
 
-Create an object.
+Create an object::
 
-    >>> from jsonpickle._samples import Thing
-    >>> obj = Thing('A String')
-    >>> obj.name
-    'A String'
+    class Thing(object):
+        def __init__(self, name):
+            self.name = name
 
-Use jsonpickle to transform the object into a JSON string.
+    obj = Thing('Awesome')
 
-    >>> import jsonpickle
-    >>> pickled = jsonpickle.encode(obj)
+Use jsonpickle to transform the object into a JSON string::
 
-Use jsonpickle to recreate a Python object from a JSON string
+    import jsonpickle
+    frozen = jsonpickle.encode(obj)
 
-    >>> unpickled = jsonpickle.decode(pickled)
-    >>> print(unpickled.name)
-    A String
+Use jsonpickle to recreate a Python object from a JSON string::
+
+    thawed = jsonpickle.decode(frozen)
 
 .. warning::
 
@@ -41,25 +40,17 @@ Use jsonpickle to recreate a Python object from a JSON string
 The new object has the same type and data, but essentially is now a copy of
 the original.
 
-    >>> obj is unpickled
-    False
-    >>> obj.name == unpickled.name
-    True
-    >>> type(obj) == type(unpickled)
-    True
+.. code-block:: python
+
+    assert obj.name == thawed.name
 
 If you will never need to load (regenerate the Python class from JSON), you can
 pass in the keyword unpicklable=False to prevent extra information from being
-added to JSON.
+added to JSON::
 
-    >>> oneway = jsonpickle.encode(obj, unpicklable=False)
-    >>> result = jsonpickle.decode(oneway)
-    >>> print(result['name'])
-    A String
-
-    >>> print(result['child'])
-    None
-
+    oneway = jsonpickle.encode(obj, unpicklable=False)
+    result = jsonpickle.decode(oneway)
+    assert obj.name == result['name'] == 'Awesome'
 
 """
 from jsonpickle import pickler

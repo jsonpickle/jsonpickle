@@ -1,30 +1,122 @@
 import collections
 import decimal
+import re
 import sys
 import unittest
 
 import jsonpickle
 from jsonpickle import handlers
 from jsonpickle import tags
-from jsonpickle.compat import unicode
 from jsonpickle.compat import queue
+from jsonpickle.compat import set
+from jsonpickle.compat import unicode
 
-from jsonpickle._samples import (
-        BrokenReprThing,
-        DictSubclass,
-        GetstateDict,
-        GetstateOnly,
-        GetstateReturnsList,
-        ListSubclass,
-        ListSubclassWithInit,
-        NamedTuple,
-        ObjWithJsonPickleRepr,
-        OldStyleClass,
-        SetSubclass,
-        Thing,
-        ThingWithQueue,
-        ThingWithFunctionRefs,
-        )
+
+class Thing(object):
+
+    def __init__(self, name):
+        self.name = name
+        self.child = None
+
+
+class DictSubclass(dict):
+    name = 'Test'
+
+
+class ListSubclass(list):
+    pass
+
+
+class BrokenReprThing(Thing):
+    def __repr__(self):
+        raise Exception('%s has a broken repr' % self.name)
+    def __str__(self):
+        return '<BrokenReprThing "%s">' % self.name
+
+
+class GetstateDict(dict):
+
+    def __init__(self, name, **kwargs):
+        dict.__init__(self, **kwargs)
+        self.name = name
+        self.active = False
+
+    def __getstate__(self):
+        return (self.name, dict(self.items()))
+
+    def __setstate__(self, state):
+        self.name, vals = state
+        self.update(vals)
+        self.active = True
+
+
+class GetstateOnly(object):
+    def __init__(self, a=1, b=2):
+        self.a = a
+        self.b = b
+
+    def __getstate__(self):
+        return [self.a, self.b]
+
+
+class GetstateReturnsList(object):
+
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def __getstate__(self):
+        return [self.x, self.y]
+
+    def __setstate__(self, state):
+        self.x, self.y = state[0], state[1]
+
+
+class ListSubclassWithInit(list):
+
+    def __init__(self, attr):
+        self.attr = attr
+        super(ListSubclassWithInit, self).__init__()
+
+
+NamedTuple = collections.namedtuple('NamedTuple', 'a, b, c')
+
+
+class ObjWithJsonPickleRepr(object):
+
+    def __init__(self):
+        self.data = {'a': self}
+
+    def __repr__(self):
+        return jsonpickle.encode(self)
+
+
+class OldStyleClass:
+    pass
+
+
+class SetSubclass(set):
+    pass
+
+
+class ThingWithFunctionRefs(object):
+
+    def __init__(self):
+        self.fn = func
+
+def func(x):
+    return x
+
+
+
+class ThingWithQueue(object):
+
+    def __init__(self):
+        self.child_1 = queue.Queue()
+        self.child_2 = queue.Queue()
+        self.childref_1 = self.child_1
+        self.childref_2 = self.child_2
+
 
 
 class ThingWithSlots(object):
@@ -167,7 +259,7 @@ class AdvancedObjectsTestCase(unittest.TestCase):
         obj = Thing(fd)
         jsonstr = jsonpickle.encode(obj)
         newobj = jsonpickle.decode(jsonstr)
-        self.assertEqual(None, newobj.child)
+        self.assertEqual(None, newobj.name)
 
     def test_dict_with_fd(self):
         fd = open(__file__, 'r')
@@ -181,7 +273,7 @@ class AdvancedObjectsTestCase(unittest.TestCase):
         obj = Thing(lambda: True)
         jsonstr = jsonpickle.encode(obj)
         newobj = jsonpickle.decode(jsonstr)
-        self.assertEqual(None, newobj.child)
+        self.assertFalse(hasattr(newobj, 'name'))
 
     def test_newstyleslots(self):
         obj = ThingWithSlots(True, False)
@@ -285,7 +377,7 @@ class AdvancedObjectsTestCase(unittest.TestCase):
         obj.data = data
         flattened = self.pickler.flatten(obj)
         restored = self.unpickler.restore(flattened)
-        self.assertEqual(type(restored.data), ListSubclass)
+        self.assertEqual(restored.data.__class__, ListSubclass)
         self.assertEqual(restored.data, data)
 
     def test_decimal(self):
@@ -374,11 +466,11 @@ class AdvancedObjectsTestCase(unittest.TestCase):
         flattened = self.pickler.flatten(obj)
         self.assertEqual({'key1': 1,
                           tags.OBJECT:
-                            'jsonpickle._samples.DictSubclass'
+                            'object_test.DictSubclass'
                          },
                          flattened)
         self.assertEqual(flattened[tags.OBJECT],
-                         'jsonpickle._samples.DictSubclass')
+                         'object_test.DictSubclass')
 
         inflated = self.unpickler.restore(flattened)
         self.assertEqual(1, inflated['key1'])
@@ -403,7 +495,7 @@ class AdvancedObjectsTestCase(unittest.TestCase):
 
         flattened = self.pickler.flatten(obj)
         self.assertTrue(tags.OBJECT in flattened)
-        self.assertEqual('jsonpickle._samples.GetstateDict',
+        self.assertEqual('object_test.GetstateDict',
                          flattened[tags.OBJECT])
         self.assertTrue(tags.STATE in flattened)
         self.assertTrue(tags.TUPLE in flattened[tags.STATE])
@@ -488,13 +580,22 @@ class AdvancedObjectsTestCase(unittest.TestCase):
         obj.ref = obj
         flattened = self.pickler.flatten(obj)
         restored = self.unpickler.restore(flattened)
-        self.assertTrue(restored.fn1 is restored.fn2)
+        self.assertTrue(restored.fn is obj.fn)
 
         expect = 'success'
-        actual = restored.fn1(expect)
-        self.assertEqual(expect, actual)
-
+        actual1 = restored.fn(expect)
+        self.assertEqual(expect, actual1)
         self.assertTrue(restored is restored.ref)
+
+    def test_thing_with_compiled_regex(self):
+        rgx = re.compile(r'(.*)(cat)')
+        obj = Thing(rgx)
+
+        flattened = self.pickler.flatten(obj)
+        restored = self.unpickler.restore(flattened)
+        match = restored.name.match('fatcat')
+        self.assertEqual('fat', match.group(1))
+        self.assertEqual('cat', match.group(2))
 
 
 # Test classes for ExternalHandlerTestCase

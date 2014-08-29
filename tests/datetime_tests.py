@@ -12,7 +12,13 @@ import time
 
 import jsonpickle
 from jsonpickle import tags
-from jsonpickle._samples import ObjWithDate
+
+
+class ObjWithDate(object):
+    def __init__(self):
+        ts = datetime.datetime.now()
+        self.data = dict(a='a', ts=ts)
+        self.data_ref = dict(b='b', ts=ts)
 
 
 # UTC implementation from Python 2.7 docs
@@ -23,7 +29,7 @@ class UTC(datetime.tzinfo):
         return datetime.timedelta()
 
     def tzname(self, dt):
-        return "UTC"
+        return 'UTC'
 
     def dst(self, dt):
         return datetime.timedelta()

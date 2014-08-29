@@ -1,9 +1,62 @@
 import unittest
 import jsonpickle
 
-from jsonpickle._samples import Document, Section, Question
+class Node(object):
+
+    def __init__(self, name):
+        self._name = name
+        self._children = []
+        self._parent = None
+
+    def add_child(self, child, index=-1):
+        if index == -1:
+            index = len(self._children)
+        self._children.insert(index, child)
+        child._parent = self
+
+
+class Document(Node):
+
+    def __init__(self, name):
+        Node.__init__(self, name)
+
+    def __str__(self):
+        ret_str ='Document "%s"\n' % self._name
+        for c in self._children:
+            ret_str += repr(c)
+        return ret_str
+
+    def __repr__(self):
+        return str(self)
+
+
+class Question(Node):
+    def __init__(self, name):
+        Node.__init__(self, name)
+
+    def __str__(self):
+        return 'Question "%s", parent: "%s"\n' % (self._name, self._parent._name)
+
+    def __repr__(self):
+        return self.__str__()
+
+
+class Section(Node):
+    def __init__(self, name):
+        Node.__init__(self, name)
+
+    def __str__(self):
+        ret_str = 'Section "%s", parent: "%s"\n' % (self._name, self._parent._name)
+        for c in self._children:
+            ret_str += repr(c)
+        return ret_str
+
+    def __repr__(self):
+        return self.__str__()
+
 
 class DocumentTestCase(unittest.TestCase):
+
     def test_cyclical(self):
         """Test that we can pickle cyclical data structure
 

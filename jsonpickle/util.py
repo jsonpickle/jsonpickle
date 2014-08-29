@@ -147,7 +147,8 @@ def is_sequence_subclass(obj):
     >>> is_sequence_subclass(Temp())
     True
     """
-    return ((issubclass(obj.__class__, SEQUENCES) or
+    return (hasattr(obj, '__class__') and
+            (issubclass(obj.__class__, SEQUENCES) or
                 is_list_like(obj)) and
             not is_sequence(obj))
 
@@ -258,7 +259,7 @@ def is_installed(module):
     try:
         __import__(module)
         return True
-    except ImportError as e:
+    except ImportError:
         return False
 
 
@@ -299,6 +300,33 @@ def untranslate_module_name(module):
         elif module == 'exceptions':
             module = 'builtins'
     return module
+
+
+def importable_name(cls):
+    """
+    >>> class Example(object):
+    ...     pass
+
+    >>> ex = Example()
+    >>> importable_name(ex.__class__)
+    'jsonpickle.util.Example'
+
+    >>> importable_name(type(25))
+    '__builtin__.int'
+
+    >>> importable_name(None.__class__)
+    '__builtin__.NoneType'
+
+    >>> importable_name(False.__class__)
+    '__builtin__.bool'
+
+    >>> importable_name(AttributeError)
+    '__builtin__.AttributeError'
+
+    """
+    name = cls.__name__
+    module = translate_module_name(cls.__module__)
+    return '%s.%s' % (module, name)
 
 
 def b64encode(data):

@@ -168,15 +168,17 @@ class Unpickler(object):
         return self._mkref(obj)
 
     def _restore_object(self, obj):
-        cls = loadclass(obj[tags.OBJECT])
-        if cls is None:
-            return self._mkref(obj)
-        handler = handlers.get(cls)
+        class_name = obj[tags.OBJECT]
+        handler = handlers.get(class_name)
         if handler is not None: # custom handler
             instance = handler(self).restore(obj)
             return self._mkref(instance)
-        else:
-            return self._restore_object_instance(obj, cls)
+
+        cls = loadclass(class_name)
+        if cls is None:
+            return self._mkref(obj)
+
+        return self._restore_object_instance(obj, cls)
 
     def _restore_function(self, obj):
         return loadclass(obj[tags.FUNCTION])
@@ -369,17 +371,6 @@ class Unpickler(object):
         return '/' + '/'.join(self._namestack)
 
     def _mkref(self, obj):
-        """
-        >>> from jsonpickle._samples import Thing
-        >>> thing = Thing('referenced-thing')
-        >>> u = Unpickler()
-        >>> u._mkref(thing)
-        Thing("referenced-thing")
-
-        >>> u._objs[0]
-        Thing("referenced-thing")
-
-        """
         obj_id = id(obj)
         try:
             self._obj_to_idx[obj_id]
@@ -405,11 +396,11 @@ class Unpickler(object):
 def loadclass(module_and_name):
     """Loads the module and returns the class.
 
-    >>> loadclass('jsonpickle._samples.Thing')
-    <class 'jsonpickle._samples.Thing'>
+    >>> cls = loadclass('datetime.datetime')
+    >>> cls.__name__
+    'datetime'
 
     >>> loadclass('does.not.exist')
-
 
     >>> loadclass('__builtin__.int')()
     0
@@ -447,8 +438,9 @@ def loadrepr(reprstr):
     """Returns an instance of the object from the object's repr() string.
     It involves the dynamic specification of code.
 
-    >>> loadrepr('jsonpickle._samples/jsonpickle._samples.Thing("json")')
-    Thing("json")
+    >>> obj = loadrepr('datetime/datetime.datetime.now()')
+    >>> obj.__class__.__name__
+    'datetime'
 
     """
     module, evalstr = reprstr.split('/')

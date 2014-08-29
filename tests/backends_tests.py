@@ -3,11 +3,17 @@ import unittest
 from warnings import warn
 
 import jsonpickle
-from jsonpickle._samples import Thing
 from jsonpickle.compat import unicode
 from jsonpickle.compat import PY2
 from jsonpickle.compat import PY3
 from jsonpickle.compat import PY32
+
+class Thing(object):
+
+    def __init__(self, name):
+        self.name = name
+        self.child = None
+
 
 SAMPLE_DATA = {'things': [Thing('data')]}
 
@@ -57,7 +63,7 @@ class JsonTestCase(BackendTestCase):
     def test_backend(self):
         expected_pickled = (
                 '{"things": [{'
-                    '"py/object": "jsonpickle._samples.Thing",'
+                    '"py/object": "backends_tests.Thing",'
                     ' "name": "data",'
                     ' "child": null}'
                 ']}')
@@ -76,7 +82,7 @@ class SimpleJsonTestCase(BackendTestCase):
             return
         expected_pickled = (
                 '{"things": [{'
-                    '"py/object": "jsonpickle._samples.Thing",'
+                    '"py/object": "backends_tests.Thing",'
                     ' "name": "data",'
                     ' "child": null}'
                 ']}')
@@ -106,7 +112,7 @@ class DemjsonTestCase(BackendTestCase):
                 '{"things":[{'
                     '"child":null,'
                     '"name":"data",'
-                    '"py/object":"jsonpickle._samples.Thing"}'
+                    '"py/object":"backends_tests.Thing"}'
                 ']}')
         self.assertEncodeDecode(expected_pickled)
 
@@ -122,7 +128,7 @@ class JsonlibTestCase(BackendTestCase):
             return
         expected_pickled = (
                 '{"things":[{'
-                    '"py\/object":"jsonpickle._samples.Thing",'
+                    '"py\/object":"backends_tests.Thing",'
                     '"name":"data","child":null}'
                 ']}')
         self.assertEncodeDecode(expected_pickled)
@@ -139,7 +145,7 @@ class YajlTestCase(BackendTestCase):
             return
         expected_pickled = (
                 '{"things":[{'
-                    '"py/object":"jsonpickle._samples.Thing",'
+                    '"py/object":"backends_tests.Thing",'
                     '"name":"data","child":null}'
                 ']}')
         self.assertEncodeDecode(expected_pickled)
@@ -153,7 +159,7 @@ class UJsonTestCase(BackendTestCase):
     def test_backend(self):
         expected_pickled = (
                 '{"things":[{'
-                    '"py\/object":"jsonpickle._samples.Thing",'
+                    '"py\/object":"backends_tests.Thing",'
                     '"name":"data","child":null}'
                 ']}')
         self.assertEncodeDecode(expected_pickled)
