@@ -722,7 +722,21 @@ class PickleProtocol2ChildThing(object):
         return ([self.child],)
 
 
+class PickleProtocol2ReduceString(object):
+    def __reduce__(self):
+        return __name__+'.slotmagic'
+
 class PicklingProtocol2TestCase(unittest.TestCase):
+
+    def test_reduce_string(self):
+        """
+        Ensure json pickle will accept the redirection to another object when reduce returns a string
+        """
+        instance = PickleProtocol2ReduceString()
+        encoded = jsonpickle.encode(instance)
+        decoded = jsonpickle.decode(encoded)
+        self.assertEqual(decoded, slotmagic)
+
 
     def test_pickle_newargs(self):
         """
