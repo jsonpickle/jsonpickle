@@ -8,6 +8,7 @@
 # you should have received as part of this distribution.
 
 import warnings
+import sys
 from itertools import chain
 
 import jsonpickle.util as util
@@ -218,11 +219,34 @@ class Pickler(object):
         has_dict = hasattr(obj, '__dict__')
         has_slots = not has_dict and hasattr(obj, '__slots__')
         has_getnewargs = hasattr(obj, '__getnewargs__')
+        has_reduce = '__reduce__' in dir(obj)
 
         # Support objects with __getstate__(); this ensures that
         # both __setstate__() and __getstate__() are implemented
         has_getstate = hasattr(obj, '__getstate__')
 
+        if has_reduce:
+            try:
+                reduce_val = obj.__reduce__()
+                try:
+                    # At present, we only handle the case where __reduce__ returns a string
+                    if isinstance(reduce_val, basestring):
+                        varpath = iter(reduce_val.split('.'))
+                        # curmod will be transformed by the loop into the value to pickle
+                        curmod = sys.modules[next(varpath)]
+                        for modname in varpath:
+                            curmod = getattr(curmod, modname)
+                            # replace obj with value retrieved
+                        return self._flatten_obj_instance(curmod)
+                except KeyError:
+                    # well, we can't do anything with that, so we ignore it
+                    pass
+            except TypeError:
+                # A lot of builtin types have a reduce which just raises a TypeError
+                # we ignore those
+                pass
+                
+                
         if has_class:
             cls = obj.__class__
         else:
