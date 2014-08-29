@@ -726,13 +726,35 @@ class PickleProtocol2ReduceString(object):
     def __reduce__(self):
         return __name__+'.slotmagic'
 
+class PickleProtocol2ReduceExString(object):
+    
+    def __reduce__(self):
+        assert False, "Should not be here"
+
+    def __reduce_ex__(self, n):
+        return __name__+'.slotmagic'
+
 class PicklingProtocol2TestCase(unittest.TestCase):
 
     def test_reduce_string(self):
         """
-        Ensure json pickle will accept the redirection to another object when reduce returns a string
+        Ensure json pickle will accept the redirection to another object when 
+        __reduce__ returns a string
         """
         instance = PickleProtocol2ReduceString()
+        encoded = jsonpickle.encode(instance)
+        decoded = jsonpickle.decode(encoded)
+        self.assertEqual(decoded, slotmagic)
+
+
+    def test_reduce_ex_string(self):
+        """
+        Ensure json pickle will accept the redirection to another object when 
+        __reduce_ex__ returns a string
+
+        ALSO tests that __reduce_ex__ is called in preference to __reduce__
+        """
+        instance = PickleProtocol2ReduceExString()
         encoded = jsonpickle.encode(instance)
         decoded = jsonpickle.decode(encoded)
         self.assertEqual(decoded, slotmagic)
