@@ -128,10 +128,14 @@ class Unpickler(object):
             restore = self._restore_id
         elif has_tag(obj, tags.REF): # Backwards compatibility
             restore = self._restore_ref
+        elif has_tag(obj, tags.ITERATOR):
+            restore = self._restore_iterator
         elif has_tag(obj, tags.TYPE):
             restore = self._restore_type
         elif has_tag(obj, tags.REPR): # Backwards compatibility
             restore = self._restore_repr
+        elif has_tag(obj, tags.REDUCE):
+            restore = self._restore_reduce
         elif has_tag(obj, tags.OBJECT):
             restore = self._restore_object
         elif has_tag(obj, tags.FUNCTION):
@@ -147,6 +151,48 @@ class Unpickler(object):
         else:
             restore = lambda x: x
         return restore(obj)
+
+    def _restore_iterator(self, obj):
+        return iter(self._restore_list(obj[tags.ITERATOR]))
+
+    def _restore_reduce(self, obj):
+        """
+        At present only supports the two required arguments
+        """
+        reduce_val = obj[tags.REDUCE]
+        f, args, state, listitems, dictitems = map(self._restore, reduce_val)
+        if f == tags.NEWOBJ or f.__name__ == '__newobj__':
+            # mandated special case
+            cls = args[0]
+            stage1 = cls.__new__(cls, *args[1:])
+        else:
+            stage1 = f(*args)
+
+        if state:
+            try:
+                stage1.__setstate__(state)
+            except AttributeError as err:
+                # it's fine - we'll try the prescribed default methods
+                try:
+                    stage1.__dict__.update(state)
+                except AttributeError as err:
+                    # next prescribed default
+                    for k, v in state.items():
+                        setattr(stage1, k, v)
+
+        if listitems:
+            # should be lists if not None
+            try:
+                stage1.extend(listitems)
+            except AttributeError:
+                for x in listitems:
+                    stage1.append(x)
+
+        if dictitems:
+            for k, v in dictitems:
+                stage1.__setitem__(k, v)
+
+        return stage1
 
     def _restore_id(self, obj):
         return self._objs[obj[tags.ID]]

@@ -14,7 +14,7 @@ import collections
 
 import jsonpickle
 
-from jsonpickle import tags
+from jsonpickle import tags, util
 from jsonpickle.compat import unicode
 from jsonpickle.compat import unichr
 from jsonpickle.compat import PY32
@@ -726,6 +726,7 @@ class PickleProtocol2ReduceString(object):
     def __reduce__(self):
         return __name__+'.slotmagic'
 
+
 class PickleProtocol2ReduceExString(object):
 
     def __reduce__(self):
@@ -734,7 +735,245 @@ class PickleProtocol2ReduceExString(object):
     def __reduce_ex__(self, n):
         return __name__+'.slotmagic'
 
+
+class PickleProtocol2ReduceTuple(object):
+    def __init__(self, argval, optional=None):
+        self.argval = argval
+        self.optional = optional
+
+    def __reduce__(self):
+        return (PickleProtocol2ReduceTuple,  # callable
+                ('yam', 1),  # args
+                None,  # state
+                iter([]),  # listitems
+                iter([]), # dictitems
+                )
+
+
+def protocol_2_reduce_tuple_func(*args):
+    return PickleProtocol2ReduceTupleFunc(*args)
+
+
+class PickleProtocol2ReduceTupleFunc(object):
+    def __init__(self, argval, optional=None):
+        self.argval = argval
+        self.optional = optional
+    def __reduce__(self):
+        return (protocol_2_reduce_tuple_func,  # callable
+                ('yam', 1),  # args
+                None,  # state
+                iter([]),  # listitems
+                iter([]), # dictitems
+                )
+
+
+def __newobj__(lol, fail):
+    """
+    newobj is special-cased, such that it is not actually called
+    """
+
+
+class PickleProtocol2ReduceNewobj(PickleProtocol2ReduceTupleFunc):
+
+    def __new__(cls, *args):
+        inst = super(cls, cls).__new__(cls, *args)
+        inst.newargs = args
+        return inst
+
+    def __reduce__(self):
+        return (__newobj__,  # callable
+                (PickleProtocol2ReduceNewobj, 'yam', 1),  # args
+                None,  # state
+                iter([]),  # listitems
+                iter([]), # dictitems
+                )
+
+
+class PickleProtocol2ReduceTupleState(PickleProtocol2ReduceTuple):
+    def __reduce__(self):
+        return (PickleProtocol2ReduceTuple,  # callable
+                ('yam', 1),  # args
+                {'foo': 1},  # state
+                iter([]),  # listitems
+                iter([]), # dictitems
+                )
+
+
+class PickleProtocol2ReduceTupleSetState(PickleProtocol2ReduceTuple):
+    def __setstate__(self, state):
+        self.bar = state['foo']
+
+    def __reduce__(self):
+        return (type(self),  # callable
+                ('yam', 1),  # args
+                {'foo': 1},  # state
+                iter([]),  # listitems
+                iter([]), # dictitems
+                )
+
+
+class PickleProtocol2ReduceTupleStateSlots(object):
+    __slots__ = ('argval', 'optional', 'foo')
+
+    def __init__(self, argval, optional=None):
+        self.argval = argval
+        self.optional = optional
+
+    def __reduce__(self):
+        return (PickleProtocol2ReduceTuple,  # callable
+                ('yam', 1),  # args
+                {'foo': 1},  # state
+                iter([]),  # listitems
+                iter([]), # dictitems
+                )
+
+
+class PickleProtocol2ReduceListitemsAppend(object):
+    def __init__(self):
+        self.inner = []
+
+    def __reduce__(self):
+        return (PickleProtocol2ReduceListitemsAppend,  # callable
+                (),  # args
+                {},  # state
+                iter(['foo', 'bar']),  # listitems
+                iter([]), # dictitems
+                )
+
+    def append(self, item):
+        self.inner.append(item)
+
+class PickleProtocol2ReduceListitemsExtend(object):
+    def __init__(self):
+        self.inner = []
+
+    def __reduce__(self):
+        return (PickleProtocol2ReduceListitemsAppend,  # callable
+                (),  # args
+                {},  # state
+                iter(['foo', 'bar']),  # listitems
+                iter([]), # dictitems
+                )
+
+    def extend(self, items):
+        self.inner.exend(items)
+
+class PickleProtocol2ReduceDictitems(object):
+    def __init__(self):
+        self.inner = {}
+
+    def __reduce__(self):
+        return (PickleProtocol2ReduceDictitems,  # callable
+                (),  # args
+                {},  # state
+                [],  # listitems
+                iter(zip(['foo', 'bar'],['foo', 'bar'])), # dictitems
+                )
+
+    def __setitem__(self, k, v):
+        return self.inner.__setitem__(k, v)
+
+
 class PicklingProtocol2TestCase(unittest.TestCase):
+
+    def test_reduce_dictitems(self):
+        'Test reduce with dictitems set (as a generator)'
+        instance = PickleProtocol2ReduceDictitems()
+        encoded = jsonpickle.encode(instance)
+        print encoded
+        decoded = jsonpickle.decode(encoded)
+        self.assertEqual(decoded.inner, {'foo': 'foo', 'bar': 'bar'})
+
+    def test_reduce_listitems_extend(self):
+        'Test reduce with listitems set (as a generator), yielding single items'
+        instance = PickleProtocol2ReduceListitemsExtend()
+        encoded = jsonpickle.encode(instance)
+        # print encoded
+        decoded = jsonpickle.decode(encoded)
+        self.assertEqual(decoded.inner, ['foo', 'bar'])
+
+    def test_reduce_listitems_append(self):
+        'Test reduce with listitems set (as a generator), yielding single items'
+        instance = PickleProtocol2ReduceListitemsAppend()
+        encoded = jsonpickle.encode(instance)
+        # print encoded
+        decoded = jsonpickle.decode(encoded)
+        self.assertEqual(decoded.inner, ['foo', 'bar'])
+
+    def test_reduce_state_setstate(self):
+        'Test reduce with the optional state argument set, on an object with a'\
+        '__setstate__'
+        # nosetests only shows first line of docstring
+
+        instance = PickleProtocol2ReduceTupleSetState(5)
+        encoded = jsonpickle.encode(instance)
+        decoded = jsonpickle.decode(encoded)
+        self.assertEqual(decoded.argval, 'yam')
+        self.assertEqual(decoded.optional, 1)
+        self.assertEqual(decoded.bar, 1)
+        self.assertFalse(hasattr(decoded, 'foo'))
+
+    def test_reduce_state_no_dict(self):
+        'Test reduce with the optional state argument set, on an object with'\
+        'no __dict__, and no __setstate__'
+
+        instance = PickleProtocol2ReduceTupleStateSlots(5)
+        encoded = jsonpickle.encode(instance)
+        decoded = jsonpickle.decode(encoded)
+        self.assertEqual(decoded.argval, 'yam')
+        self.assertEqual(decoded.optional, 1)
+        self.assertEqual(decoded.foo, 1)
+
+    def test_reduce_state_dict(self):
+        'Test reduce with the optional state argument set, on an object with a'\
+        '__dict__, and no __setstate__'
+
+        instance = PickleProtocol2ReduceTupleState(5)
+        encoded = jsonpickle.encode(instance)
+        decoded = jsonpickle.decode(encoded)
+        self.assertEqual(decoded.argval, 'yam')
+        self.assertEqual(decoded.optional, 1)
+        self.assertEqual(decoded.foo, 1)
+
+    def test_reduce_basic(self):
+        """
+        Test reduce with only callable and args
+        """
+        instance = PickleProtocol2ReduceTuple(5)
+        encoded = jsonpickle.encode(instance)
+        decoded = jsonpickle.decode(encoded)
+        self.assertEqual(decoded.argval, 'yam')
+        self.assertEqual(decoded.optional, 1)
+
+    def test_reduce_basic_func(self):
+        """
+        Test reduce with only callable and args, where callable is a module-level function
+        """
+        instance = PickleProtocol2ReduceTupleFunc(5)
+        encoded = jsonpickle.encode(instance)
+        decoded = jsonpickle.decode(encoded)
+        self.assertEqual(decoded.argval, 'yam')
+        self.assertEqual(decoded.optional, 1)
+
+    def test_reduce_newobj(self):
+        """
+        Test reduce with callable called __newobj__ - ensure special-case behaviour
+        """
+        instance = PickleProtocol2ReduceNewobj(5)
+        encoded = jsonpickle.encode(instance)
+        decoded = jsonpickle.decode(encoded)
+        print encoded
+        self.assertEqual(decoded.newargs, ('yam', 1))
+
+    def test_reduce_iter(self):
+        instance = iter('123')
+        self.assertTrue(util.is_iterator(instance))
+        encoded = jsonpickle.encode(instance)
+        decoded = jsonpickle.decode(encoded)
+        print encoded
+        self.assertEqual(next(decoded), '1')
+        self.assertEqual(next(decoded), '2')
+        self.assertEqual(next(decoded), '3')
 
     def test_reduce_string(self):
         """
@@ -745,7 +984,6 @@ class PicklingProtocol2TestCase(unittest.TestCase):
         encoded = jsonpickle.encode(instance)
         decoded = jsonpickle.decode(encoded)
         self.assertEqual(decoded, slotmagic)
-
 
     def test_reduce_ex_string(self):
         """
