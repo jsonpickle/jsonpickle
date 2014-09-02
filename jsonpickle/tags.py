@@ -11,6 +11,7 @@ from jsonpickle.compat import set
 
 FUNCTION = 'py/function'
 ID = 'py/id'
+INITARGS = 'py/initargs'
 ITERATOR = 'py/iterator'
 JSON_KEY = 'json://'
 NEWARGS = 'py/newargs'
@@ -29,6 +30,7 @@ TYPE = 'py/type'
 RESERVED = set([
     FUNCTION,
     ID,
+    INITARGS,
     ITERATOR,
     NEWARGS,
     NEWOBJ,

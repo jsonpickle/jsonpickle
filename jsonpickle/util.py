@@ -9,7 +9,6 @@
 """Helper functions for pickling and unpickling.  Most functions assist in
 determining the type of an object.
 """
-import __builtin__
 import base64
 import collections
 import io
@@ -23,6 +22,8 @@ from jsonpickle.compat import unicode
 from jsonpickle.compat import long
 from jsonpickle.compat import PY3
 
+if not PY3:
+    import __builtin__
 
 SEQUENCES = (list, set, tuple)
 SEQUENCES_SET = set(SEQUENCES)
@@ -271,9 +272,12 @@ def is_list_like(obj):
 
 
 def is_iterator(obj):
+    is_file = False
+    if not PY3:
+        is_file = isinstance(obj, __builtin__.file)
+
     return (isinstance(obj, collections.Iterator) and 
-            not isinstance(obj, io.IOBase) and 
-            not isinstance(obj, __builtin__.file))
+            not isinstance(obj, io.IOBase) and not is_file)
 
 
 def is_reducible(obj):
