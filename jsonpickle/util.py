@@ -10,6 +10,8 @@
 determining the type of an object.
 """
 import base64
+import collections
+import io
 import operator
 import time
 import types
@@ -20,6 +22,8 @@ from jsonpickle.compat import unicode
 from jsonpickle.compat import long
 from jsonpickle.compat import PY3
 
+if not PY3:
+    import __builtin__
 
 SEQUENCES = (list, set, tuple)
 SEQUENCES_SET = set(SEQUENCES)
@@ -265,6 +269,78 @@ def is_installed(module):
 
 def is_list_like(obj):
     return hasattr(obj, '__getitem__') and hasattr(obj, 'append')
+
+
+def is_iterator(obj):
+    is_file = False
+    if not PY3:
+        is_file = isinstance(obj, __builtin__.file)
+
+    return (isinstance(obj, collections.Iterator) and
+            not isinstance(obj, io.IOBase) and not is_file)
+
+
+def is_reducible(obj):
+    """
+    Returns false if of a type which have special casing, and should not have their
+    __reduce__ methods used
+    """
+    return (not (is_list(obj) or is_list_like(obj) or is_primitive(obj) or
+                 is_dictionary(obj) or is_sequence(obj) or is_set(obj) or is_tuple(obj) or
+                 is_dictionary_subclass(obj) or is_sequence_subclass(obj) or is_noncomplex(obj)
+                 or is_function(obj) or is_module(obj) or type(obj) is object or obj is object
+                 or (is_type(obj) and obj.__module__ == 'datetime')))
+
+
+def in_dict(obj, key, default=False):
+    """
+    Returns true if key exists in obj.__dict__; false if not in.
+    If obj.__dict__ is absent, return default
+    """
+    return (key in obj.__dict__) if getattr(obj, '__dict__', None) else default
+
+
+def in_slots(obj, key, default=False):
+    """
+    Returns true if key exists in obj.__slots__; false if not in.
+    If obj.__slots__ is absent, return default
+    """
+    return (key in obj.__slots__) if getattr(obj, '__slots__', None) else default
+
+
+def has_reduce(obj):
+    """
+    Tests if __reduce__ or __reduce_ex__ exists in the object dict or
+    in the class dicts of every class in the MRO *except object*.
+
+    Returns a tuple of booleans (has_reduce, has_reduce_ex)
+    """
+
+    if not is_reducible(obj) or is_type(obj):
+        return (False, False)
+
+    has_reduce = False
+    has_reduce_ex = False
+
+    REDUCE = '__reduce__'
+    REDUCE_EX = '__reduce_ex__'
+
+    # For object instance
+    has_reduce = in_dict(obj, REDUCE)
+    has_reduce_ex = in_dict(obj, REDUCE_EX)
+
+    has_reduce = has_reduce or in_slots(obj, REDUCE)
+    has_reduce_ex = has_reduce_ex or in_slots(obj, REDUCE_EX)
+
+    # turn to the MRO
+    for base in type(obj).__mro__:
+        if is_reducible(base):
+            has_reduce = has_reduce or in_dict(base, REDUCE)
+            has_reduce_ex = has_reduce_ex or in_dict(base, REDUCE_EX)
+        if has_reduce_ex and has_reduce_ex:
+            return (True, True)
+
+    return (has_reduce, has_reduce_ex)
 
 
 def translate_module_name(module):

@@ -128,10 +128,14 @@ class Unpickler(object):
             restore = self._restore_id
         elif has_tag(obj, tags.REF): # Backwards compatibility
             restore = self._restore_ref
+        elif has_tag(obj, tags.ITERATOR):
+            restore = self._restore_iterator
         elif has_tag(obj, tags.TYPE):
             restore = self._restore_type
         elif has_tag(obj, tags.REPR): # Backwards compatibility
             restore = self._restore_repr
+        elif has_tag(obj, tags.REDUCE):
+            restore = self._restore_reduce
         elif has_tag(obj, tags.OBJECT):
             restore = self._restore_object
         elif has_tag(obj, tags.FUNCTION):
@@ -147,6 +151,50 @@ class Unpickler(object):
         else:
             restore = lambda x: x
         return restore(obj)
+
+    def _restore_iterator(self, obj):
+        return iter(self._restore_list(obj[tags.ITERATOR]))
+
+    def _restore_reduce(self, obj):
+        """
+        Supports restoring with all elements of __reduce__ as per pep 307.
+        Assumes that iterator items (the last two) are represented as lists
+        as per pickler implementation.
+        """
+        reduce_val = obj[tags.REDUCE]
+        f, args, state, listitems, dictitems = map(self._restore, reduce_val)
+        if f == tags.NEWOBJ or f.__name__ == '__newobj__':
+            # mandated special case
+            cls = args[0]
+            stage1 = cls.__new__(cls, *args[1:])
+        else:
+            stage1 = f(*args)
+
+        if state:
+            try:
+                stage1.__setstate__(state)
+            except AttributeError as err:
+                # it's fine - we'll try the prescribed default methods
+                try:
+                    stage1.__dict__.update(state)
+                except AttributeError as err:
+                    # next prescribed default
+                    for k, v in state.items():
+                        setattr(stage1, k, v)
+
+        if listitems:
+            # should be lists if not None
+            try:
+                stage1.extend(listitems)
+            except AttributeError:
+                for x in listitems:
+                    stage1.append(x)
+
+        if dictitems:
+            for k, v in dictitems:
+                stage1.__setitem__(k, v)
+
+        return stage1
 
     def _restore_id(self, obj):
         return self._objs[obj[tags.ID]]
@@ -194,6 +242,7 @@ class Unpickler(object):
     def _restore_object_instance(self, obj, cls):
         factory = self._loadfactory(obj)
         args = getargs(obj)
+        is_oldstyle = not (isinstance(cls, type) or getattr(cls, '__meta__', None))
 
         # This is a placeholder proxy object which allows child objects to
         # reference the parent object before it has been instantiated.
@@ -203,7 +252,7 @@ class Unpickler(object):
         if args:
             args = self._restore(args)
         try:
-            if hasattr(cls, '__new__'): # new style classes
+            if (not is_oldstyle) and hasattr(cls, '__new__'): # new style classes
                 if factory:
                     instance = cls.__new__(cls, factory, *args)
                     instance.default_factory = factory
@@ -212,10 +261,16 @@ class Unpickler(object):
             else:
                 instance = object.__new__(cls)
         except TypeError: # old-style classes
+            is_oldstyle = True
+
+        if is_oldstyle:
             try:
-                instance = cls()
-            except TypeError: # fail gracefully
-                return self._mkref(obj)
+                instance = cls(*args)
+            except TypeError:  # fail gracefully
+                try:
+                    instance = make_blank_classic(cls)
+                except:  # fail gracefully
+                    return self._mkref(obj)
 
         proxy.instance = instance
         self._swapref(proxy, instance)
@@ -420,6 +475,10 @@ def getargs(obj):
     # Let saved newargs take precedence over everything
     if has_tag(obj, tags.NEWARGS):
         return obj[tags.NEWARGS]
+
+    if has_tag(obj, tags.INITARGS):
+        return obj[tags.INITARGS]
+
     try:
         seq_list = obj[tags.SEQ]
         obj_dict = obj[tags.OBJECT]
@@ -433,6 +492,21 @@ def getargs(obj):
             return seq_list
     return []
 
+
+class _trivialclassic:
+    """
+    A trivial class that can be instantiated with no args
+    """
+
+def make_blank_classic(cls):
+    """
+    Implement the mandated strategy for dealing with classic classes
+    which cannot be instantiated without __getinitargs__ because they
+    take parameters
+    """
+    instance = _trivialclassic()
+    instance.__class__ = cls
+    return instance
 
 def loadrepr(reprstr):
     """Returns an instance of the object from the object's repr() string.

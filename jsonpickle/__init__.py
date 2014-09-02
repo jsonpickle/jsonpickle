@@ -80,7 +80,8 @@ def encode(value,
            keys=False,
            max_depth=None,
            backend=None,
-           warn=False):
+           warn=False,
+           max_iter=None):
     """
     Return a JSON formatted representation of value, a Python object.
 
@@ -101,6 +102,8 @@ def encode(value,
     :param warn: If set to True then jsonpickle will warn when it
         returns None for an object which it cannot pickle
         (e.g. file descriptors).
+    :param max_iter: If set to a non-negative integer then jsonpickle will
+        consume at most `max_iter` items when pickling iterators.
 
     >>> encode('my string')
     '"my string"'

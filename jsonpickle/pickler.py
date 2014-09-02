@@ -8,7 +8,8 @@
 # you should have received as part of this distribution.
 
 import warnings
-from itertools import chain
+import sys
+from itertools import chain, islice
 
 import jsonpickle.util as util
 import jsonpickle.tags as tags
@@ -26,7 +27,8 @@ def encode(value,
            reset=True,
            backend=None,
            warn=False,
-           context=None):
+           context=None,
+           max_iter=None):
     backend = _make_backend(backend)
     if context is None:
         context = Pickler(unpicklable=unpicklable,
@@ -34,7 +36,8 @@ def encode(value,
                           keys=keys,
                           backend=backend,
                           max_depth=max_depth,
-                          warn=warn)
+                          warn=warn,
+                          max_iter=max_iter)
     return backend.encode(context.flatten(value, reset=reset))
 
 
@@ -48,12 +51,13 @@ def _make_backend(backend):
 class Pickler(object):
 
     def __init__(self,
-                unpicklable=True,
-                make_refs=True,
-                max_depth=None,
-                backend=None,
-                keys=False,
-                warn=False):
+                 unpicklable=True,
+                 make_refs=True,
+                 max_depth=None,
+                 backend=None,
+                 keys=False,
+                 warn=False,
+                 max_iter=None):
         self.unpicklable = unpicklable
         self.make_refs = make_refs
         self.backend = _make_backend(backend)
@@ -67,6 +71,8 @@ class Pickler(object):
         self._objs = {}
         ## Avoids garbage collection
         self._seen = []
+        # maximum amount of items to take from a pickled iterator
+        self._max_iter = max_iter
 
     def reset(self):
         self._objs = {}
@@ -218,6 +224,8 @@ class Pickler(object):
         has_dict = hasattr(obj, '__dict__')
         has_slots = not has_dict and hasattr(obj, '__slots__')
         has_getnewargs = hasattr(obj, '__getnewargs__')
+        has_getinitargs = hasattr(obj, '__getinitargs__')
+        has_reduce, has_reduce_ex = util.has_reduce(obj)
 
         # Support objects with __getstate__(); this ensures that
         # both __setstate__() and __getstate__() are implemented
@@ -236,13 +244,52 @@ class Pickler(object):
                 data[tags.OBJECT] = class_name
             return handler(self).flatten(obj, data)
 
+        reduce_val = None
         if has_class and not util.is_module(obj):
             if self.unpicklable:
                 class_name = util.importable_name(cls)
                 data[tags.OBJECT] = class_name
 
+            # test for a reduce implementation, and redirect before doing anything else
+            # if that is what reduce requests
+            if has_reduce_ex:
+                try:
+                    # we're implementing protocol 2
+                    reduce_val = obj.__reduce_ex__(2)
+                except TypeError:
+                    # A lot of builtin types have a reduce which just raises a TypeError
+                    # we ignore those
+                    pass
+
+            if has_reduce and not reduce_val:
+                try:
+                    reduce_val = obj.__reduce__()
+                except TypeError:
+                    # A lot of builtin types have a reduce which just raises a TypeError
+                    # we ignore those
+                    pass
+
+            if reduce_val:
+                try:
+                    # At this stage, we only handle the case where __reduce__ returns a string
+                    # other reduce functionality is implemented further down
+                    if isinstance(reduce_val, (str, unicode)):
+                        varpath = iter(reduce_val.split('.'))
+                        # curmod will be transformed by the loop into the value to pickle
+                        curmod = sys.modules[next(varpath)]
+                        for modname in varpath:
+                            curmod = getattr(curmod, modname)
+                            # replace obj with value retrieved
+                        return self._flatten(curmod)
+                except KeyError:
+                    # well, we can't do anything with that, so we ignore it
+                    pass
+
             if has_getnewargs:
                 data[tags.NEWARGS] = self._flatten(obj.__getnewargs__())
+
+            if has_getinitargs:
+                data[tags.INITARGS] = self._flatten(obj.__getinitargs__())
 
         if has_getstate:
             try:
@@ -267,6 +314,40 @@ class Pickler(object):
             self._flatten_dict_obj(obj, data)
             return data
 
+        if util.is_sequence_subclass(obj):
+            return self._flatten_sequence_obj(obj, data)
+
+        if util.is_noncomplex(obj):
+            return [self._flatten(v) for v in obj]
+
+        if util.is_iterator(obj):
+            # force list in python 3
+            data[tags.ITERATOR] = list(map(self._flatten, islice(obj, self._max_iter)))
+            return data
+
+        if reduce_val and not isinstance(reduce_val, (str, unicode)):
+            # at this point, reduce_val should be some kind of iterable
+            # pad out to len 5
+            rv_as_list = list(reduce_val)
+            insufficiency = 5 - len(rv_as_list)
+            if insufficiency:
+                rv_as_list+=[None]*insufficiency
+
+            if rv_as_list[0].__name__ == '__newobj__':
+                rv_as_list[0] = tags.NEWOBJ
+
+            data[tags.REDUCE] = list(map(self._flatten, rv_as_list))
+
+            # lift out iterators, so we don't have to iterator and uniterator their content
+            # on unpickle
+            if data[tags.REDUCE][3]:
+                data[tags.REDUCE][3] = data[tags.REDUCE][3][tags.ITERATOR]
+
+            if data[tags.REDUCE][4]:
+                data[tags.REDUCE][4] = data[tags.REDUCE][4][tags.ITERATOR]
+
+            return data
+
         if has_dict:
             # Support objects that subclasses list and set
             if util.is_sequence_subclass(obj):
@@ -275,12 +356,6 @@ class Pickler(object):
             # hack for zope persistent objects; this unghostifies the object
             getattr(obj, '_', None)
             return self._flatten_dict_obj(obj.__dict__, data)
-
-        if util.is_sequence_subclass(obj):
-            return self._flatten_sequence_obj(obj, data)
-
-        if util.is_noncomplex(obj):
-            return [self._flatten(v) for v in obj]
 
         if has_slots:
             return self._flatten_newstyle_with_slots(obj, data)
