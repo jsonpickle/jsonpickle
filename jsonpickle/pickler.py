@@ -18,7 +18,6 @@ import jsonpickle.handlers as handlers
 from jsonpickle.backend import JSONBackend
 from jsonpickle.compat import unicode
 
-MAX_ITER = 10000
 
 def encode(value,
            unpicklable=False,
@@ -29,7 +28,7 @@ def encode(value,
            backend=None,
            warn=False,
            context=None,
-           max_iter=MAX_ITER):
+           max_iter=None):
     backend = _make_backend(backend)
     if context is None:
         context = Pickler(unpicklable=unpicklable,
@@ -58,7 +57,7 @@ class Pickler(object):
                  backend=None,
                  keys=False,
                  warn=False,
-                 max_iter=MAX_ITER):
+                 max_iter=None):
         self.unpicklable = unpicklable
         self.make_refs = make_refs
         self.backend = _make_backend(backend)
@@ -74,6 +73,7 @@ class Pickler(object):
         self._seen = []
         # maximum amount of items to take from a pickled iterator
         self._max_iter = max_iter
+
     def reset(self):
         self._objs = {}
         self._depth = -1
