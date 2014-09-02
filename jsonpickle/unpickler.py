@@ -157,7 +157,9 @@ class Unpickler(object):
 
     def _restore_reduce(self, obj):
         """
-        At present only supports the two required arguments
+        Supports restoring with all elements of __reduce__ as per pep 307.
+        Assumes that iterator items (the last two) are represented as lists
+        as per pickler implementation.
         """
         reduce_val = obj[tags.REDUCE]
         f, args, state, listitems, dictitems = map(self._restore, reduce_val)
@@ -240,6 +242,7 @@ class Unpickler(object):
     def _restore_object_instance(self, obj, cls):
         factory = self._loadfactory(obj)
         args = getargs(obj)
+        is_oldstyle = not (isinstance(cls, type) or getattr(cls, '__meta__', None))
 
         # This is a placeholder proxy object which allows child objects to
         # reference the parent object before it has been instantiated.
@@ -249,7 +252,7 @@ class Unpickler(object):
         if args:
             args = self._restore(args)
         try:
-            if hasattr(cls, '__new__'): # new style classes
+            if (not is_oldstyle) and hasattr(cls, '__new__'): # new style classes
                 if factory:
                     instance = cls.__new__(cls, factory, *args)
                     instance.default_factory = factory
@@ -258,10 +261,16 @@ class Unpickler(object):
             else:
                 instance = object.__new__(cls)
         except TypeError: # old-style classes
+            is_oldstyle = True
+
+        if is_oldstyle:
             try:
-                instance = cls()
-            except TypeError: # fail gracefully
-                return self._mkref(obj)
+                instance = cls(*args)
+            except TypeError:  # fail gracefully
+                try:
+                    instance = make_blank_classic(cls)
+                except:  # fail gracefully
+                    return self._mkref(obj)
 
         proxy.instance = instance
         self._swapref(proxy, instance)
@@ -466,6 +475,10 @@ def getargs(obj):
     # Let saved newargs take precedence over everything
     if has_tag(obj, tags.NEWARGS):
         return obj[tags.NEWARGS]
+
+    if has_tag(obj, tags.INITARGS):
+        return obj[tags.INITARGS]
+
     try:
         seq_list = obj[tags.SEQ]
         obj_dict = obj[tags.OBJECT]
@@ -479,6 +492,21 @@ def getargs(obj):
             return seq_list
     return []
 
+
+class _trivialclassic:
+    """
+    A trivial class that can be instantiated with no args
+    """
+
+def make_blank_classic(cls):
+    """
+    Implement the mandated strategy for dealing with classic classes
+    which cannot be instantiated without __getinitargs__ because they
+    take parameters
+    """
+    instance = _trivialclassic()
+    instance.__class__ = cls
+    return instance
 
 def loadrepr(reprstr):
     """Returns an instance of the object from the object's repr() string.

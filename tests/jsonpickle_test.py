@@ -17,7 +17,7 @@ import jsonpickle
 from jsonpickle import tags, util
 from jsonpickle.compat import unicode
 from jsonpickle.compat import unichr
-from jsonpickle.compat import PY32
+from jsonpickle.compat import PY32, PY3
 
 
 class Thing(object):
@@ -776,7 +776,7 @@ def __newobj__(lol, fail):
 class PickleProtocol2ReduceNewobj(PickleProtocol2ReduceTupleFunc):
 
     def __new__(cls, *args):
-        inst = super(cls, cls).__new__(cls, *args)
+        inst = super(cls, cls).__new__(cls)
         inst.newargs = args
         return inst
 
@@ -873,14 +873,55 @@ class PickleProtocol2ReduceDictitems(object):
     def __setitem__(self, k, v):
         return self.inner.__setitem__(k, v)
 
+class PickleProtocol2Classic:
+
+    def __init__(self, foo):
+        self.foo = foo
+
+
+class PickleProtocol2ClassicInitargs:
+
+    def __init__(self, foo, bar=None):
+        self.foo = foo
+        if bar:
+            self.bar=bar
+
+    def __getinitargs__(self):
+        return ('choo', 'choo')
+
 
 class PicklingProtocol2TestCase(unittest.TestCase):
+
+    def test_classic_init_has_args(self):
+        """
+        Test unpickling a classic instance whose init takes args,
+        has no __getinitargs__
+        Because classic only exists under 2, skipped if PY3
+        """
+        if PY3:
+            self.skipTest('No classic classes in PY3')
+        instance = PickleProtocol2Classic(3)
+        encoded = jsonpickle.encode(instance)
+        decoded = jsonpickle.decode(encoded)
+        self.assertEqual(decoded.foo, 3)
+
+    def test_getinitargs(self):
+        """
+        Test __getinitargs__ with classic instance
+
+        Because classic only exists under 2, skipped if PY3
+        """
+        if PY3:
+            self.skipTest('No classic classes in PY3')
+        instance = PickleProtocol2ClassicInitargs(3)
+        encoded = jsonpickle.encode(instance)
+        decoded = jsonpickle.decode(encoded)
+        self.assertEqual(decoded.bar, 'choo')
 
     def test_reduce_dictitems(self):
         'Test reduce with dictitems set (as a generator)'
         instance = PickleProtocol2ReduceDictitems()
         encoded = jsonpickle.encode(instance)
-        print encoded
         decoded = jsonpickle.decode(encoded)
         self.assertEqual(decoded.inner, {'foo': 'foo', 'bar': 'bar'})
 
@@ -888,7 +929,6 @@ class PicklingProtocol2TestCase(unittest.TestCase):
         'Test reduce with listitems set (as a generator), yielding single items'
         instance = PickleProtocol2ReduceListitemsExtend()
         encoded = jsonpickle.encode(instance)
-        # print encoded
         decoded = jsonpickle.decode(encoded)
         self.assertEqual(decoded.inner, ['foo', 'bar'])
 
@@ -896,7 +936,6 @@ class PicklingProtocol2TestCase(unittest.TestCase):
         'Test reduce with listitems set (as a generator), yielding single items'
         instance = PickleProtocol2ReduceListitemsAppend()
         encoded = jsonpickle.encode(instance)
-        # print encoded
         decoded = jsonpickle.decode(encoded)
         self.assertEqual(decoded.inner, ['foo', 'bar'])
 
@@ -962,7 +1001,6 @@ class PicklingProtocol2TestCase(unittest.TestCase):
         instance = PickleProtocol2ReduceNewobj(5)
         encoded = jsonpickle.encode(instance)
         decoded = jsonpickle.decode(encoded)
-        print encoded
         self.assertEqual(decoded.newargs, ('yam', 1))
 
     def test_reduce_iter(self):
@@ -970,7 +1008,6 @@ class PicklingProtocol2TestCase(unittest.TestCase):
         self.assertTrue(util.is_iterator(instance))
         encoded = jsonpickle.encode(instance)
         decoded = jsonpickle.decode(encoded)
-        print encoded
         self.assertEqual(next(decoded), '1')
         self.assertEqual(next(decoded), '2')
         self.assertEqual(next(decoded), '3')

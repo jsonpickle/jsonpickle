@@ -224,6 +224,7 @@ class Pickler(object):
         has_dict = hasattr(obj, '__dict__')
         has_slots = not has_dict and hasattr(obj, '__slots__')
         has_getnewargs = hasattr(obj, '__getnewargs__')
+        has_getinitargs = hasattr(obj, '__getinitargs__')
         has_reduce, has_reduce_ex = util.has_reduce(obj)
 
         # Support objects with __getstate__(); this ensures that
@@ -270,8 +271,9 @@ class Pickler(object):
 
             if reduce_val:
                 try:
-                    # At present, we only handle the case where __reduce__ returns a string
-                    if isinstance(reduce_val, basestring):
+                    # At this stage, we only handle the case where __reduce__ returns a string
+                    # other reduce functionality is implemented further down
+                    if isinstance(reduce_val, (str, unicode)):
                         varpath = iter(reduce_val.split('.'))
                         # curmod will be transformed by the loop into the value to pickle
                         curmod = sys.modules[next(varpath)]
@@ -285,6 +287,9 @@ class Pickler(object):
 
             if has_getnewargs:
                 data[tags.NEWARGS] = self._flatten(obj.__getnewargs__())
+
+            if has_getinitargs:
+                data[tags.INITARGS] = self._flatten(obj.__getinitargs__())
 
         if has_getstate:
             try:
@@ -316,11 +321,11 @@ class Pickler(object):
             return [self._flatten(v) for v in obj]
 
         if util.is_iterator(obj):
-            data[tags.ITERATOR] = map(self._flatten, islice(obj, self._max_iter))
+            # force list in python 3
+            data[tags.ITERATOR] = list(map(self._flatten, islice(obj, self._max_iter)))
             return data
 
-
-        if reduce_val and not isinstance(reduce_val, basestring):
+        if reduce_val and not isinstance(reduce_val, (str, unicode)):
             # at this point, reduce_val should be some kind of iterable
             # pad out to len 5
             rv_as_list = list(reduce_val)
@@ -328,11 +333,10 @@ class Pickler(object):
             if insufficiency:
                 rv_as_list+=[None]*insufficiency
 
-            # TODO: pickling iterators requires __newobj__ support!
             if rv_as_list[0].__name__ == '__newobj__':
                 rv_as_list[0] = tags.NEWOBJ
 
-            data[tags.REDUCE] = map(self._flatten, rv_as_list)
+            data[tags.REDUCE] = list(map(self._flatten, rv_as_list))
 
             # lift out iterators, so we don't have to iterator and uniterator their content
             # on unpickle
@@ -341,6 +345,8 @@ class Pickler(object):
 
             if data[tags.REDUCE][4]:
                 data[tags.REDUCE][4] = data[tags.REDUCE][4][tags.ITERATOR]
+
+            return data
 
         if has_dict:
             # Support objects that subclasses list and set
