@@ -78,6 +78,7 @@ Authors
  * David K. Hess - http://github.com/davidkhess
  * Alec Thomas - http://github.com/alecthomas
  * jaraco - https://github.com/jaraco
+ * Marcin Tustin - https://github.com/marcintustin
 
 
 Change Log
