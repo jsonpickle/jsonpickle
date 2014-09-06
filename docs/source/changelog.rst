@@ -1,7 +1,7 @@
 Change Log
 ==========
-Version 0.8.0 - TBD, Fall 2014
-------------------------------
+Version 0.8.0 - September 6, 2014
+---------------------------------
 
     * We now support serializing objects that contain references to
       module-level functions
@@ -13,6 +13,12 @@ Version 0.8.0 - TBD, Fall 2014
     * Support for string __slots__ and iterable __slots__
       (`#67 <https://github.com/jsonpickle/jsonpickle/issues/66>`_)
       (`#68 <https://github.com/jsonpickle/jsonpickle/issues/67>`_).
+
+    * `encode()` now has a `warn` option that makes jsonpickle emit warnings
+      when encountering objects that cannot be pickled.
+
+    * A Javascript implementation of jsonpickle is now included
+      in the jsonpickleJS directory.
 
 Version 0.7.2 - August 6, 2014
 ------------------------------
