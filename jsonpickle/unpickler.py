@@ -325,8 +325,8 @@ class Unpickler(object):
 
     def _restore_state(self, obj, instance):
         state = self._restore(obj[tags.STATE])
-        has_slots = (isinstance(state, tuple) and len(state) == 2 
-                     and isinstance(state[1], dict))
+        has_slots = (isinstance(state, tuple) and len(state) == 2
+                        and isinstance(state[1], dict))
         has_slots_and_dict = has_slots and isinstance(state[0], dict)
         if hasattr(instance, '__setstate__'):
             instance.__setstate__(state)
@@ -338,7 +338,7 @@ class Unpickler(object):
         elif has_slots:
             self._restore_from_dict(state[1], instance, ignorereserved=False)
             if has_slots_and_dict:
-                self._restore_from_dict(state[0], 
+                self._restore_from_dict(state[0],
                                         instance, ignorereserved=False)
         elif not hasattr(instance, '__getnewargs__'):
             # __setstate__ is not implemented so that means that the best
@@ -356,7 +356,7 @@ class Unpickler(object):
         method = _obj_setvalue
         proxies = [(parent, idx, value, method)
                     for idx, value in enumerate(parent)
-                        if type(value) is _Proxy]
+                        if isinstance(value, _Proxy)]
         self._proxies.extend(proxies)
         return parent
 
