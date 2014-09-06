@@ -651,6 +651,25 @@ class PicklableNamedTuple(object):
         instance = ntuple.__new__(ntuple, *vals)
         return instance
 
+class PicklableNamedTupleEx(object):
+    """
+    A picklable namedtuple wrapper, to demonstrate the need
+    for protocol 4 compatibility. Yes, this is contrived in
+    its use of new, but it demonstrates the issue.
+    """
+    def __getnewargs__(self):
+        raise NotImplementedError("This class needs __getnewargs_ex__")
+
+    def __new__(cls, newargs=__getnewargs__, **kwargs):
+        # it's necessary to use the correct class name for class resolution
+        # classes that fake their own names may never be unpicklable
+        ntuple = collections.namedtuple(cls.__name__, sorted(kwargs.keys()))
+        ntuple.__getnewargs_ex__ = (lambda self: ((), kwargs))
+        ntuple.__getnewargs__ = newargs
+        instance = ntuple.__new__(ntuple,
+                                  *[b for a,b in sorted(kwargs.items())])
+        return instance
+
 
 class PickleProtocol2Thing(object):
 
@@ -889,6 +908,29 @@ class PickleProtocol2ClassicInitargs:
     def __getinitargs__(self):
         return ('choo', 'choo')
 
+class PicklingProtocol4TestCase(unittest.TestCase):
+
+    def test_pickle_newargs_ex(self):
+        """
+        Ensure we can pickle and unpickle an object whose class needs arguments
+        to __new__ and get back the same typle
+        """
+        instance = PicklableNamedTupleEx(**{'a': 'b', 'n': 2})
+        encoded = jsonpickle.encode(instance)
+        decoded = jsonpickle.decode(encoded)
+        self.assertEqual(instance, decoded)
+
+    def test_validate_reconstruct_by_newargs_ex(self):
+        """
+        Ensure that the exemplar tuple's __getnewargs_ex__ works
+        This is necessary to know whether the breakage exists
+        in jsonpickle or not
+        """
+        instance = PicklableNamedTupleEx(**{'a': 'b', 'n': 2})
+        args, kwargs = instance.__getnewargs_ex__()
+        newinstance = PicklableNamedTupleEx.__new__(PicklableNamedTupleEx,
+                                                  *args, **kwargs)
+        self.assertEqual(instance, newinstance)
 
 class PicklingProtocol2TestCase(unittest.TestCase):
 
