@@ -241,7 +241,12 @@ class Unpickler(object):
 
     def _restore_object_instance(self, obj, cls):
         factory = self._loadfactory(obj)
-        args = getargs(obj)
+        if has_tag(obj, tags.NEWARGSEX):
+            args, kwargs = obj[tags.NEWARGSEX]
+        else:
+            args = getargs(obj)
+            kwargs = {}
+
         is_oldstyle = not (isinstance(cls, type) or getattr(cls, '__meta__', None))
 
         # This is a placeholder proxy object which allows child objects to
@@ -254,10 +259,10 @@ class Unpickler(object):
         try:
             if (not is_oldstyle) and hasattr(cls, '__new__'): # new style classes
                 if factory:
-                    instance = cls.__new__(cls, factory, *args)
+                    instance = cls.__new__(cls, factory, *args, **kwargs)
                     instance.default_factory = factory
                 else:
-                    instance = cls.__new__(cls, *args)
+                    instance = cls.__new__(cls, *args, **kwargs)
             else:
                 instance = object.__new__(cls)
         except TypeError: # old-style classes
@@ -340,7 +345,8 @@ class Unpickler(object):
             if has_slots_and_dict:
                 self._restore_from_dict(state[0],
                                         instance, ignorereserved=False)
-        elif not hasattr(instance, '__getnewargs__'):
+        elif (not hasattr(instance, '__getnewargs__')
+              and not hasattr(instance, '__getnewargs_ex__')):
             # __setstate__ is not implemented so that means that the best
             # we can do is return the result of __getstate__() rather than
             # return an empty shell of an object.
@@ -473,6 +479,9 @@ def loadclass(module_and_name):
 def getargs(obj):
     """Return arguments suitable for __new__()"""
     # Let saved newargs take precedence over everything
+    if has_tag(obj, tags.NEWARGSEX):
+        raise ValueError("__newargs_ex__ returns both args and kwargs")
+
     if has_tag(obj, tags.NEWARGS):
         return obj[tags.NEWARGS]
 
