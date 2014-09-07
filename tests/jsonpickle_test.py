@@ -908,6 +908,7 @@ class PickleProtocol2ClassicInitargs:
     def __getinitargs__(self):
         return ('choo', 'choo')
 
+
 class PicklingProtocol4TestCase(unittest.TestCase):
 
     def test_pickle_newargs_ex(self):
@@ -1215,9 +1216,10 @@ class PicklingProtocol2TestCase(unittest.TestCase):
 
 def suite():
     suite = unittest.TestSuite()
+    suite.addTest(unittest.makeSuite(JSONPickleTestCase))
     suite.addTest(unittest.makeSuite(PicklingTestCase))
     suite.addTest(unittest.makeSuite(PicklingProtocol2TestCase))
-    suite.addTest(unittest.makeSuite(JSONPickleTestCase))
+    suite.addTest(unittest.makeSuite(PicklingProtocol4TestCase))
     suite.addTest(doctest.DocTestSuite(jsonpickle.pickler))
     suite.addTest(doctest.DocTestSuite(jsonpickle.unpickler))
     suite.addTest(doctest.DocTestSuite(jsonpickle))
