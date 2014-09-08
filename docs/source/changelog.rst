@@ -1,5 +1,9 @@
 Change Log
 ==========
+Version 0.8.1 - October TBD, 2014
+---------------------------------
+    * Support for Pickle Protocol v4.
+
 Version 0.8.0 - September 6, 2014
 ---------------------------------
 
