@@ -651,6 +651,7 @@ class PicklableNamedTuple(object):
         instance = ntuple.__new__(ntuple, *vals)
         return instance
 
+
 class PicklableNamedTupleEx(object):
     """
     A picklable namedtuple wrapper, to demonstrate the need
@@ -932,6 +933,32 @@ class PicklingProtocol4TestCase(unittest.TestCase):
         newinstance = PicklableNamedTupleEx.__new__(PicklableNamedTupleEx,
                                                   *args, **kwargs)
         self.assertEqual(instance, newinstance)
+
+    def test_references(self):
+        shared = Thing('shared')
+        instance = PicklableNamedTupleEx(**{'a': shared, 'n': shared})
+        child = Thing('child')
+        shared.child = child
+        child.child = instance
+
+        encoded = jsonpickle.encode(instance)
+        decoded = jsonpickle.decode(encoded)
+
+        self.assertEqual(decoded[0], decoded[1])
+        self.assertTrue(decoded[0] is decoded[1])
+        self.assertTrue(decoded.a is decoded.n)
+        self.assertEqual(decoded.a.name, 'shared')
+        self.assertEqual(decoded.a.child.name, 'child')
+        self.assertTrue(decoded.a.child.child is decoded)
+        self.assertTrue(decoded.n.child.child is decoded)
+        self.assertTrue(decoded.a.child is decoded.n.child)
+
+        self.assertEqual(decoded.__class__.__name__,
+                         PicklableNamedTupleEx.__name__)
+        # TODO the class itself looks just like the real class, but it's
+        # actually a reconstruction; PicklableNamedTupleEx is not type(decoded).
+        self.assertFalse(decoded.__class__ is PicklableNamedTupleEx)
+
 
 class PicklingProtocol2TestCase(unittest.TestCase):
 

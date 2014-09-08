@@ -256,6 +256,8 @@ class Unpickler(object):
 
         if args:
             args = self._restore(args)
+        if kwargs:
+            kwargs = self._restore(kwargs)
         try:
             if (not is_oldstyle) and hasattr(cls, '__new__'): # new style classes
                 if factory:
