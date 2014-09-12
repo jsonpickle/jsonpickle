@@ -597,6 +597,9 @@ class AdvancedObjectsTestCase(unittest.TestCase):
         self.assertEqual('fat', match.group(1))
         self.assertEqual('cat', match.group(2))
 
+    def test_base_object_roundrip(self):
+        roundtrip = self.unpickler.restore(self.pickler.flatten(object()))
+        self.assertEqual(type(roundtrip), object)
 
 # Test classes for ExternalHandlerTestCase
 class Mixin(object):

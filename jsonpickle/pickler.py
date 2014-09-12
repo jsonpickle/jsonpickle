@@ -364,6 +364,10 @@ class Pickler(object):
         if has_slots:
             return self._flatten_newstyle_with_slots(obj, data)
 
+        # catchall return for data created above without a return (e.g. __getnewargs__ is not supposed to be the end of the story)
+        if data:
+            return data
+
         self._pickle_warning(obj)
         return None
 
