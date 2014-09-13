@@ -56,11 +56,12 @@ RSS_DOC = """<?xml version="1.0" encoding="utf-8"?>
   </entry>
 </feed>"""
 
-class FeedParserTest(unittest.TestCase):
+
+class FeedParserTestCase(unittest.TestCase):
     def setUp(self):
         try:
             import feedparser
-        except ImportError as e:
+        except ImportError:
             if hasattr(self, 'skipTest'):
                 doit = self.skipTest
             else:
@@ -76,8 +77,9 @@ class FeedParserTest(unittest.TestCase):
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(FeedParserTest, 'test'))
+    suite.addTest(unittest.makeSuite(FeedParserTestCase, 'test'))
     return suite
+
 
 if __name__ == '__main__':
     unittest.main(defaultTest='suite')

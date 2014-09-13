@@ -6,9 +6,11 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 
+import doctest
 import unittest
 
 import jsonpickle
+import jsonpickle.handlers
 
 
 class CustomObject(object):
@@ -31,10 +33,13 @@ class NullHandler(jsonpickle.handlers.BaseHandler):
         return CustomObject(obj['name'], creator=NullHandler)
 
 
-class HandlerTests(unittest.TestCase):
+class HandlerTestCase(unittest.TestCase):
 
     def setUp(self):
         jsonpickle.handlers.register(CustomObject, NullHandler)
+
+    def tearDown(self):
+        jsonpickle.handlers.unregister(CustomObject)
 
     def roundtrip(self, ob):
         encoded = jsonpickle.encode(ob)
@@ -68,7 +73,8 @@ class HandlerTests(unittest.TestCase):
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(HandlerTests))
+    suite.addTest(unittest.makeSuite(HandlerTestCase))
+    suite.addTest(doctest.DocTestSuite(jsonpickle.handlers))
     return suite
 
 
