@@ -994,6 +994,12 @@ class PicklingProtocol2TestCase(unittest.TestCase):
         decoded = jsonpickle.decode(encoded)
         self.assertEqual(decoded, instance)
 
+    def test_reduce_complex_zero(self):
+        instance = 0j
+        encoded = jsonpickle.encode(instance)
+        decoded = jsonpickle.decode(encoded)
+        self.assertEqual(decoded, instance)
+
     def test_reduce_dictitems(self):
         'Test reduce with dictitems set (as a generator)'
         instance = PickleProtocol2ReduceDictitems()
