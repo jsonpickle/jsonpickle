@@ -16,7 +16,7 @@ import jsonpickle.tags as tags
 import jsonpickle.handlers as handlers
 
 from jsonpickle.backend import JSONBackend
-from jsonpickle.compat import unicode
+from jsonpickle.compat import unicode, PY3, PY2
 
 
 def encode(value,
@@ -165,6 +165,9 @@ class Pickler(object):
 
     def _get_flattener(self, obj):
 
+        if PY2 and isinstance(obj, file):
+            return self._flatten_file
+
         if util.is_primitive(obj):
             return lambda obj: obj
 
@@ -215,6 +218,14 @@ class Pickler(object):
         # reference tag in the data. This avoids infinite recursion
         # when processing cyclical objects.
         return self._getref(obj)
+
+
+    def _flatten_file(self, obj):
+        """
+        Special case file objects
+        """
+        assert not PY3 and isinstance(obj, file)
+        return None
 
     def _flatten_obj_instance(self, obj):
         """Recursively flatten an instance and return a json-friendly dict
@@ -363,6 +374,10 @@ class Pickler(object):
 
         if has_slots:
             return self._flatten_newstyle_with_slots(obj, data)
+
+        # catchall return for data created above without a return (e.g. __getnewargs__ is not supposed to be the end of the story)
+        if data:
+            return data
 
         self._pickle_warning(obj)
         return None
