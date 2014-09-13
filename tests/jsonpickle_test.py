@@ -13,6 +13,8 @@ import unittest
 import collections
 
 import jsonpickle
+import jsonpickle.backend
+import jsonpickle.handlers
 
 from jsonpickle import tags, util
 from jsonpickle.compat import unicode
@@ -1247,9 +1249,9 @@ def suite():
     suite.addTest(unittest.makeSuite(PicklingTestCase))
     suite.addTest(unittest.makeSuite(PicklingProtocol2TestCase))
     suite.addTest(unittest.makeSuite(PicklingProtocol4TestCase))
+    suite.addTest(doctest.DocTestSuite(jsonpickle))
     suite.addTest(doctest.DocTestSuite(jsonpickle.pickler))
     suite.addTest(doctest.DocTestSuite(jsonpickle.unpickler))
-    suite.addTest(doctest.DocTestSuite(jsonpickle))
     return suite
 
 if __name__ == '__main__':

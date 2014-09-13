@@ -38,6 +38,9 @@ class Registry(object):
     def __init__(self):
         self._handlers = {}
 
+    def get(self, class_name):
+        return self._handlers.get(class_name)
+
     def register(self, cls, handler):
         """Register the a custom handler for a class
 
@@ -45,15 +48,20 @@ class Registry(object):
         :param handler: The custom handler class
 
         """
-        key = util.importable_name(cls)
-        self._handlers[key] = handler
+        class_name = util.importable_name(cls)
+        self._handlers[class_name] = handler
 
-    def get(self, class_name):
-        return self._handlers.get(class_name)
+    def unregister(self, cls):
+        class_name = util.importable_name(cls)
+        try:
+            del self._handlers[class_name]
+        except KeyError:
+            pass
 
 
 registry = Registry()
 register = registry.register
+unregister = registry.unregister
 get = registry.get
 
 
