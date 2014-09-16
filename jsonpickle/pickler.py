@@ -447,15 +447,16 @@ class Pickler(object):
             return data
         if not isinstance(k, (str, unicode)):
             if self.keys:
-                k = tags.JSON_KEY + encode(k,
-                                           reset=False, keys=True,
-                                           context=self, backend=self.backend,
-                                           make_refs=self.make_refs)
+                k = self._escape_string_key(k)
             else:
                 try:
                     k = repr(k)
                 except:
                     k = unicode(k)
+        elif k.startswith(tags.JSON_KEY):
+            if self.keys:
+                k = self._escape_string_key(k)
+
         data[k] = self._flatten(v)
         return data
 
@@ -469,6 +470,12 @@ class Pickler(object):
         else:
             return value
         return data
+
+    def _escape_string_key(self, k):
+        return tags.JSON_KEY + encode(k,
+                                      reset=False, keys=True,
+                                      context=self, backend=self.backend,
+                                      make_refs=self.make_refs)
 
     def _getstate(self, obj, data):
         state = self._flatten_obj(obj)
