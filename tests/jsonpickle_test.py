@@ -444,6 +444,21 @@ class JSONPickleTestCase(unittest.TestCase):
         actual = jsonpickle.decode(pickle, keys=True)
         self.assertEqual(actual[(1, 2)], [1, 2])
 
+    def test_None_dict_key_default(self):
+        # We do string coercion for non-string keys so None becomes 'None'
+        expect = {'None': None}
+        obj = {None: None}
+        pickle = jsonpickle.encode(obj)
+        actual = jsonpickle.decode(pickle)
+        self.assertEqual(expect, actual)
+
+    def test_None_dict_key_with_keys_enabled(self):
+        expect = {None: None}
+        obj = {None: None}
+        pickle = jsonpickle.encode(obj, keys=True)
+        actual = jsonpickle.decode(pickle, keys=True)
+        self.assertEqual(expect, actual)
+
     def test_object_dict_keys(self):
         """Test that we handle random objects as keys.
 
