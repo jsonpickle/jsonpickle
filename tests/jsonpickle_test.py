@@ -138,8 +138,8 @@ class PicklingTestCase(unittest.TestCase):
         for s in setlist:
             self.assertTrue(s in flattened[tags.SET])
 
-        setA_pickled = {tags.SET: setlist}
-        self.assertEqual(setA, self.unpickler.restore(setA_pickled))
+        setA_pickle = {tags.SET: setlist}
+        self.assertEqual(setA, self.unpickler.restore(setA_pickle))
 
     def test_dict(self):
         dictA = {'key1': 1.0, 'key2': 20, 'key3': 'thirty'}
@@ -152,13 +152,13 @@ class PicklingTestCase(unittest.TestCase):
     def test_tuple(self):
         # currently all collections are converted to lists
         tupleA = (4, 16, 32)
-        tupleA_pickled = {tags.TUPLE: [4, 16, 32]}
-        self.assertEqual(tupleA_pickled, self.pickler.flatten(tupleA))
-        self.assertEqual(tupleA, self.unpickler.restore(tupleA_pickled))
+        tupleA_pickle = {tags.TUPLE: [4, 16, 32]}
+        self.assertEqual(tupleA_pickle, self.pickler.flatten(tupleA))
+        self.assertEqual(tupleA, self.unpickler.restore(tupleA_pickle))
         tupleB = (4,)
-        tupleB_pickled = {tags.TUPLE: [4]}
-        self.assertEqual(tupleB_pickled, self.pickler.flatten(tupleB))
-        self.assertEqual(tupleB, self.unpickler.restore(tupleB_pickled))
+        tupleB_pickle = {tags.TUPLE: [4]}
+        self.assertEqual(tupleB_pickle, self.pickler.flatten(tupleB))
+        self.assertEqual(tupleB, self.unpickler.restore(tupleB_pickle))
 
     def test_tuple_roundtrip(self):
         data = (1,2,3)
@@ -384,129 +384,129 @@ class JSONPickleTestCase(unittest.TestCase):
 
     def test_encode(self):
         expect = self.obj
-        pickled = jsonpickle.encode(self.obj)
-        actual = jsonpickle.decode(pickled)
+        pickle = jsonpickle.encode(self.obj)
+        actual = jsonpickle.decode(pickle)
         self.assertEqual(expect.name, actual.name)
         self.assertEqual(expect.child, actual.child)
 
     def test_encode_notunpicklable(self):
         expect = {'name': 'A name', 'child': None}
-        pickled = jsonpickle.encode(self.obj, unpicklable=False)
-        actual = jsonpickle.decode(pickled)
+        pickle = jsonpickle.encode(self.obj, unpicklable=False)
+        actual = jsonpickle.decode(pickle)
         self.assertEqual(expect['name'], actual['name'])
 
     def test_decode(self):
-        unpickled = jsonpickle.decode(self.expected_json)
-        self.assertEqual(self.obj.name, unpickled.name)
-        self.assertEqual(type(self.obj), type(unpickled))
+        actual = jsonpickle.decode(self.expected_json)
+        self.assertEqual(self.obj.name, actual.name)
+        self.assertEqual(type(self.obj), type(actual))
 
     def test_json(self):
         expect = self.obj
-        pickled = jsonpickle.encode(self.obj)
-        actual = jsonpickle.decode(pickled)
+        pickle = jsonpickle.encode(self.obj)
+        actual = jsonpickle.decode(pickle)
         self.assertEqual(actual.name, expect.name)
         self.assertEqual(actual.child, expect.child)
 
-        unpickled = jsonpickle.decode(self.expected_json)
-        self.assertEqual(self.obj.name, unpickled.name)
-        self.assertEqual(type(self.obj), type(unpickled))
+        actual = jsonpickle.decode(self.expected_json)
+        self.assertEqual(self.obj.name, actual.name)
+        self.assertEqual(type(self.obj), type(actual))
 
     def test_unicode_dict_keys(self):
         uni = unichr(0x1234)
-        pickled = jsonpickle.encode({uni: uni})
-        unpickled = jsonpickle.decode(pickled)
-        self.assertTrue(uni in unpickled)
-        self.assertEqual(unpickled[uni], uni)
+        pickle = jsonpickle.encode({uni: uni})
+        actual = jsonpickle.decode(pickle)
+        self.assertTrue(uni in actual)
+        self.assertEqual(actual[uni], uni)
 
     def test_tuple_dict_keys_default(self):
         """Test that we handle dictionaries with tuples as keys."""
         tuple_dict = {(1, 2): 3, (4, 5): { (7, 8): 9 }}
-        pickled = jsonpickle.encode(tuple_dict)
+        pickle = jsonpickle.encode(tuple_dict)
         expect = {'(1, 2)': 3, '(4, 5)': {'(7, 8)': 9}}
-        actual = jsonpickle.decode(pickled)
+        actual = jsonpickle.decode(pickle)
         self.assertEqual(expect, actual)
 
         tuple_dict = {(1, 2): [1, 2]}
-        pickled = jsonpickle.encode(tuple_dict)
-        unpickled = jsonpickle.decode(pickled)
-        self.assertEqual(unpickled['(1, 2)'], [1, 2])
+        pickle = jsonpickle.encode(tuple_dict)
+        actual = jsonpickle.decode(pickle)
+        self.assertEqual(actual['(1, 2)'], [1, 2])
 
     def test_tuple_dict_keys_with_keys_enabled(self):
         """Test that we handle dictionaries with tuples as keys."""
         tuple_dict = {(1, 2): 3, (4, 5): { (7, 8): 9 }}
-        pickled = jsonpickle.encode(tuple_dict, keys=True)
+        pickle = jsonpickle.encode(tuple_dict, keys=True)
         expect = tuple_dict
-        actual = jsonpickle.decode(pickled, keys=True)
+        actual = jsonpickle.decode(pickle, keys=True)
         self.assertEqual(expect, actual)
 
         tuple_dict = {(1, 2): [1, 2]}
-        pickled = jsonpickle.encode(tuple_dict, keys=True)
-        unpickled = jsonpickle.decode(pickled, keys=True)
-        self.assertEqual(unpickled[(1, 2)], [1, 2])
+        pickle = jsonpickle.encode(tuple_dict, keys=True)
+        actual = jsonpickle.decode(pickle, keys=True)
+        self.assertEqual(actual[(1, 2)], [1, 2])
 
     def test_object_dict_keys(self):
         """Test that we handle random objects as keys.
 
         """
         thing = Thing('random')
-        pickled = jsonpickle.encode({thing: True})
-        unpickled = jsonpickle.decode(pickled)
-        self.assertEqual(unpickled, {unicode('Thing("random")'): True})
+        pickle = jsonpickle.encode({thing: True})
+        actual = jsonpickle.decode(pickle)
+        self.assertEqual(actual, {unicode('Thing("random")'): True})
 
     def test_int_dict_keys_defaults(self):
         int_dict = {1000: [1, 2]}
-        pickled = jsonpickle.encode(int_dict)
-        unpickled = jsonpickle.decode(pickled)
-        self.assertEqual(unpickled['1000'], [1, 2])
+        pickle = jsonpickle.encode(int_dict)
+        actual = jsonpickle.decode(pickle)
+        self.assertEqual(actual['1000'], [1, 2])
 
     def test_int_dict_keys_with_keys_enabled(self):
         int_dict = {1000: [1, 2]}
-        pickled = jsonpickle.encode(int_dict, keys=True)
-        unpickled = jsonpickle.decode(pickled, keys=True)
-        self.assertEqual(unpickled[1000], [1, 2])
+        pickle = jsonpickle.encode(int_dict, keys=True)
+        actual = jsonpickle.decode(pickle, keys=True)
+        self.assertEqual(actual[1000], [1, 2])
 
     def test_list_of_objects(self):
         """Test that objects in lists are referenced correctly"""
         a = Thing('a')
         b = Thing('b')
-        pickled = jsonpickle.encode([a, b, b])
-        unpickled = jsonpickle.decode(pickled)
-        self.assertEqual(unpickled[1], unpickled[2])
-        self.assertEqual(type(unpickled[0]), Thing)
-        self.assertEqual(unpickled[0].name, 'a')
-        self.assertEqual(unpickled[1].name, 'b')
-        self.assertEqual(unpickled[2].name, 'b')
+        pickle = jsonpickle.encode([a, b, b])
+        actual = jsonpickle.decode(pickle)
+        self.assertEqual(actual[1], actual[2])
+        self.assertEqual(type(actual[0]), Thing)
+        self.assertEqual(actual[0].name, 'a')
+        self.assertEqual(actual[1].name, 'b')
+        self.assertEqual(actual[2].name, 'b')
 
     def test_refs_keys_values(self):
         """Test that objects in dict keys are referenced correctly
         """
         j = Thing('random')
         object_dict = {j: j}
-        pickled = jsonpickle.encode(object_dict, keys=True)
-        unpickled = jsonpickle.decode(pickled, keys=True)
-        self.assertEqual(list(unpickled.keys()), list(unpickled.values()))
+        pickle = jsonpickle.encode(object_dict, keys=True)
+        actual = jsonpickle.decode(pickle, keys=True)
+        self.assertEqual(list(actual.keys()), list(actual.values()))
 
     def test_object_keys_to_list(self):
         """Test that objects in dict values are referenced correctly
         """
         j = Thing('random')
         object_dict = {j: [j, j]}
-        pickled = jsonpickle.encode(object_dict, keys=True)
-        unpickled = jsonpickle.decode(pickled, keys=True)
-        obj = list(unpickled.keys())[0]
+        pickle = jsonpickle.encode(object_dict, keys=True)
+        actual = jsonpickle.decode(pickle, keys=True)
+        obj = list(actual.keys())[0]
         self.assertEqual(j.name, obj.name)
-        self.assertTrue(obj is unpickled[obj][0])
-        self.assertTrue(obj is unpickled[obj][1])
+        self.assertTrue(obj is actual[obj][0])
+        self.assertTrue(obj is actual[obj][1])
 
     def test_refs_in_objects(self):
         """Test that objects in lists are referenced correctly"""
         a = Thing('a')
         b = Thing('b')
-        pickled = jsonpickle.encode([a, b, b])
-        unpickled = jsonpickle.decode(pickled)
-        self.assertNotEqual(unpickled[0], unpickled[1])
-        self.assertEqual(unpickled[1], unpickled[2])
-        self.assertTrue(unpickled[1] is unpickled[2])
+        pickle = jsonpickle.encode([a, b, b])
+        actual = jsonpickle.decode(pickle)
+        self.assertNotEqual(actual[0], actual[1])
+        self.assertEqual(actual[1], actual[2])
+        self.assertTrue(actual[1] is actual[2])
 
     def test_refs_recursive(self):
         """Test that complicated recursive refs work"""
