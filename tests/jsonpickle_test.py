@@ -582,22 +582,26 @@ class JSONPickleTestCase(unittest.TestCase):
                 backend in jsonpickle.json._encoder_options or
                 backend in jsonpickle.json._decoder_exceptions)
 
-    def test_load_backend_skips_bad_encode(self):
+    def test_load_backend_handles_bad_encode(self):
         """Test that we ignore bad encoders"""
 
-        jsonpickle.load_backend('os.path', 'bad!', 'split', AttributeError)
+        load_backend = jsonpickle.load_backend
+        self.assertFalse(load_backend('os.path', 'bad!', 'split',
+                                      AttributeError))
         self.failIf(self._backend_is_partially_loaded('os.path'))
 
-    def test_load_backend_skips_bad_decode(self):
+    def test_load_backend_raises_on_bad_decode(self):
         """Test that we ignore bad decoders"""
 
-        jsonpickle.load_backend('os.path', 'join', 'bad!', AttributeError)
+        load_backend = jsonpickle.load_backend
+        self.assertFalse(load_backend('os.path', 'join', 'bad!', AttributeError))
         self.failIf(self._backend_is_partially_loaded('os.path'))
 
-    def test_load_backend_skips_bad_decoder_exceptions(self):
+    def test_load_backend_handles_bad_loads_exc(self):
         """Test that we ignore bad decoder exceptions"""
 
-        jsonpickle.load_backend('os.path', 'join', 'split', 'bad!')
+        load_backend = jsonpickle.load_backend
+        self.assertFalse(load_backend('os.path', 'join', 'split', 'bad!'))
         self.failIf(self._backend_is_partially_loaded('os.path'))
 
     def test_list_item_reference(self):

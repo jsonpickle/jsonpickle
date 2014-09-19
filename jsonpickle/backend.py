@@ -1,4 +1,6 @@
 from jsonpickle.compat import PY32
+from jsonpickle.compat import unicode
+
 
 class JSONBackend(object):
     """Manages encoding and decoding using various backends.
@@ -36,12 +38,12 @@ class JSONBackend(object):
         self._verified = False
 
         if not PY32:
-            self.load_backend('simplejson', 'dumps', 'loads', ValueError)
-        self.load_backend('json', 'dumps', 'loads', ValueError)
+            self.load_standard_backend('simplejson')
+        self.load_standard_backend('json')
         self.load_backend('demjson', 'encode', 'decode', 'JSONDecodeError')
         self.load_backend('jsonlib', 'write', 'read', 'ReadError')
-        self.load_backend('yajl', 'dumps', 'loads', ValueError)
-        self.load_backend('ujson', 'dumps', 'loads', ValueError)
+        self.load_standard_backend('yajl')
+        self.load_standard_backend('ujson')
 
     def _verify(self):
         """Ensures that we've loaded at least one JSON backend."""
@@ -68,56 +70,59 @@ class JSONBackend(object):
         """
         self._fallthrough = enable
 
-    def load_backend(self, name, encode_name, decode_name, decode_exc):
+    def load_standard_backend(self, name,
+                              dumps='dumps',
+                              loads='loads',
+                              loads_exc=ValueError):
+
+        return self.load_backend(name, dumps, loads, loads_exc)
+
+    def load_backend(self, name, dumps, loads, loads_exc):
         """
         Load a JSON backend by name.
 
         This method loads a backend and sets up references to that
         backend's encode/decode functions and exception classes.
 
-        :param encode_name: is the name of the backend's encode method.
+        :param dumps: is the name of the backend's encode method.
           The method should take an object and return a string.
-        :param decode_name: names the backend's method for the reverse
+          Defaults to 'dumps'.
+        :param loads: names the backend's method for the reverse
           operation -- returning a Python object from a string.
-        :param decode_exc: can be either the name of the exception class
+        :param loads_exc: can be either the name of the exception class
           used to denote decoding errors, or it can be a direct reference
           to the appropriate exception class itself.  If it is a name,
           then the assumption is that an exception class of that name
           can be found in the backend module's namespace.
+        :param load: names the backend's 'load' method.
+        :param dump: names the backend's 'dump' method.
+        :rtype bool: True on success, False if the backend could not be loaded.
 
         """
         try:
             ## Load the JSON backend
             mod = __import__(name)
         except ImportError:
-            return
+            return False
 
+        ## Handle submodules, e.g. django.utils.simplejson
         try:
-            ## Handle submodules, e.g. django.utils.simplejson
-            components = name.split('.')
-            for comp in components[1:]:
-                mod = getattr(mod, comp)
+            for attr in name.split('.')[1:]:
+                mod = getattr(mod, attr)
         except AttributeError:
-            return
+            return False
 
-        try:
-            ## Setup the backend's encode/decode methods
-            self._encoders[name] = getattr(mod, encode_name)
-            self._decoders[name] = getattr(mod, decode_name)
-        except AttributeError:
-            self.remove_backend(name)
-            return
+        if (not self._store(self._encoders, name, mod, dumps) or
+                not self._store(self._decoders, name, mod, loads)):
+            return False
 
-        try:
-            if type(decode_exc) is str:
-                ## This backend's decoder exception is part of the backend
-                self._decoder_exceptions[name] = getattr(mod, decode_exc)
-            else:
-                ## simplejson uses the ValueError exception
-                self._decoder_exceptions[name] = decode_exc
-        except AttributeError:
-            self.remove_backend(name)
-            return
+        if isinstance(loads_exc, (str, unicode)):
+            ## This backend's decoder exception is part of the backend
+            if not self._store(self._decoder_exceptions, name, mod, loads_exc):
+                return False
+        else:
+            ## simplejson uses ValueError
+            self._decoder_exceptions[name] = loads_exc
 
         ## Setup the default args and kwargs for this encoder
         self._encoder_options[name] = ([], {})
@@ -127,6 +132,7 @@ class JSONBackend(object):
 
         ## Indicate that we successfully loaded a JSON backend
         self._verified = True
+        return True
 
     def remove_backend(self, name):
         """Remove all entries for a particular backend."""
@@ -158,9 +164,9 @@ class JSONBackend(object):
                 encoder_kwargs = optkwargs.copy()
                 encoder_args = (obj,) + tuple(optargs)
                 return self._encoders[name](*encoder_args, **encoder_kwargs)
-            except Exception:
+            except Exception as e:
                 if idx == len(self._backend_names) - 1:
-                    raise
+                    raise e
     # def dumps
     dumps = encode
 
@@ -241,3 +247,12 @@ class JSONBackend(object):
 
         """
         self._encoder_options[name] = (args, kwargs)
+
+
+    def _store(self, dct, backend, obj, name):
+        try:
+            dct[backend] = getattr(obj, name)
+        except AttributeError:
+            self.remove_backend(backend)
+            return False
+        return True
