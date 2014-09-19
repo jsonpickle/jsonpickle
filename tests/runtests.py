@@ -15,26 +15,26 @@ sys.path.insert(1, os.path.dirname(testdir))
 
 import unittest
 
-import backends_tests
-import datetime_tests
+import backend_test
+import datetime_test
 import document_test
-import handler_tests
+import handler_test
 import jsonpickle_test
 import object_test
-import thirdparty_tests
-import util_tests
+import thirdparty_test
+import util_test
 
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(util_tests.suite())
-    suite.addTest(handler_tests.suite())
-    suite.addTest(backends_tests.suite())
+    suite.addTest(util_test.suite())
+    suite.addTest(handler_test.suite())
+    suite.addTest(backend_test.suite())
     suite.addTest(jsonpickle_test.suite())
-    suite.addTest(datetime_tests.suite())
+    suite.addTest(datetime_test.suite())
     suite.addTest(document_test.suite())
     suite.addTest(object_test.suite())
-    suite.addTest(thirdparty_tests.suite())
+    suite.addTest(thirdparty_test.suite())
     return suite
 
 

@@ -63,7 +63,7 @@ class JsonTestCase(BackendTestCase):
     def test_backend(self):
         expected_pickled = (
                 '{"things": [{'
-                    '"py/object": "backends_tests.Thing",'
+                    '"py/object": "backend_test.Thing",'
                     ' "name": "data",'
                     ' "child": null}'
                 ']}')
@@ -82,7 +82,7 @@ class SimpleJsonTestCase(BackendTestCase):
             return
         expected_pickled = (
                 '{"things": [{'
-                    '"py/object": "backends_tests.Thing",'
+                    '"py/object": "backend_test.Thing",'
                     ' "name": "data",'
                     ' "child": null}'
                 ']}')
@@ -112,7 +112,7 @@ class DemjsonTestCase(BackendTestCase):
                 '{"things":[{'
                     '"child":null,'
                     '"name":"data",'
-                    '"py/object":"backends_tests.Thing"}'
+                    '"py/object":"backend_test.Thing"}'
                 ']}')
         self.assertEncodeDecode(expected_pickled)
 
@@ -128,7 +128,7 @@ class JsonlibTestCase(BackendTestCase):
             return
         expected_pickled = (
                 '{"things":[{'
-                    '"py\/object":"backends_tests.Thing",'
+                    '"py\/object":"backend_test.Thing",'
                     '"name":"data","child":null}'
                 ']}')
         self.assertEncodeDecode(expected_pickled)
@@ -145,7 +145,7 @@ class YajlTestCase(BackendTestCase):
             return
         expected_pickled = (
                 '{"things":[{'
-                    '"py/object":"backends_tests.Thing",'
+                    '"py/object":"backend_test.Thing",'
                     '"name":"data","child":null}'
                 ']}')
         self.assertEncodeDecode(expected_pickled)
@@ -159,7 +159,7 @@ class UJsonTestCase(BackendTestCase):
     def test_backend(self):
         expected_pickled = (
                 '{"things":[{'
-                    '"py\/object":"backends_tests.Thing",'
+                    '"py\/object":"backend_test.Thing",'
                     '"name":"data","child":null}'
                 ']}')
         self.assertEncodeDecode(expected_pickled)
