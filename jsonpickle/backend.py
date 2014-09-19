@@ -161,6 +161,8 @@ class JSONBackend(object):
             except Exception:
                 if idx == len(self._backend_names) - 1:
                     raise
+    # def dumps
+    dumps = encode
 
     def backend_encode(self, name, obj):
         optargs, optkwargs = self._encoder_options[name]
@@ -190,6 +192,8 @@ class JSONBackend(object):
                     raise e
                 else:
                     pass # and try a more forgiving encoder, e.g. demjson
+    # def loads
+    loads = decode
 
     def backend_decode(self, name, string):
         return self._decoders[name](string)

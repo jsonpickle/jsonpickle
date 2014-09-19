@@ -146,3 +146,8 @@ def decode(string, backend=None, keys=False):
     if backend is None:
         backend = json
     return unpickler.decode(string, backend=backend, keys=keys)
+
+
+# json.load(),loads(), dump(), dumps() compatibility
+dumps = encode
+loads = decode
