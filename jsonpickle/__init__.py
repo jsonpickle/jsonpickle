@@ -82,8 +82,7 @@ def encode(value,
            backend=None,
            warn=False,
            max_iter=None):
-    """
-    Return a JSON formatted representation of value, a Python object.
+    """Return a JSON formatted representation of value, a Python object.
 
     :param unpicklable: If set to False then the output will not contain the
         information necessary to turn the JSON data back into Python objects,
@@ -133,8 +132,7 @@ def encode(value,
 
 
 def decode(string, backend=None, keys=False):
-    """
-    Convert a JSON string into a Python object.
+    """Convert a JSON string into a Python object.
 
     The keyword argument 'keys' defaults to False.
     If set to True then jsonpickle will decode non-string dictionary keys
