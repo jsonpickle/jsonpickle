@@ -38,12 +38,12 @@ class JSONBackend(object):
         self._verified = False
 
         if not PY32:
-            self.load_standard_backend('simplejson')
-        self.load_standard_backend('json')
+            self.load_backend('simplejson')
+        self.load_backend('json')
         self.load_backend('demjson', 'encode', 'decode', 'JSONDecodeError')
         self.load_backend('jsonlib', 'write', 'read', 'ReadError')
-        self.load_standard_backend('yajl')
-        self.load_standard_backend('ujson')
+        self.load_backend('yajl')
+        self.load_backend('ujson')
 
     def _verify(self):
         """Ensures that we've loaded at least one JSON backend."""
@@ -70,19 +70,13 @@ class JSONBackend(object):
         """
         self._fallthrough = enable
 
-    def load_standard_backend(self, name,
-                              dumps='dumps',
-                              loads='loads',
-                              loads_exc=ValueError):
+    def load_backend(self, name,
+                     dumps='dumps', loads='loads', loads_exc=ValueError):
 
-        return self.load_backend(name, dumps, loads, loads_exc)
-
-    def load_backend(self, name, dumps, loads, loads_exc):
-        """
-        Load a JSON backend by name.
+        """Load a JSON backend by name.
 
         This method loads a backend and sets up references to that
-        backend's encode/decode functions and exception classes.
+        backend's loads/dumps functions and exception classes.
 
         :param dumps: is the name of the backend's encode method.
           The method should take an object and return a string.
