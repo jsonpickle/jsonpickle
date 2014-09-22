@@ -450,10 +450,11 @@ class Pickler(object):
                 k = self._escape_key(k)
         else:
             if not isinstance(k, (str, unicode)):
-                try:
-                    k = repr(k)
-                except:
-                    k = unicode(k)
+                if k is not None:
+                    try:
+                        k = repr(k)
+                    except:
+                        k = unicode(k)
 
         data[k] = self._flatten(v)
         return data
