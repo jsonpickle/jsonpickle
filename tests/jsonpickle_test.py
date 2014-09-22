@@ -486,6 +486,13 @@ class JSONPickleTestCase(unittest.TestCase):
         unpickled = jsonpickle.decode(pickled, keys=True)
         self.assertEqual(unpickled[tags.JSON_KEY + '6'], [1, 2])
 
+    def test_string_key_not_requiring_escape_dict_keys_with_keys_enabled(self):
+        """ test that string keys that does not require escaping are not escaped """
+        str_dict = {'name': [1, 2]}
+        pickled = jsonpickle.encode(str_dict, keys=True)
+        unpickled = jsonpickle.decode(pickled)
+        self.assertIn('name', unpickled)
+
     def test_list_of_objects(self):
         """Test that objects in lists are referenced correctly"""
         a = Thing('a')

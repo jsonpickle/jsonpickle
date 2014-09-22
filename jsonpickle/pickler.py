@@ -445,17 +445,15 @@ class Pickler(object):
         """Flatten a key/value pair into the passed-in dictionary."""
         if not util.is_picklable(k, v):
             return data
-        if not isinstance(k, (str, unicode)):
-            if self.keys:
-                k = self._escape_string_key(k)
-            else:
+        if self.keys:
+            if not isinstance(k, (str, unicode)) or k.startswith(tags.JSON_KEY):
+                k = self._escape_key(k)
+        else:
+            if not isinstance(k, (str, unicode)):
                 try:
                     k = repr(k)
                 except:
                     k = unicode(k)
-        elif k.startswith(tags.JSON_KEY):
-            if self.keys:
-                k = self._escape_string_key(k)
 
         data[k] = self._flatten(v)
         return data
@@ -471,7 +469,7 @@ class Pickler(object):
             return value
         return data
 
-    def _escape_string_key(self, k):
+    def _escape_key(self, k):
         return tags.JSON_KEY + encode(k,
                                       reset=False, keys=True,
                                       context=self, backend=self.backend,
