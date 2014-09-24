@@ -449,12 +449,13 @@ class Pickler(object):
             if not isinstance(k, (str, unicode)) or k.startswith(tags.JSON_KEY):
                 k = self._escape_key(k)
         else:
+            if k is None:
+                k = 'null' # for compatibility with common json encoders
             if not isinstance(k, (str, unicode)):
-                if k is not None:
-                    try:
-                        k = repr(k)
-                    except:
-                        k = unicode(k)
+                try:
+                    k = repr(k)
+                except:
+                    k = unicode(k)
 
         data[k] = self._flatten(v)
         return data

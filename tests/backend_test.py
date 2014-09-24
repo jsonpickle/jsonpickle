@@ -18,7 +18,7 @@ class Thing(object):
 SAMPLE_DATA = {'things': [Thing('data')]}
 
 
-class BackendTestCase(unittest.TestCase):
+class BackendBase(unittest.TestCase):
 
     def _is_installed(self, backend):
         if not jsonpickle.util.is_installed(backend):
@@ -55,8 +55,16 @@ class BackendTestCase(unittest.TestCase):
         self.assertEqual(expect['things'][0].name, actual['things'][0].name)
         self.assertEqual(expect['things'][0].child, actual['things'][0].child)
 
+    def test_None_dict_key(self):
+        """Ensure that backends produce the same result for None dict keys"""
+        data = {None: None}
+        expect = {'null': None}
+        pickle = jsonpickle.encode(data)
+        actual = jsonpickle.decode(pickle)
+        self.assertEqual(expect, actual)
 
-class JsonTestCase(BackendTestCase):
+
+class JsonTestCase(BackendBase):
     def setUp(self):
         self.set_preferred_backend('json')
 
@@ -70,7 +78,7 @@ class JsonTestCase(BackendTestCase):
         self.assertEncodeDecode(expected_pickled)
 
 
-class SimpleJsonTestCase(BackendTestCase):
+class SimpleJsonTestCase(BackendBase):
     def setUp(self):
         if PY32:
             return
@@ -99,7 +107,7 @@ def has_module(module):
     return True
 
 
-class DemjsonTestCase(BackendTestCase):
+class DemjsonTestCase(BackendBase):
     def setUp(self):
         if PY2:
             self.set_preferred_backend('demjson')
@@ -117,7 +125,7 @@ class DemjsonTestCase(BackendTestCase):
         self.assertEncodeDecode(expected_pickled)
 
 
-class JsonlibTestCase(BackendTestCase):
+class JsonlibTestCase(BackendBase):
     def setUp(self):
         if PY2:
             self.set_preferred_backend('jsonlib')
@@ -134,7 +142,7 @@ class JsonlibTestCase(BackendTestCase):
         self.assertEncodeDecode(expected_pickled)
 
 
-class YajlTestCase(BackendTestCase):
+class YajlTestCase(BackendBase):
     def setUp(self):
         if PY2:
             self.set_preferred_backend('yajl')
@@ -151,7 +159,7 @@ class YajlTestCase(BackendTestCase):
         self.assertEncodeDecode(expected_pickled)
 
 
-class UJsonTestCase(BackendTestCase):
+class UJsonTestCase(BackendBase):
 
     def setUp(self):
         self.set_preferred_backend('ujson')
