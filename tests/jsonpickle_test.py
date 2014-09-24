@@ -142,7 +142,7 @@ class PicklingTestCase(unittest.TestCase):
         self.assertEqual(setA, self.unpickler.restore(setA_pickle))
 
     def test_dict(self):
-        dictA = {'key1': 1.0, 'key2': 20, 'key3': 'thirty'}
+        dictA = {'key1': 1.0, 'key2': 20, 'key3': 'thirty', tags.JSON_KEY + '6': 6}
         self.assertEqual(dictA, self.pickler.flatten(dictA))
         self.assertEqual(dictA, self.unpickler.restore(dictA))
         dictB = {}
@@ -479,6 +479,19 @@ class JSONPickleTestCase(unittest.TestCase):
         pickle = jsonpickle.encode(int_dict, keys=True)
         actual = jsonpickle.decode(pickle, keys=True)
         self.assertEqual(actual[1000], [1, 2])
+
+    def test_string_key_requiring_escape_dict_keys_with_keys_enabled(self):
+        json_key_dict = {tags.JSON_KEY + '6': [1, 2]}
+        pickled = jsonpickle.encode(json_key_dict, keys=True)
+        unpickled = jsonpickle.decode(pickled, keys=True)
+        self.assertEqual(unpickled[tags.JSON_KEY + '6'], [1, 2])
+
+    def test_string_key_not_requiring_escape_dict_keys_with_keys_enabled(self):
+        """ test that string keys that does not require escaping are not escaped """
+        str_dict = {'name': [1, 2]}
+        pickled = jsonpickle.encode(str_dict, keys=True)
+        unpickled = jsonpickle.decode(pickled)
+        self.assertIn('name', unpickled)
 
     def test_list_of_objects(self):
         """Test that objects in lists are referenced correctly"""
