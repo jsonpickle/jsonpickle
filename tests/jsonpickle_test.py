@@ -491,7 +491,7 @@ class JSONPickleTestCase(unittest.TestCase):
         str_dict = {'name': [1, 2]}
         pickled = jsonpickle.encode(str_dict, keys=True)
         unpickled = jsonpickle.decode(pickled)
-        self.assertIn('name', unpickled)
+        self.assertTrue('name' in unpickled)
 
     def test_list_of_objects(self):
         """Test that objects in lists are referenced correctly"""
