@@ -446,7 +446,7 @@ class JSONPickleTestCase(unittest.TestCase):
 
     def test_None_dict_key_default(self):
         # We do string coercion for non-string keys so None becomes 'None'
-        expect = {'None': None}
+        expect = {'null': None}
         obj = {None: None}
         pickle = jsonpickle.encode(obj)
         actual = jsonpickle.decode(pickle)
