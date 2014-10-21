@@ -78,12 +78,22 @@ class BaseHandler(object):
         self.context = context
 
     def flatten(self, obj, data):
-        """Flatten `obj` into a json-friendly form and write result in `data`"""
+        """
+        Flatten `obj` into a json-friendly form and write result to `data`.
+
+        :param object obj: The object to be serialized.
+        :param dict data: A partially filled dictionary which will contain the
+            json-friendly representation of `obj` once this method has
+            finished.
+        """
         raise NotImplementedError('You must implement flatten() in %s' %
                                   self.__class__)
 
     def restore(self, obj):
-        """Restore the json-friendly `obj` to the registered type"""
+        """
+        Restore an object of the registered type from the json-friendly
+        representation `obj` and return it.
+        """
         raise NotImplementedError('You must implement restore() in %s' %
                                   self.__class__)
 
