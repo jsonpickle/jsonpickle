@@ -40,6 +40,13 @@ class Registry(object):
         self._base_handlers = {}
 
     def get(self, cls_or_name, default=None):
+        """
+        :param cls_or_name: the type or its fully qualified name
+        :param default: default value, if a matching handler is not found
+
+        Looks up a handler by type reference or its fully qualified name. If a direct match
+        is not found, the search is performed over all handlers registered with base=True.
+        """
         handler = self._handlers.get(cls_or_name)
         if handler is None and util.is_type(cls_or_name):  # attempt to find a base class
             for cls, base_handler in self._base_handlers.items():
@@ -51,10 +58,10 @@ class Registry(object):
         """Register the a custom handler for a class
 
         :param cls: The custom object class to handle
-        :param handler: The custom handler class
+        :param handler: The custom handler class (if None, a decorator wrapper is returned)
         :param base: Indicates whether the handler should be registered for all subclasses
 
-        This function can be also used as a decorator:
+        This function can be also used as a decorator by omitting the `handler` argument:
 
         @jsonpickle.handlers.register(Foo, base=True)
         class FooHandler(jsonpickle.handlers.BaseHandler):
@@ -67,8 +74,11 @@ class Registry(object):
             return _register
         if not util.is_type(cls):
             raise TypeError('{0!r} is not a class/type'.format(cls))
+        # store both the name and the actual type for the ugly cases like
+        # _sre.SRE_Pattern that cannot be loaded back directly
         self._handlers[util.importable_name(cls)] = self._handlers[cls] = handler
         if base:
+            # only store the actual type for subclass checking
             self._base_handlers[cls] = handler
 
     def unregister(self, cls):
