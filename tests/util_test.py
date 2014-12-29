@@ -172,9 +172,9 @@ class UtilTestCase(unittest.TestCase):
 
     def test_has_method(self):
         foo = Foo()
-        self.assertTrue(util.has_method(foo, "f", 1))
-        self.assertFalse(util.has_method(foo, "f"))
-        self.assertFalse(util.has_method(Foo, "f", 1))
+        self.assertTrue(jsonpickle.util.has_method(foo, "f", 1))
+        self.assertFalse(jsonpickle.util.has_method(foo, "f"))
+        self.assertFalse(jsonpickle.util.has_method(Foo, "f", 1))
 
 
 def suite():

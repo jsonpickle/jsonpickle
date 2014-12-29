@@ -240,7 +240,8 @@ class Pickler(object):
 
         # Support objects with __getstate__(); this ensures that
         # both __setstate__() and __getstate__() are implemented
-        has_getstate = util.has_method(obj, '__getstate__')
+        has_getstate = hasattr(obj, '__getstate__')
+        # not using has_method since __getstate__() is handled separately below
 
         if has_class:
             cls = obj.__class__
