@@ -126,13 +126,13 @@ class Unpickler(object):
     def _restore(self, obj):
         if has_tag(obj, tags.ID):
             restore = self._restore_id
-        elif has_tag(obj, tags.REF): # Backwards compatibility
+        elif has_tag(obj, tags.REF):  # Backwards compatibility
             restore = self._restore_ref
         elif has_tag(obj, tags.ITERATOR):
             restore = self._restore_iterator
         elif has_tag(obj, tags.TYPE):
             restore = self._restore_type
-        elif has_tag(obj, tags.REPR): # Backwards compatibility
+        elif has_tag(obj, tags.REPR):  # Backwards compatibility
             restore = self._restore_repr
         elif has_tag(obj, tags.REDUCE):
             restore = self._restore_reduce
@@ -173,11 +173,11 @@ class Unpickler(object):
         if state:
             try:
                 stage1.__setstate__(state)
-            except AttributeError as err:
+            except AttributeError:
                 # it's fine - we'll try the prescribed default methods
                 try:
                     stage1.__dict__.update(state)
-                except AttributeError as err:
+                except AttributeError:
                     # next prescribed default
                     for k, v in state.items():
                         setattr(stage1, k, v)
@@ -217,12 +217,12 @@ class Unpickler(object):
 
     def _restore_object(self, obj):
         class_name = obj[tags.OBJECT]
-        handler = handlers.get(class_name)
-        if handler is not None: # custom handler
+        cls = loadclass(class_name)
+        handler = handlers.get(cls, handlers.get(class_name))
+        if handler is not None:  # custom handler
             instance = handler(self).restore(obj)
             return self._mkref(instance)
 
-        cls = loadclass(class_name)
         if cls is None:
             return self._mkref(obj)
 
@@ -259,7 +259,7 @@ class Unpickler(object):
         if kwargs:
             kwargs = self._restore(kwargs)
         try:
-            if (not is_oldstyle) and hasattr(cls, '__new__'): # new style classes
+            if (not is_oldstyle) and hasattr(cls, '__new__'):  # new style classes
                 if factory:
                     instance = cls.__new__(cls, factory, *args, **kwargs)
                     instance.default_factory = factory
@@ -267,7 +267,7 @@ class Unpickler(object):
                     instance = cls.__new__(cls, *args, **kwargs)
             else:
                 instance = object.__new__(cls)
-        except TypeError: # old-style classes
+        except TypeError:  # old-style classes
             is_oldstyle = True
 
         if is_oldstyle:
@@ -333,7 +333,7 @@ class Unpickler(object):
     def _restore_state(self, obj, instance):
         state = self._restore(obj[tags.STATE])
         has_slots = (isinstance(state, tuple) and len(state) == 2
-                        and isinstance(state[1], dict))
+                     and isinstance(state[1], dict))
         has_slots_and_dict = has_slots and isinstance(state[0], dict)
         if hasattr(instance, '__setstate__'):
             instance.__setstate__(state)
@@ -363,8 +363,8 @@ class Unpickler(object):
         parent.extend(children)
         method = _obj_setvalue
         proxies = [(parent, idx, value, method)
-                    for idx, value in enumerate(parent)
-                        if isinstance(value, _Proxy)]
+                   for idx, value in enumerate(parent)
+                   if isinstance(value, _Proxy)]
         self._proxies.extend(proxies)
         return parent
 
@@ -509,6 +509,7 @@ class _trivialclassic:
     A trivial class that can be instantiated with no args
     """
 
+
 def make_blank_classic(cls):
     """
     Implement the mandated strategy for dealing with classic classes
@@ -518,6 +519,7 @@ def make_blank_classic(cls):
     instance = _trivialclassic()
     instance.__class__ = cls
     return instance
+
 
 def loadrepr(reprstr):
     """Returns an instance of the object from the object's repr() string.
