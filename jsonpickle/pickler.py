@@ -233,14 +233,14 @@ class Pickler(object):
         has_class = hasattr(obj, '__class__')
         has_dict = hasattr(obj, '__dict__')
         has_slots = not has_dict and hasattr(obj, '__slots__')
-        has_getnewargs = hasattr(obj, '__getnewargs__')
-        has_getnewargs_ex = hasattr(obj, '__getnewargs_ex__')
-        has_getinitargs = hasattr(obj, '__getinitargs__')
+        has_getnewargs = util.has_method(obj, '__getnewargs__')
+        has_getnewargs_ex = util.has_method(obj, '__getnewargs_ex__')
+        has_getinitargs = util.has_method(obj, '__getinitargs__')
         has_reduce, has_reduce_ex = util.has_reduce(obj)
 
         # Support objects with __getstate__(); this ensures that
         # both __setstate__() and __getstate__() are implemented
-        has_getstate = hasattr(obj, '__getstate__')
+        has_getstate = util.has_method(obj, '__getstate__')
 
         if has_class:
             cls = obj.__class__
