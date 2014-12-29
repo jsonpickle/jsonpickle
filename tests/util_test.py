@@ -31,6 +31,11 @@ class ListSubclass(list):
     pass
 
 
+class Foo(object):
+    def f(self, x):
+        pass
+
+
 class UtilTestCase(unittest.TestCase):
 
     def test_is_primitive_int(self):
@@ -164,6 +169,12 @@ class UtilTestCase(unittest.TestCase):
         expect = '0'
         actual = util.itemgetter((0, 'zero'))
         self.assertEqual(expect, actual)
+
+    def test_has_method(self):
+        foo = Foo()
+        self.assertTrue(util.has_method(foo, "f", 1))
+        self.assertFalse(util.has_method(foo, "f"))
+        self.assertFalse(util.has_method(Foo, "f", 1))
 
 
 def suite():

@@ -43,10 +43,19 @@ def is_type(obj):
     >>> is_type(Klass)
     True
     """
+    # use "isinstance" and not "is" to allow for metaclasses
     if PY3:
-        return type(obj) is type
+        return isinstance(obj, type)
     else:
-        return type(obj) is type or type(obj) is types.ClassType
+        return isinstance(obj, (type, types.ClassType))
+
+
+def has_method(obj, name, *args, **kwargs):
+    try:
+        getattr(obj, name)(*args, **kwargs)
+        return True
+    except:
+        return False
 
 
 def is_object(obj):
@@ -62,8 +71,7 @@ def is_object(obj):
     False
     """
     return (isinstance(obj, object) and
-            type(obj) is not type and
-            type(obj) is not types.FunctionType)
+            not isinstance(obj, (type, types.FunctionType)))
 
 
 def is_primitive(obj):
@@ -82,6 +90,7 @@ def is_primitive(obj):
         return True
     return False
 
+
 def is_dictionary(obj):
     """Helper method for testing if the object is a dictionary.
 
@@ -90,6 +99,7 @@ def is_dictionary(obj):
 
     """
     return type(obj) is dict
+
 
 def is_sequence(obj):
     """Helper method to see if the object is a sequence (list, set, or tuple).
@@ -214,7 +224,7 @@ def is_module_function(obj):
     """
 
     return (hasattr(obj, '__class__') and
-            obj.__class__ is types.FunctionType and
+            isinstance(obj, types.FunctionType) and
             hasattr(obj, '__module__') and
             hasattr(obj, '__name__') and
             obj.__name__ != '<lambda>')
@@ -228,7 +238,7 @@ def is_module(obj):
     True
 
     """
-    return type(obj) is types.ModuleType
+    return isinstance(obj, types.ModuleType)
 
 
 def is_picklable(name, value):
