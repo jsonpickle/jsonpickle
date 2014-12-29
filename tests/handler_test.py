@@ -23,6 +23,14 @@ class CustomObject(object):
         return self.name == other.name
 
 
+class A(CustomObject):
+    pass
+
+
+class B(A):
+    pass
+
+
 class NullHandler(jsonpickle.handlers.BaseHandler):
 
     def flatten(self, obj, data):
@@ -30,7 +38,20 @@ class NullHandler(jsonpickle.handlers.BaseHandler):
         return data
 
     def restore(self, obj):
-        return CustomObject(obj['name'], creator=NullHandler)
+        return CustomObject(obj['name'], creator=type(self))
+
+
+class DecoratedBase(CustomObject):
+    pass
+
+
+class DecoratedChild(DecoratedBase):
+    pass
+
+
+@jsonpickle.handlers.register(DecoratedBase, base=True)
+class DecoratedHandler(NullHandler):
+    pass
 
 
 class HandlerTestCase(unittest.TestCase):
@@ -69,6 +90,35 @@ class HandlerTestCase(unittest.TestCase):
         self.assertEqual(new_subject['b'], new_subject['c'])
         self.assertTrue(new_subject['a'] is new_subject['b'])
         self.assertTrue(new_subject['b'] is new_subject['c'])
+
+    def test_invalid_class(self):
+        self.assertRaises(TypeError, jsonpickle.handlers.register, 'foo', NullHandler)
+
+    def test_base_handler(self):
+        a = A('a')
+        self.assertTrue(a.creator is None)
+        self.assertTrue(jsonpickle.decode(jsonpickle.encode(a)).creator is None)
+
+        b = B('b')
+        self.assertTrue(b.creator is None)
+        self.assertTrue(jsonpickle.decode(jsonpickle.encode(b)).creator is None)
+
+        OtherHandler = type('OtherHandler', (NullHandler,), {})
+        jsonpickle.handlers.register(A, OtherHandler, base=True)
+        self.assertTrue(self.roundtrip(a).creator is OtherHandler)
+        self.assertTrue(self.roundtrip(b).creator is OtherHandler)
+
+        SpecializedHandler = type('SpecializedHandler', (NullHandler,), {})
+        jsonpickle.handlers.register(B, SpecializedHandler)
+        self.assertTrue(self.roundtrip(a).creator is OtherHandler)
+        self.assertTrue(self.roundtrip(b).creator is SpecializedHandler)
+
+    def test_decorated_register(self):
+        db = DecoratedBase('db')
+        dc = DecoratedChild('dc')
+
+        self.assertTrue(self.roundtrip(db).creator is DecoratedHandler)
+        self.assertTrue(self.roundtrip(dc).creator is DecoratedHandler)
 
 
 def suite():

@@ -37,26 +37,44 @@ class Registry(object):
 
     def __init__(self):
         self._handlers = {}
+        self._base_handlers = {}
 
-    def get(self, class_name):
-        return self._handlers.get(class_name)
+    def get(self, cls_or_name, default=None):
+        handler = self._handlers.get(cls_or_name)
+        if handler is None and util.is_type(cls_or_name):  # attempt to find a base class
+            for cls, base_handler in self._base_handlers.items():
+                if issubclass(cls_or_name, cls):
+                    return base_handler
+        return default if handler is None else handler
 
-    def register(self, cls, handler):
+    def register(self, cls, handler=None, base=False):
         """Register the a custom handler for a class
 
         :param cls: The custom object class to handle
         :param handler: The custom handler class
+        :param base: Indicates whether the handler should be registered for all subclasses
 
+        This function can be also used as a decorator:
+
+        @jsonpickle.handlers.register(Foo, base=True)
+        class FooHandler(jsonpickle.handlers.BaseHandler):
+            pass
         """
-        class_name = util.importable_name(cls)
-        self._handlers[class_name] = handler
+        if handler is None:
+            def _register(handler_cls):
+                self.register(cls, handler=handler_cls, base=base)
+                return handler_cls
+            return _register
+        if not util.is_type(cls):
+            raise TypeError('{0!r} is not a class/type'.format(cls))
+        self._handlers[util.importable_name(cls)] = self._handlers[cls] = handler
+        if base:
+            self._base_handlers[cls] = handler
 
     def unregister(self, cls):
-        class_name = util.importable_name(cls)
-        try:
-            del self._handlers[class_name]
-        except KeyError:
-            pass
+        self._handlers.pop(cls, None)
+        self._handlers.pop(util.importable_name(cls), None)
+        self._base_handlers.pop(cls, None)
 
 
 registry = Registry()
