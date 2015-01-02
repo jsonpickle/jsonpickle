@@ -23,11 +23,11 @@ class CustomObject(object):
         return self.name == other.name
 
 
-class A(CustomObject):
+class CustomA(CustomObject):
     pass
 
 
-class B(A):
+class CustomB(CustomA):
     pass
 
 
@@ -95,21 +95,21 @@ class HandlerTestCase(unittest.TestCase):
         self.assertRaises(TypeError, jsonpickle.handlers.register, 'foo', NullHandler)
 
     def test_base_handler(self):
-        a = A('a')
+        a = CustomA('a')
         self.assertTrue(a.creator is None)
         self.assertTrue(jsonpickle.decode(jsonpickle.encode(a)).creator is None)
 
-        b = B('b')
+        b = CustomB('b')
         self.assertTrue(b.creator is None)
         self.assertTrue(jsonpickle.decode(jsonpickle.encode(b)).creator is None)
 
         OtherHandler = type('OtherHandler', (NullHandler,), {})
-        jsonpickle.handlers.register(A, OtherHandler, base=True)
+        jsonpickle.handlers.register(CustomA, OtherHandler, base=True)
         self.assertTrue(self.roundtrip(a).creator is OtherHandler)
         self.assertTrue(self.roundtrip(b).creator is OtherHandler)
 
         SpecializedHandler = type('SpecializedHandler', (NullHandler,), {})
-        jsonpickle.handlers.register(B, SpecializedHandler)
+        jsonpickle.handlers.register(CustomB, SpecializedHandler)
         self.assertTrue(self.roundtrip(a).creator is OtherHandler)
         self.assertTrue(self.roundtrip(b).creator is SpecializedHandler)
 
