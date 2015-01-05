@@ -243,14 +243,6 @@ class Unpickler(object):
         return self._restore(default_factory)
 
     def _restore_object_instance(self, obj, cls):
-        if has_tag(obj, tags.NEWARGSEX):
-            args, kwargs = obj[tags.NEWARGSEX]
-        else:
-            args = getargs(obj)
-            kwargs = {}
-
-        is_oldstyle = not (isinstance(cls, type) or getattr(cls, '__meta__', None))
-
         # This is a placeholder proxy object which allows child objects to
         # reference the parent object before it has been instantiated.
         proxy = _Proxy()
@@ -260,10 +252,17 @@ class Unpickler(object):
         # after the instance is available for referencing.
         factory = self._loadfactory(obj)
 
+        if has_tag(obj, tags.NEWARGSEX):
+            args, kwargs = obj[tags.NEWARGSEX]
+        else:
+            args = getargs(obj)
+            kwargs = {}
         if args:
             args = self._restore(args)
         if kwargs:
             kwargs = self._restore(kwargs)
+
+        is_oldstyle = not (isinstance(cls, type) or getattr(cls, '__meta__', None))
         try:
             if (not is_oldstyle) and hasattr(cls, '__new__'):  # new style classes
                 if factory:
