@@ -403,15 +403,17 @@ class Unpickler(object):
         # instead of doing so in the body of the function to
         # avoid conditional branching inside a tight loop.
         if self.keys:
-            def restore_key(key):
-                if key.startswith(tags.JSON_KEY):
-                    key = decode(key[len(tags.JSON_KEY):],
-                                 backend=self.backend, context=self,
-                                 keys=True, reset=False)
-                return key
+            restore_key = self._restore_pickled_key
         else:
             restore_key = lambda key: key
         return restore_key
+
+    def _restore_pickled_key(self, key):
+        if key.startswith(tags.JSON_KEY):
+            key = decode(key[len(tags.JSON_KEY):],
+                         backend=self.backend, context=self,
+                         keys=True, reset=False)
+        return key
 
     def _refname(self):
         """Calculates the name of the current location in the JSON stack.
