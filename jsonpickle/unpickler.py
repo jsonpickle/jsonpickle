@@ -63,9 +63,6 @@ class _Proxy(object):
     def __init__(self):
         self.instance = None
 
-    def __call__(self):
-        return self.instance()
-
 
 def _obj_setattr(obj, attr, proxy):
     setattr(obj, attr, proxy.instance)
@@ -112,16 +109,16 @@ class Unpickler(object):
         'hello world'
         >>> u.restore({'key': 'value'})
         {'key': 'value'}
+
         """
         if reset:
             self.reset()
         value = self._restore(obj)
         if reset:
-            self._finalize()
-
+            self._swap_proxies()
         return value
 
-    def _finalize(self):
+    def _swap_proxies(self):
         """Replace proxies with their corresponding instances"""
         for (obj, attr, proxy, method) in self._proxies:
             method(obj, attr, proxy)
@@ -289,6 +286,10 @@ class Unpickler(object):
 
         if isinstance(instance, tuple):
             return instance
+
+        if (hasattr(instance, 'default_factory') and
+                type(instance.default_factory) is _Proxy):
+            instance.default_factory = instance.default_factory.instance
 
         return self._restore_object_instance_variables(obj, instance)
 

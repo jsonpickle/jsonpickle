@@ -219,12 +219,21 @@ class AdvancedObjectsTestCase(unittest.TestCase):
         self.assertEqual(newdefaultdict[3].default_factory, int) # outer-most defaultdict
 
     def test_defaultdict_subclass_with_self_as_default_factory(self):
-        tree = ThingWithSelfAsDefaultFactory()
-        self._test_defaultdict_tree(tree, ThingWithSelfAsDefaultFactory)
+        cls = ThingWithSelfAsDefaultFactory
+        tree = cls()
+        newtree = self._test_defaultdict_tree(tree, cls)
+        self.assertEqual(type(newtree['A'].default_factory), cls)
+        self.assertTrue(newtree.default_factory is newtree)
+        self.assertTrue(newtree['A'].default_factory is newtree['A'])
+        self.assertTrue(newtree['Z'].default_factory is newtree['Z'])
 
     def test_defaultdict_subclass_with_class_as_default_factory(self):
-        tree = ThingWithClassAsDefaultFactory()
-        self._test_defaultdict_tree(tree, ThingWithClassAsDefaultFactory)
+        cls = ThingWithClassAsDefaultFactory
+        tree = cls()
+        newtree = self._test_defaultdict_tree(tree, cls)
+        self.assertTrue(newtree.default_factory is cls)
+        self.assertTrue(newtree['A'].default_factory is cls)
+        self.assertTrue(newtree['Z'].default_factory is cls)
 
     def _test_defaultdict_tree(self, tree, cls):
         tree['A']['B'] = 1
@@ -243,6 +252,14 @@ class AdvancedObjectsTestCase(unittest.TestCase):
         # we've never seen 'D' before so the reconstructed defaultdict tree
         # should create an instance of cls.
         self.assertEqual(type(newtree['A']['D']), cls)
+        # ensure that proxies do not escape into user code
+        self.assertNotEqual(type(newtree.default_factory),
+                            jsonpickle.unpickler._Proxy)
+        self.assertNotEqual(type(newtree['A'].default_factory),
+                            jsonpickle.unpickler._Proxy)
+        self.assertNotEqual(type(newtree['A']['Z'].default_factory),
+                            jsonpickle.unpickler._Proxy)
+        return newtree
 
     def test_deque_roundtrip(self):
         """Make sure we can handle collections.deque"""
