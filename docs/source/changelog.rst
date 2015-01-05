@@ -1,8 +1,15 @@
 Change Log
 ==========
-Version 0.8.1 - October TBD, 2014
+Version 0.8.1 - January TBD, 2015
 ---------------------------------
     * Support for Pickle Protocol v4.
+
+    * We now support serializing defaultdict subclasses that use `self`
+      as their default factory.
+
+    * We now have a decorator syntax for registering custom handlers,
+      and allow custom handlers to register themselves for all subclasses.
+      (`#104 <https://github.com/jsonpickle/jsonpickle/pull/104>`_).
 
 Version 0.8.0 - September 6, 2014
 ---------------------------------
