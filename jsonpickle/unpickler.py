@@ -63,6 +63,9 @@ class _Proxy(object):
     def __init__(self):
         self.instance = None
 
+    def __call__(self):
+        return self.instance()
+
 
 def _obj_setattr(obj, attr, proxy):
     setattr(obj, attr, proxy.instance)
@@ -240,7 +243,6 @@ class Unpickler(object):
         return self._restore(default_factory)
 
     def _restore_object_instance(self, obj, cls):
-        factory = self._loadfactory(obj)
         if has_tag(obj, tags.NEWARGSEX):
             args, kwargs = obj[tags.NEWARGSEX]
         else:
@@ -253,6 +255,10 @@ class Unpickler(object):
         # reference the parent object before it has been instantiated.
         proxy = _Proxy()
         self._mkref(proxy)
+
+        # An object can install itself as its own factory, so load the factory
+        # after the instance is available for referencing.
+        factory = self._loadfactory(obj)
 
         if args:
             args = self._restore(args)
