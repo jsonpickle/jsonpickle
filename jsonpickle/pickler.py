@@ -405,12 +405,20 @@ class Pickler(object):
         if hasattr(obj, 'default_factory') and callable(obj.default_factory):
             factory = obj.default_factory
             if util.is_type(factory):
-                # Reference the type
+                # Reference the class/type
                 value = _mktyperef(factory)
             else:
-                # Create an instance from the factory and assume that the
-                # resulting instance is a suitable examplar.
-                value = self._flatten(handlers.CloneFactory(factory()))
+                # The factory is not a type and could reference e.g. functions
+                # or even the object instance itself, which creates a cycle.
+                if self._mkref(factory):
+                    # We've never seen this object before so pickle it in-place.
+                    # Create an instance from the factory and assume that the
+                    # resulting instance is a suitable examplar.
+                    value = self._flatten(handlers.CloneFactory(factory()))
+                else:
+                    # We've seen this object before.
+                    # Break the cycle by emitting a reference.
+                    value = self._getref(factory)
             data['default_factory'] = value
 
         return data
