@@ -175,6 +175,21 @@ class ThingWithClassAsDefaultFactory(collections.defaultdict):
         return self.__class__()
 
 
+try:
+    import enum
+
+    class IntEnumTest(enum.IntEnum):
+        X = 1
+        Y = 2
+
+    class StringEnumTest(enum.Enum):
+        A = 'a'
+        B = 'b'
+except ImportError:
+    IntEnumTest = None
+    StringEnumTest = None
+
+
 class AdvancedObjectsTestCase(unittest.TestCase):
 
     def setUp(self):
@@ -660,6 +675,18 @@ class AdvancedObjectsTestCase(unittest.TestCase):
     def test_base_object_roundrip(self):
         roundtrip = self.unpickler.restore(self.pickler.flatten(object()))
         self.assertEqual(type(roundtrip), object)
+
+    def test_enum34(self):
+        if IntEnumTest is None or StringEnumTest is None:
+            return self.skipTest('enum module is not importable')
+
+        roundtrip = lambda obj: self.unpickler.restore(self.pickler.flatten(obj))
+
+        self.assertTrue(roundtrip(IntEnumTest.X) is IntEnumTest.X)
+        self.assertTrue(roundtrip(IntEnumTest) is IntEnumTest)
+
+        self.assertTrue(roundtrip(StringEnumTest.A) is StringEnumTest.A)
+        self.assertTrue(roundtrip(StringEnumTest) is StringEnumTest)
 
 
 # Test classes for ExternalHandlerTestCase
