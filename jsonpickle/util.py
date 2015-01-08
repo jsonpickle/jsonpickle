@@ -15,6 +15,7 @@ import io
 import operator
 import time
 import types
+import inspect
 
 from jsonpickle import tags
 from jsonpickle.compat import set
@@ -43,10 +44,55 @@ def is_type(obj):
     >>> is_type(Klass)
     True
     """
+    # use "isinstance" and not "is" to allow for metaclasses
     if PY3:
-        return type(obj) is type
+        return isinstance(obj, type)
     else:
-        return type(obj) is type or type(obj) is types.ClassType
+        return isinstance(obj, (type, types.ClassType))
+
+
+def has_method(obj, name):
+    # false if attribute doesn't exist
+    if not hasattr(obj, name):
+        return False
+    func = getattr(obj, name)
+
+    # builtin descriptors like __getnewargs__
+    if isinstance(func, types.BuiltinMethodType):
+        return True
+
+    # note that FunctionType has a different meaning in py2/py3
+    if not isinstance(func, (types.MethodType, types.FunctionType)):
+        return False
+
+    # need to go through __dict__'s since in py3 methods are essentially descriptors
+    base_type = obj if is_type(obj) else obj.__class__  # __class__ for old-style classes
+    original = None
+    for subtype in inspect.getmro(base_type):  # there is no .mro() for old-style classes
+        original = vars(subtype).get(name)
+        if original is not None:
+            break
+
+    # name not found in the mro
+    if original is None:
+        return False
+
+    # static methods are always fine
+    if isinstance(original, staticmethod):
+        return True
+
+    # at this point, the method has to be an instancemthod or a classmethod
+    self_attr = '__self__' if PY3 else 'im_self'
+    if not hasattr(func, self_attr):
+        return False
+    bound_to = getattr(func, self_attr)
+
+    # class methods
+    if isinstance(original, classmethod):
+        return issubclass(base_type, bound_to)
+
+    # bound methods
+    return isinstance(obj, type(bound_to))
 
 
 def is_object(obj):
@@ -62,8 +108,7 @@ def is_object(obj):
     False
     """
     return (isinstance(obj, object) and
-            type(obj) is not type and
-            type(obj) is not types.FunctionType)
+            not isinstance(obj, (type, types.FunctionType)))
 
 
 def is_primitive(obj):
@@ -82,6 +127,7 @@ def is_primitive(obj):
         return True
     return False
 
+
 def is_dictionary(obj):
     """Helper method for testing if the object is a dictionary.
 
@@ -90,6 +136,7 @@ def is_dictionary(obj):
 
     """
     return type(obj) is dict
+
 
 def is_sequence(obj):
     """Helper method to see if the object is a sequence (list, set, or tuple).
@@ -214,7 +261,7 @@ def is_module_function(obj):
     """
 
     return (hasattr(obj, '__class__') and
-            obj.__class__ is types.FunctionType and
+            isinstance(obj, types.FunctionType) and
             hasattr(obj, '__module__') and
             hasattr(obj, '__name__') and
             obj.__name__ != '<lambda>')
@@ -228,7 +275,7 @@ def is_module(obj):
     True
 
     """
-    return type(obj) is types.ModuleType
+    return isinstance(obj, types.ModuleType)
 
 
 def is_picklable(name, value):

@@ -1,4 +1,4 @@
-*.pyc
+*.py[cod]
 *.egg-info
 *.swp
 *#*
@@ -8,3 +8,5 @@
 /dist
 /env*
 /tags
+__pycache__
+.tox/

@@ -31,6 +31,30 @@ class ListSubclass(list):
     pass
 
 
+class MethodTestClass(object):
+    @staticmethod
+    def static_method():
+        pass
+
+    @classmethod
+    def class_method(cls):
+        pass
+
+    def bound_method(self):
+        pass
+
+    variable = None
+
+
+class MethodTestSubclass(MethodTestClass):
+    pass
+
+
+class MethodTestOldStyle:
+    def bound_method(self):
+        pass
+
+
 class UtilTestCase(unittest.TestCase):
 
     def test_is_primitive_int(self):
@@ -68,7 +92,7 @@ class UtilTestCase(unittest.TestCase):
         self.assertFalse(util.is_primitive([4, 4]))
 
     def test_is_primitive_dict(self):
-        self.assertFalse(util.is_primitive({'key':'value'}))
+        self.assertFalse(util.is_primitive({'key': 'value'}))
         self.assertFalse(util.is_primitive({}))
 
     def test_is_primitive_tuple(self):
@@ -91,9 +115,9 @@ class UtilTestCase(unittest.TestCase):
         self.assertTrue(util.is_tuple((1, 2)))
 
     def test_is_list_dict(self):
-        self.assertFalse(util.is_list({'key':'value'}))
-        self.assertFalse(util.is_set({'key':'value'}))
-        self.assertFalse(util.is_tuple({'key':'value'}))
+        self.assertFalse(util.is_list({'key': 'value'}))
+        self.assertFalse(util.is_set({'key': 'value'}))
+        self.assertFalse(util.is_tuple({'key': 'value'}))
 
     def test_is_list_other(self):
         self.assertFalse(util.is_list(1))
@@ -164,6 +188,44 @@ class UtilTestCase(unittest.TestCase):
         expect = '0'
         actual = util.itemgetter((0, 'zero'))
         self.assertEqual(expect, actual)
+
+    def test_has_method(self):
+        instance = MethodTestClass()
+        x = 1
+        has_method = jsonpickle.util.has_method
+
+        # no attribute
+        self.assertFalse(has_method(instance, 'foo'))
+
+        # builtin method type
+        self.assertFalse(has_method(int, '__getnewargs__'))
+        self.assertTrue(has_method(x, '__getnewargs__'))
+
+        # staticmethod
+        self.assertTrue(has_method(instance, 'static_method'))
+        self.assertTrue(has_method(MethodTestClass, 'static_method'))
+
+        # not a method
+        self.assertFalse(has_method(instance, 'variable'))
+        self.assertFalse(has_method(MethodTestClass, 'variable'))
+
+        # classmethod
+        self.assertTrue(has_method(instance, 'class_method'))
+        self.assertTrue(has_method(MethodTestClass, 'class_method'))
+
+        # bound method
+        self.assertTrue(has_method(instance, 'bound_method'))
+        self.assertFalse(has_method(MethodTestClass, 'bound_method'))
+
+        # subclass bound method
+        sub_instance = MethodTestSubclass()
+        self.assertTrue(has_method(sub_instance, 'bound_method'))
+        self.assertFalse(has_method(MethodTestSubclass, 'bound_method'))
+
+        # old style object
+        old_instance = MethodTestOldStyle()
+        self.assertTrue(has_method(old_instance, 'bound_method'))
+        self.assertFalse(has_method(MethodTestOldStyle, 'bound_method'))
 
 
 def suite():
