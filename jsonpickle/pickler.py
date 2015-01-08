@@ -63,13 +63,13 @@ class Pickler(object):
         self.backend = _make_backend(backend)
         self.keys = keys
         self.warn = warn
-        ## The current recursion depth
+        # The current recursion depth
         self._depth = -1
-        ## The maximal recursion depth
+        # The maximal recursion depth
         self._max_depth = max_depth
-        ## Maps id(obj) to reference IDs
+        # Maps id(obj) to reference IDs
         self._objs = {}
-        ## Avoids garbage collection
+        # Avoids garbage collection
         self._seen = []
         # maximum amount of items to take from a pickled iterator
         self._max_iter = max_iter

@@ -44,7 +44,7 @@ class TimestampedVariable(object):
         self._dt_write = self._dt_read
 
     def get(self, default_value=None):
-        if self._dt_read == None and self._dt_write == None:
+        if self._dt_read is None and self._dt_write is None:
             value = default_value
             self._value = value
             self._dt_write = datetime.datetime.utcnow()
@@ -71,7 +71,7 @@ class TimestampedVariable(object):
         dt_now = datetime.datetime.utcnow()
         td_read = dt_now - self._dt_read
         td_write = dt_now - self._dt_write
-        return( ( td_read > td ) and ( td_write > td ) )
+        return td_read > td and td_write > td
 
 
 class PersistantVariables(object):
@@ -188,7 +188,7 @@ class DateTimeAdvancedTestCase(unittest.TestCase):
         self.unpickler.reset()
 
     def test_struct_time(self):
-        expect = time.struct_time([1,2,3,4,5,6,7,8,9])
+        expect = time.struct_time([1, 2, 3, 4, 5, 6, 7, 8, 9])
         json = jsonpickle.encode(expect)
         actual = jsonpickle.decode(json)
         self.assertEqual(type(actual), time.struct_time)
@@ -213,7 +213,7 @@ class DateTimeAdvancedTestCase(unittest.TestCase):
 
     def test_datetime_inside_int_keys_defaults(self):
         t = datetime.time(hour=10)
-        s = jsonpickle.encode({1:t, 2:t})
+        s = jsonpickle.encode({1: t, 2: t})
         d = jsonpickle.decode(s)
         self.assertEqual(d["1"], d["2"])
         self.assertTrue(d["1"] is d["2"])
@@ -221,7 +221,7 @@ class DateTimeAdvancedTestCase(unittest.TestCase):
 
     def test_datetime_inside_int_keys_with_keys_enabled(self):
         t = datetime.time(hour=10)
-        s = jsonpickle.encode({1:t, 2:t}, keys=True)
+        s = jsonpickle.encode({1: t, 2: t}, keys=True)
         d = jsonpickle.decode(s, keys=True)
         self.assertEqual(d[1], d[2])
         self.assertTrue(d[1] is d[2])

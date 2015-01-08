@@ -173,9 +173,11 @@ class UtilTestCase(unittest.TestCase):
         class Foo(object):
             def method(self):
                 pass
+
             @staticmethod
             def staticmethod():
                 pass
+
             @classmethod
             def classmethod(cls):
                 pass

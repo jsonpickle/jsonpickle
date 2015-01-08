@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """
 Custom handlers may be created to handle other objects. Each custom handler
 must derive from :class:`jsonpickle.handlers.BaseHandler` and

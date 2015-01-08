@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """The jsonpickle.tags module provides the custom tags
 used for pickling and unpickling Python objects.
 
