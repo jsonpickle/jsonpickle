@@ -73,9 +73,9 @@ class TestNumpy(unittest.TestCase):
         arrays = [
             np.random.random((10, 20)),
             np.array([[True, False, True]]),
-            # np.array(['foo', 'bar']),  # fails on py3
-            # np.array([b'baz']),  # fails on py3 until #108 is resolved
-            # np.array(['2010', 'NaT', '2030']).astype('M'),  # fails on py3
+            np.array(['foo', 'bar']),
+            np.array([b'baz']),
+            np.array(['2010', 'NaT', '2030']).astype('M'),
             np.rec.array(asbytes('abcdefg') * 100, formats='i2,a3,i4',
                          shape=3, byteorder='big'),
             np.rec.array([(1, 11, 'a'), (2, 22, 'b'), (3, 33, 'c'), (4, 44, 'd'),
@@ -86,7 +86,6 @@ class TestNumpy(unittest.TestCase):
                          dtype=[('target', 'S20'), ('V_mag', '>f4')])
         ]
         for array in arrays:
-            print(array, array.dtype, jsonpickle.encode(array))
             decoded = self.roundtrip(array)
             assert_equal(decoded, array)
             self.assertEqual(decoded.dtype, array.dtype)

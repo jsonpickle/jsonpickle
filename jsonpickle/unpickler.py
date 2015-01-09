@@ -8,6 +8,7 @@
 # you should have received as part of this distribution.
 
 import sys
+import quopri
 
 import jsonpickle.util as util
 import jsonpickle.tags as tags
@@ -124,7 +125,9 @@ class Unpickler(object):
             method(obj, attr, proxy)
 
     def _restore(self, obj):
-        if has_tag(obj, tags.ID):
+        if has_tag(obj, tags.BYTES):
+            restore = self._restore_bytestring
+        elif has_tag(obj, tags.ID):
             restore = self._restore_id
         elif has_tag(obj, tags.REF):  # Backwards compatibility
             restore = self._restore_ref
@@ -151,6 +154,9 @@ class Unpickler(object):
         else:
             restore = lambda x: x
         return restore(obj)
+
+    def _restore_bytestring(self, obj):
+        return quopri.decodestring(obj[tags.BYTES].encode('utf-8'))
 
     def _restore_iterator(self, obj):
         return iter(self._restore_list(obj[tags.ITERATOR]))

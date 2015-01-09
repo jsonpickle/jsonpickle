@@ -11,6 +11,7 @@ that need to be specially handled.
 from jsonpickle.compat import set
 
 
+BYTES = 'py/bytes'
 FUNCTION = 'py/function'
 ID = 'py/id'
 INITARGS = 'py/initargs'
@@ -31,6 +32,7 @@ TYPE = 'py/type'
 
 # All reserved tag names
 RESERVED = set([
+    BYTES,
     FUNCTION,
     ID,
     INITARGS,
