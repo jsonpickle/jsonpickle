@@ -9,9 +9,7 @@ import unittest
 import jsonpickle
 from jsonpickle import handlers
 from jsonpickle import tags
-from jsonpickle.compat import queue
-from jsonpickle.compat import set
-from jsonpickle.compat import unicode
+from jsonpickle.compat import queue, set, unicode, bytes, PY2
 
 
 class Thing(object):
@@ -687,6 +685,44 @@ class AdvancedObjectsTestCase(unittest.TestCase):
 
         self.assertTrue(roundtrip(StringEnumTest.A) is StringEnumTest.A)
         self.assertTrue(roundtrip(StringEnumTest) is StringEnumTest)
+
+    def test_bytes_unicode(self):
+        b1 = b'foo'
+        b2 = b'foo\xff'
+        u1 = u'foo'
+
+        # unicode strings get encoded/decoded as is
+        encoded = self.pickler.flatten(u1)
+        self.assertTrue(encoded == u1)
+        self.assertTrue(type(encoded) is unicode)
+        decoded = self.unpickler.restore(encoded)
+        self.assertTrue(decoded == u1)
+        self.assertTrue(type(decoded) is unicode)
+
+        # bytestrings are wrapped in PY3 but in PY2 we try to decode first
+        encoded = self.pickler.flatten(b1)
+        if PY2:
+            self.assertTrue(encoded == u1)
+            self.assertTrue(type(encoded) is unicode)
+        else:
+            self.assertTrue(encoded != u1)
+            self.assertTrue(encoded == {tags.BYTES: 'foo'})
+            self.assertTrue(type(encoded[tags.BYTES]) is unicode)
+        decoded = self.unpickler.restore(encoded)
+        self.assertTrue(decoded == b1)
+        if PY2:
+            self.assertTrue(type(decoded) is unicode)
+        else:
+            self.assertTrue(type(decoded) is bytes)
+
+        # bytestrings that we can't decode to UTF-8 will always be wrapped
+        encoded = self.pickler.flatten(b2)
+        self.assertTrue(encoded != b2)
+        self.assertTrue(encoded == {tags.BYTES: 'foo=FF'})
+        self.assertTrue(type(encoded[tags.BYTES]) is unicode)
+        decoded = self.unpickler.restore(encoded)
+        self.assertTrue(decoded == b2)
+        self.assertTrue(type(decoded) is bytes)
 
 
 # Test classes for ExternalHandlerTestCase
