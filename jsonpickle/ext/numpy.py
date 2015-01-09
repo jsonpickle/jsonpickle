@@ -2,6 +2,7 @@
 
 from __future__ import absolute_import
 
+import ast
 import jsonpickle
 import numpy as np
 
@@ -11,7 +12,7 @@ __all__ = ['register_handlers', 'unregister_handlers']
 class NumpyBaseHandler(jsonpickle.handlers.BaseHandler):
     def restore_dtype(self, data):
         dtype = data['dtype']
-        return np.dtype(dtype if not dtype.startswith(('{', '[')) else eval(dtype))
+        return np.dtype(dtype if not dtype.startswith(('{', '[')) else ast.literal_eval(dtype))
 
 
 class NumpyDTypeHandler(NumpyBaseHandler):
