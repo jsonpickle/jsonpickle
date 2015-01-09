@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import collections
 import decimal
 import re
@@ -30,6 +32,7 @@ class ListSubclass(list):
 class BrokenReprThing(Thing):
     def __repr__(self):
         raise Exception('%s has a broken repr' % self.name)
+
     def __str__(self):
         return '<BrokenReprThing "%s">' % self.name
 
@@ -104,9 +107,9 @@ class ThingWithFunctionRefs(object):
     def __init__(self):
         self.fn = func
 
+
 def func(x):
     return x
-
 
 
 class ThingWithQueue(object):
@@ -116,7 +119,6 @@ class ThingWithQueue(object):
         self.child_2 = queue.Queue()
         self.childref_1 = self.child_1
         self.childref_2 = self.child_2
-
 
 
 class ThingWithSlots(object):
@@ -173,6 +175,21 @@ class ThingWithClassAsDefaultFactory(collections.defaultdict):
         return self.__class__()
 
 
+try:
+    import enum
+
+    class IntEnumTest(enum.IntEnum):
+        X = 1
+        Y = 2
+
+    class StringEnumTest(enum.Enum):
+        A = 'a'
+        B = 'b'
+except ImportError:
+    IntEnumTest = None
+    StringEnumTest = None
+
+
 class AdvancedObjectsTestCase(unittest.TestCase):
 
     def setUp(self):
@@ -213,10 +230,10 @@ class AdvancedObjectsTestCase(unittest.TestCase):
         self.assertEqual(newdefaultdict[0], 'zero')
         self.assertEqual(type(newdefaultdict[1]), collections.defaultdict)
         self.assertEqual(newdefaultdict[1][0], 'zero')
-        self.assertEqual(newdefaultdict[1][1], {}) # inner defaultdict
-        self.assertEqual(newdefaultdict[2][0], 0) # outer defaultdict
+        self.assertEqual(newdefaultdict[1][1], {})  # inner defaultdict
+        self.assertEqual(newdefaultdict[2][0], 0)  # outer defaultdict
         self.assertEqual(type(newdefaultdict[3]), collections.defaultdict)
-        self.assertEqual(newdefaultdict[3].default_factory, int) # outer-most defaultdict
+        self.assertEqual(newdefaultdict[3].default_factory, int)  # outer-most defaultdict
 
     def test_defaultdict_subclass_with_self_as_default_factory(self):
         cls = ThingWithSelfAsDefaultFactory
@@ -464,7 +481,7 @@ class AdvancedObjectsTestCase(unittest.TestCase):
         broken __repr__ implementations.
         """
         br = BrokenReprThing('test')
-        obj = { br: True }
+        obj = {br: True}
         pickler = jsonpickle.pickler.Pickler()
         flattened = pickler.flatten(obj)
         self.assertTrue('<BrokenReprThing "test">' in flattened)
@@ -527,13 +544,8 @@ class AdvancedObjectsTestCase(unittest.TestCase):
         obj['key1'] = 1
 
         flattened = self.pickler.flatten(obj)
-        self.assertEqual({'key1': 1,
-                          tags.OBJECT:
-                            'object_test.DictSubclass'
-                         },
-                         flattened)
-        self.assertEqual(flattened[tags.OBJECT],
-                         'object_test.DictSubclass')
+        self.assertEqual({'key1': 1, tags.OBJECT: 'object_test.DictSubclass'}, flattened)
+        self.assertEqual(flattened[tags.OBJECT], 'object_test.DictSubclass')
 
         inflated = self.unpickler.restore(flattened)
         self.assertEqual(1, inflated['key1'])
@@ -663,6 +675,19 @@ class AdvancedObjectsTestCase(unittest.TestCase):
     def test_base_object_roundrip(self):
         roundtrip = self.unpickler.restore(self.pickler.flatten(object()))
         self.assertEqual(type(roundtrip), object)
+
+    def test_enum34(self):
+        if IntEnumTest is None or StringEnumTest is None:
+            return self.skipTest('enum module is not importable')
+
+        roundtrip = lambda obj: self.unpickler.restore(self.pickler.flatten(obj))
+
+        self.assertTrue(roundtrip(IntEnumTest.X) is IntEnumTest.X)
+        self.assertTrue(roundtrip(IntEnumTest) is IntEnumTest)
+
+        self.assertTrue(roundtrip(StringEnumTest.A) is StringEnumTest.A)
+        self.assertTrue(roundtrip(StringEnumTest) is StringEnumTest)
+
 
 # Test classes for ExternalHandlerTestCase
 class Mixin(object):

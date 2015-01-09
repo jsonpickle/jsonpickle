@@ -11,7 +11,8 @@ Version 0.8.1 - January TBD, 2015
       and allow custom handlers to register themselves for all subclasses.
       (`#104 <https://github.com/jsonpickle/jsonpickle/pull/104>`_).
 
-    * We now support serializing Python3 `Enum` classes.
+    * We now support serializing types with metaclasses and their
+      instances (e.g., Python 3 `enum`).
 
 Version 0.8.0 - September 6, 2014
 ---------------------------------

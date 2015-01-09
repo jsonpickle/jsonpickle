@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import sys
 
 PY_MAJOR = sys.version_info[0]
@@ -39,3 +41,6 @@ try:
 except ImportError:
     # Python2
     import Queue as queue
+
+
+__all__ = ['bytes', 'set', 'unicode', 'long', 'unichr', 'queue']

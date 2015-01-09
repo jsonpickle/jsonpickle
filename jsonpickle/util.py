@@ -183,7 +183,7 @@ def is_dictionary_subclass(obj):
     >>> is_dictionary_subclass(Temp())
     True
     """
-    #TODO add UserDict
+    # TODO: add UserDict
     return (hasattr(obj, '__class__') and
             issubclass(obj.__class__, dict) and not is_dictionary(obj))
 

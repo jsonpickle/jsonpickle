@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from jsonpickle.compat import PY32
 from jsonpickle.compat import unicode
 
@@ -14,16 +16,16 @@ class JSONBackend(object):
 
     """
     def __init__(self, fallthrough=True):
-        ## Whether we should fallthrough to the next backend
+        # Whether we should fallthrough to the next backend
         self._fallthrough = fallthrough
-        ## The names of backends that have been successfully imported
+        # The names of backends that have been successfully imported
         self._backend_names = []
 
-        ## A dictionary mapping backend names to encode/decode functions
+        # A dictionary mapping backend names to encode/decode functions
         self._encoders = {}
         self._decoders = {}
 
-        ## Options to pass to specific encoders
+        # Options to pass to specific encoders
         json_opts = ((), {'sort_keys': True})
         self._encoder_options = {
             'json': json_opts,
@@ -31,10 +33,10 @@ class JSONBackend(object):
             'django.util.simplejson': json_opts,
         }
 
-        ## The exception class that is thrown when a decoding error occurs
+        # The exception class that is thrown when a decoding error occurs
         self._decoder_exceptions = {}
 
-        ## Whether we've loaded any backends successfully
+        # Whether we've loaded any backends successfully
         self._verified = False
 
         if not PY32:
@@ -94,12 +96,12 @@ class JSONBackend(object):
 
         """
         try:
-            ## Load the JSON backend
+            # Load the JSON backend
             mod = __import__(name)
         except ImportError:
             return False
 
-        ## Handle submodules, e.g. django.utils.simplejson
+        # Handle submodules, e.g. django.utils.simplejson
         try:
             for attr in name.split('.')[1:]:
                 mod = getattr(mod, attr)
@@ -111,20 +113,20 @@ class JSONBackend(object):
             return False
 
         if isinstance(loads_exc, (str, unicode)):
-            ## This backend's decoder exception is part of the backend
+            # This backend's decoder exception is part of the backend
             if not self._store(self._decoder_exceptions, name, mod, loads_exc):
                 return False
         else:
-            ## simplejson uses ValueError
+            # simplejson uses ValueError
             self._decoder_exceptions[name] = loads_exc
 
-        ## Setup the default args and kwargs for this encoder
+        # Setup the default args and kwargs for this encoder
         self._encoder_options[name] = ([], {})
 
-        ## Add this backend to the list of candidate backends
+        # Add this backend to the list of candidate backends
         self._backend_names.append(name)
 
-        ## Indicate that we successfully loaded a JSON backend
+        # Indicate that we successfully loaded a JSON backend
         self._verified = True
         return True
 
@@ -191,7 +193,7 @@ class JSONBackend(object):
                 if idx == len(self._backend_names) - 1:
                     raise e
                 else:
-                    pass # and try a more forgiving encoder, e.g. demjson
+                    pass  # and try a more forgiving encoder, e.g. demjson
     # def loads
     loads = decode
 
@@ -241,7 +243,6 @@ class JSONBackend(object):
 
         """
         self._encoder_options[name] = (args, kwargs)
-
 
     def _store(self, dct, backend, obj, name):
         try:

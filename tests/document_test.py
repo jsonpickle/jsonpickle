@@ -1,5 +1,8 @@
+# -*- coding: utf-8 -*-
+
 import unittest
 import jsonpickle
+
 
 class Node(object):
 
@@ -21,7 +24,7 @@ class Document(Node):
         Node.__init__(self, name)
 
     def __str__(self):
-        ret_str ='Document "%s"\n' % self._name
+        ret_str = 'Document "%s"\n' % self._name
         for c in self._children:
             ret_str += repr(c)
         return ret_str
