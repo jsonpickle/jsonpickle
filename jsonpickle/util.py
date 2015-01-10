@@ -18,17 +18,14 @@ import types
 import inspect
 
 from jsonpickle import tags
-from jsonpickle.compat import set
-from jsonpickle.compat import unicode
-from jsonpickle.compat import long
-from jsonpickle.compat import PY3
+from jsonpickle.compat import set, unicode, long, bytes, PY3
 
 if not PY3:
     import __builtin__
 
 SEQUENCES = (list, set, tuple)
 SEQUENCES_SET = set(SEQUENCES)
-PRIMITIVES = set((str, unicode, bool, float, int, long))
+PRIMITIVES = set((unicode, bool, float, int, long))
 
 
 def is_type(obj):
@@ -112,7 +109,7 @@ def is_object(obj):
 
 
 def is_primitive(obj):
-    """Helper method to see if the object is a basic data type. Strings,
+    """Helper method to see if the object is a basic data type. Unicode strings,
     integers, longs, floats, booleans, and None are considered primitive
     and will return True when passed into *is_primitive()*
 
@@ -164,6 +161,24 @@ def is_set(obj):
     True
     """
     return type(obj) is set
+
+
+def is_bytes(obj):
+    """Helper method to see if the object is a bytestring.
+
+    >>> is_bytes(b'foo')
+    True
+    """
+    return type(obj) is bytes
+
+
+def is_unicode(obj):
+    """Helper method to see if the object is a unicode string.
+
+    >>> is_unicode(u'foo')
+    True
+    """
+    return type(obj) is unicode
 
 
 def is_tuple(obj):
@@ -333,6 +348,7 @@ def is_reducible(obj):
     __reduce__ methods used
     """
     return (not (is_list(obj) or is_list_like(obj) or is_primitive(obj) or
+                 is_bytes(obj) or is_unicode(obj) or
                  is_dictionary(obj) or is_sequence(obj) or is_set(obj) or is_tuple(obj) or
                  is_dictionary_subclass(obj) or is_sequence_subclass(obj) or is_noncomplex(obj)
                  or is_function(obj) or is_module(obj) or type(obj) is object or obj is object

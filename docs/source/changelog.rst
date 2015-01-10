@@ -14,6 +14,15 @@ Version 0.8.1 - January TBD, 2015
     * We now support serializing types with metaclasses and their
       instances (e.g., Python 3 `enum`).
 
+    * We now support serializing bytestrings in both Python 2 and Python 3.
+      In Python 2, the `str` type is decoded to UTF-8 whenever possible and
+      serialized as a true bytestring elsewise; in Python 3, bytestrings
+      are explicitly encoded/decoded as bytestrings. Unicode strings are
+      always encoded as is in both Python 2 and Python 3.
+
+    * Added support for serializing numpy arrays, dtypes and scalars
+      (see `jsonpickle.ext.numpy` module).
+
 Version 0.8.0 - September 6, 2014
 ---------------------------------
 

@@ -11,8 +11,7 @@ import doctest
 import time
 
 import jsonpickle.util
-from jsonpickle.compat import unicode
-from jsonpickle.compat import long
+from jsonpickle.compat import unicode, long, PY2
 from jsonpickle import util
 
 
@@ -78,9 +77,12 @@ class UtilTestCase(unittest.TestCase):
     def test_is_primitive_None(self):
         self.assertTrue(util.is_primitive(None))
 
-    def test_is_primitive_str(self):
-        self.assertTrue(util.is_primitive('hello'))
-        self.assertTrue(util.is_primitive(''))
+    def test_is_primitive_bytes(self):
+        self.assertFalse(util.is_primitive(b'hello'))
+        if PY2:
+            self.assertFalse(util.is_primitive('foo'))
+        else:
+            self.assertTrue(util.is_primitive('foo'))
 
     def test_is_primitive_unicode(self):
         self.assertTrue(util.is_primitive(unicode('hello')))

@@ -9,6 +9,7 @@
 
 import warnings
 import sys
+import quopri
 from itertools import chain, islice
 
 import jsonpickle.util as util
@@ -171,6 +172,9 @@ class Pickler(object):
         if util.is_primitive(obj):
             return lambda obj: obj
 
+        if util.is_bytes(obj):
+            return self._flatten_bytestring
+
         list_recurse = self._list_recurse
 
         if util.is_list(obj):
@@ -225,6 +229,14 @@ class Pickler(object):
         """
         assert not PY3 and isinstance(obj, file)
         return None
+
+    def _flatten_bytestring(self, obj):
+        if PY2:
+            try:
+                return obj.decode('utf-8')
+            except:
+                pass
+        return {tags.BYTES: quopri.encodestring(obj).decode('utf-8')}
 
     def _flatten_obj_instance(self, obj):
         """Recursively flatten an instance and return a json-friendly dict
