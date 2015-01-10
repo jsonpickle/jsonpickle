@@ -115,8 +115,8 @@ class Pickler(object):
         Simply returns any of the basic builtin datatypes
 
         >>> p = Pickler()
-        >>> p.flatten('hello world')
-        'hello world'
+        >>> p.flatten('hello world') == u'hello world'
+        True
         >>> p.flatten(49)
         49
         >>> p.flatten(350.0)
@@ -134,8 +134,8 @@ class Pickler(object):
         [1, 2, 3, 4]
         >>> p.flatten((1,2,))[tags.TUPLE]
         [1, 2]
-        >>> p.flatten({'key': 'value'})
-        {'key': 'value'}
+        >>> p.flatten({'key': 'value'}) == {'key': u'value'}
+        True
         """
         if reset:
             self.reset()
