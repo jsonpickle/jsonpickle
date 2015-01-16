@@ -15,6 +15,7 @@ testdir = os.path.dirname(os.path.abspath(__file__))  # noqa: E402
 sys.path.insert(1, os.path.dirname(testdir))  # noqa: E402
 
 import backend_test  # noqa: E402
+import collections_test  # noqa: E402
 import datetime_test  # noqa: E402
 import document_test  # noqa: E402
 import handler_test  # noqa: E402
@@ -33,6 +34,7 @@ def suite():
     suite.addTest(util_test.suite())
     suite.addTest(handler_test.suite())
     suite.addTest(backend_test.suite())
+    suite.addTest(collections_test.suite())
     suite.addTest(jsonpickle_test.suite())
     suite.addTest(datetime_test.suite())
     suite.addTest(document_test.suite())
