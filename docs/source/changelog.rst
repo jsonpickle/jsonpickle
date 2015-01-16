@@ -1,7 +1,7 @@
 Change Log
 ==========
-Version 0.8.1 - January TBD, 2015
----------------------------------
+Version 0.9.0 - January 16, 2015
+--------------------------------
     * Support for Pickle Protocol v4.
 
     * We now support serializing defaultdict subclasses that use `self`
