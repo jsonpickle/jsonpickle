@@ -76,8 +76,6 @@ def _obj_setvalue(obj, idx, proxy):
 class Unpickler(object):
 
     def __init__(self, backend=None, keys=False, safe=False):
-        # The current recursion depth
-        # Maps reference names to object instances
         self.backend = _make_backend(backend)
         self.keys = keys
         self.safe = safe
@@ -87,6 +85,7 @@ class Unpickler(object):
     def reset(self):
         """Resets the object's internal state.
         """
+        # Map reference names to object instances
         self._namedict = {}
 
         # The stack of names traversed for child objects
