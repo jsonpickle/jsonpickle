@@ -82,20 +82,17 @@ class Unpickler(object):
         self.keys = keys
         self.safe = safe
 
-        self._namedict = {}
-        # The namestack grows whenever we recurse into a child object
-        self._namestack = []
-
-        # Maps objects to their index in the _objs list
-        self._obj_to_idx = {}
-        self._objs = []
-        self._proxies = []
+        self.reset()
 
     def reset(self):
         """Resets the object's internal state.
         """
         self._namedict = {}
+
+        # The stack of names traversed for child objects
         self._namestack = []
+
+        # Map of objects to their index in the _objs list
         self._obj_to_idx = {}
         self._objs = []
         self._proxies = []
