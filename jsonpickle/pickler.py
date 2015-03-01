@@ -94,17 +94,28 @@ class Pickler(object):
             self.reset()
         return value
 
-    def _mkref(self, obj):
+    def _log_ref(self, obj):
+        """
+        Log a reference to an in-memory object.
+        Return True if this object is new and was assigned
+        a new ID. Otherwise return False.
+        """
         objid = id(obj)
-        if objid not in self._objs:
+        is_new = objid not in self._objs
+        if is_new:
             new_id = len(self._objs)
             self._objs[objid] = new_id
-            return True
-        # Do not use references if not unpicklable.
-        if not self.unpicklable or not self.make_refs:
-            return True
-        else:
-            return False
+        return is_new
+
+    def _mkref(self, obj):
+        """
+        Log a reference to an in-memory object, and return
+        if that object should be considered newly logged.
+        """
+        is_new = self._log_ref(obj)
+        # Pretend the object is new
+        pretend_new = not self.unpicklable or not self.make_refs
+        return pretend_new or is_new
 
     def _getref(self, obj):
         return {tags.ID: self._objs.get(id(obj))}
