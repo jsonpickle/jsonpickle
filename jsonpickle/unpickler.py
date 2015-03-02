@@ -463,10 +463,11 @@ class Unpickler(object):
         proxy_id = id(proxy)
         instance_id = id(instance)
 
-        self._obj_to_idx[instance_id] = self._obj_to_idx[proxy_id]
+        instance_index = self._obj_to_idx[proxy_id]
+        self._obj_to_idx[instance_id] = instance_index
         del self._obj_to_idx[proxy_id]
 
-        self._objs[-1] = instance
+        self._objs[instance_index] = instance
         self._namedict[self._refname()] = instance
 
 

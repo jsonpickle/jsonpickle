@@ -5,6 +5,7 @@ import decimal
 import re
 import sys
 import unittest
+import datetime
 
 import jsonpickle
 from jsonpickle import handlers
@@ -186,6 +187,14 @@ try:
 except ImportError:
     IntEnumTest = None
     StringEnumTest = None
+
+
+class ThingWithTimedeltaAttribute(object):
+    def __init__(self, offset):
+        self.offset = datetime.timedelta(offset)
+
+    def __getinitargs__(self):
+        return self.offset,
 
 
 class AdvancedObjectsTestCase(unittest.TestCase):
@@ -723,6 +732,12 @@ class AdvancedObjectsTestCase(unittest.TestCase):
         decoded = self.unpickler.restore(encoded)
         self.assertTrue(decoded == b2)
         self.assertTrue(type(decoded) is bytes)
+
+    def test_nested_objects(self):
+        obj = ThingWithTimedeltaAttribute(99)
+        flattened = self.pickler.flatten(obj)
+        restored = self.unpickler.restore(flattened)
+        self.assertEqual(restored.offset, datetime.timedelta(99))
 
 
 # Test classes for ExternalHandlerTestCase
