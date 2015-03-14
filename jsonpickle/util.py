@@ -173,11 +173,7 @@ def is_bytes(obj):
 
 
 def is_unicode(obj):
-    """Helper method to see if the object is a unicode string.
-
-    >>> is_unicode(u'foo')
-    True
-    """
+    """Helper method to see if the object is a unicode string"""
     return type(obj) is unicode
 
 

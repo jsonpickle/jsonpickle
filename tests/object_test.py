@@ -698,7 +698,7 @@ class AdvancedObjectsTestCase(unittest.TestCase):
     def test_bytes_unicode(self):
         b1 = b'foo'
         b2 = b'foo\xff'
-        u1 = u'foo'
+        u1 = unicode('foo')
 
         # unicode strings get encoded/decoded as is
         encoded = self.pickler.flatten(u1)
