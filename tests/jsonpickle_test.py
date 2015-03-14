@@ -21,6 +21,8 @@ from jsonpickle.compat import unicode
 from jsonpickle.compat import unichr
 from jsonpickle.compat import PY32, PY3
 
+from helper import SkippableTest
+
 
 class Thing(object):
 
@@ -371,7 +373,7 @@ class PicklingTestCase(unittest.TestCase):
         self.assertTrue(expect is actual)
 
 
-class JSONPickleTestCase(unittest.TestCase):
+class JSONPickleTestCase(SkippableTest):
 
     def setUp(self):
         self.obj = Thing('A name')
@@ -556,8 +558,7 @@ class JSONPickleTestCase(unittest.TestCase):
 
         """
         if PY32:
-            self.skipTest('no simplejson for python 3.2')
-            return
+            return self.skip('no simplejson for python 3.2')
         jsonpickle.load_backend('simplejson', 'dumps', 'loads', ValueError)
         self.assertTrue(True)
 
@@ -1000,7 +1001,7 @@ class PicklingProtocol4TestCase(unittest.TestCase):
         self.assertFalse(decoded.__class__ is PicklableNamedTupleEx)
 
 
-class PicklingProtocol2TestCase(unittest.TestCase):
+class PicklingProtocol2TestCase(SkippableTest):
 
     def test_classic_init_has_args(self):
         """
@@ -1009,7 +1010,7 @@ class PicklingProtocol2TestCase(unittest.TestCase):
         Because classic only exists under 2, skipped if PY3
         """
         if PY3:
-            self.skipTest('No classic classes in PY3')
+            return self.skip('No classic classes in PY3')
         instance = PickleProtocol2Classic(3)
         encoded = jsonpickle.encode(instance)
         decoded = jsonpickle.decode(encoded)
@@ -1022,7 +1023,7 @@ class PicklingProtocol2TestCase(unittest.TestCase):
         Because classic only exists under 2, skipped if PY3
         """
         if PY3:
-            self.skipTest('No classic classes in PY3')
+            return self.skip('No classic classes in PY3')
         instance = PickleProtocol2ClassicInitargs(3)
         encoded = jsonpickle.encode(instance)
         decoded = jsonpickle.decode(encoded)

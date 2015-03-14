@@ -10,6 +10,8 @@ import unittest
 
 import jsonpickle
 
+from helper import SkippableTest
+
 RSS_DOC = """<?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom" xml:base="http://example.org/" xml:lang="en">
   <title type="text">Sample Feed</title>
@@ -57,19 +59,19 @@ RSS_DOC = """<?xml version="1.0" encoding="utf-8"?>
 </feed>"""
 
 
-class FeedParserTestCase(unittest.TestCase):
+class FeedParserTestCase(SkippableTest):
     def setUp(self):
         try:
             import feedparser
+            self.should_skip = False
+            self.doc = feedparser.parse(RSS_DOC)
         except ImportError:
-            if hasattr(self, 'skipTest'):
-                doit = self.skipTest
-            else:
-                doit = self.fail
-            doit('feedparser module not available, please install')
-        self.doc = feedparser.parse(RSS_DOC)
+            self.should_skip = True
+            return
 
     def test(self):
+        if self.should_skip:
+            return self.skip('feedparser module not available, please install')
         pickled = jsonpickle.encode(self.doc)
         unpickled = jsonpickle.decode(pickled)
         self.assertEqual(self.doc['feed']['title'], unpickled['feed']['title'])

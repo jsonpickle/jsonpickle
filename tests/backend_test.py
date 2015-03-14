@@ -9,6 +9,7 @@ from jsonpickle.compat import PY2
 from jsonpickle.compat import PY3
 from jsonpickle.compat import PY32
 
+from helper import SkippableTest
 
 class Thing(object):
 
@@ -20,15 +21,12 @@ class Thing(object):
 SAMPLE_DATA = {'things': [Thing('data')]}
 
 
-class BackendBase(unittest.TestCase):
+
+class BackendBase(SkippableTest):
 
     def _is_installed(self, backend):
         if not jsonpickle.util.is_installed(backend):
-            if hasattr(self, 'skipTest'):
-                doit = self.skipTest
-            else:
-                doit = self.fail
-            doit('%s not available; please install' % backend)
+            return self.skip('%s not available; please install' % backend)
 
     def set_backend(self, *args):
         backend = args[0]
@@ -88,8 +86,7 @@ class SimpleJsonTestCase(BackendBase):
 
     def test_backend(self):
         if PY32:
-            self.skipTest('no simplejson for python3.2')
-            return
+            return self.skip('no simplejson for python3.2')
         expected_pickled = (
             '{"things": [{'
             '"py/object": "backend_test.Thing", '
@@ -116,8 +113,7 @@ class DemjsonTestCase(BackendBase):
 
     def test_backend(self):
         if PY3:
-            self.skipTest('no demjson for python3')
-            return
+            return self.skip('no demjson for python3')
         expected_pickled = unicode(
             '{"things":[{'
             '"child":null,'
@@ -134,8 +130,7 @@ class JsonlibTestCase(BackendBase):
 
     def test_backend(self):
         if PY3:
-            self.skipTest('no jsonlib for python3')
-            return
+            return self.skip('no jsonlib for python3')
         expected_pickled = (
             '{"things":[{'
             '"py\/object":"backend_test.Thing",'
@@ -151,8 +146,7 @@ class YajlTestCase(BackendBase):
 
     def test_backend(self):
         if PY3:
-            self.skipTest('no yajl for python3')
-            return
+            return self.skip('no yajl for python3')
         expected_pickled = (
             '{"things":[{'
             '"py/object":"backend_test.Thing",'

@@ -12,6 +12,7 @@ from jsonpickle import handlers
 from jsonpickle import tags
 from jsonpickle.compat import queue, set, unicode, bytes, PY2
 
+from helper import SkippableTest
 
 class Thing(object):
 
@@ -197,7 +198,7 @@ class ThingWithTimedeltaAttribute(object):
         return self.offset,
 
 
-class AdvancedObjectsTestCase(unittest.TestCase):
+class AdvancedObjectsTestCase(SkippableTest):
 
     def setUp(self):
         self.pickler = jsonpickle.pickler.Pickler()
@@ -685,7 +686,7 @@ class AdvancedObjectsTestCase(unittest.TestCase):
 
     def test_enum34(self):
         if IntEnumTest is None or StringEnumTest is None:
-            return self.skipTest('enum module is not importable')
+            return self.skip('enum module is not importable')
 
         roundtrip = lambda obj: self.unpickler.restore(self.pickler.flatten(obj))
 
