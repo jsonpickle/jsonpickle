@@ -34,6 +34,12 @@ class Thing(object):
         return 'Thing("%s")' % self.name
 
 
+class Capture(object):
+    def __init__(self, *args, **kwargs):
+        self.args = args
+        self.kwargs = kwargs
+
+
 class ThingWithProps(object):
 
     def __init__(self, name='', dogs='reliable', monkies='tricksy'):
@@ -1248,8 +1254,8 @@ class PicklingProtocol2TestCase(SkippableTest):
         self.assertTrue(decoded.args[0] is decoded.args[1])
 
     def test_handles_cyclical_objects(self):
-        child = PickleProtocol2Thing(None)
-        instance = PickleProtocol2Thing(child, child)
+        child = Capture(None)
+        instance = Capture(child, child)
         child.args = (instance,)  # create a cycle
         # TODO we do not properly restore references inside of lists.
         # Change the above tuple into a list to show the breakage.
@@ -1258,27 +1264,27 @@ class PicklingProtocol2TestCase(SkippableTest):
         decoded = jsonpickle.decode(encoded)
 
         # Ensure the right objects were constructed
-        self.assertEqual(PickleProtocol2Thing, decoded.__class__)
-        self.assertEqual(PickleProtocol2Thing, decoded.args[0].__class__)
-        self.assertEqual(PickleProtocol2Thing, decoded.args[1].__class__)
-        self.assertEqual(PickleProtocol2Thing, decoded.args[0].args[0].__class__)
-        self.assertEqual(PickleProtocol2Thing, decoded.args[1].args[0].__class__)
+        self.assertEqual(Capture, decoded.__class__)
+        self.assertEqual(Capture, decoded.args[0].__class__)
+        self.assertEqual(Capture, decoded.args[1].__class__)
+        self.assertEqual(Capture, decoded.args[0].args[0].__class__)
+        self.assertEqual(Capture, decoded.args[1].args[0].__class__)
 
         # It's turtles all the way down
-        self.assertEqual(PickleProtocol2Thing, decoded.args[0].args[0]
-                                                      .args[0].args[0]
-                                                      .args[0].args[0]
-                                                      .args[0].args[0]
-                                                      .args[0].args[0]
-                                                      .args[0].args[0]
-                                                      .args[0].args[0]
-                                                      .args[0].__class__)
+        self.assertEqual(Capture, decoded.args[0].args[0]
+                                         .args[0].args[0]
+                                         .args[0].args[0]
+                                         .args[0].args[0]
+                                         .args[0].args[0]
+                                         .args[0].args[0]
+                                         .args[0].args[0]
+                                         .args[0].__class__)
         # Ensure that references are properly constructed
         self.assertTrue(decoded.args[0] is decoded.args[1])
         self.assertTrue(decoded is decoded.args[0].args[0])
         self.assertTrue(decoded is decoded.args[1].args[0])
         self.assertTrue(decoded.args[0] is decoded.args[0].args[0].args[0])
-        self.assertTrue(decoded.args[0] is decoded.args[0].args[1].args[0])
+        self.assertTrue(decoded.args[0] is decoded.args[1].args[0].args[0])
 
     def test_handles_cyclical_objects_in_lists(self):
         child = PickleProtocol2ChildThing(None)
