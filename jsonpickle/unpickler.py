@@ -322,7 +322,7 @@ class Unpickler(object):
 
             # This instance has an instance variable named `k` that is
             # currently a proxy and must be replaced
-            if type(value) is _Proxy:
+            if isinstance(value, _Proxy):
                 self._proxies.append((instance, k, value, method))
 
             # step out
@@ -378,8 +378,8 @@ class Unpickler(object):
         parent.extend(children)
         method = _obj_setvalue
         proxies = [(parent, idx, value, method)
-                   for idx, value in enumerate(parent)
-                   if isinstance(value, _Proxy)]
+                    for idx, value in enumerate(parent)
+                        if isinstance(value, _Proxy)]
         self._proxies.extend(proxies)
         return parent
 
