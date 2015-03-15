@@ -232,6 +232,7 @@ class OrderedDictReduceHandler(SimpleReduceHandler):
 
 SimpleReduceHandler.handles(time.struct_time)
 SimpleReduceHandler.handles(datetime.timedelta)
+SimpleReduceHandler.handles(collections.deque)
 if sys.version_info >= (2, 7):
     SimpleReduceHandler.handles(collections.Counter)
     if sys.version_info >= (3, 4):
