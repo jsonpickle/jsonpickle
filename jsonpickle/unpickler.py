@@ -64,13 +64,19 @@ class _Proxy(object):
     def __init__(self):
         self.instance = None
 
+    def get(self):
+        return self.instance
+
+    def reset(self, instance):
+        self.instance = instance
+
 
 def _obj_setattr(obj, attr, proxy):
-    setattr(obj, attr, proxy.instance)
+    setattr(obj, attr, proxy.get())
 
 
 def _obj_setvalue(obj, idx, proxy):
-    obj[idx] = proxy.instance
+    obj[idx] = proxy.get()
 
 
 class Unpickler(object):
@@ -283,15 +289,15 @@ class Unpickler(object):
                 except:  # fail gracefully
                     return self._mkref(obj)
 
-        proxy.instance = instance
+        proxy.reset(instance)
         self._swapref(proxy, instance)
 
         if isinstance(instance, tuple):
             return instance
 
         if (hasattr(instance, 'default_factory') and
-                type(instance.default_factory) is _Proxy):
-            instance.default_factory = instance.default_factory.instance
+                isinstance(instance.default_factory, _Proxy)):
+            instance.default_factory = instance.default_factory.get()
 
         return self._restore_object_instance_variables(obj, instance)
 
