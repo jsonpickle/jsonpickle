@@ -125,6 +125,7 @@ class Unpickler(object):
         """Replace proxies with their corresponding instances"""
         for (obj, attr, proxy, method) in self._proxies:
             method(obj, attr, proxy)
+        self._proxies = []
 
     def _restore(self, obj):
         if has_tag(obj, tags.BYTES):
