@@ -2,9 +2,11 @@
 
 from __future__ import absolute_import
 
+import numpy as np
+
 import ast
 import jsonpickle
-import numpy as np
+from jsonpickle.compat import unicode
 
 __all__ = ['register_handlers', 'unregister_handlers']
 
@@ -12,12 +14,14 @@ __all__ = ['register_handlers', 'unregister_handlers']
 class NumpyBaseHandler(jsonpickle.handlers.BaseHandler):
     def restore_dtype(self, data):
         dtype = data['dtype']
-        return np.dtype(dtype if not dtype.startswith(('{', '[')) else ast.literal_eval(dtype))
+        if dtype.startswith(('{', '[')):
+            return ast.literal_eval(dtype)
+        return np.dtype(dtype)
 
 
 class NumpyDTypeHandler(NumpyBaseHandler):
     def flatten(self, obj, data):
-        data['dtype'] = str(obj)
+        data['dtype'] = unicode(obj)
         return data
 
     def restore(self, data):
@@ -26,23 +30,25 @@ class NumpyDTypeHandler(NumpyBaseHandler):
 
 class NumpyGenericHandler(NumpyBaseHandler):
     def flatten(self, obj, data):
-        data['dtype'] = str(obj.dtype)
-        data['value'] = self.context.flatten(obj.tolist())
+        data['dtype'] = unicode(obj.dtype)
+        data['value'] = self.context.flatten(obj.tolist(), reset=False)
         return data
 
     def restore(self, data):
-        return self.restore_dtype(data).type(self.context.restore(data['value']))
+        value = self.context.restore(data['value'], reset=False)
+        return self.restore_dtype(data).type(value)
 
 
 class NumpyNDArrayHandler(NumpyBaseHandler):
     def flatten(self, obj, data):
-        data['dtype'] = str(obj.dtype)
-        data['values'] = self.context.flatten(obj.tolist())
+        data['dtype'] = unicode(obj.dtype)
+        data['values'] = self.context.flatten(obj.tolist(), reset=False)
         return data
 
     def restore(self, data):
-        return np.array(self.context.restore(data['values']),
-                        dtype=self.restore_dtype(data))
+        dtype = self.restore_dtype(data)
+        return np.array(self.context.restore(data['values'], reset=False),
+                        dtype=dtype)
 
 
 def register_handlers():

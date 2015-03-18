@@ -4,7 +4,7 @@ import unittest
 import datetime
 import jsonpickle
 
-from nose.plugins.skip import SkipTest
+from helper import SkippableTest
 
 try:
     import numpy as np
@@ -14,10 +14,13 @@ except ImportError:
     np = None
 
 
-class TestNumpy(unittest.TestCase):
+class NumpyTestCase(SkippableTest):
+
     def setUp(self):
         if np is None:
-            raise SkipTest('numpy is not importable')
+            self.should_skip = True
+            return
+        self.should_skip = False
         import jsonpickle.ext.numpy
         jsonpickle.ext.numpy.register_handlers()
 
@@ -29,6 +32,8 @@ class TestNumpy(unittest.TestCase):
         return jsonpickle.decode(jsonpickle.encode(obj))
 
     def test_dtype_roundtrip(self):
+        if self.should_skip:
+            return self.skip('numpy is not importable')
         dtypes = [
             np.int,
             np.float,
@@ -51,6 +56,8 @@ class TestNumpy(unittest.TestCase):
             self.assertEqual(self.roundtrip(dtype), dtype)
 
     def test_generic_roundtrip(self):
+        if self.should_skip:
+            return self.skip('numpy is not importable')
         values = [
             np.int_(1),
             np.int32(-2),
@@ -70,6 +77,8 @@ class TestNumpy(unittest.TestCase):
             self.assertTrue(isinstance(decoded, type(value)))
 
     def test_ndarray_roundtrip(self):
+        if self.should_skip:
+            return self.skip('numpy is not importable')
         arrays = [
             np.random.random((10, 20)),
             np.array([[True, False, True]]),
@@ -89,3 +98,13 @@ class TestNumpy(unittest.TestCase):
             decoded = self.roundtrip(array)
             assert_equal(decoded, array)
             self.assertEqual(decoded.dtype, array.dtype)
+
+
+def suite():
+    suite = unittest.TestSuite()
+    suite.addTest(unittest.makeSuite(NumpyTestCase, 'test'))
+    return suite
+
+
+if __name__ == '__main__':
+    unittest.main()
