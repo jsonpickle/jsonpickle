@@ -92,7 +92,8 @@ class HandlerTestCase(unittest.TestCase):
         self.assertTrue(new_subject['b'] is new_subject['c'])
 
     def test_invalid_class(self):
-        self.assertRaises(TypeError, jsonpickle.handlers.register, 'foo', NullHandler)
+        self.assertRaises(TypeError,
+                          jsonpickle.handlers.register, 'foo', NullHandler)
 
     def test_base_handler(self):
         a = CustomA('a')

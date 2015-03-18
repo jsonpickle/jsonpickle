@@ -11,6 +11,7 @@ from jsonpickle.compat import PY32
 
 from helper import SkippableTest
 
+
 class Thing(object):
 
     def __init__(self, name):
@@ -19,7 +20,6 @@ class Thing(object):
 
 
 SAMPLE_DATA = {'things': [Thing('data')]}
-
 
 
 class BackendBase(SkippableTest):

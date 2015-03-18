@@ -38,7 +38,8 @@ class Question(Node):
         Node.__init__(self, name)
 
     def __str__(self):
-        return 'Question "%s", parent: "%s"\n' % (self._name, self._parent._name)
+        return ('Question "%s", parent: "%s"\n'
+                % (self._name, self._parent._name))
 
     def __repr__(self):
         return self.__str__()
@@ -49,7 +50,8 @@ class Section(Node):
         Node.__init__(self, name)
 
     def __str__(self):
-        ret_str = 'Section "%s", parent: "%s"\n' % (self._name, self._parent._name)
+        ret_str = ('Section "%s", parent: "%s"\n'
+                   % (self._name, self._parent._name))
         for c in self._children:
             ret_str += repr(c)
         return ret_str

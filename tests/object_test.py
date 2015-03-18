@@ -14,6 +14,7 @@ from jsonpickle.compat import queue, set, unicode, bytes, PY2, PY_MINOR
 
 from helper import SkippableTest
 
+
 class Thing(object):
 
     def __init__(self, name):
@@ -211,37 +212,40 @@ class AdvancedObjectsTestCase(SkippableTest):
     def test_defaultdict_roundtrip(self):
         """Make sure we can handle collections.defaultdict(list)"""
         # setup
-        defaultdict = collections.defaultdict(list)
-        defaultdict['a'] = 1
-        defaultdict['b'].append(2)
-        defaultdict['c'] = collections.defaultdict(dict)
+        defaultdict = collections.defaultdict
+        defdict = defaultdict(list)
+        defdict['a'] = 1
+        defdict['b'].append(2)
+        defdict['c'] = defaultdict(dict)
         # jsonpickle work your magic
-        encoded = jsonpickle.encode(defaultdict)
-        newdefaultdict = jsonpickle.decode(encoded)
+        encoded = jsonpickle.encode(defdict)
+        newdefdict = jsonpickle.decode(encoded)
         # jsonpickle never fails
-        self.assertEqual(newdefaultdict['a'], 1)
-        self.assertEqual(newdefaultdict['b'], [2])
-        self.assertEqual(type(newdefaultdict['c']), collections.defaultdict)
-        self.assertEqual(defaultdict.default_factory, list)
-        self.assertEqual(newdefaultdict.default_factory, list)
+        self.assertEqual(newdefdict['a'], 1)
+        self.assertEqual(newdefdict['b'], [2])
+        self.assertEqual(type(newdefdict['c']), defaultdict)
+        self.assertEqual(defdict.default_factory, list)
+        self.assertEqual(newdefdict.default_factory, list)
 
     def test_defaultdict_roundtrip_simple_lambda(self):
-        """Make sure we can handle collections.defaultdict(lambda: defaultdict(int))"""
+        """Make sure we can handle defaultdict(lambda: defaultdict(int))"""
         # setup a sparse collections.defaultdict with simple lambdas
-        defaultdict = collections.defaultdict(lambda: collections.defaultdict(int))
-        defaultdict[0] = 'zero'
-        defaultdict[1] = collections.defaultdict(lambda: collections.defaultdict(dict))
-        defaultdict[1][0] = 'zero'
+        defaultdict = collections.defaultdict
+        defdict = defaultdict(lambda: defaultdict(int))
+        defdict[0] = 'zero'
+        defdict[1] = defaultdict(lambda: defaultdict(dict))
+        defdict[1][0] = 'zero'
         # roundtrip
-        encoded = jsonpickle.encode(defaultdict, keys=True)
-        newdefaultdict = jsonpickle.decode(encoded, keys=True)
-        self.assertEqual(newdefaultdict[0], 'zero')
-        self.assertEqual(type(newdefaultdict[1]), collections.defaultdict)
-        self.assertEqual(newdefaultdict[1][0], 'zero')
-        self.assertEqual(newdefaultdict[1][1], {})  # inner defaultdict
-        self.assertEqual(newdefaultdict[2][0], 0)  # outer defaultdict
-        self.assertEqual(type(newdefaultdict[3]), collections.defaultdict)
-        self.assertEqual(newdefaultdict[3].default_factory, int)  # outer-most defaultdict
+        encoded = jsonpickle.encode(defdict, keys=True)
+        newdefdict = jsonpickle.decode(encoded, keys=True)
+        self.assertEqual(newdefdict[0], 'zero')
+        self.assertEqual(type(newdefdict[1]), defaultdict)
+        self.assertEqual(newdefdict[1][0], 'zero')
+        self.assertEqual(newdefdict[1][1], {})  # inner defaultdict
+        self.assertEqual(newdefdict[2][0], 0)  # outer defaultdict
+        self.assertEqual(type(newdefdict[3]), defaultdict)
+        # outer-most defaultdict
+        self.assertEqual(newdefdict[3].default_factory, int)
 
     def test_defaultdict_subclass_with_self_as_default_factory(self):
         cls = ThingWithSelfAsDefaultFactory
@@ -559,7 +563,8 @@ class AdvancedObjectsTestCase(SkippableTest):
         obj['key1'] = 1
 
         flattened = self.pickler.flatten(obj)
-        self.assertEqual({'key1': 1, tags.OBJECT: 'object_test.DictSubclass'}, flattened)
+        self.assertEqual({'key1': 1, tags.OBJECT: 'object_test.DictSubclass'},
+                         flattened)
         self.assertEqual(flattened[tags.OBJECT], 'object_test.DictSubclass')
 
         inflated = self.unpickler.restore(flattened)
@@ -695,8 +700,9 @@ class AdvancedObjectsTestCase(SkippableTest):
         if IntEnumTest is None or StringEnumTest is None:
             return self.skip('enum module is not importable')
 
-        roundtrip = lambda obj: self.unpickler.restore(self.pickler.flatten(obj))
-
+        restore = self.unpickler.restore
+        flatten = self.pickler.flatten
+        roundtrip = lambda obj: restore(flatten(obj))
         self.assertTrue(roundtrip(IntEnumTest.X) is IntEnumTest.X)
         self.assertTrue(roundtrip(IntEnumTest) is IntEnumTest)
 

@@ -62,9 +62,9 @@ class TimestampedVariable(object):
         td_read = dt_now - self._dt_read
         td_write = dt_now - self._dt_write
         s = '<TimestampedVariable>\n'
-        s += '  value: ' + str(self._value) + '\n'
-        s += '  dt_read : ' + str(self._dt_read) + ' (%s ago)' % td_read + '\n'
-        s += '  dt_write: ' + str(self._dt_write) + ' (%s ago)' % td_write + '\n'
+        s += ' value: ' + str(self._value) + '\n'
+        s += ' dt_read: ' + str(self._dt_read) + ' (%s ago)' % td_read + '\n'
+        s += ' dt_write: ' + str(self._dt_write) + ' (%s ago)' % td_write + '\n'
         return s
 
     def erasable(self, td=datetime.timedelta(seconds=1)):

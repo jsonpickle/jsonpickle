@@ -98,8 +98,10 @@ class PicklingTestCase(unittest.TestCase):
         self.assertEqual('a string', self.unpickler.restore('a string'))
 
     def test_unicode(self):
-        self.assertEqual(unicode('a string'), self.pickler.flatten('a string'))
-        self.assertEqual(unicode('a string'), self.unpickler.restore('a string'))
+        self.assertEqual(unicode('a string'),
+                         self.pickler.flatten('a string'))
+        self.assertEqual(unicode('a string'),
+                         self.unpickler.restore('a string'))
 
     def test_int(self):
         self.assertEqual(3, self.pickler.flatten(3))
@@ -149,7 +151,8 @@ class PicklingTestCase(unittest.TestCase):
         self.assertEqual(setA, self.unpickler.restore(setA_pickle))
 
     def test_dict(self):
-        dictA = {'key1': 1.0, 'key2': 20, 'key3': 'thirty', tags.JSON_KEY + '6': 6}
+        dictA = {'key1': 1.0, 'key2': 20, 'key3': 'thirty',
+                 tags.JSON_KEY + '6': 6}
         self.assertEqual(dictA, self.pickler.flatten(dictA))
         self.assertEqual(dictA, self.unpickler.restore(dictA))
         dictB = {}
@@ -493,7 +496,7 @@ class JSONPickleTestCase(SkippableTest):
         self.assertEqual(unpickled[tags.JSON_KEY + '6'], [1, 2])
 
     def test_string_key_not_requiring_escape_dict_keys_with_keys_enabled(self):
-        """ test that string keys that does not require escaping are not escaped """
+        """test that string keys that do not require escaping are not escaped"""
         str_dict = {'name': [1, 2]}
         pickled = jsonpickle.encode(str_dict, keys=True)
         unpickled = jsonpickle.decode(pickled)
@@ -612,7 +615,8 @@ class JSONPickleTestCase(SkippableTest):
         """Test that we ignore bad decoders"""
 
         load_backend = jsonpickle.load_backend
-        self.assertFalse(load_backend('os.path', 'join', 'bad!', AttributeError))
+        self.assertFalse(load_backend('os.path', 'join', 'bad!',
+                                      AttributeError))
         self.failIf(self._backend_is_partially_loaded('os.path'))
 
     def test_load_backend_handles_bad_loads_exc(self):
@@ -1103,9 +1107,8 @@ class PicklingProtocol2TestCase(SkippableTest):
         self.assertEqual(decoded.foo, 1)
 
     def test_reduce_basic(self):
-        """
-        Test reduce with only callable and args
-        """
+        """Test reduce with only callable and args"""
+
         instance = PickleProtocol2ReduceTuple(5)
         encoded = jsonpickle.encode(instance)
         decoded = jsonpickle.decode(encoded)
@@ -1113,8 +1116,10 @@ class PicklingProtocol2TestCase(SkippableTest):
         self.assertEqual(decoded.optional, 1)
 
     def test_reduce_basic_func(self):
-        """
-        Test reduce with only callable and args, where callable is a module-level function
+        """Test reduce with only callable and args
+
+        callable is a module-level function
+
         """
         instance = PickleProtocol2ReduceTupleFunc(5)
         encoded = jsonpickle.encode(instance)
@@ -1123,8 +1128,10 @@ class PicklingProtocol2TestCase(SkippableTest):
         self.assertEqual(decoded.optional, 1)
 
     def test_reduce_newobj(self):
-        """
-        Test reduce with callable called __newobj__ - ensure special-case behaviour
+        """Test reduce with callable called __newobj__
+
+        ensures special-case behaviour
+
         """
         instance = PickleProtocol2ReduceNewobj(5)
         encoded = jsonpickle.encode(instance)

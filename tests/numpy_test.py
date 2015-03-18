@@ -49,7 +49,8 @@ class NumpyTestCase(SkippableTest):
                                ('rtile', '>f4', (64, 36))], (3,)),
                       ('bottom', [('bleft', ('>f4', (8, 64)), (1,)),
                                   ('bright', '>f4', (8, 36))])]),
-            np.dtype({'names': ['f0', 'f1', 'f2'], 'formats': ['<u4', '<u2', '<u2'],
+            np.dtype({'names': ['f0', 'f1', 'f2'],
+                      'formats': ['<u4', '<u2', '<u2'],
                       'offsets':[0, 0, 2]}, align=True)
         ]
         for dtype in dtypes:
@@ -87,9 +88,13 @@ class NumpyTestCase(SkippableTest):
             np.array(['2010', 'NaT', '2030']).astype('M'),
             np.rec.array(asbytes('abcdefg') * 100, formats='i2,a3,i4',
                          shape=3, byteorder='big'),
-            np.rec.array([(1, 11, 'a'), (2, 22, 'b'), (3, 33, 'c'), (4, 44, 'd'),
-                         (5, 55, 'ex'), (6, 66, 'f'), (7, 77, 'g')], formats='u1,f4,a1'),
-            np.array(['1960-03-12', datetime.date(1960, 3, 12)], dtype='M8[D]'),
+            np.rec.array([(1, 11, 'a'), (2, 22, 'b'),
+                          (3, 33, 'c'), (4, 44, 'd'),
+                          (5, 55, 'ex'), (6, 66, 'f'),
+                          (7, 77, 'g')],
+                         formats='u1,f4,a1'),
+            np.array(['1960-03-12', datetime.date(1960, 3, 12)],
+                     dtype='M8[D]'),
             np.array([0, 1, -1, np.inf, -np.inf, np.nan], dtype='f2'),
             np.rec.array([('NGC1001', 11), ('NGC1002', 1.), ('NGC1003', 1.)],
                          dtype=[('target', 'S20'), ('V_mag', '>f4')])
