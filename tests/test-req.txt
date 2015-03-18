@@ -1,6 +1,0 @@
-demjson==1.4
-feedparser==4.1
-jsonlib==1.6.1
-simplejson==2.1.1
-Sphinx
-ipython

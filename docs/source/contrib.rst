@@ -35,7 +35,8 @@ directory::
     source env/bin/activate
 
     # use pip to install the dependencies listed in the requirements file
-    pip install --upgrade -r tests/test-req.txt
+    pip install --upgrade -r requirements.txt
+    pip install --upgrade -r requirements-test.txt
 
 To run the suite, simply invoke :file:`tests/runtests.py`::
 
