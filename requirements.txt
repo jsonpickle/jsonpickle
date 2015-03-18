@@ -1,4 +1,3 @@
-feedparser
 simplejson
 demjson
 jsonlib

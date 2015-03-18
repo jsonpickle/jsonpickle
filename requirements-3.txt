@@ -1,3 +1,2 @@
-feedparser
 simplejson
 ujson
