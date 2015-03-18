@@ -172,6 +172,7 @@ class Unpickler(object):
         """
         reduce_val = obj[tags.REDUCE]
         f, args, state, listitems, dictitems = map(self._restore, reduce_val)
+
         if f == tags.NEWOBJ or f.__name__ == '__newobj__':
             # mandated special case
             cls = args[0]

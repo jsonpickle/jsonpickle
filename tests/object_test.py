@@ -186,6 +186,18 @@ try:
     class StringEnumTest(enum.Enum):
         A = 'a'
         B = 'b'
+
+    class SubEnum(enum.Enum):
+        a = 1
+        b = 2
+
+    class EnumClass(object):
+
+        def __init__(self):
+            self.enum_a = SubEnum.a
+            self.enum_b = SubEnum.b
+
+
 except ImportError:
     IntEnumTest = None
     StringEnumTest = None
@@ -698,7 +710,7 @@ class AdvancedObjectsTestCase(SkippableTest):
 
     def test_enum34(self):
         if IntEnumTest is None or StringEnumTest is None:
-            return self.skip('enum module is not importable')
+            return self.skip('enum34 module is not installed')
 
         restore = self.unpickler.restore
         flatten = self.pickler.flatten
@@ -708,6 +720,16 @@ class AdvancedObjectsTestCase(SkippableTest):
 
         self.assertTrue(roundtrip(StringEnumTest.A) is StringEnumTest.A)
         self.assertTrue(roundtrip(StringEnumTest) is StringEnumTest)
+
+    def test_enum34_nested(self):
+        if EnumClass is None:
+            return self.skip('enum34 module is not installed')
+        ec = EnumClass()
+        encoded = jsonpickle.encode(ec)
+        decoded = jsonpickle.decode(encoded)
+
+        self.assertEqual(ec.enum_a, decoded.enum_a)
+        self.assertEqual(ec.enum_b, decoded.enum_b)
 
     def test_bytes_unicode(self):
         b1 = b'foo'
