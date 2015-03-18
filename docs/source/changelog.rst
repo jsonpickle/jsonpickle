@@ -1,5 +1,16 @@
 Change Log
 ==========
+Version 0.9.2 - April TBD, 2013
+------------------------------
+    * Fixes for serializing objects with custom handlers.
+
+    * We now properly serialize deque objects constructed with a `maxlen` parameter.
+
+Version 0.9.1 - March 15, 2013
+------------------------------
+
+    * Support datetime objects with FixedOffsets.
+
 Version 0.9.0 - January 16, 2015
 --------------------------------
     * Support for Pickle Protocol v4.
