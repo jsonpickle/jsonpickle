@@ -229,8 +229,12 @@ class Unpickler(object):
         cls = loadclass(class_name)
         handler = handlers.get(cls, handlers.get(class_name))
         if handler is not None:  # custom handler
+            proxy = _Proxy()
+            self._mkref(proxy)
             instance = handler(self).restore(obj)
-            return self._mkref(instance)
+            proxy.reset(instance)
+            self._swapref(proxy, instance)
+            return instance
 
         if cls is None:
             return self._mkref(obj)
