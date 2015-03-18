@@ -288,7 +288,7 @@ class AdvancedObjectsTestCase(SkippableTest):
 
     def test_deque_roundtrip(self):
         """Make sure we can handle collections.deque"""
-        old_deque = collections.deque([0, 1, 2])
+        old_deque = collections.deque([0, 1, 2], maxlen=5)
         encoded = jsonpickle.encode(old_deque)
         new_deque = jsonpickle.decode(encoded)
         self.assertNotEqual(encoded, 'nil')
@@ -298,6 +298,8 @@ class AdvancedObjectsTestCase(SkippableTest):
         self.assertEqual(new_deque[1], 1)
         self.assertEqual(old_deque[2], 2)
         self.assertEqual(new_deque[2], 2)
+        self.assertEqual(old_deque.maxlen, 5)
+        self.assertEqual(new_deque.maxlen, 5)
 
     def test_namedtuple_roundtrip(self):
         old_nt = NamedTuple(0, 1, 2)
