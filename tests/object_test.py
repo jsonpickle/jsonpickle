@@ -201,6 +201,7 @@ try:
 except ImportError:
     IntEnumTest = None
     StringEnumTest = None
+    EnumClass = None
 
 
 class ThingWithTimedeltaAttribute(object):
