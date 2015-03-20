@@ -1,12 +1,14 @@
 Change Log
 ==========
-Version 0.9.2 - April TBD, 2013
+Version 0.9.2 - March 20, 2015
 ------------------------------
     * Fixes for serializing objects with custom handlers.
 
     * We now properly serialize deque objects constructed with a `maxlen` parameter.
 
-Version 0.9.1 - March 15, 2013
+    * Test suite fixes
+
+Version 0.9.1 - March 15, 2015
 ------------------------------
 
     * Support datetime objects with FixedOffsets.
