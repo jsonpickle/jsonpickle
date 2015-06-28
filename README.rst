@@ -13,9 +13,20 @@ Bug reports and merge requests are encouraged at the
 Install
 =======
 
+Install from pip for the latest stable release:
+
 ::
 
+    pip install jsonpickle
+
+Install from source for the latest changes:
+
+::
+
+    git clone https://github.com/jsonpickle/jsonpickle.git
+    cd jsonpickle
     python setup.py install
+
 
 jsonpickleJS
 ============
