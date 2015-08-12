@@ -21,6 +21,7 @@ import document_test
 import handler_test
 import jsonpickle_test
 import object_test
+import stdlib_test
 import util_test
 import feedparser_test
 import bson_test
@@ -36,6 +37,7 @@ def suite():
     suite.addTest(datetime_test.suite())
     suite.addTest(document_test.suite())
     suite.addTest(object_test.suite())
+    suite.addTest(stdlib_test.suite())
     suite.addTest(feedparser_test.suite())
     suite.addTest(numpy_test.suite())
     suite.addTest(bson_test.suite())
