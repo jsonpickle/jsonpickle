@@ -284,10 +284,6 @@ class CloneFactory(object):
 class UUIDHandler(BaseHandler):
     """Serialize uuid.UUID objects"""
 
-    def __init__(self, context):
-        super(UUIDHandler, self).__init__(context)
-        self.cache = {}
-
     def flatten(self, obj, data):
         data['hex'] = obj.hex
         return data
