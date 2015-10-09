@@ -129,7 +129,8 @@ def encode(value,
                           make_refs=make_refs,
                           keys=keys,
                           max_depth=max_depth,
-                          warn=warn)
+                          warn=warn,
+                          max_iter=max_iter)
 
 
 def decode(string, backend=None, keys=False):
