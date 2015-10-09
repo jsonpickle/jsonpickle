@@ -68,6 +68,7 @@ json = JSONBackend()
 
 # Export specific JSONPluginMgr methods into the jsonpickle namespace
 set_preferred_backend = json.set_preferred_backend
+set_decoder_options = json.set_decoder_options
 set_encoder_options = json.set_encoder_options
 load_backend = json.load_backend
 remove_backend = json.remove_backend
