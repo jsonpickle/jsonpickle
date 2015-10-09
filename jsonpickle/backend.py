@@ -161,10 +161,7 @@ class JSONBackend(object):
 
         for idx, name in enumerate(self._backend_names):
             try:
-                optargs, optkwargs = self._encoder_options[name]
-                encoder_kwargs = optkwargs.copy()
-                encoder_args = (obj,) + tuple(optargs)
-                return self._encoders[name](*encoder_args, **encoder_kwargs)
+                return self.backend_encode(name, obj)
             except Exception as e:
                 if idx == len(self._backend_names) - 1:
                     raise e
