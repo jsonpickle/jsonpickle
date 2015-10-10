@@ -57,6 +57,8 @@ Experimental backends:
 
 .. autofunction:: jsonpickle.set_encoder_options
 
+.. autofunction:: jsonpickle.set_decoder_options
+
 Customizing JSON output
 -----------------------
 

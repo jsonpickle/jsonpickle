@@ -6,6 +6,9 @@ Unreleased Version 0.9.3 - TBD
     * UUID objects can now be serialized
       (`#130 <https://github.com/jsonpickle/jsonpickle/issues/130>`_).
 
+    * Added `set_decoder_options` method to allow decoder specific options
+      equal to `set_encoder_options`.
+
 Version 0.9.2 - March 20, 2015
 ------------------------------
     * Fixes for serializing objects with custom handlers.
