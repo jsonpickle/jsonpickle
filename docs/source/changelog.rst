@@ -9,6 +9,10 @@ Unreleased Version 0.9.3 - TBD
     * Added `set_decoder_options` method to allow decoder specific options
       equal to `set_encoder_options`.
 
+    * Int keys can be encoded directly by e.g. demjson by passing
+      `numeric_keys=True` and setting its backend options via
+      `jsonpickle.set_encoder_options('demjson', strict=False)`.
+
 Version 0.9.2 - March 20, 2015
 ------------------------------
     * Fixes for serializing objects with custom handlers.

@@ -82,7 +82,8 @@ def encode(value,
            max_depth=None,
            backend=None,
            warn=False,
-           max_iter=None):
+           max_iter=None,
+           numeric_keys=False):
     """Return a JSON formatted representation of value, a Python object.
 
     :param unpicklable: If set to False then the output will not contain the
@@ -130,7 +131,8 @@ def encode(value,
                           keys=keys,
                           max_depth=max_depth,
                           warn=warn,
-                          max_iter=max_iter)
+                          max_iter=max_iter,
+                          numeric_keys=numeric_keys)
 
 
 def decode(string, backend=None, keys=False):

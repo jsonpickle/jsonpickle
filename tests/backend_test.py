@@ -107,6 +107,7 @@ def has_module(module):
 
 
 class DemjsonTestCase(BackendBase):
+
     def setUp(self):
         if PY2:
             self.set_preferred_backend('demjson')
@@ -121,6 +122,13 @@ class DemjsonTestCase(BackendBase):
             '"py/object":"backend_test.Thing"}'
             ']}')
         self.assertEncodeDecode(expected_pickled)
+
+    def test_int_dict_keys_with_numeric_keys(self):
+        jsonpickle.set_encoder_options('demjson', strict=False)
+        int_dict = {1000: [1, 2]}
+        pickle = jsonpickle.encode(int_dict, numeric_keys=True)
+        actual = jsonpickle.decode(pickle)
+        self.assertEqual(actual[1000], [1, 2])
 
 
 class JsonlibTestCase(BackendBase):

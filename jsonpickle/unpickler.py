@@ -315,7 +315,7 @@ class Unpickler(object):
             # ignore the reserved attribute
             if ignorereserved and k in tags.RESERVED:
                 continue
-            self._namestack.append(k)
+            self._namestack.append(repr(k))
             k = restore_key(k)
             # step into the namespace
             value = self._restore(v)
@@ -398,7 +398,7 @@ class Unpickler(object):
         data = {}
         restore_key = self._restore_key_fn()
         for k, v in sorted(obj.items(), key=util.itemgetter):
-            self._namestack.append(k)
+            self._namestack.append(repr(k))
             k = restore_key(k)
             data[k] = self._restore(v)
             self._namestack.pop()
