@@ -14,7 +14,7 @@ import jsonpickle.util as util
 import jsonpickle.tags as tags
 import jsonpickle.handlers as handlers
 
-from jsonpickle.compat import set
+from jsonpickle.compat import numeric_types, set
 from jsonpickle.backend import JSONBackend
 
 
@@ -315,7 +315,11 @@ class Unpickler(object):
             # ignore the reserved attribute
             if ignorereserved and k in tags.RESERVED:
                 continue
-            self._namestack.append(repr(k))
+            if isinstance(k, numeric_types):
+                str_k = unicode(k)
+            else:
+                str_k = k
+            self._namestack.append(str_k)
             k = restore_key(k)
             # step into the namespace
             value = self._restore(v)
@@ -398,7 +402,11 @@ class Unpickler(object):
         data = {}
         restore_key = self._restore_key_fn()
         for k, v in sorted(obj.items(), key=util.itemgetter):
-            self._namestack.append(repr(k))
+            if isinstance(k, numeric_types):
+                str_k = unicode(k)
+            else:
+                str_k = k
+            self._namestack.append(str_k)
             k = restore_key(k)
             data[k] = self._restore(v)
             self._namestack.pop()
