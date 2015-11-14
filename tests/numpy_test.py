@@ -25,6 +25,8 @@ class NumpyTestCase(SkippableTest):
         jsonpickle.ext.numpy.register_handlers()
 
     def tearDown(self):
+        if self.should_skip:
+            return
         import jsonpickle.ext.numpy
         jsonpickle.ext.numpy.unregister_handlers()
 

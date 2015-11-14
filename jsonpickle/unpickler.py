@@ -204,6 +204,7 @@ class Unpickler(object):
             for k, v in dictitems:
                 stage1.__setitem__(k, v)
 
+        self._mkref(stage1)
         return stage1
 
     def _restore_id(self, obj):

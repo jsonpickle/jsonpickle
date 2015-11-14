@@ -732,6 +732,17 @@ class AdvancedObjectsTestCase(SkippableTest):
         self.assertEqual(ec.enum_a, decoded.enum_a)
         self.assertEqual(ec.enum_b, decoded.enum_b)
 
+    def test_enum_references(self):
+        if IntEnumTest is None:
+            return self.skip('enum34 module is not installed')
+        a = IntEnumTest.X
+        b = IntEnumTest.X
+
+        enums_list = [a, b]
+        encoded = jsonpickle.encode(enums_list)
+        decoded = jsonpickle.decode(encoded)
+        self.assertEqual(enums_list, decoded)
+
     def test_bytes_unicode(self):
         b1 = b'foo'
         b2 = b'foo\xff'
