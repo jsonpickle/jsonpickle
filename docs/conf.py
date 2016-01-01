@@ -9,7 +9,7 @@ extensions = [
 
 # General information about the project.
 project = 'skeleton'
-copyright = '2015 Jason R. Coombs'
+copyright = '2016 Jason R. Coombs'
 
 # The short X.Y version.
 version = setuptools_scm.get_version(root='..', relative_to=__file__)
