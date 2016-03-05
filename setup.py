@@ -17,16 +17,20 @@ sphinx = ['sphinx'] if needs_sphinx else []
 needs_wheel = {'release', 'bdist_wheel'}.intersection(sys.argv)
 wheel = ['wheel'] if needs_wheel else []
 
+name = 'skeleton'
+description = ''
+
 setup_params = dict(
-	name='skeleton',
+	name=name,
 	use_scm_version=True,
 	author="Jason R. Coombs",
 	author_email="jaraco@jaraco.com",
-	description="skeleton",
+	description=description or name,
 	long_description=long_description,
-	url="https://github.com/jaraco/skeleton",
+	url="https://github.com/jaraco/" + name,
 	packages=setuptools.find_packages(),
 	include_package_data=True,
+	namespace_packages=name.split('.')[:-1],
 	install_requires=[
 	],
 	extras_require={
