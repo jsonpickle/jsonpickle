@@ -96,4 +96,4 @@ jsonpickle is provided under a
 `New BSD license <https://github.com/jsonpickle/jsonpickle/raw/master/COPYING>`_,
 
 Copyright (C) 2008-2011 John Paulett (john -at- paulett.org)
-Copyright (C) 2009-2013 David Aguilar (davvid -at- gmail.com)
+Copyright (C) 2009-2016 David Aguilar (davvid -at- gmail.com)
