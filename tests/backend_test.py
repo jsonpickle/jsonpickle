@@ -109,12 +109,9 @@ def has_module(module):
 class DemjsonTestCase(BackendBase):
 
     def setUp(self):
-        if PY2:
-            self.set_preferred_backend('demjson')
+        self.set_preferred_backend('demjson')
 
     def test_backend(self):
-        if PY3:
-            return self.skip('no demjson for python3')
         expected_pickled = unicode(
             '{"things":[{'
             '"child":null,'
@@ -149,12 +146,9 @@ class JsonlibTestCase(BackendBase):
 
 class YajlTestCase(BackendBase):
     def setUp(self):
-        if PY2:
-            self.set_preferred_backend('yajl')
+        self.set_preferred_backend('yajl')
 
     def test_backend(self):
-        if PY3:
-            return self.skip('no yajl for python3')
         expected_pickled = (
             '{"things":[{'
             '"py/object":"backend_test.Thing",'
@@ -183,11 +177,11 @@ def suite():
     suite.addTest(unittest.makeSuite(UJsonTestCase))
     if not PY32:
         suite.addTest(unittest.makeSuite(SimpleJsonTestCase))
+    if has_module('demjson'):
+        suite.addTest(unittest.makeSuite(DemjsonTestCase))
+    if has_module('yajl'):
+        suite.addTest(unittest.makeSuite(YajlTestCase))
     if PY2:
-        if has_module('demjson'):
-            suite.addTest(unittest.makeSuite(DemjsonTestCase))
-        if has_module('yajl'):
-            suite.addTest(unittest.makeSuite(YajlTestCase))
         if has_module('jsonlib'):
             suite.addTest(unittest.makeSuite(JsonlibTestCase))
     return suite
