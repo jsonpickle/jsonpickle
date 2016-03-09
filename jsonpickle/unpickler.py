@@ -14,7 +14,7 @@ import jsonpickle.util as util
 import jsonpickle.tags as tags
 import jsonpickle.handlers as handlers
 
-from jsonpickle.compat import numeric_types, set
+from jsonpickle.compat import numeric_types, set, unicode
 from jsonpickle.backend import JSONBackend
 
 
