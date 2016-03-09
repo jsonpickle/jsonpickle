@@ -1,8 +1,8 @@
 Change Log
 ==========
 
-Unreleased Version 0.9.3 - TBD
-------------------------------
+Version 0.9.3 - March 9, 2016
+-----------------------------
     * UUID objects can now be serialized
       (`#130 <https://github.com/jsonpickle/jsonpickle/issues/130>`_).
 
