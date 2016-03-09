@@ -13,6 +13,8 @@ Unreleased Version 0.9.3 - TBD
       `numeric_keys=True` and setting its backend options via
       `jsonpickle.set_encoder_options('demjson', strict=False)`.
 
+    * Newer Numpy versions (v1.10+) are now supported.
+
 Version 0.9.2 - March 20, 2015
 ------------------------------
     * Fixes for serializing objects with custom handlers.
