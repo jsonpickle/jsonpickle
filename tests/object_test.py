@@ -759,12 +759,12 @@ class AdvancedObjectsTestCase(SkippableTest):
         # bytestrings are wrapped in PY3 but in PY2 we try to decode first
         encoded = self.pickler.flatten(b1)
         if PY2:
-            self.assertTrue(encoded == u1)
-            self.assertTrue(type(encoded) is unicode)
+            self.assertEqual(encoded, u1)
+            self.assertEqual(type(encoded), unicode)
         else:
-            self.assertTrue(encoded != u1)
             self.assertTrue(encoded == {tags.BYTES: 'foo'})
             self.assertTrue(type(encoded[tags.BYTES]) is unicode)
+            self.assertNotEqual(encoded, u1)
         decoded = self.unpickler.restore(encoded)
         self.assertTrue(decoded == b1)
         if PY2:
@@ -774,11 +774,11 @@ class AdvancedObjectsTestCase(SkippableTest):
 
         # bytestrings that we can't decode to UTF-8 will always be wrapped
         encoded = self.pickler.flatten(b2)
-        self.assertTrue(encoded != b2)
         self.assertTrue(encoded == {tags.BYTES: 'foo=FF'})
         self.assertTrue(type(encoded[tags.BYTES]) is unicode)
+        self.assertNotEqual(encoded, b2)
         decoded = self.unpickler.restore(encoded)
-        self.assertTrue(decoded == b2)
+        self.assertEqual(decoded, b2)
         self.assertTrue(type(decoded) is bytes)
 
     def test_nested_objects(self):

@@ -19,12 +19,11 @@ class UUIDTestCase(unittest.TestCase):
         self.assertEqual(expect, actual)
 
     def test_known_uuid(self):
-        hex = '28b56adbd18f44e2a5556bba2f23e6f6'
-        exemplar = uuid.UUID(hex)
+        expect = '28b56adbd18f44e2a5556bba2f23e6f6'
+        exemplar = uuid.UUID(expect)
         encoded = jsonpickle.encode(exemplar)
         decoded = jsonpickle.decode(encoded)
 
-        expect = hex
         actual = decoded.hex
         self.assertEqual(expect, actual)
 
