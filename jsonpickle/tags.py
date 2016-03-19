@@ -12,6 +12,7 @@ from jsonpickle.compat import set
 
 
 BYTES = 'py/bytes'
+B64 = 'py/b64'
 FUNCTION = 'py/function'
 ID = 'py/id'
 INITARGS = 'py/initargs'

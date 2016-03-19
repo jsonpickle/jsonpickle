@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import base64
 import collections
 import decimal
 import re
@@ -762,9 +763,10 @@ class AdvancedObjectsTestCase(SkippableTest):
             self.assertEqual(encoded, u1)
             self.assertEqual(type(encoded), unicode)
         else:
-            self.assertTrue(encoded == {tags.BYTES: 'foo'})
-            self.assertTrue(type(encoded[tags.BYTES]) is unicode)
             self.assertNotEqual(encoded, u1)
+            b64ustr= base64.encodestring(b'foo').decode('utf-8')
+            self.assertEqual({tags.B64: b64ustr}, encoded)
+            self.assertEqual(type(encoded[tags.B64]), unicode)
         decoded = self.unpickler.restore(encoded)
         self.assertTrue(decoded == b1)
         if PY2:
@@ -774,12 +776,28 @@ class AdvancedObjectsTestCase(SkippableTest):
 
         # bytestrings that we can't decode to UTF-8 will always be wrapped
         encoded = self.pickler.flatten(b2)
-        self.assertTrue(encoded == {tags.BYTES: 'foo=FF'})
-        self.assertTrue(type(encoded[tags.BYTES]) is unicode)
         self.assertNotEqual(encoded, b2)
+        b64ustr= base64.encodestring(b'foo\xff').decode('utf-8')
+        self.assertEqual({tags.B64: b64ustr}, encoded)
+        self.assertEqual(type(encoded[tags.B64]), unicode)
         decoded = self.unpickler.restore(encoded)
         self.assertEqual(decoded, b2)
         self.assertTrue(type(decoded) is bytes)
+
+    def test_backcompat_bytes_quoted_printable(self):
+        """Test decoding bytes objects from older jsonpickle versions"""
+
+        b1 = b'foo'
+        b2 = b'foo\xff'
+
+        # older versions of jsonpickle used a quoted-printable encoding
+        expect = b1
+        actual = self.unpickler.restore({tags.BYTES: unicode('foo')})
+        self.assertEqual(expect, actual)
+
+        expect = b2
+        actual = self.unpickler.restore({tags.BYTES: unicode('foo=FF')})
+        self.assertEqual(expect, actual)
 
     def test_nested_objects(self):
         obj = ThingWithTimedeltaAttribute(99)

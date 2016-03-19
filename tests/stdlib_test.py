@@ -28,6 +28,22 @@ class UUIDTestCase(unittest.TestCase):
         self.assertEqual(expect, actual)
 
 
+class BytesTestCase(unittest.TestCase):
+
+    def test_bytestream(self):
+        expect = (b'\x89HDF\r\n\x1a\n\x00\x00\x00\x00\x00\x08\x08\x00'
+                  b'\x04\x00\x10\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+                  b'\x00\x00\x00\x00\xff\xff\xff\xff\xff\xff\xff\xffh'
+                  b'\x848\x00\x00\x00\x00\x00\xff\xff\xff\xff\xff\xff'
+                  b'\xff\xff\x00\x00\x00\x00\x00\x00\x00\x00`\x00\x00'
+                  b'\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00'
+                  b'\x00\x88\x00\x00\x00\x00\x00\x00\x00\xa8\x02\x00'
+                  b'\x00\x00\x00\x00\x00\x01\x00\x01\x00')
+        encoded = jsonpickle.encode(expect)
+        actual = jsonpickle.decode(encoded)
+        self.assertEqual(expect, actual)
+
+
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(UUIDTestCase))

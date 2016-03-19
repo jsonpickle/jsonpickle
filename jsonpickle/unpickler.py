@@ -7,8 +7,9 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 
-import sys
+import base64
 import quopri
+import sys
 
 import jsonpickle.util as util
 import jsonpickle.tags as tags
@@ -128,8 +129,10 @@ class Unpickler(object):
         self._proxies = []
 
     def _restore(self, obj):
-        if has_tag(obj, tags.BYTES):
-            restore = self._restore_bytestring
+        if has_tag(obj, tags.B64):
+            restore = self._restore_base64
+        elif has_tag(obj, tags.BYTES):  # Backwards compatibility
+            restore = self._restore_quopri
         elif has_tag(obj, tags.ID):
             restore = self._restore_id
         elif has_tag(obj, tags.REF):  # Backwards compatibility
@@ -158,7 +161,11 @@ class Unpickler(object):
             restore = lambda x: x
         return restore(obj)
 
-    def _restore_bytestring(self, obj):
+    def _restore_base64(self, obj):
+        return base64.decodestring(obj[tags.B64].encode('utf-8'))
+
+    #: For backwards compatibility with bytes data produced by older versions
+    def _restore_quopri(self, obj):
         return quopri.decodestring(obj[tags.BYTES].encode('utf-8'))
 
     def _restore_iterator(self, obj):

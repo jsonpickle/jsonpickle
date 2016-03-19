@@ -7,9 +7,9 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 
+import base64
 import warnings
 import sys
-import quopri
 from itertools import chain, islice
 
 import jsonpickle.util as util
@@ -251,7 +251,7 @@ class Pickler(object):
                 return obj.decode('utf-8')
             except:
                 pass
-        return {tags.BYTES: quopri.encodestring(obj).decode('utf-8')}
+        return {tags.B64: base64.encodestring(obj).decode('utf-8')}
 
     def _flatten_obj_instance(self, obj):
         """Recursively flatten an instance and return a json-friendly dict
