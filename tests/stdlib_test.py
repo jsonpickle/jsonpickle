@@ -47,6 +47,7 @@ class BytesTestCase(unittest.TestCase):
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(UUIDTestCase))
+    suite.addTest(unittest.makeSuite(BytesTestCase))
     return suite
 
 
