@@ -12,7 +12,6 @@ deploy:
     tags: true
     all_branches: true
   user: jaraco
-  provider: pypi
   # supply password with `travis encrypt --add deploy.password`
   distributions: release
   python: 3.5
