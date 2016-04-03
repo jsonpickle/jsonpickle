@@ -1,8 +1,18 @@
 sudo: false
 language: python
 python:
- - 2.7
- - 3.5
+- 2.7
+- 3.5
 script:
- - pip install -U pytest
- - python setup.py test
+- pip install -U pytest
+- python setup.py test
+deploy:
+  provider: pypi
+  on:
+    tags: true
+    all_branches: true
+  user: jaraco
+  provider: pypi
+  # supply password with `travis encrypt --add deploy.password`
+  distributions: release
+  python: 3.5
