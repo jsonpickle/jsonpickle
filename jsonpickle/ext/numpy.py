@@ -2,6 +2,9 @@
 
 from __future__ import absolute_import
 
+import bz2
+import warnings
+
 import numpy as np
 
 import ast
@@ -66,10 +69,119 @@ class NumpyNDArrayHandler(NumpyBaseHandler):
                         dtype=dtype)
 
 
+class NumpyNDArrayHandlerCompressed(NumpyNDArrayHandler):
+    """stores arrays with size greater than 'line_size_treshold' as base64"""
+
+    line_size_treshold = 16
+    compression = bz2
+
+    def flatten(self, obj, data):
+        """encode numpy to json"""
+        if obj.size > self.line_size_treshold:
+            self.flatten_dtype(obj.dtype, data)
+            buffer = obj.tobytes()
+            values = jsonpickle.util.b64encode(self.compression.compress(buffer))
+            data['values'] = self.context.flatten(values, reset=False)
+            if obj.ndim > 1:
+                # if we have multiple diemsions, need to reshape
+                data['shape'] = obj.shape
+        else:
+            data = super(NumpyNDArrayHandlerCompressed, self).flatten(obj, data)
+            if 0 in obj.shape:
+                # add shape information explicitly as it cannot be determined from an empty list
+                data['shape'] = obj.shape
+        return data
+
+    def restore(self, data):
+        """decode numpy from json"""
+        values = data['values']
+        if not isinstance(values, list):
+            dtype = self.restore_dtype(data)
+            values = self.context.restore(values, reset=False)
+            buffer = self.compression.decompress(jsonpickle.util.b64decode(values))
+            arr = np.frombuffer(buffer, dtype=dtype).copy()
+        else:
+            arr = super(NumpyNDArrayHandlerCompressed, self).restore(data)
+
+        shape = data.get('shape', None)
+        if shape is not None:
+            arr = arr.reshape(shape)
+        return arr
+
+
+class NumpyNDArrayHandlerView(NumpyNDArrayHandlerCompressed):
+    """correctly pickles references inside ndarrays, or array views"""
+    mode = 'warn'
+
+    def flatten(self, obj, data):
+        """encode numpy to json"""
+        base = obj.base
+        if base is None:
+            # store by value
+            if not obj.flags.c_contiguous:
+                assert np.ascontiguousarray(obj).base is obj, \
+                    "Array does not refer to all the data it owns; this cannot be safely serialized"
+            # this array does not reference another ndarray for storage, so store it as-is
+            data = super(NumpyNDArrayHandlerView, self).flatten(obj, data)
+        elif isinstance(base, np.ndarray):
+            # store by reference
+            self.flatten_dtype(obj.dtype, data)
+            data['base'] = self.context.flatten(base, reset=False)
+
+            # for a view, always store shape
+            data['shape'] = obj.shape
+
+            offset = obj.ctypes.data - base.ctypes.data
+            if offset:
+                data['offset'] = offset
+
+            if not obj.flags.c_contiguous:
+                data['strides'] = obj.strides
+        else:
+            if self.mode == 'warn':
+                msg = "ndarray is defined by reference to an object we do not know how to serialize. " \
+                      "A deep copy is serialized instead, breaking memory aliasing."
+                warnings.warn(msg)
+                data = super(NumpyNDArrayHandlerView, self).flatten(np.array(obj), data)
+            elif self.mode == 'raise':
+                msg = "ndarray is defined by reference to an object we do not know how to serialize."
+                raise ValueError(msg)
+
+        return data
+
+    def restore(self, data):
+        """decode numpy from json"""
+        base = data.get('base', None)
+        if base is None:
+            arr = super(NumpyNDArrayHandlerView, self).restore(data)
+        else:
+            arr = self.context.restore(base, reset=False)
+
+            offset = data.get('offset', 0)
+            if offset:
+                assert arr.flags.c_contiguous, \
+                    "Current implementation assumes base is c-contiguous"
+                arr = arr.ravel().view(np.byte)[offset:]
+
+            dtype = self.restore_dtype(data)
+            arr.dtype = dtype
+
+            shape = data.get('shape', None)
+            if shape is not None:
+                arr = arr[:np.prod(shape)]
+                arr.shape = shape
+
+            strides = data.get('strides', None)
+            if strides is not None:
+                arr.strides = strides
+
+        return arr
+
+
 def register_handlers():
     jsonpickle.handlers.register(np.dtype, NumpyDTypeHandler, base=True)
     jsonpickle.handlers.register(np.generic, NumpyGenericHandler, base=True)
-    jsonpickle.handlers.register(np.ndarray, NumpyNDArrayHandler, base=True)
+    jsonpickle.handlers.register(np.ndarray, NumpyNDArrayHandlerView, base=True)
 
 
 def unregister_handlers():

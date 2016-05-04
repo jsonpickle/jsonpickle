@@ -8,6 +8,7 @@ from helper import SkippableTest
 
 try:
     import numpy as np
+    import numpy.testing as npt
     from numpy.compat import asbytes
     from numpy.testing import assert_equal
 except ImportError:
@@ -105,6 +106,60 @@ class NumpyTestCase(SkippableTest):
             decoded = self.roundtrip(array)
             assert_equal(decoded, array)
             self.assertEqual(decoded.dtype, array.dtype)
+
+    def test_accuracy(self):
+        """test if the string representation maintains accuracy"""
+        rand = np.random.randn(3, 3)
+        _rand = self.roundtrip(rand)
+        npt.assert_array_equal(rand, _rand)
+
+    def test_views(self):
+        """Test json utils with different numpy objects"""
+        rng = np.arange(20)  # a range of an array
+        view = rng[10:]  # a view referencing a portion of an array
+        data = [rng, view]
+
+        _data = self.roundtrip(data)
+
+        # test that views access the same data
+        _data[0][15] = -1
+        assert _data[1][5] == -1
+
+    def test_strides(self):
+        """test that cases with non-standard strides work correctly"""
+        arr = np.eye(3)
+        view = arr[1:, 1:]
+        data = [arr, view]
+
+        assert view.base is arr
+
+        _data = self.roundtrip(data)
+        _arr, _view = _data
+
+        # test if they are indeed views
+        _arr[1, 2] = -1
+        assert _view[0, 1] == -1
+        assert _view.base is _arr
+
+    def test_as_strided(self):
+        """test object with array interface which isnt an array, like the result of as_strided"""
+        a = np.arange(10)
+        b = np.lib.stride_tricks.as_strided(a, shape=(5,), strides=(8,))
+        data = [a, b]
+
+        with self.assertRaises(Exception):
+            # as_strided returns a DummyArray object, which we can not currently serialize correctly
+            # FIXME: would be neat to add support for all objects implementing the __array_interface__
+            _data = self.roundtrip(data)
+            # if the conversion does not raise, this should; deserialized result is no longer a view
+            _data[0][0] = -1
+            assert (_data[1][0] == -1)
+
+    def test_b64(self):
+        """test that binary encoding works"""
+        a = np.random.rand(100, 100)
+        _a = self.roundtrip(a)
+        npt.assert_array_equal(a, _a)
 
 
 def suite():
