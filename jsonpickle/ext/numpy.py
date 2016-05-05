@@ -62,23 +62,40 @@ class NumpyNDArrayHandler(NumpyBaseHandler):
     def flatten(self, obj, data):
         self.flatten_dtype(obj.dtype, data)
         data['values'] = self.context.flatten(obj.tolist(), reset=False)
+        if 0 in obj.shape:
+            # add shape information explicitly as it cannot be determined from an empty list
+            data['shape'] = obj.shape
         return data
 
     def restore(self, data):
         dtype = self.restore_dtype(data)
-        return np.array(self.context.restore(data['values'], reset=False),
-                        dtype=dtype)
+        values = self.context.restore(data['values'], reset=False)
+        arr = np.array(values, dtype=dtype)
+        shape = data.get('shape', None)
+        if shape is not None:
+            arr = arr.reshape(shape)
+        return arr
 
 
 class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
-    """stores arrays with size greater than 'line_size_treshold' as compressed base64"""
+    """stores arrays with size greater than 'size_treshold' as compressed base64
 
-    line_size_treshold = 16
+    valid values for 'compression' are {zlib, bz2, None}
+    if compresion is None, no compression is applied
+
+    valid values for 'size_treshold' are all nonnegative integers and None
+    if size_treshold is None, values are always stored as nested lists
+    """
+
+    size_treshold = 16
     compression = zlib
 
     def flatten(self, obj, data):
         """encode numpy to json"""
-        if obj.size > self.line_size_treshold:
+        if self.size_treshold > obj.size or self.size_treshold is None:
+            # store as json
+            data = super(NumpyNDArrayHandlerBinary, self).flatten(obj, data)
+        else:
             # store as binary
             self.flatten_dtype(obj.dtype, data)
             buffer = obj.tobytes()
@@ -86,21 +103,16 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
                 buffer = self.compression.compress(buffer)
             values = jsonpickle.util.b64encode(buffer)
             data['values'] = self.context.flatten(values, reset=False)
-            if obj.ndim > 1:
-                # if we have multiple dimensions, need to reshape
-                data['shape'] = obj.shape
-        else:
-            # store as json
-            data = super(NumpyNDArrayHandlerBinary, self).flatten(obj, data)
-            if 0 in obj.shape:
-                # add shape information explicitly as it cannot be determined from an empty list
-                data['shape'] = obj.shape
+            data['shape'] = obj.shape
         return data
 
     def restore(self, data):
         """decode numpy from json"""
         values = data['values']
-        if not isinstance(values, list):
+        if isinstance(values, list):
+            # decode json
+            arr = super(NumpyNDArrayHandlerBinary, self).restore(data)
+        else:
             # decode binary representation
             dtype = self.restore_dtype(data)
             values = self.context.restore(values, reset=False)
@@ -108,13 +120,7 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
             if self.compression:
                 buffer = self.compression.decompress(buffer)
             arr = np.frombuffer(buffer, dtype=dtype).copy()  # make a copy, to force the result to own the data
-        else:
-            # decode json
-            arr = super(NumpyNDArrayHandlerBinary, self).restore(data)
-
-        shape = data.get('shape', None)
-        if shape is not None:
-            arr = arr.reshape(shape)
+            arr = arr.reshape(data['shape'])
 
         return arr
 
@@ -142,13 +148,10 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
         if base is None:
             # store by value
             data = super(NumpyNDArrayHandlerView, self).flatten(obj, data)
-        elif isinstance(base, np.ndarray):
+        elif isinstance(base, np.ndarray) and base.flags.c_contiguous:
             # store by reference
-            assert base.flags.c_contiguous, \
-                "Only views on c-contiguous arrays are currently supported"
             self.flatten_dtype(obj.dtype, data)
             data['base'] = self.context.flatten(base, reset=False)
-
             # for a view, always store shape
             data['shape'] = obj.shape
 
@@ -159,15 +162,15 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
             if not obj.flags.c_contiguous:
                 data['strides'] = obj.strides
         else:
-            # store a deepcopy or raise
+            # store a deepcopy or fail
             if self.mode == 'warn':
                 msg = "ndarray is defined by reference to an object we do not know how to serialize. " \
                       "A deep copy is serialized instead, breaking memory aliasing."
                 warnings.warn(msg)
-                data = super(NumpyNDArrayHandlerView, self).flatten(obj.copy(), data)
             elif self.mode == 'raise':
                 msg = "ndarray is defined by reference to an object we do not know how to serialize."
                 raise ValueError(msg)
+            data = super(NumpyNDArrayHandlerView, self).flatten(obj.copy(), data)
 
         return data
 
@@ -179,24 +182,17 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
             arr = super(NumpyNDArrayHandlerView, self).restore(data)
         else:
             # decode array view, which references the data of another array
-            arr = self.context.restore(base, reset=False)
-            assert arr.flags.c_contiguous, \
+            base = self.context.restore(base, reset=False)
+            assert base.flags.c_contiguous, \
                 "Current implementation assumes base is c-contiguous"
 
-            offset = data.get('offset', 0)
-            if offset:
-                arr = arr.ravel().view(np.byte)[offset:]
-
-            arr.dtype = self.restore_dtype(data)
-
-            shape = data.get('shape', None)
-            if shape is not None:
-                arr = arr[:np.prod(shape)]
-                arr.shape = shape
-
-            strides = data.get('strides', None)
-            if strides is not None:
-                arr.strides = strides
+            arr = np.ndarray(
+                buffer=base.data,
+                dtype=self.restore_dtype(data),
+                shape=data.get('shape'),
+                offset=data.get('offset', 0),
+                strides=data.get('strides', None)
+            )
 
         return arr
 

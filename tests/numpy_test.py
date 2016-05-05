@@ -160,12 +160,17 @@ class NumpyTestCase(SkippableTest):
         a.strides = 1
 
         # this is kinda fishy; a has overlapping memory, _a does not
-        _a = self.roundtrip(a)
-        npt.assert_array_equal(a, _a)
+        with warnings.catch_warnings(record=True) as w:
+            _a = self.roundtrip(a)
+            # assert len(w) == 1
+            npt.assert_array_equal(a, _a)
 
-        # this certainly does not fly in any case
-        with self.assertRaises(AssertionError):
-            self.roundtrip([a, b])
+        # this also requires a deepcopy to work
+        with warnings.catch_warnings(record=True) as w:
+            _a, _b = self.roundtrip([a, b])
+            assert len(w) == 1
+            npt.assert_array_equal(a, _a)
+            npt.assert_array_equal(b, _b)
 
     def test_transpose(self):
         """test handling of non-c-contiguous memory layout"""
@@ -186,13 +191,16 @@ class NumpyTestCase(SkippableTest):
         npt.assert_array_equal(a, _a)
         npt.assert_array_equal(b, _b)
 
-        # now a is forced in non-contiguous order; we currently cannot handle this case
+        # now a is forced in non-contiguous order; we have to make a deepcopy to make this work
         a = a.copy()
         a.strides = a.strides[::-1]
         b = a[1:, 1:]
         assert b.base is a
-        with self.assertRaises(AssertionError):
-            self.roundtrip([a, b])
+        with warnings.catch_warnings(record=True) as w:
+            _a, _b = self.roundtrip([a, b])
+            assert len(w) == 1
+            npt.assert_array_equal(a, _a)
+            npt.assert_array_equal(b, _b)
 
     def test_buffer(self):
         """test behavior with memoryviews which are not ndarrays"""
