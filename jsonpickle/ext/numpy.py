@@ -81,9 +81,8 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
         if obj.size > self.line_size_treshold or force_binary:
             # store as binary
             self.flatten_dtype(obj.dtype, data)
-            mem = memoryview(obj.ctypes.data, 0, obj.size * obj.dtype.itemsize)
-
-            values = jsonpickle.util.b64encode(self.compression.compress(mem))
+            buffer = obj.tobytes()
+            values = jsonpickle.util.b64encode(self.compression.compress(buffer))
             data['values'] = self.context.flatten(values, reset=False)
             if obj.ndim > 1:
                 # if we have multiple dimensions, need to reshape
@@ -106,16 +105,15 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
             buffer = self.compression.decompress(jsonpickle.util.b64decode(values))
             arr = np.frombuffer(buffer, dtype=dtype).copy()
 
+            strides = data.get('strides', None)
+            if strides is not None:
+                arr.strides = strides
         else:
             arr = super(NumpyNDArrayHandlerBinary, self).restore(data)
 
         shape = data.get('shape', None)
         if shape is not None:
             arr = arr.reshape(shape)
-
-        strides = data.get('strides', None)
-        if strides is not None:
-            arr.strides = strides
 
         return arr
 
@@ -129,15 +127,11 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
         base = obj.base
         if base is None:
             # store by value
-            assert np.dot(obj.strides, np.array(obj.shape) - 1) == (obj.dtype.itemsize * (obj.size - 1)), \
-                "Array does not refer to all the data it owns; serializing it may produce invalid views"
-            # this array does not reference another ndarray for storage, so store it as-is
-            data = super(NumpyNDArrayHandlerView, self).flatten(obj, data, force_binary=not obj.flags.c_contiguous)
-            # if not obj.flags.c_contiguous:
-            #     data['strides'] = obj.strides
-            #     data['shape'] = obj.shape
+            data = super(NumpyNDArrayHandlerView, self).flatten(obj, data)
         elif isinstance(base, np.ndarray):
             # store by reference
+            assert base.flags.c_contiguous, \
+                "Only views on c-contiguous arrays are currently supported"
             self.flatten_dtype(obj.dtype, data)
             data['base'] = self.context.flatten(base, reset=False)
 
@@ -155,7 +149,7 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
                 msg = "ndarray is defined by reference to an object we do not know how to serialize. " \
                       "A deep copy is serialized instead, breaking memory aliasing."
                 warnings.warn(msg)
-                data = super(NumpyNDArrayHandlerView, self).flatten(np.array(obj), data)
+                data = super(NumpyNDArrayHandlerView, self).flatten(obj.copy(), data)
             elif self.mode == 'raise':
                 msg = "ndarray is defined by reference to an object we do not know how to serialize."
                 raise ValueError(msg)
@@ -169,15 +163,14 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
             arr = super(NumpyNDArrayHandlerView, self).restore(data)
         else:
             arr = self.context.restore(base, reset=False)
+            assert arr.flags.c_contiguous, \
+                "Current implementation assumes base is c-contiguous"
 
             offset = data.get('offset', 0)
             if offset:
-                # assert arr.flags.c_contiguous, \
-                #     "Current implementation assumes base is c-contiguous"
                 arr = arr.ravel().view(np.byte)[offset:]
 
-            dtype = self.restore_dtype(data)
-            arr.dtype = dtype
+            arr.dtype = self.restore_dtype(data)
 
             shape = data.get('shape', None)
             if shape is not None:

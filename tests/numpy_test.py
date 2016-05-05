@@ -171,11 +171,16 @@ class NumpyTestCase(SkippableTest):
             assert (_data[1][0] == -1)
 
     def test_weird_arrays(self):
-        """test that we disallow serialization of arrays that do not effectively own their memory"""
+        """test that we disallow serialization of references to arrays that do not effectively own their memory"""
         a = np.arange(9)
+        b = a[5:]
         a.strides = 1
+
+        _a = self.roundtrip(a)
+        npt.assert_array_equal(a, _a)
+
         with self.assertRaises(AssertionError):
-            _a = self.roundtrip(a)
+            self.roundtrip([a, b])
 
     def test_transpose(self):
         """test handling of non-c-contiguous memory layout"""
@@ -187,14 +192,22 @@ class NumpyTestCase(SkippableTest):
         npt.assert_array_equal(a, _a)
         npt.assert_array_equal(b, _b)
 
+        # this 'just works'; a and b both view a contiguous array
+        a = np.arange(9).reshape(3, 3).T
+        b = a[1:, 1:]
+        assert b.base is a.base
+        _a, _b = self.roundtrip([a, b])
+        assert _b.base is _a.base
+        npt.assert_array_equal(a, _a)
+        npt.assert_array_equal(b, _b)
+
+        # now a is forced in non-contiguous order; we currently cannot handle this case
         a = a.copy()
         a.strides = a.strides[::-1]
         b = a[1:, 1:]
         assert b.base is a
-        _a, _b = self.roundtrip([a, b])
-        # assert _b.base is _a
-        npt.assert_array_equal(a, _a)
-        npt.assert_array_equal(b, _b)
+        with self.assertRaises(AssertionError):
+            self.roundtrip([a, b])
 
 
 def suite():
