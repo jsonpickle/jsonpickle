@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import
+from builtins import *
 
 import bz2
 import warnings
@@ -69,24 +70,28 @@ class NumpyNDArrayHandler(NumpyBaseHandler):
                         dtype=dtype)
 
 
-class NumpyNDArrayHandlerCompressed(NumpyNDArrayHandler):
+class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
     """stores arrays with size greater than 'line_size_treshold' as base64"""
 
     line_size_treshold = 16
     compression = bz2
 
-    def flatten(self, obj, data):
+    def flatten(self, obj, data, force_binary=False):
         """encode numpy to json"""
-        if obj.size > self.line_size_treshold:
+        if obj.size > self.line_size_treshold or force_binary:
+            # store as binary
             self.flatten_dtype(obj.dtype, data)
-            buffer = obj.tobytes()
-            values = jsonpickle.util.b64encode(self.compression.compress(buffer))
+            mem = memoryview(obj.ctypes.data, 0, obj.size * obj.dtype.itemsize)
+
+            values = jsonpickle.util.b64encode(self.compression.compress(mem))
             data['values'] = self.context.flatten(values, reset=False)
             if obj.ndim > 1:
-                # if we have multiple diemsions, need to reshape
+                # if we have multiple dimensions, need to reshape
                 data['shape'] = obj.shape
+            if not obj.flags.c_contiguous:
+                data['strides'] = obj.strides
         else:
-            data = super(NumpyNDArrayHandlerCompressed, self).flatten(obj, data)
+            data = super(NumpyNDArrayHandlerBinary, self).flatten(obj, data)
             if 0 in obj.shape:
                 # add shape information explicitly as it cannot be determined from an empty list
                 data['shape'] = obj.shape
@@ -100,16 +105,22 @@ class NumpyNDArrayHandlerCompressed(NumpyNDArrayHandler):
             values = self.context.restore(values, reset=False)
             buffer = self.compression.decompress(jsonpickle.util.b64decode(values))
             arr = np.frombuffer(buffer, dtype=dtype).copy()
+
         else:
-            arr = super(NumpyNDArrayHandlerCompressed, self).restore(data)
+            arr = super(NumpyNDArrayHandlerBinary, self).restore(data)
 
         shape = data.get('shape', None)
         if shape is not None:
             arr = arr.reshape(shape)
+
+        strides = data.get('strides', None)
+        if strides is not None:
+            arr.strides = strides
+
         return arr
 
 
-class NumpyNDArrayHandlerView(NumpyNDArrayHandlerCompressed):
+class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
     """correctly pickles references inside ndarrays, or array views"""
     mode = 'warn'
 
@@ -118,11 +129,13 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerCompressed):
         base = obj.base
         if base is None:
             # store by value
-            if not obj.flags.c_contiguous:
-                assert np.ascontiguousarray(obj).base is obj, \
-                    "Array does not refer to all the data it owns; this cannot be safely serialized"
+            assert np.dot(obj.strides, np.array(obj.shape) - 1) == (obj.dtype.itemsize * (obj.size - 1)), \
+                "Array does not refer to all the data it owns; serializing it may produce invalid views"
             # this array does not reference another ndarray for storage, so store it as-is
-            data = super(NumpyNDArrayHandlerView, self).flatten(obj, data)
+            data = super(NumpyNDArrayHandlerView, self).flatten(obj, data, force_binary=not obj.flags.c_contiguous)
+            # if not obj.flags.c_contiguous:
+            #     data['strides'] = obj.strides
+            #     data['shape'] = obj.shape
         elif isinstance(base, np.ndarray):
             # store by reference
             self.flatten_dtype(obj.dtype, data)
@@ -159,8 +172,8 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerCompressed):
 
             offset = data.get('offset', 0)
             if offset:
-                assert arr.flags.c_contiguous, \
-                    "Current implementation assumes base is c-contiguous"
+                # assert arr.flags.c_contiguous, \
+                #     "Current implementation assumes base is c-contiguous"
                 arr = arr.ravel().view(np.byte)[offset:]
 
             dtype = self.restore_dtype(data)

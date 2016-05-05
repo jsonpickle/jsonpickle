@@ -109,26 +109,37 @@ class NumpyTestCase(SkippableTest):
             assert_equal(decoded, array)
             self.assertEqual(decoded.dtype, array.dtype)
 
+    def test_shape(self):
+        """test that shapes containing zeros, which cannot be represented as nested lists, are deserialized correctly"""
+        a = np.eye(3)[3:]
+        _a = self.roundtrip(a)
+        npt.assert_array_equal(a, _a)
+
     def test_accuracy(self):
         """test if the string representation maintains accuracy"""
         rand = np.random.randn(3, 3)
         _rand = self.roundtrip(rand)
         npt.assert_array_equal(rand, _rand)
 
+    def test_b64(self):
+        """test that binary encoding works"""
+        a = np.random.rand(100, 100)    # array of substantial size is stored as b64
+        _a = self.roundtrip(a)
+        npt.assert_array_equal(a, _a)
+
     def test_views(self):
-        """Test json utils with different numpy objects"""
+        """Test that views are maintained under serialization"""
         rng = np.arange(20)  # a range of an array
         view = rng[10:]  # a view referencing a portion of an array
         data = [rng, view]
 
         _data = self.roundtrip(data)
 
-        # test that views access the same data
         _data[0][15] = -1
         assert _data[1][5] == -1
 
     def test_strides(self):
-        """test that cases with non-standard strides work correctly"""
+        """test that cases with non-standard strides and offsets work correctly"""
         arr = np.eye(3)
         view = arr[1:, 1:]
         assert view.base is arr
@@ -143,7 +154,7 @@ class NumpyTestCase(SkippableTest):
         assert _view.base is _arr
 
     def test_as_strided(self):
-        """test object with array interface which isnt an array, like the result of as_strided"""
+        """test object with array interface which isnt an ndarray, like the result of as_strided"""
         a = np.arange(10)
         b = np.lib.stride_tricks.as_strided(a, shape=(5,), strides=(a.dtype.itemsize * 2,))
         data = [a, b]
@@ -154,16 +165,36 @@ class NumpyTestCase(SkippableTest):
             _data = self.roundtrip(data)
             assert len(w) == 1
 
+        # as we were warned, deserialized result is no longer a view
         with self.assertRaises(Exception):
-            # if the conversion does not raise, this should; deserialized result is no longer a view
             _data[0][0] = -1
             assert (_data[1][0] == -1)
 
-    def test_b64(self):
-        """test that binary encoding works"""
-        a = np.random.rand(100, 100)    # array of substantial size is stored as b64
-        _a = self.roundtrip(a)
+    def test_weird_arrays(self):
+        """test that we disallow serialization of arrays that do not effectively own their memory"""
+        a = np.arange(9)
+        a.strides = 1
+        with self.assertRaises(AssertionError):
+            _a = self.roundtrip(a)
+
+    def test_transpose(self):
+        """test handling of non-c-contiguous memory layout"""
+        a = np.arange(9).reshape(3, 3)
+        b = a[1:, 1:]
+        assert b.base is a.base
+        _a, _b = self.roundtrip([a, b])
+        assert _b.base is _a.base
         npt.assert_array_equal(a, _a)
+        npt.assert_array_equal(b, _b)
+
+        a = a.copy()
+        a.strides = a.strides[::-1]
+        b = a[1:, 1:]
+        assert b.base is a
+        _a, _b = self.roundtrip([a, b])
+        # assert _b.base is _a
+        npt.assert_array_equal(a, _a)
+        npt.assert_array_equal(b, _b)
 
 
 def suite():
