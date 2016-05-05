@@ -3,7 +3,7 @@
 from __future__ import absolute_import
 from builtins import *
 
-import bz2
+import zlib
 import warnings
 
 import numpy as np
@@ -71,24 +71,24 @@ class NumpyNDArrayHandler(NumpyBaseHandler):
 
 
 class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
-    """stores arrays with size greater than 'line_size_treshold' as base64"""
+    """stores arrays with size greater than 'line_size_treshold' as compressed base64"""
 
     line_size_treshold = 16
-    compression = bz2
+    compression = zlib
 
-    def flatten(self, obj, data, force_binary=False):
+    def flatten(self, obj, data):
         """encode numpy to json"""
-        if obj.size > self.line_size_treshold or force_binary:
+        if obj.size > self.line_size_treshold:
             # store as binary
             self.flatten_dtype(obj.dtype, data)
             buffer = obj.tobytes()
-            values = jsonpickle.util.b64encode(self.compression.compress(buffer))
+            if self.compression:
+                buffer = self.compression.compress(buffer)
+            values = jsonpickle.util.b64encode(buffer)
             data['values'] = self.context.flatten(values, reset=False)
             if obj.ndim > 1:
                 # if we have multiple dimensions, need to reshape
                 data['shape'] = obj.shape
-            if not obj.flags.c_contiguous:
-                data['strides'] = obj.strides
         else:
             data = super(NumpyNDArrayHandlerBinary, self).flatten(obj, data)
             if 0 in obj.shape:
@@ -100,15 +100,15 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
         """decode numpy from json"""
         values = data['values']
         if not isinstance(values, list):
+            # decode binary representation
             dtype = self.restore_dtype(data)
             values = self.context.restore(values, reset=False)
-            buffer = self.compression.decompress(jsonpickle.util.b64decode(values))
-            arr = np.frombuffer(buffer, dtype=dtype).copy()
-
-            strides = data.get('strides', None)
-            if strides is not None:
-                arr.strides = strides
+            buffer = jsonpickle.util.b64decode(values)
+            if self.compression:
+                buffer = self.compression.decompress(buffer)
+            arr = np.frombuffer(buffer, dtype=dtype).copy()  # make a copy, to force the result to own the data
         else:
+            # decode textual representation
             arr = super(NumpyNDArrayHandlerBinary, self).restore(data)
 
         shape = data.get('shape', None)
@@ -119,7 +119,20 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
 
 
 class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
-    """correctly pickles references inside ndarrays, or array views"""
+    """Pickles references inside ndarrays, or array-views
+
+    Notes
+    -----
+    The current implementation has some restrictions.
+
+    'base' arrays, or arrays which are viewed by other arrays, must be c-contiguous.
+    This is not such a large restriction in practice, because all numpy array creation is c-contiguous by default.
+    Releasing this restriction would be nice; especially if it can be done without enormously bloating the design.
+
+    Furthermore, ndarrays which are views of array-like objects implementing __array_interface__,
+    but which are not themselves nd-arrays, are deepcopied with a warning,
+    as we cannot guarantee whatever custom logic such classes implement is correctly reproduced.
+    """
     mode = 'warn'
 
     def flatten(self, obj, data):
@@ -160,8 +173,10 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
         """decode numpy from json"""
         base = data.get('base', None)
         if base is None:
+            # array owns its own data
             arr = super(NumpyNDArrayHandlerView, self).restore(data)
         else:
+            # array is a view, and references the data of another array
             arr = self.context.restore(base, reset=False)
             assert arr.flags.c_contiguous, \
                 "Current implementation assumes base is c-contiguous"

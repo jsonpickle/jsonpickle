@@ -153,32 +153,17 @@ class NumpyTestCase(SkippableTest):
         assert _view[0, 1] == -1
         assert _view.base is _arr
 
-    def test_as_strided(self):
-        """test object with array interface which isnt an ndarray, like the result of as_strided"""
-        a = np.arange(10)
-        b = np.lib.stride_tricks.as_strided(a, shape=(5,), strides=(a.dtype.itemsize * 2,))
-        data = [a, b]
-
-        with warnings.catch_warnings(record=True) as w:
-            # as_strided returns a DummyArray object, which we can not currently serialize correctly
-            # FIXME: would be neat to add support for all objects implementing the __array_interface__
-            _data = self.roundtrip(data)
-            assert len(w) == 1
-
-        # as we were warned, deserialized result is no longer a view
-        with self.assertRaises(Exception):
-            _data[0][0] = -1
-            assert (_data[1][0] == -1)
-
     def test_weird_arrays(self):
         """test that we disallow serialization of references to arrays that do not effectively own their memory"""
         a = np.arange(9)
         b = a[5:]
         a.strides = 1
 
+        # this is kinda fishy; a has overlapping memory, _a does not
         _a = self.roundtrip(a)
         npt.assert_array_equal(a, _a)
 
+        # this certainly does not fly in any case
         with self.assertRaises(AssertionError):
             self.roundtrip([a, b])
 
@@ -208,6 +193,32 @@ class NumpyTestCase(SkippableTest):
         assert b.base is a
         with self.assertRaises(AssertionError):
             self.roundtrip([a, b])
+
+    def test_buffer(self):
+        """test behavior with memoryviews which are not ndarrays"""
+        buffer = b'abcdefgh'
+        a = np.frombuffer(buffer, dtype=np.byte)
+        with warnings.catch_warnings(record=True) as w:
+            _a = self.roundtrip(a)
+            npt.assert_array_equal(a, _a)
+            assert len(w) == 1
+
+    def test_as_strided(self):
+        """test object with array interface which isnt an ndarray, like the result of as_strided"""
+        a = np.arange(10)
+        b = np.lib.stride_tricks.as_strided(a, shape=(5,), strides=(a.dtype.itemsize * 2,))
+        data = [a, b]
+
+        with warnings.catch_warnings(record=True) as w:
+            # as_strided returns a DummyArray object, which we can not currently serialize correctly
+            # FIXME: would be neat to add support for all objects implementing the __array_interface__
+            _data = self.roundtrip(data)
+            assert len(w) == 1
+
+        # as we were warned, deserialized result is no longer a view
+        with self.assertRaises(Exception):
+            _data[0][0] = -1
+            assert (_data[1][0] == -1)
 
 
 def suite():
