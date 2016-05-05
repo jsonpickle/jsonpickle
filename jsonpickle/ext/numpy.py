@@ -3,6 +3,7 @@
 from __future__ import absolute_import
 from builtins import *
 
+import sys
 import zlib
 import warnings
 
@@ -13,6 +14,8 @@ import jsonpickle
 from jsonpickle.compat import unicode
 
 __all__ = ['register_handlers', 'unregister_handlers']
+
+native_byteorder = '<' if sys.byteorder == 'little' else '>'
 
 
 class NumpyBaseHandler(jsonpickle.handlers.BaseHandler):
@@ -67,6 +70,8 @@ class NumpyNDArrayHandler(NumpyBaseHandler):
             data['shape'] = obj.shape
         if obj.flags.f_contiguous:
             data['order'] = 'F'
+        if obj.flags.writeable is False:
+            data['writeable'] = False
         return data
 
     def restore(self, data):
@@ -79,6 +84,8 @@ class NumpyNDArrayHandler(NumpyBaseHandler):
         shape = data.get('shape', None)
         if shape is not None:
             arr = arr.reshape(shape)
+        if not data.get('writeable', True):
+            arr.flags.writeable = False
         return arr
 
 
@@ -90,6 +97,10 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
 
     valid values for 'size_treshold' are all nonnegative integers and None
     if size_treshold is None, values are always stored as nested lists
+
+    Notes
+    -----
+    This would be easier to implement using np.save/np.load, but that would be less language-agnostic
     """
 
     size_treshold = 16
@@ -102,6 +113,7 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
             data = super(NumpyNDArrayHandlerBinary, self).flatten(obj, data)
         else:
             # store as binary
+            assert obj.data.contiguous
             self.flatten_dtype(obj.dtype, data)
             buffer = obj.tobytes(order=None)
             if self.compression:
@@ -111,6 +123,9 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
             data['shape'] = obj.shape
             if obj.flags.f_contiguous:
                 data['order'] = 'F'
+            if obj.flags.writeable is False:
+                data['writeable'] = False
+            data['byteorder'] = native_byteorder
         return data
 
     def restore(self, data):
@@ -127,10 +142,12 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
                 buffer = self.compression.decompress(buffer)
             arr = np.ndarray(
                 buffer=buffer,
-                dtype=self.restore_dtype(data),
+                dtype=self.restore_dtype(data).newbyteorder(data['byteorder']),
                 shape=data.get('shape'),
                 order=data.get('order', 'C')
             ).copy() # make a copy, to force the result to own the data
+            if not data.get('writeable', True):
+                arr.flags.writeable = False
 
         return arr
 
@@ -142,7 +159,7 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
     -----
     The current implementation has some restrictions.
 
-    'base' arrays, or arrays which are viewed by other arrays, must be c-contiguous.
+    'base' arrays, or arrays which are viewed by other arrays, must be f-or-c-contiguous.
     This is not such a large restriction in practice, because all numpy array creation is c-contiguous by default.
     Releasing this restriction would be nice though; especially if it can be done without bloating the design too much.
 
@@ -182,6 +199,9 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
                 raise ValueError(msg)
             data = super(NumpyNDArrayHandlerView, self).flatten(obj.copy(), data)
 
+        if obj.flags.writeable is False:
+            data['writeable'] = False
+
         return data
 
     def restore(self, data):
@@ -203,6 +223,9 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
                 offset=data.get('offset', 0),
                 strides=data.get('strides', None)
             )
+            if not data.get('writeable', True):
+                arr.flags.writeable = False
+
 
         return arr
 

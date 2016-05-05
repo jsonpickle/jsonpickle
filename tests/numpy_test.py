@@ -123,8 +123,9 @@ class NumpyTestCase(SkippableTest):
 
     def test_b64(self):
         """test that binary encoding works"""
-        a = np.random.rand(100, 100)    # array of substantial size is stored as b64
+        a = np.random.rand(10, 10)    # array of substantial size is stored as b64
         _a = self.roundtrip(a)
+        print(jsonpickle.encode(a))
         npt.assert_array_equal(a, _a)
 
     def test_views(self):
@@ -238,6 +239,15 @@ class NumpyTestCase(SkippableTest):
         with self.assertRaises(Exception):
             _data[0][0] = -1
             assert (_data[1][0] == -1)
+
+    def test_immutable(self):
+        """test that immutability flag is copied correctly"""
+
+    # def test_newstrided(self):
+    #     a = np.arange(10)
+    #     q = np.ndarray(buffer=a.data, strides=a.strides*2, shape=(5,6), dtype=a.dtype)
+    #     assert q.base is a
+    #     print(q)
 
 
 def suite():
