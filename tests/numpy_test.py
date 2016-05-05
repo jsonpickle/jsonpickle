@@ -174,6 +174,7 @@ class NumpyTestCase(SkippableTest):
 
     def test_transpose(self):
         """test handling of non-c-contiguous memory layout"""
+        # simple case; view a c-contiguous array
         a = np.arange(9).reshape(3, 3)
         b = a[1:, 1:]
         assert b.base is a.base
@@ -182,7 +183,7 @@ class NumpyTestCase(SkippableTest):
         npt.assert_array_equal(a, _a)
         npt.assert_array_equal(b, _b)
 
-        # this 'just works'; a and b both view a contiguous array
+        # a and b both view the same contiguous array
         a = np.arange(9).reshape(3, 3).T
         b = a[1:, 1:]
         assert b.base is a.base
@@ -191,9 +192,19 @@ class NumpyTestCase(SkippableTest):
         npt.assert_array_equal(a, _a)
         npt.assert_array_equal(b, _b)
 
-        # now a is forced in non-contiguous order; we have to make a deepcopy to make this work
+        # view an f-contiguous array
         a = a.copy()
         a.strides = a.strides[::-1]
+        b = a[1:, 1:]
+        assert b.base is a
+        _a, _b = self.roundtrip([a, b])
+        assert _b.base is _a
+        npt.assert_array_equal(a, _a)
+        npt.assert_array_equal(b, _b)
+
+        # now a.data.contiguous is False; we have to make a deepcopy to make this work
+        a = np.arange(8).reshape(2, 2, 2).copy()
+        a.strides = a.strides[0], a.strides[2], a.strides[1]
         b = a[1:, 1:]
         assert b.base is a
         with warnings.catch_warnings(record=True) as w:

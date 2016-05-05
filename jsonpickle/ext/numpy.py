@@ -65,12 +65,17 @@ class NumpyNDArrayHandler(NumpyBaseHandler):
         if 0 in obj.shape:
             # add shape information explicitly as it cannot be determined from an empty list
             data['shape'] = obj.shape
+        if obj.flags.f_contiguous:
+            data['order'] = 'F'
         return data
 
     def restore(self, data):
-        dtype = self.restore_dtype(data)
         values = self.context.restore(data['values'], reset=False)
-        arr = np.array(values, dtype=dtype)
+        arr = np.array(
+            values,
+            dtype=self.restore_dtype(data),
+            order=data.get('order', 'C')
+        )
         shape = data.get('shape', None)
         if shape is not None:
             arr = arr.reshape(shape)
@@ -98,12 +103,14 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
         else:
             # store as binary
             self.flatten_dtype(obj.dtype, data)
-            buffer = obj.tobytes()
+            buffer = obj.tobytes(order=None)
             if self.compression:
                 buffer = self.compression.compress(buffer)
             values = jsonpickle.util.b64encode(buffer)
             data['values'] = self.context.flatten(values, reset=False)
             data['shape'] = obj.shape
+            if obj.flags.f_contiguous:
+                data['order'] = 'F'
         return data
 
     def restore(self, data):
@@ -114,13 +121,16 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
             arr = super(NumpyNDArrayHandlerBinary, self).restore(data)
         else:
             # decode binary representation
-            dtype = self.restore_dtype(data)
             values = self.context.restore(values, reset=False)
             buffer = jsonpickle.util.b64decode(values)
             if self.compression:
                 buffer = self.compression.decompress(buffer)
-            arr = np.frombuffer(buffer, dtype=dtype).copy()  # make a copy, to force the result to own the data
-            arr = arr.reshape(data['shape'])
+            arr = np.ndarray(
+                buffer=buffer,
+                dtype=self.restore_dtype(data),
+                shape=data.get('shape'),
+                order=data.get('order', 'C')
+            ).copy() # make a copy, to force the result to own the data
 
         return arr
 
@@ -148,7 +158,7 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
         if base is None:
             # store by value
             data = super(NumpyNDArrayHandlerView, self).flatten(obj, data)
-        elif isinstance(base, np.ndarray) and base.flags.c_contiguous:
+        elif isinstance(base, np.ndarray) and base.data.contiguous:
             # store by reference
             self.flatten_dtype(obj.dtype, data)
             data['base'] = self.context.flatten(base, reset=False)
@@ -159,7 +169,7 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
             if offset:
                 data['offset'] = offset
 
-            if not obj.flags.c_contiguous:
+            if not obj.data.c_contiguous:
                 data['strides'] = obj.strides
         else:
             # store a deepcopy or fail
@@ -183,8 +193,8 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
         else:
             # decode array view, which references the data of another array
             base = self.context.restore(base, reset=False)
-            assert base.flags.c_contiguous, \
-                "Current implementation assumes base is c-contiguous"
+            assert base.data.contiguous, \
+                "Current implementation assumes base is contiguous"
 
             arr = np.ndarray(
                 buffer=base.data,
