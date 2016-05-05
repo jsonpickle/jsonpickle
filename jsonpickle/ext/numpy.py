@@ -90,6 +90,7 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
                 # if we have multiple dimensions, need to reshape
                 data['shape'] = obj.shape
         else:
+            # store as json
             data = super(NumpyNDArrayHandlerBinary, self).flatten(obj, data)
             if 0 in obj.shape:
                 # add shape information explicitly as it cannot be determined from an empty list
@@ -108,7 +109,7 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
                 buffer = self.compression.decompress(buffer)
             arr = np.frombuffer(buffer, dtype=dtype).copy()  # make a copy, to force the result to own the data
         else:
-            # decode textual representation
+            # decode json
             arr = super(NumpyNDArrayHandlerBinary, self).restore(data)
 
         shape = data.get('shape', None)
@@ -127,7 +128,7 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
 
     'base' arrays, or arrays which are viewed by other arrays, must be c-contiguous.
     This is not such a large restriction in practice, because all numpy array creation is c-contiguous by default.
-    Releasing this restriction would be nice; especially if it can be done without enormously bloating the design.
+    Releasing this restriction would be nice though; especially if it can be done without bloating the design too much.
 
     Furthermore, ndarrays which are views of array-like objects implementing __array_interface__,
     but which are not themselves nd-arrays, are deepcopied with a warning,
@@ -158,6 +159,7 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
             if not obj.flags.c_contiguous:
                 data['strides'] = obj.strides
         else:
+            # store a deepcopy or raise
             if self.mode == 'warn':
                 msg = "ndarray is defined by reference to an object we do not know how to serialize. " \
                       "A deep copy is serialized instead, breaking memory aliasing."
@@ -173,10 +175,10 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
         """decode numpy from json"""
         base = data.get('base', None)
         if base is None:
-            # array owns its own data
+            # decode array with owndata=True
             arr = super(NumpyNDArrayHandlerView, self).restore(data)
         else:
-            # array is a view, and references the data of another array
+            # decode array view, which references the data of another array
             arr = self.context.restore(base, reset=False)
             assert arr.flags.c_contiguous, \
                 "Current implementation assumes base is c-contiguous"
