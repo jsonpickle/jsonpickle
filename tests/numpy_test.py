@@ -2,6 +2,8 @@
 
 import unittest
 import datetime
+import warnings
+
 import jsonpickle
 
 from helper import SkippableTest
@@ -129,14 +131,13 @@ class NumpyTestCase(SkippableTest):
         """test that cases with non-standard strides work correctly"""
         arr = np.eye(3)
         view = arr[1:, 1:]
+        assert view.base is arr
         data = [arr, view]
 
-        assert view.base is arr
-
         _data = self.roundtrip(data)
-        _arr, _view = _data
 
-        # test if they are indeed views
+        # test that the deserialized arrays indeed view the same memory
+        _arr, _view = _data
         _arr[1, 2] = -1
         assert _view[0, 1] == -1
         assert _view.base is _arr
@@ -144,20 +145,23 @@ class NumpyTestCase(SkippableTest):
     def test_as_strided(self):
         """test object with array interface which isnt an array, like the result of as_strided"""
         a = np.arange(10)
-        b = np.lib.stride_tricks.as_strided(a, shape=(5,), strides=(8,))
+        b = np.lib.stride_tricks.as_strided(a, shape=(5,), strides=(a.dtype.itemsize * 2,))
         data = [a, b]
 
-        with self.assertRaises(Exception):
+        with warnings.catch_warnings(record=True) as w:
             # as_strided returns a DummyArray object, which we can not currently serialize correctly
             # FIXME: would be neat to add support for all objects implementing the __array_interface__
             _data = self.roundtrip(data)
+            assert len(w) == 1
+
+        with self.assertRaises(Exception):
             # if the conversion does not raise, this should; deserialized result is no longer a view
             _data[0][0] = -1
             assert (_data[1][0] == -1)
 
     def test_b64(self):
         """test that binary encoding works"""
-        a = np.random.rand(100, 100)
+        a = np.random.rand(100, 100)    # array of substantial size is stored as b64
         _a = self.roundtrip(a)
         npt.assert_array_equal(a, _a)
 
