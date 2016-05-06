@@ -203,6 +203,7 @@ class NumpyTestCase(SkippableTest):
         npt.assert_array_equal(b, _b)
 
         # now a.data.contiguous is False; we have to make a deepcopy to make this work
+        # note that this is a pretty contrived example though!
         a = np.arange(8).reshape(2, 2, 2).copy()
         a.strides = a.strides[0], a.strides[2], a.strides[1]
         b = a[1:, 1:]
@@ -215,8 +216,8 @@ class NumpyTestCase(SkippableTest):
 
     def test_buffer(self):
         """test behavior with memoryviews which are not ndarrays"""
-        buffer = b'abcdefgh'
-        a = np.frombuffer(buffer, dtype=np.byte)
+        bstring = b'abcdefgh'
+        a = np.frombuffer(bstring, dtype=np.byte)
         with warnings.catch_warnings(record=True) as w:
             _a = self.roundtrip(a)
             npt.assert_array_equal(a, _a)
@@ -246,6 +247,22 @@ class NumpyTestCase(SkippableTest):
         _a = self.roundtrip(a)
         with self.assertRaises(Exception):
             _a[0] = 0
+
+    def test_byteorder(self):
+        """test that byteorder is properly conserved across views, for text and binary encoding"""
+        # small arr is stored as text
+        a = np.arange(10).newbyteorder()
+        b = a[:].newbyteorder()
+        _a, _b = self.roundtrip([a, b])
+        npt.assert_array_equal(a, _a)
+        npt.assert_array_equal(b, _b)
+
+        # bigger arr is stored as binary
+        a = np.arange(100).newbyteorder()
+        b = a[:].newbyteorder()
+        _a, _b = self.roundtrip([a, b])
+        npt.assert_array_equal(a, _a)
+        npt.assert_array_equal(b, _b)
 
 
 def suite():

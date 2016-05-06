@@ -115,23 +115,26 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
         self.compression = compression
 
     def flatten_byteorder(self, obj, data):
-        data['byteorder'] = native_byteorder if obj.dtype.byteorder == '=' else obj.dtype.byteorder
+        byteorder = obj.dtype.byteorder
+        if byteorder != '|':
+            data['byteorder'] = native_byteorder if byteorder == '=' else byteorder
 
     def restore_byteorder(self, data, arr):
-        arr.dtype = arr.dtype.newbyteorder(data['byteorder'])
+        byteorder = data.get('byteorder', None)
+        if byteorder:
+            arr.dtype = arr.dtype.newbyteorder(byteorder)
 
     def flatten(self, obj, data):
         """encode numpy to json"""
         if self.size_treshold > obj.size or self.size_treshold is None:
-            # store as json
+            # encode as text
             data = super(NumpyNDArrayHandlerBinary, self).flatten(obj, data)
         else:
-            # store as binary
+            # encode as binary
             buffer = obj.tobytes(order=None)    # store as C or Fortran order
             if self.compression:
                 buffer = self.compression.compress(buffer)
-            values = jsonpickle.util.b64encode(buffer)
-            data['values'] = self.context.flatten(values, reset=False)
+            data['values'] = jsonpickle.util.b64encode(buffer)
             data['shape'] = obj.shape
             if obj.flags.f_contiguous:
                 data['order'] = 'F'
@@ -151,7 +154,6 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
                 arr = arr.byteswap()
         else:
             # decode binary representation
-            values = self.context.restore(values, reset=False)
             buffer = jsonpickle.util.b64decode(values)
             if self.compression:
                 buffer = self.compression.decompress(buffer)
@@ -205,7 +207,7 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
         elif isinstance(base, np.ndarray) and base.data.contiguous:
             # store by reference
             data['base'] = self.context.flatten(base, reset=False)
-            # for a view, always store shape
+
             data['shape'] = obj.shape
 
             offset = obj.ctypes.data - base.ctypes.data
