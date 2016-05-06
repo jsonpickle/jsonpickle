@@ -146,9 +146,8 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
         if isinstance(values, list):
             # decode text representation
             arr = super(NumpyNDArrayHandlerBinary, self).restore(data)
-            # need to restore byteorder lost in conversion to text, in case any views are interested in it
-            byteorder = data.get('byteorder', native_byteorder)
-            if byteorder != native_byteorder:
+            # need to restore byteorder if it is lost in conversion to text, in case any views rely on it
+            if data.get('byteorder', native_byteorder) != native_byteorder:
                 arr = arr.byteswap()
         else:
             # decode binary representation
