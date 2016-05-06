@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import
-from builtins import *
 
 import sys
 import zlib
@@ -27,7 +26,6 @@ class NumpyBaseHandler(jsonpickle.handlers.BaseHandler):
         return np.dtype(dtype)
 
     def flatten_dtype(self, dtype, data):
-
         if hasattr(dtype, 'tostring'):
             data['dtype'] = dtype.tostring()
         else:
@@ -62,16 +60,23 @@ class NumpyGenericHandler(NumpyBaseHandler):
 
 class NumpyNDArrayHandler(NumpyBaseHandler):
 
-    def flatten(self, obj, data):
-        self.flatten_dtype(obj.dtype, data)
-        data['values'] = self.context.flatten(obj.tolist(), reset=False)
-        if 0 in obj.shape:
-            # add shape information explicitly as it cannot be determined from an empty list
-            data['shape'] = obj.shape
-        if obj.flags.f_contiguous:
-            data['order'] = 'F'
+    def flatten_flags(self, obj, data):
         if obj.flags.writeable is False:
             data['writeable'] = False
+
+    def restore_flags(self, data, arr):
+        if not data.get('writeable', True):
+            arr.flags.writeable = False
+
+    def flatten(self, obj, data):
+        self.flatten_dtype(obj.dtype, data)
+        self.flatten_flags(obj, data)
+        data['values'] = self.context.flatten(obj.tolist(), reset=False)
+        if 0 in obj.shape:
+            # add shape information explicitly as it cannot be inferred from an empty list
+            data['shape'] = obj.shape
+        if obj.flags.f_contiguous:  # needed by views; move logic there? what about byteorder of text viewed by other?
+            data['order'] = 'F'
         return data
 
     def restore(self, data):
@@ -84,8 +89,8 @@ class NumpyNDArrayHandler(NumpyBaseHandler):
         shape = data.get('shape', None)
         if shape is not None:
             arr = arr.reshape(shape)
-        if not data.get('writeable', True):
-            arr.flags.writeable = False
+
+        self.restore_flags(data, arr)
         return arr
 
 
@@ -106,6 +111,12 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
     size_treshold = 16
     compression = zlib
 
+    def flatten_byteorder(self, obj, data):
+        data['byteorder'] = native_byteorder if obj.dtype.byteorder == '=' else obj.dtype.byteorder
+
+    def restore_byteorder(self, data, arr):
+        arr.dtype = arr.dtype.newbyteorder(data['byteorder'])
+
     def flatten(self, obj, data):
         """encode numpy to json"""
         if self.size_treshold > obj.size or self.size_treshold is None:
@@ -113,9 +124,8 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
             data = super(NumpyNDArrayHandlerBinary, self).flatten(obj, data)
         else:
             # store as binary
-            assert obj.data.contiguous
             self.flatten_dtype(obj.dtype, data)
-            buffer = obj.tobytes(order=None)
+            buffer = obj.tobytes(order=None)    # store as C or Fortran order
             if self.compression:
                 buffer = self.compression.compress(buffer)
             values = jsonpickle.util.b64encode(buffer)
@@ -123,16 +133,15 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
             data['shape'] = obj.shape
             if obj.flags.f_contiguous:
                 data['order'] = 'F'
-            if obj.flags.writeable is False:
-                data['writeable'] = False
-            data['byteorder'] = native_byteorder
+            self.flatten_byteorder(obj, data)
+            self.flatten_flags(obj, data)
         return data
 
     def restore(self, data):
         """decode numpy from json"""
         values = data['values']
         if isinstance(values, list):
-            # decode json
+            # decode text representation
             arr = super(NumpyNDArrayHandlerBinary, self).restore(data)
         else:
             # decode binary representation
@@ -142,12 +151,12 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
                 buffer = self.compression.decompress(buffer)
             arr = np.ndarray(
                 buffer=buffer,
-                dtype=self.restore_dtype(data).newbyteorder(data['byteorder']),
+                dtype=self.restore_dtype(data),
                 shape=data.get('shape'),
                 order=data.get('order', 'C')
             ).copy() # make a copy, to force the result to own the data
-            if not data.get('writeable', True):
-                arr.flags.writeable = False
+            self.restore_byteorder(data, arr)
+            self.restore_flags(data, arr)
 
         return arr
 
@@ -161,7 +170,7 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
 
     'base' arrays, or arrays which are viewed by other arrays, must be f-or-c-contiguous.
     This is not such a large restriction in practice, because all numpy array creation is c-contiguous by default.
-    Releasing this restriction would be nice though; especially if it can be done without bloating the design too much.
+    Relaxing this restriction would be nice though; especially if it can be done without bloating the design too much.
 
     Furthermore, ndarrays which are views of array-like objects implementing __array_interface__,
     but which are not themselves nd-arrays, are deepcopied with a warning,
@@ -188,6 +197,9 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
 
             if not obj.data.c_contiguous:
                 data['strides'] = obj.strides
+
+            self.flatten_byteorder(obj, data)
+            self.flatten_flags(obj, data)
         else:
             # store a deepcopy or fail
             if self.mode == 'warn':
@@ -198,9 +210,6 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
                 msg = "ndarray is defined by reference to an object we do not know how to serialize."
                 raise ValueError(msg)
             data = super(NumpyNDArrayHandlerView, self).flatten(obj.copy(), data)
-
-        if obj.flags.writeable is False:
-            data['writeable'] = False
 
         return data
 
@@ -223,9 +232,8 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
                 offset=data.get('offset', 0),
                 strides=data.get('strides', None)
             )
-            if not data.get('writeable', True):
-                arr.flags.writeable = False
-
+            self.restore_byteorder(data, arr)
+            self.restore_flags(data, arr)
 
         return arr
 
