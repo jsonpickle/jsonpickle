@@ -127,7 +127,6 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
             data = super(NumpyNDArrayHandlerBinary, self).flatten(obj, data)
         else:
             # store as binary
-            self.flatten_dtype(obj.dtype, data)
             buffer = obj.tobytes(order=None)    # store as C or Fortran order
             if self.compression:
                 buffer = self.compression.compress(buffer)
@@ -136,6 +135,7 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
             data['shape'] = obj.shape
             if obj.flags.f_contiguous:
                 data['order'] = 'F'
+            self.flatten_dtype(obj.dtype, data)
             self.flatten_byteorder(obj, data)
             self.flatten_flags(obj, data)
         return data
@@ -146,6 +146,10 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
         if isinstance(values, list):
             # decode text representation
             arr = super(NumpyNDArrayHandlerBinary, self).restore(data)
+            # need to restore byteorder lost in conversion to text, in case any views are interested in it
+            byteorder = data.get('byteorder', native_byteorder)
+            if byteorder != native_byteorder:
+                arr = arr.byteswap()
         else:
             # decode binary representation
             values = self.context.restore(values, reset=False)
@@ -201,7 +205,6 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
             data = super(NumpyNDArrayHandlerView, self).flatten(obj, data)
         elif isinstance(base, np.ndarray) and base.data.contiguous:
             # store by reference
-            self.flatten_dtype(obj.dtype, data)
             data['base'] = self.context.flatten(base, reset=False)
             # for a view, always store shape
             data['shape'] = obj.shape
@@ -213,7 +216,7 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
             if not obj.data.c_contiguous:
                 data['strides'] = obj.strides
 
-            self.flatten_byteorder(obj, data)
+            self.flatten_dtype(obj.dtype, data)
             self.flatten_flags(obj, data)
         else:
             # store a deepcopy or fail
@@ -225,6 +228,9 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
                 msg = "ndarray is defined by reference to an object we do not know how to serialize."
                 raise ValueError(msg)
             data = super(NumpyNDArrayHandlerView, self).flatten(obj.copy(), data)
+
+        # when views are in play, always store byteorder
+        self.flatten_byteorder(obj, data)
 
         return data
 
