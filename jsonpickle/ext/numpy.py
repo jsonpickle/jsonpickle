@@ -196,7 +196,7 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
     def flatten(self, obj, data):
         """encode numpy to json"""
         base = obj.base
-        if base is None:
+        if base is None and obj.flags.forc:
             # store by value
             data = super(NumpyNDArrayHandlerView, self).flatten(obj, data)
         elif isinstance(base, np.ndarray) and base.data.contiguous:

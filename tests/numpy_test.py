@@ -136,13 +136,13 @@ class NumpyTestCase(SkippableTest):
         _data = self.roundtrip(data)
 
         _data[0][15] = -1
-        assert _data[1][5] == -1
+        self.assertEqual(_data[1][5], -1)
 
     def test_strides(self):
         """test that cases with non-standard strides and offsets work correctly"""
         arr = np.eye(3)
         view = arr[1:, 1:]
-        assert view.base is arr
+        self.assertTrue(view.base is arr)
         data = [arr, view]
 
         _data = self.roundtrip(data)
@@ -150,8 +150,8 @@ class NumpyTestCase(SkippableTest):
         # test that the deserialized arrays indeed view the same memory
         _arr, _view = _data
         _arr[1, 2] = -1
-        assert _view[0, 1] == -1
-        assert _view.base is _arr
+        self.assertEqual(_view[0, 1], -1)
+        self.assertTrue(_view.base is _arr)
 
     def test_weird_arrays(self):
         """test that we disallow serialization of references to arrays that do not effectively own their memory"""
@@ -162,13 +162,13 @@ class NumpyTestCase(SkippableTest):
         # this is kinda fishy; a has overlapping memory, _a does not
         with warnings.catch_warnings(record=True) as w:
             _a = self.roundtrip(a)
-            # assert len(w) == 1
+            self.assertEqual(len(w), 1)
             npt.assert_array_equal(a, _a)
 
         # this also requires a deepcopy to work
         with warnings.catch_warnings(record=True) as w:
             _a, _b = self.roundtrip([a, b])
-            assert len(w) == 1
+            self.assertEqual(len(w), 1)
             npt.assert_array_equal(a, _a)
             npt.assert_array_equal(b, _b)
 
@@ -177,18 +177,18 @@ class NumpyTestCase(SkippableTest):
         # simple case; view a c-contiguous array
         a = np.arange(9).reshape(3, 3)
         b = a[1:, 1:]
-        assert b.base is a.base
+        self.assertTrue(b.base is a.base)
         _a, _b = self.roundtrip([a, b])
-        assert _b.base is _a.base
+        self.assertTrue(_b.base is _a.base)
         npt.assert_array_equal(a, _a)
         npt.assert_array_equal(b, _b)
 
         # a and b both view the same contiguous array
         a = np.arange(9).reshape(3, 3).T
         b = a[1:, 1:]
-        assert b.base is a.base
+        self.assertTrue(b.base is a.base)
         _a, _b = self.roundtrip([a, b])
-        assert _b.base is _a.base
+        self.assertTrue(_b.base is _a.base)
         npt.assert_array_equal(a, _a)
         npt.assert_array_equal(b, _b)
 
@@ -196,9 +196,9 @@ class NumpyTestCase(SkippableTest):
         a = a.copy()
         a.strides = a.strides[::-1]
         b = a[1:, 1:]
-        assert b.base is a
+        self.assertTrue(b.base is a)
         _a, _b = self.roundtrip([a, b])
-        assert _b.base is _a
+        self.assertTrue(_b.base is _a)
         npt.assert_array_equal(a, _a)
         npt.assert_array_equal(b, _b)
 
@@ -206,10 +206,10 @@ class NumpyTestCase(SkippableTest):
         a = np.arange(8).reshape(2, 2, 2).copy()
         a.strides = a.strides[0], a.strides[2], a.strides[1]
         b = a[1:, 1:]
-        assert b.base is a
+        self.assertTrue(b.base is a)
         with warnings.catch_warnings(record=True) as w:
             _a, _b = self.roundtrip([a, b])
-            assert len(w) == 1
+            self.assertEqual(len(w), 1)
             npt.assert_array_equal(a, _a)
             npt.assert_array_equal(b, _b)
 
@@ -220,7 +220,7 @@ class NumpyTestCase(SkippableTest):
         with warnings.catch_warnings(record=True) as w:
             _a = self.roundtrip(a)
             npt.assert_array_equal(a, _a)
-            assert len(w) == 1
+            self.assertEqual(len(w), 1)
 
     def test_as_strided(self):
         """test object with array interface which isnt an ndarray, like the result of as_strided"""
@@ -232,12 +232,12 @@ class NumpyTestCase(SkippableTest):
             # as_strided returns a DummyArray object, which we can not currently serialize correctly
             # FIXME: would be neat to add support for all objects implementing the __array_interface__
             _data = self.roundtrip(data)
-            assert len(w) == 1
+            self.assertEqual(len(w), 1)
 
         # as we were warned, deserialized result is no longer a view
         with self.assertRaises(Exception):
             _data[0][0] = -1
-            assert (_data[1][0] == -1)
+            self.assertEqual(_data[1][0], -1)
 
     def test_immutable(self):
         """test that immutability flag is copied correctly"""
