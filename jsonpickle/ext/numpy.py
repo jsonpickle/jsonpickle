@@ -95,13 +95,7 @@ class NumpyNDArrayHandler(NumpyBaseHandler):
 
 
 class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
-    """stores arrays with size greater than 'size_treshold' as compressed base64
-
-    valid values for 'compression' are {zlib, bz2, None}
-    if compresion is None, no compression is applied
-
-    valid values for 'size_treshold' are all nonnegative integers and None
-    if size_treshold is None, values are always stored as nested lists
+    """stores arrays with size greater than 'size_treshold' as (optionally) compressed base64
 
     Notes
     -----
@@ -110,8 +104,12 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
 
     def __init__(self, size_treshold=16, compression=zlib):
         """
-        :param size_treshold:
-        :param compression:
+        :param size_treshold: nonnegative int or None
+            valid values for 'size_treshold' are all nonnegative integers and None
+            if size_treshold is None, values are always stored as nested lists
+        :param compression: a compression module or None
+            valid values for 'compression' are {zlib, bz2, None}
+            if compresion is None, no compression is applied
         """
         self.size_treshold = size_treshold
         self.compression = compression
@@ -178,14 +176,19 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
     Relaxing this restriction would be nice though; especially if it can be done without bloating the design too much.
 
     Furthermore, ndarrays which are views of array-like objects implementing __array_interface__,
-    but which are not themselves nd-arrays, are deepcopied with a warning,
+    but which are not themselves nd-arrays, are deepcopied with a warning (by default),
     as we cannot guarantee whatever custom logic such classes implement is correctly reproduced.
     """
     def __init__(self, mode='warn', size_treshold=16, compression=zlib):
         """
         :param mode: {'warn', 'raise', 'ignore'}
-        :param size_treshold: nonnegative int or Nnoe
-        :param compression: compression module or None
+            How to react when encountering array-like objects whos references we cannot safely serialize
+        :param size_treshold: nonnegative int or None
+            valid values for 'size_treshold' are all nonnegative integers and None
+            if size_treshold is None, values are always stored as nested lists
+        :param compression: a compression module or None
+            valid values for 'compression' are {zlib, bz2, None}
+            if compresion is None, no compression is applied
         """
         super(NumpyNDArrayHandlerView, self).__init__(size_treshold, compression)
         self.mode = mode
