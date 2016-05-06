@@ -92,7 +92,7 @@ class NumpyTestCase(SkippableTest):
             np.array([b'baz']),
             np.array(['2010', 'NaT', '2030']).astype('M'),
             np.rec.array(asbytes('abcdefg') * 100, formats='i2,a3,i4',
-                         shape=3, byteorder='big'),
+                         shape=3),
             np.rec.array([(1, 11, 'a'), (2, 22, 'b'),
                           (3, 33, 'c'), (4, 44, 'd'),
                           (5, 55, 'ex'), (6, 66, 'f'),
@@ -102,7 +102,7 @@ class NumpyTestCase(SkippableTest):
                      dtype='M8[D]'),
             np.array([0, 1, -1, np.inf, -np.inf, np.nan], dtype='f2'),
             np.rec.array([('NGC1001', 11), ('NGC1002', 1.), ('NGC1003', 1.)],
-                         dtype=[('target', 'S20'), ('V_mag', '>f4')])
+                         dtype=[('target', 'S20'), ('V_mag', 'f4')])
         ]
         for array in arrays:
             decoded = self.roundtrip(array)
