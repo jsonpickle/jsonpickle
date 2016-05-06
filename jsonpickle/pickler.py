@@ -251,7 +251,7 @@ class Pickler(object):
                 return obj.decode('utf-8')
             except:
                 pass
-        return {tags.B64: base64.encodestring(obj).decode('utf-8')}
+        return {tags.B64: base64.encodebytes(obj).decode('utf-8')}
 
     def _flatten_obj_instance(self, obj):
         """Recursively flatten an instance and return a json-friendly dict
