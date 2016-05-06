@@ -75,8 +75,6 @@ class NumpyNDArrayHandler(NumpyBaseHandler):
         if 0 in obj.shape:
             # add shape information explicitly as it cannot be inferred from an empty list
             data['shape'] = obj.shape
-        if obj.flags.f_contiguous:  # needed by views; move logic there? what about byteorder of text viewed by other?
-            data['order'] = 'F'
         return data
 
     def restore(self, data):
@@ -136,11 +134,13 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
                 buffer = self.compression.compress(buffer)
             data['values'] = jsonpickle.util.b64encode(buffer)
             data['shape'] = obj.shape
-            if obj.flags.f_contiguous:
-                data['order'] = 'F'
             self.flatten_dtype(obj.dtype, data)
             self.flatten_byteorder(obj, data)
             self.flatten_flags(obj, data)
+
+            if obj.flags.f_contiguous:
+                data['order'] = 'F'
+
         return data
 
     def restore(self, data):
@@ -204,6 +204,9 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
         if base is None and obj.flags.forc:
             # store by value
             data = super(NumpyNDArrayHandlerView, self).flatten(obj, data)
+            # ensure that views on arrays stored as text are interpreted correctly
+            if obj.flags.f_contiguous:
+                data['order'] = 'F'
         elif isinstance(base, np.ndarray) and base.data.contiguous:
             # store by reference
             data['base'] = self.context.flatten(base, reset=False)
