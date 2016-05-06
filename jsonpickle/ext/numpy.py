@@ -108,8 +108,13 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
     This would be easier to implement using np.save/np.load, but that would be less language-agnostic
     """
 
-    size_treshold = 16
-    compression = zlib
+    def __init__(self, size_treshold=16, compression=zlib):
+        """
+        :param size_treshold:
+        :param compression:
+        """
+        self.size_treshold = size_treshold
+        self.compression = compression
 
     def flatten_byteorder(self, obj, data):
         data['byteorder'] = native_byteorder if obj.dtype.byteorder == '=' else obj.dtype.byteorder
@@ -176,7 +181,14 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
     but which are not themselves nd-arrays, are deepcopied with a warning,
     as we cannot guarantee whatever custom logic such classes implement is correctly reproduced.
     """
-    mode = 'warn'
+    def __init__(self, mode='warn', size_treshold=16, compression=zlib):
+        """
+        :param mode: {'warn', 'raise', 'ignore'}
+        :param size_treshold: nonnegative int or Nnoe
+        :param compression: compression module or None
+        """
+        super(NumpyNDArrayHandlerView, self).__init__(size_treshold, compression)
+        self.mode = mode
 
     def flatten(self, obj, data):
         """encode numpy to json"""
@@ -223,7 +235,7 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
             # decode array view, which references the data of another array
             base = self.context.restore(base, reset=False)
             assert base.data.contiguous, \
-                "Current implementation assumes base is contiguous"
+                "Current implementation assumes base is C or F contiguous"
 
             arr = np.ndarray(
                 buffer=base.data,
@@ -241,7 +253,7 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
 def register_handlers():
     jsonpickle.handlers.register(np.dtype, NumpyDTypeHandler, base=True)
     jsonpickle.handlers.register(np.generic, NumpyGenericHandler, base=True)
-    jsonpickle.handlers.register(np.ndarray, NumpyNDArrayHandlerView, base=True)
+    jsonpickle.handlers.register(np.ndarray, NumpyNDArrayHandlerView(), base=True)
 
 
 def unregister_handlers():
