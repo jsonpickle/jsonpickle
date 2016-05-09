@@ -218,7 +218,7 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
             if offset:
                 data['offset'] = offset
 
-            if not obj.data.c_contiguous:
+            if not obj.flags.c_contiguous:
                 data['strides'] = obj.strides
 
             data['shape'] = obj.shape
