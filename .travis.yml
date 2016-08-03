@@ -8,7 +8,7 @@ script:
 - python setup.py test
 branches:
   except:
-    - skeleton
+  - skeleton
 deploy:
   provider: pypi
   on:
