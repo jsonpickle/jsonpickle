@@ -1,11 +1,10 @@
 skeleton
 ========
 
-.. image:: https://badge.fury.io/py/skeleton.svg
-    :target: https://badge.fury.io/py/skeleton
+.. image:: https://img.shields.io/pypi/v/skeleton.svg
+   :target: https://pypi.io/project/skeleton
 
-.. image:: https://pypip.in/d/skeleton/badge.png
-    :target: https://crate.io/packages/skeleton/
+.. image:: https://img.shields.io/pypi/dm/skeleton.svg
 
-.. image:: https://secure.travis-ci.org/jaraco/skeleton.png
-    :target: http://travis-ci.org/jaraco/skeleton
+.. image:: https://img.shields.io/travis/jaraco/skeleton/master.svg
+   :target: http://travis-ci.org/jaraco/skeleton
