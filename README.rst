@@ -2,7 +2,7 @@ skeleton
 ========
 
 .. image:: https://img.shields.io/pypi/v/skeleton.svg
-   :target: https://pypi.io/project/skeleton
+   :target: https://pypi.org/project/skeleton
 
 .. image:: https://img.shields.io/pypi/pyversions/skeleton.svg
 
