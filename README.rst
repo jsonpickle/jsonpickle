@@ -1,6 +1,3 @@
-skeleton
-========
-
 .. image:: https://img.shields.io/pypi/v/skeleton.svg
    :target: https://pypi.org/project/skeleton
 
