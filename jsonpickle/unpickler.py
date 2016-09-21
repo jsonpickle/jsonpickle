@@ -162,7 +162,7 @@ class Unpickler(object):
         return restore(obj)
 
     def _restore_base64(self, obj):
-        return base64.decodebytes(obj[tags.B64].encode('utf-8'))
+        return base64.decodestring(obj[tags.B64].encode('utf-8'))
 
     #: For backwards compatibility with bytes data produced by older versions
     def _restore_quopri(self, obj):
