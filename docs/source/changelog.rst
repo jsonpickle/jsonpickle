@@ -6,6 +6,9 @@ Version 0.9.4 - Unreleased
     * Arbitrary byte streams are now better supported.
       (`#143 <https://github.com/jsonpickle/jsonpickle/issues/143>`_).
 
+    * Better support for NumPy data types.  The Python3 NumPy support
+      is especially robust.
+
 Version 0.9.3 - March 9, 2016
 -----------------------------
     * UUID objects can now be serialized
