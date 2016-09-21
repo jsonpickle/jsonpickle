@@ -10,3 +10,4 @@
 /tags
 __pycache__
 .tox/
+.idea

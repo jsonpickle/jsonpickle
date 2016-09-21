@@ -15,6 +15,11 @@ timeout ?= 600
 TESTCMD ?= $(NOSE) --with-doctest $(flags)
 TOXCMD ?= $(TOX) --develop --skip-missing-interpreters
 
+ifdef V
+    TESTCMD += --verbose
+    TOXCMD += --verbose
+endif
+
 # Data
 ARTIFACTS := build
 ARTIFACTS += dist
