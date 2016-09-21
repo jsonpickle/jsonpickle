@@ -6,7 +6,7 @@ import datetime
 import warnings
 
 import jsonpickle
-from jsonpickle.compat import PY2
+from jsonpickle.compat import PY2, PY3, PY_MINOR
 
 from helper import SkippableTest
 
@@ -172,7 +172,7 @@ class NumpyTestCase(SkippableTest):
         a.strides = 1
 
         # this is kinda fishy; a has overlapping memory, _a does not
-        if PY2:
+        if PY2 or (PY3 and PY_MINOR <= 3):
             warn_count = 0
         else:
             warn_count = 1
@@ -225,7 +225,7 @@ class NumpyTestCase(SkippableTest):
         b = a[1:, 1:]
         self.assertTrue(b.base is a)
 
-        if PY2:
+        if PY2 or (PY3 and PY_MINOR <= 3):
             warn_count = 0
         else:
             warn_count = 1
@@ -240,7 +240,7 @@ class NumpyTestCase(SkippableTest):
         """test behavior with memoryviews which are not ndarrays"""
         bstring = 'abcdefgh'.encode('utf-8')
         a = np.frombuffer(bstring, dtype=np.byte)
-        if PY2:
+        if PY2 or (PY3 and PY_MINOR <= 3):
             warn_count = 0
         else:
             warn_count = 1
