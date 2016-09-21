@@ -64,11 +64,12 @@ class Registry(object):
         :param handler: The custom handler class (if None, a decorator wrapper is returned)
         :param base: Indicates whether the handler should be registered for all subclasses
 
-        This function can be also used as a decorator by omitting the `handler` argument:
+        This function can be also used as a decorator by omitting the `handler` argument::
 
-        @jsonpickle.handlers.register(Foo, base=True)
-        class FooHandler(jsonpickle.handlers.BaseHandler):
-            pass
+            @jsonpickle.handlers.register(Foo, base=True)
+            class FooHandler(jsonpickle.handlers.BaseHandler):
+                pass
+
         """
         if handler is None:
             def _register(handler_cls):
