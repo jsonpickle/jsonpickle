@@ -4,3 +4,4 @@ feedparser
 nose
 numpy
 pymongo
+sqlalchemy
