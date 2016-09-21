@@ -21,26 +21,24 @@ Before code is pulled into the master jsonpickle branch, all tests should pass.
 If you are contributing an addition or a change in behavior, we ask that you
 document the change in the form of test cases.
 
-The jsonpickle test suite uses several JSON encoding libraries as well as 
+The jsonpickle test suite uses several JSON encoding libraries as well as
 several libraries for sample objects.  To simplify the process of setting up
-these libraries we recommend creating a virtualenv_ and using a pip_ 
-requirements file to install the dependencies.  In the base jsonpickle 
+these libraries we recommend creating a virtualenv_ and using a pip_
+requirements file to install the dependencies.  In the base jsonpickle
 directory::
 
-    # create a virtualenv that is completely isolated from the 
+    # create a virtualenv that is completely isolated from the
     # site-wide python install
     virtualenv --no-site-packages env
 
-    # activate the virtualenv
-    source env/bin/activate
-
     # use pip to install the dependencies listed in the requirements file
-    pip install --upgrade -r requirements.txt
-    pip install --upgrade -r requirements-test.txt
+    ./env/bin/pip install --upgrade -r requirements-2.txt  # Python2
+    ./env/bin/pip install --upgrade -r requirements-3.txt  # Python3
+    ./env/bin/pip install --upgrade -r requirements-test.txt
 
 To run the suite, simply invoke :file:`tests/runtests.py`::
 
-    $ tests/runtests.py
+    $ ./env/bin/python tests/runtests.py
     test_None (util_tests.IsPrimitiveTestCase) ... ok
     test_bool (util_tests.IsPrimitiveTestCase) ... ok
     test_dict (util_tests.IsPrimitiveTestCase) ... ok
@@ -49,6 +47,24 @@ To run the suite, simply invoke :file:`tests/runtests.py`::
 
 .. _virtualenv: http://pypi.python.org/pypi/virtualenv
 .. _pip: http://pypi.python.org/pypi/pip
+
+Testing with Tox
+================
+jsonpickle supports many versions of Python.  To make it easy to test
+mutiple versions of Python you should install the tox_ testing tool,
+e.g. on Debian::
+
+    $ sudo apt-get install tox
+
+Once tox_ is installed you can run the test suite against multiple Python
+interpreters::
+
+    $ make tox
+
+It is recommended that you install at least one Python2 and one Python3
+interpreter for use by tox_.
+
+.. _tox: https://tox.readthedocs.io/
 
 Generate Documentation
 ======================

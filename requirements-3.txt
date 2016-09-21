@@ -2,3 +2,4 @@ feedparser
 demjson
 simplejson
 ujson
+yajl
