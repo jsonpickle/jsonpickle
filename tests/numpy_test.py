@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, unicode_literals
 
 import unittest
 import datetime
 import warnings
 
 import jsonpickle
+from jsonpickle.compat import PY2
 
 from helper import SkippableTest
 
@@ -47,17 +49,24 @@ class NumpyTestCase(SkippableTest):
             np.str,
             np.object,
             np.unicode,
-            np.dtype([('f0', 'i4'), ('f1', 'i1')]),
+            np.dtype('f4,i4,f2,i1'),
+            np.dtype(('f4', 'i4'), ('f2', 'i1')),
             np.dtype('1i4', align=True),
             np.dtype('M8[7D]'),
-            np.dtype([('top', [('tiles', ('>f4', (64, 64)), (1,)),
-                               ('rtile', '>f4', (64, 36))], (3,)),
-                      ('bottom', [('bleft', ('>f4', (8, 64)), (1,)),
-                                  ('bright', '>f4', (8, 36))])]),
             np.dtype({'names': ['f0', 'f1', 'f2'],
                       'formats': ['<u4', '<u2', '<u2'],
                       'offsets':[0, 0, 2]}, align=True)
         ]
+
+        if not PY2:
+            dtypes.extend([
+                np.dtype([('f0', 'i4'), ('f2', 'i1')]),
+                np.dtype([('top', [('tiles', ('>f4', (64, 64)), (1,)),
+                                   ('rtile', '>f4', (64, 36))], (3,)),
+                          ('bottom', [('bleft', ('>f4', (8, 64)), (1,)),
+                                      ('bright', '>f4', (8, 36))])]),
+            ])
+
         for dtype in dtypes:
             self.assertEqual(self.roundtrip(dtype), dtype)
 
@@ -89,10 +98,9 @@ class NumpyTestCase(SkippableTest):
             np.random.random((10, 20)),
             np.array([[True, False, True]]),
             np.array(['foo', 'bar']),
-            np.array([b'baz']),
+            np.array(['baz'.encode('utf-8')]),
             np.array(['2010', 'NaT', '2030']).astype('M'),
-            np.rec.array(asbytes('abcdefg') * 100, formats='i2,a3,i4',
-                         shape=3),
+            np.rec.array(asbytes('abcdefg') * 100, formats='i2,a3,i4', shape=3),
             np.rec.array([(1, 11, 'a'), (2, 22, 'b'),
                           (3, 33, 'c'), (4, 44, 'd'),
                           (5, 55, 'ex'), (6, 66, 'f'),
@@ -101,9 +109,13 @@ class NumpyTestCase(SkippableTest):
             np.array(['1960-03-12', datetime.date(1960, 3, 12)],
                      dtype='M8[D]'),
             np.array([0, 1, -1, np.inf, -np.inf, np.nan], dtype='f2'),
-            np.rec.array([('NGC1001', 11), ('NGC1002', 1.), ('NGC1003', 1.)],
-                         dtype=[('target', 'S20'), ('V_mag', 'f4')])
         ]
+
+        if not PY2:
+            arrays.extend([
+                np.rec.array([('NGC1001', 11), ('NGC1002', 1.), ('NGC1003', 1.)],
+                             dtype=[('target', 'S20'), ('V_mag', 'f4')])
+            ])
         for array in arrays:
             decoded = self.roundtrip(array)
             assert_equal(decoded, array)
@@ -160,15 +172,19 @@ class NumpyTestCase(SkippableTest):
         a.strides = 1
 
         # this is kinda fishy; a has overlapping memory, _a does not
+        if PY2:
+            warn_count = 0
+        else:
+            warn_count = 1
         with warnings.catch_warnings(record=True) as w:
             _a = self.roundtrip(a)
-            self.assertEqual(len(w), 1)
+            self.assertEqual(len(w), warn_count)
             npt.assert_array_equal(a, _a)
 
         # this also requires a deepcopy to work
         with warnings.catch_warnings(record=True) as w:
             _a, _b = self.roundtrip([a, b])
-            self.assertEqual(len(w), 1)
+            self.assertEqual(len(w), warn_count)
             npt.assert_array_equal(a, _a)
             npt.assert_array_equal(b, _b)
 
@@ -208,20 +224,30 @@ class NumpyTestCase(SkippableTest):
         a.strides = a.strides[0], a.strides[2], a.strides[1]
         b = a[1:, 1:]
         self.assertTrue(b.base is a)
+
+        if PY2:
+            warn_count = 0
+        else:
+            warn_count = 1
+
         with warnings.catch_warnings(record=True) as w:
             _a, _b = self.roundtrip([a, b])
-            self.assertEqual(len(w), 1)
+            self.assertEqual(len(w), warn_count)
             npt.assert_array_equal(a, _a)
             npt.assert_array_equal(b, _b)
 
     def test_buffer(self):
         """test behavior with memoryviews which are not ndarrays"""
-        bstring = b'abcdefgh'
+        bstring = 'abcdefgh'.encode('utf-8')
         a = np.frombuffer(bstring, dtype=np.byte)
+        if PY2:
+            warn_count = 0
+        else:
+            warn_count = 1
         with warnings.catch_warnings(record=True) as w:
             _a = self.roundtrip(a)
             npt.assert_array_equal(a, _a)
-            self.assertEqual(len(w), 1)
+            self.assertEqual(len(w), warn_count)
 
     def test_as_strided(self):
         """test object with array interface which isnt an ndarray, like the result of as_strided"""
