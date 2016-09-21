@@ -262,17 +262,19 @@ class NumpyTestCase(SkippableTest):
             self.assertEqual(len(w), 1)
 
         # as we were warned, deserialized result is no longer a view
-        with self.assertRaises(Exception):
-            _data[0][0] = -1
-            self.assertEqual(_data[1][0], -1)
+        _data[0][0] = -1
+        self.assertEqual(_data[1][0], 0)
 
     def test_immutable(self):
         """test that immutability flag is copied correctly"""
         a = np.arange(10)
         a.flags.writeable = False
         _a = self.roundtrip(a)
-        with self.assertRaises(Exception):
+        try:
             _a[0] = 0
+            self.assertTrue(False, 'item assignment must raise')
+        except ValueError:
+            self.assertTrue(True)
 
     def test_byteorder(self):
         """test that byteorder is properly conserved across views, for text and binary encoding"""
