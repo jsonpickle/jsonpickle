@@ -47,15 +47,20 @@ API Reference
 =============
 
 .. toctree::
-   :maxdepth: 3
 
    api
+
+Extensions
+==========
+
+.. toctree::
+
+   extensions
 
 Contributing
 ============
 
 .. toctree::
-   :maxdepth: 3
 
    contrib
 
