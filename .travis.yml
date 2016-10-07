@@ -4,8 +4,7 @@ python:
 - 2.7
 - 3.5
 install:
-- pip install tox
-- pip install https://github.com/pypa/setuptools/releases/download/v28.2.0b1/setuptools-28.2.0b1-py2.py3-none-any.whl
+- pip install tox "setuptools>=28.2"
 script:
 - tox
 branches:
