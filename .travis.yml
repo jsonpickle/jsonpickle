@@ -20,3 +20,4 @@ deploy:
   user: jaraco
   # supply password with `travis encrypt --add deploy.password`
   distributions: dists
+  skip_upload_docs: true
