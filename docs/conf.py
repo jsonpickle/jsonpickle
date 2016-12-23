@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import pkg_resources
+import os
+import sys
+import subprocess
 
 extensions = [
     'sphinx.ext.autodoc',
@@ -9,11 +11,15 @@ extensions = [
 ]
 
 # General information about the project.
-project = 'skeleton'
+
+root = os.path.join(os.path.dirname(__file__), '..')
+setup_script = os.path.join(root, 'setup.py')
+dist_info_cmd = [sys.executable, setup_script, '--name', '--version']
+output_bytes = subprocess.check_output(dist_info_cmd, cwd=root)
+project, version = output_bytes.decode('utf-8').split()
+
 copyright = '2016 Jason R. Coombs'
 
-# The short X.Y version.
-version = pkg_resources.get_distribution(project).version
 # The full version, including alpha/beta/rc tags.
 release = version
 
