@@ -13,7 +13,7 @@ project = 'skeleton'
 copyright = '2016 Jason R. Coombs'
 
 # The short X.Y version.
-version = pkg_resources.require(project)[0].version
+version = pkg_resources.get_distribution(project).version
 # The full version, including alpha/beta/rc tags.
 release = version
 
