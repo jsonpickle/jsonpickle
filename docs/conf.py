@@ -14,11 +14,12 @@ extensions = [
 
 root = os.path.join(os.path.dirname(__file__), '..')
 setup_script = os.path.join(root, 'setup.py')
-dist_info_cmd = [sys.executable, setup_script, '--name', '--version', '--url']
+fields = ['--name', '--version', '--url', '--author']
+dist_info_cmd = [sys.executable, setup_script] + fields
 output_bytes = subprocess.check_output(dist_info_cmd, cwd=root)
-project, version, url = output_bytes.decode('utf-8').split()
+project, version, url, author = output_bytes.decode('utf-8').split()
 
-copyright = '2016 Jason R. Coombs'
+copyright = '2016 ' + author
 
 # The full version, including alpha/beta/rc tags.
 release = version
