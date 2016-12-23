@@ -14,9 +14,9 @@ extensions = [
 
 root = os.path.join(os.path.dirname(__file__), '..')
 setup_script = os.path.join(root, 'setup.py')
-dist_info_cmd = [sys.executable, setup_script, '--name', '--version']
+dist_info_cmd = [sys.executable, setup_script, '--name', '--version', '--url']
 output_bytes = subprocess.check_output(dist_info_cmd, cwd=root)
-project, version = output_bytes.decode('utf-8').split()
+project, version, url = output_bytes.decode('utf-8').split()
 
 copyright = '2016 Jason R. Coombs'
 
@@ -30,11 +30,12 @@ link_files = {
 		using=dict(
 			GH='https://github.com',
 			project=project,
+			url=url,
 		),
 		replace=[
 			dict(
 				pattern=r"(Issue )?#(?P<issue>\d+)",
-				url='{GH}/jaraco/{project}/issues/{issue}',
+				url='{url}/issues/{issue}',
 			),
 			dict(
 				pattern=r"^(?m)((?P<scm_version>v?\d+(\.\d+){1,2}))\n[-=]+\n",
