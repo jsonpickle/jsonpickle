@@ -16,7 +16,7 @@ wheel = ['wheel'] if needs_wheel else []
 name = 'skeleton'
 description = ''
 
-setup_params = dict(
+params = dict(
 	name=name,
 	use_scm_version=True,
 	author="Jason R. Coombs",
@@ -45,4 +45,4 @@ setup_params = dict(
 	},
 )
 if __name__ == '__main__':
-	setuptools.setup(**setup_params)
+	setuptools.setup(**params)
