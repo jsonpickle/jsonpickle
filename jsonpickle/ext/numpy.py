@@ -135,7 +135,7 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
             data = super(NumpyNDArrayHandlerBinary, self).flatten(obj, data)
         else:
             # encode as binary
-            buffer = obj.tobytes(order=None)    # store as C or Fortran order
+            buffer = obj.tobytes(order='a')	 # numpy docstring is lacking as of 1.11.2, but this is the option we need
             if self.compression:
                 buffer = self.compression.compress(buffer)
             data['values'] = jsonpickle.util.b64encode(buffer)

@@ -236,6 +236,12 @@ class NumpyTestCase(SkippableTest):
             npt.assert_array_equal(a, _a)
             npt.assert_array_equal(b, _b)
 
+    def test_fortran_base(self):
+        """Test a base array in fortran order"""
+        a = np.asfortranarray(np.arange(100).reshape((10, 10)))
+        _a = self.roundtrip(a)
+        npt.assert_array_equal(a, _a)
+
     def test_buffer(self):
         """test behavior with memoryviews which are not ndarrays"""
         bstring = 'abcdefgh'.encode('utf-8')
