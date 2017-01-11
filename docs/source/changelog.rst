@@ -1,13 +1,15 @@
 Change Log
 ==========
 
-Version 0.9.4 - Unreleased
---------------------------
+Version 0.9.4 - January 10, 2017
+--------------------------------
     * Arbitrary byte streams are now better supported.
       (`#143 <https://github.com/jsonpickle/jsonpickle/issues/143>`_).
 
     * Better support for NumPy data types.  The Python3 NumPy support
       is especially robust.
+
+    * Fortran-ordered based NumPy arrays are now properly serialized.
 
 Version 0.9.3 - March 9, 2016
 -----------------------------
