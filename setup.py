@@ -3,15 +3,11 @@
 # Project skeleton maintained at https://github.com/jaraco/skeleton
 
 import io
-import sys
 
 import setuptools
 
 with io.open('README.rst', encoding='utf-8') as readme:
 	long_description = readme.read()
-
-needs_wheel = {'release', 'bdist_wheel', 'dists'}.intersection(sys.argv)
-wheel = ['wheel'] if needs_wheel else []
 
 name = 'skeleton'
 description = ''
@@ -33,7 +29,7 @@ params = dict(
 	},
 	setup_requires=[
 		'setuptools_scm>=1.15.0',
-	] + wheel,
+	],
 	classifiers=[
 		"Development Status :: 5 - Production/Stable",
 		"Intended Audience :: Developers",
