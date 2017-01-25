@@ -5,6 +5,9 @@ import os
 import sys
 import subprocess
 
+if 'check_output' not in dir(subprocess):
+	import subprocess32 as subprocess
+
 extensions = [
     'sphinx.ext.autodoc',
     'rst.linker',
