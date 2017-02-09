@@ -4,6 +4,7 @@
 import os
 import sys
 import subprocess
+import datetime
 
 if 'check_output' not in dir(subprocess):
 	import subprocess32 as subprocess
@@ -22,7 +23,10 @@ dist_info_cmd = [sys.executable, setup_script] + fields
 output_bytes = subprocess.check_output(dist_info_cmd, cwd=root)
 project, version, url, author = output_bytes.decode('utf-8').strip().split('\n')
 
-copyright = '2016 ' + author
+origin_date = datetime.date(2017,1,1)
+today = datetime.date.today()
+
+copyright = '{origin_date.year}-{today.year} {author}'.format(**locals())
 
 # The full version, including alpha/beta/rc tags.
 release = version
