@@ -215,8 +215,24 @@ class SimpleReduceHandler(BaseHandler):
 
     def restore(self, data):
         restore = self.context.restore
-        factory, args = [restore(i, reset=False) for i in data['__reduce__']]
-        return factory(*args)
+        res = [restore(i, reset=False) for i in data['__reduce__']]
+        factory = res.pop(0)
+        args = res.pop(0)
+        obj = factory(*args)
+
+        if len(res) >= 1:
+            state = res[0]
+            if state and hasattr(obj, '__setstate__'):
+                obj.__setstate__(state)
+            if len(res) >= 2:
+                iterator = res[1]
+                obj.extend(iterator)
+            if len(res) == 3:
+                item_iter = res[2]
+                for k, v in item_iter:
+                    obj[k] = v
+
+        return obj
 
 
 class OrderedDictReduceHandler(SimpleReduceHandler):
