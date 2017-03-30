@@ -17,8 +17,8 @@ import time
 import types
 import inspect
 
-from jsonpickle import tags
-from jsonpickle.compat import set, unicode, long, bytes, PY3
+from . import tags
+from .compat import set, unicode, long, bytes, PY3
 
 if not PY3:
     import __builtin__

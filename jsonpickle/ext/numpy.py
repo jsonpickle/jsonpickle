@@ -9,8 +9,9 @@ import warnings
 import numpy as np
 
 import ast
-import jsonpickle
-from jsonpickle.compat import unicode
+from ..handlers import BaseHandler, register, unregister
+from ..compat import unicode
+from ..util import b64decode, b64encode
 
 __all__ = ['register_handlers', 'unregister_handlers']
 
@@ -22,7 +23,7 @@ def get_byteorder(arr):
     return native_byteorder if byteorder == '=' else byteorder
 
 
-class NumpyBaseHandler(jsonpickle.handlers.BaseHandler):
+class NumpyBaseHandler(BaseHandler):
 
     def flatten_dtype(self, dtype, data):
         if hasattr(dtype, 'tostring'):
@@ -138,7 +139,7 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
             buffer = obj.tobytes(order='a')	 # numpy docstring is lacking as of 1.11.2, but this is the option we need
             if self.compression:
                 buffer = self.compression.compress(buffer)
-            data['values'] = jsonpickle.util.b64encode(buffer)
+            data['values'] = b64encode(buffer)
             data['shape'] = obj.shape
             self.flatten_dtype(obj.dtype.newbyteorder('N'), data)
             self.flatten_byteorder(obj, data)
@@ -157,7 +158,7 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
             arr = super(NumpyNDArrayHandlerBinary, self).restore(data)
         else:
             # decode binary representation
-            buffer = jsonpickle.util.b64decode(values)
+            buffer = b64decode(values)
             if self.compression:
                 buffer = self.compression.decompress(buffer)
             arr = np.ndarray(
@@ -272,12 +273,12 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
 
 
 def register_handlers():
-    jsonpickle.handlers.register(np.dtype, NumpyDTypeHandler, base=True)
-    jsonpickle.handlers.register(np.generic, NumpyGenericHandler, base=True)
-    jsonpickle.handlers.register(np.ndarray, NumpyNDArrayHandlerView(), base=True)
+    register(np.dtype, NumpyDTypeHandler, base=True)
+    register(np.generic, NumpyGenericHandler, base=True)
+    register(np.ndarray, NumpyNDArrayHandlerView(), base=True)
 
 
 def unregister_handlers():
-    jsonpickle.handlers.unregister(np.dtype)
-    jsonpickle.handlers.unregister(np.generic)
-    jsonpickle.handlers.unregister(np.ndarray)
+    unregister(np.dtype)
+    unregister(np.generic)
+    unregister(np.ndarray)

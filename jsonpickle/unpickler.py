@@ -11,12 +11,12 @@ import base64
 import quopri
 import sys
 
-import jsonpickle.util as util
-import jsonpickle.tags as tags
-import jsonpickle.handlers as handlers
+from . import util
+from . import tags
+from . import handlers
 
-from jsonpickle.compat import numeric_types, set, unicode
-from jsonpickle.backend import JSONBackend
+from .compat import numeric_types, set, unicode
+from .backend import JSONBackend
 
 
 def decode(string, backend=None, context=None, keys=False, reset=True,
