@@ -12,12 +12,12 @@ import warnings
 import sys
 from itertools import chain, islice
 
-import jsonpickle.util as util
-import jsonpickle.tags as tags
-import jsonpickle.handlers as handlers
+from . import util
+from . import tags
+from . import handlers
 
-from jsonpickle.backend import JSONBackend
-from jsonpickle.compat import numeric_types, unicode, PY3, PY2
+from .backend import JSONBackend
+from .compat import numeric_types, unicode, PY3, PY2
 
 
 def encode(value,

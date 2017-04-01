@@ -53,13 +53,13 @@ added to JSON::
     assert obj.name == result['name'] == 'Awesome'
 
 """
-from jsonpickle import pickler
-from jsonpickle import unpickler
-from jsonpickle.backend import JSONBackend
-from jsonpickle.version import VERSION
+from . import pickler
+from . import unpickler
+from .backend import JSONBackend
+from .version import VERSION
 
 # ensure built-in handlers are loaded
-__import__('jsonpickle.handlers')
+from . import handlers as _
 
 __all__ = ('encode', 'decode')
 __version__ = VERSION

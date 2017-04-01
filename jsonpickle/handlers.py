@@ -31,9 +31,9 @@ import sys
 import time
 import uuid
 
-from jsonpickle import util
-from jsonpickle.compat import unicode
-from jsonpickle.compat import queue
+from . import util
+from .compat import unicode
+from .compat import queue
 
 
 class Registry(object):
