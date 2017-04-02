@@ -6,7 +6,7 @@
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
-
+from __future__ import absolute_import, division, unicode_literals
 import base64
 import quopri
 import sys
@@ -14,7 +14,6 @@ import sys
 from . import util
 from . import tags
 from . import handlers
-
 from .compat import numeric_types, set, unicode
 from .backend import JSONBackend
 
@@ -109,10 +108,10 @@ class Unpickler(object):
         Simply returns any of the basic builtin types
 
         >>> u = Unpickler()
-        >>> u.restore('hello world')
-        'hello world'
-        >>> u.restore({'key': 'value'})
-        {'key': 'value'}
+        >>> u.restore('hello world') == 'hello world'
+        True
+        >>> u.restore({'key': 'value'}) == {'key': 'value'}
+        True
 
         """
         if reset:
@@ -457,16 +456,14 @@ class Unpickler(object):
 
         >>> u = Unpickler()
         >>> u._namestack = []
-        >>> u._refname()
-        '/'
-
+        >>> u._refname() == '/'
+        True
         >>> u._namestack = ['a']
-        >>> u._refname()
-        '/a'
-
+        >>> u._refname() == '/a'
+        True
         >>> u._namestack = ['a', 'b']
-        >>> u._refname()
-        '/a/b'
+        >>> u._refname() == '/a/b'
+        True
 
         """
         return '/' + '/'.join(self._namestack)

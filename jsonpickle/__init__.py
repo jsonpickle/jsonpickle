@@ -53,6 +53,8 @@ added to JSON::
     assert obj.name == result['name'] == 'Awesome'
 
 """
+from __future__ import absolute_import, division, unicode_literals
+
 from . import pickler
 from . import unpickler
 from .backend import JSONBackend
@@ -106,19 +108,14 @@ def encode(value,
     :param max_iter: If set to a non-negative integer then jsonpickle will
         consume at most `max_iter` items when pickling iterators.
 
-    >>> encode('my string')
-    '"my string"'
-    >>> encode(36)
-    '36'
-
-    >>> encode({'foo': True})
-    '{"foo": true}'
-
-    >>> encode({'foo': True}, max_depth=0)
-    '"{\\'foo\\': True}"'
-
-    >>> encode({'foo': True}, max_depth=1)
-    '{"foo": "True"}'
+    >>> encode('my string') == '"my string"'
+    True
+    >>> encode(36) == '36'
+    True
+    >>> encode({'foo': True}) == '{"foo": true}'
+    True
+    >>> encode({'foo': True}, max_depth=1) == '{"foo": "True"}'
+    True
 
 
     """

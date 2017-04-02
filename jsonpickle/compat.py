@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
-
+from __future__ import absolute_import, division, unicode_literals
 import sys
+
+
+__all__ = ('bytes', 'set', 'unicode', 'long', 'unichr', 'queue')
 
 PY_MAJOR = sys.version_info[0]
 PY_MINOR = sys.version_info[1]
@@ -43,6 +46,3 @@ try:
 except ImportError:
     # Python2
     import Queue as queue
-
-
-__all__ = ['bytes', 'set', 'unicode', 'long', 'unichr', 'queue']

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """The jsonpickle.tags module provides the custom tags
 used for pickling and unpickling Python objects.
 
@@ -8,6 +7,7 @@ created by the Pickler class.  The Unpickler uses
 these custom key names to identify dictionaries
 that need to be specially handled.
 """
+from __future__ import absolute_import, division, unicode_literals
 from .compat import set
 
 

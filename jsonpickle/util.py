@@ -9,6 +9,7 @@
 """Helper functions for pickling and unpickling.  Most functions assist in
 determining the type of an object.
 """
+from __future__ import absolute_import, division, unicode_literals
 import base64
 import collections
 import io
@@ -443,20 +444,16 @@ def importable_name(cls):
     ...     pass
 
     >>> ex = Example()
-    >>> importable_name(ex.__class__)
-    'jsonpickle.util.Example'
-
-    >>> importable_name(type(25))
-    '__builtin__.int'
-
-    >>> importable_name(None.__class__)
-    '__builtin__.NoneType'
-
-    >>> importable_name(False.__class__)
-    '__builtin__.bool'
-
-    >>> importable_name(AttributeError)
-    '__builtin__.AttributeError'
+    >>> importable_name(ex.__class__) == 'jsonpickle.util.Example'
+    True
+    >>> importable_name(type(25)) == '__builtin__.int'
+    True
+    >>> importable_name(None.__class__) == '__builtin__.NoneType'
+    True
+    >>> importable_name(False.__class__) == '__builtin__.bool'
+    True
+    >>> importable_name(AttributeError) == '__builtin__.AttributeError'
+    True
 
     """
     name = cls.__name__

@@ -6,7 +6,7 @@
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
-
+from __future__ import absolute_import, division, unicode_literals
 import base64
 import warnings
 import sys
@@ -15,7 +15,6 @@ from itertools import chain, islice
 from . import util
 from . import tags
 from . import handlers
-
 from .backend import JSONBackend
 from .compat import numeric_types, unicode, PY3, PY2
 
@@ -532,8 +531,8 @@ class Pickler(object):
 def _mktyperef(obj):
     """Return a typeref dictionary
 
-    >>> _mktyperef(AssertionError)
-    {'py/type': '__builtin__.AssertionError'}
+    >>> _mktyperef(AssertionError) == {'py/type': '__builtin__.AssertionError'}
+    True
 
     """
     return {tags.TYPE: util.importable_name(obj)}

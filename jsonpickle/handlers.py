@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """
 Custom handlers may be created to handle other objects. Each custom handler
 must derive from :class:`jsonpickle.handlers.BaseHandler` and
@@ -21,7 +20,7 @@ objects that implement the reduce protocol::
     handlers.register(MyCustomObject, handlers.SimpleReduceHandler)
 
 """
-
+from __future__ import absolute_import, division, unicode_literals
 import collections
 import copy
 import datetime
@@ -32,8 +31,8 @@ import time
 import uuid
 
 from . import util
-from .compat import unicode
 from .compat import queue
+from .compat import unicode
 
 
 class Registry(object):
