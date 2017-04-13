@@ -374,8 +374,9 @@ class Pickler(object):
             if insufficiency:
                 rv_as_list += [None] * insufficiency
 
-            if rv_as_list[0].__name__ == '__newobj__':
-                rv_as_list[0] = tags.NEWOBJ
+            if hasattr(rv_as_list[0], __name__): 
+                if rv_as_list[0].__name__ == '__newobj__':
+                    rv_as_list[0] = tags.NEWOBJ
 
             data[tags.REDUCE] = list(map(self._flatten, rv_as_list))
 
@@ -501,7 +502,14 @@ class Pickler(object):
         """Return a json-friendly dict for a sequence subclass."""
         if hasattr(obj, '__dict__'):
             self._flatten_dict_obj(obj.__dict__, data)
-        value = [self._flatten(v) for v in obj]
+        if hasattr(obj, '__iter__'): 
+            try: 
+                for v in iter(obj):
+                    value = self._flatten(v)
+            except:
+                value = str(obj)
+        else:
+            value = str(obj)
         if self.unpicklable:
             data[tags.SEQ] = value
         else:
