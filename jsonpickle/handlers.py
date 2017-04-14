@@ -35,6 +35,8 @@ from .compat import queue
 from .compat import unicode
 
 
+
+
 class Registry(object):
 
     def __init__(self):
@@ -200,6 +202,7 @@ class RegexHandler(BaseHandler):
 RegexHandler.handles(type(re.compile('')))
 
 
+
 class SimpleReduceHandler(BaseHandler):
     """Follow the __reduce__ protocol to pickle an object.
 
@@ -213,25 +216,9 @@ class SimpleReduceHandler(BaseHandler):
         return data
 
     def restore(self, data):
-        restore = self.context.restore
-        res = [restore(i, reset=False) for i in data['__reduce__']]
-        factory = res.pop(0)
-        args = res.pop(0)
-        obj = factory(*args)
-
-        if len(res) >= 1:
-            state = res[0]
-            if state and hasattr(obj, '__setstate__'):
-                obj.__setstate__(state)
-            if len(res) >= 2:
-                iterator = res[1]
-                obj.extend(iterator)
-            if len(res) == 3:
-                item_iter = res[2]
-                for k, v in item_iter:
-                    obj[k] = v
-
-        return obj
+        # import here to avoid circular imports
+        from .unpickler import Unpickler
+        return Unpickler()._restore_reduce(data)
 
 
 class OrderedDictReduceHandler(SimpleReduceHandler):
@@ -256,24 +243,24 @@ class OrderedDictReduceHandler(SimpleReduceHandler):
         return data
 
 
-SimpleReduceHandler.handles(time.struct_time)
-SimpleReduceHandler.handles(datetime.timedelta)
-SimpleReduceHandler.handles(collections.deque)
-if sys.version_info >= (2, 7):
-    SimpleReduceHandler.handles(collections.Counter)
-    if sys.version_info >= (3, 4):
-        OrderedDictReduceHandler.handles(collections.OrderedDict)
-    else:
-        SimpleReduceHandler.handles(collections.OrderedDict)
+# SimpleReduceHandler.handles(time.struct_time)
+# SimpleReduceHandler.handles(datetime.timedelta)
+# SimpleReduceHandler.handles(collections.deque)
+# if sys.version_info >= (2, 7):
+#     SimpleReduceHandler.handles(collections.Counter)
+#     if sys.version_info >= (3, 4):
+#         OrderedDictReduceHandler.handles(collections.OrderedDict)
+#     else:
+#         SimpleReduceHandler.handles(collections.OrderedDict)
 
-if sys.version_info >= (3, 0):
-    SimpleReduceHandler.handles(decimal.Decimal)
+# if sys.version_info >= (3, 0):
+#     SimpleReduceHandler.handles(decimal.Decimal)
 
-try:
-    import posix
-    SimpleReduceHandler.handles(posix.stat_result)
-except ImportError:
-    pass
+# try:
+#     import posix
+#     SimpleReduceHandler.handles(posix.stat_result)
+# except ImportError:
+#     pass
 
 
 class QueueHandler(BaseHandler):

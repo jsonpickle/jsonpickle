@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (C) 2008 John Paulett (john -at- paulett.org)
-# Copyright (C) 2009, 2011, 2013 David Aguilar
+# Copyright (C) 2009, 2011, 2013 David Aguilar and contributors
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
@@ -402,6 +402,7 @@ class JSONPickleTestCase(SkippableTest):
         expect = {'name': 'A name', 'child': None}
         pickle = jsonpickle.encode(self.obj, unpicklable=False)
         actual = jsonpickle.decode(pickle)
+        import pdb; pdb.set_trace()
         self.assertEqual(expect['name'], actual['name'])
 
     def test_decode(self):
