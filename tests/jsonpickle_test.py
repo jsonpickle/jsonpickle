@@ -402,7 +402,6 @@ class JSONPickleTestCase(SkippableTest):
         expect = {'name': 'A name', 'child': None}
         pickle = jsonpickle.encode(self.obj, unpicklable=False)
         actual = jsonpickle.decode(pickle)
-        import pdb; pdb.set_trace()
         self.assertEqual(expect['name'], actual['name'])
 
     def test_decode(self):

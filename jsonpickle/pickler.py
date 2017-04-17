@@ -284,7 +284,8 @@ class Pickler(object):
 
         reduce_val = None
 
-        if has_reduce:
+        if self.unpicklable:
+            if has_reduce and not has_reduce_ex:
                 try:
                     reduce_val = obj.__reduce__()
                 except TypeError:
@@ -294,7 +295,7 @@ class Pickler(object):
 
         # test for a reduce implementation, and redirect before doing anything else
         # if that is what reduce requests
-        if has_reduce_ex:
+            elif has_reduce_ex:
                 try:
                     # we're implementing protocol 2
                     reduce_val = obj.__reduce_ex__(2)
@@ -303,7 +304,7 @@ class Pickler(object):
                     # we ignore those
                     pass
 
-        if reduce_val and isinstance(reduce_val, (str, unicode)):
+            if reduce_val and isinstance(reduce_val, (str, unicode)):
                 try:
                         varpath = iter(reduce_val.split('.'))
                         # curmod will be transformed by the loop into the value to pickle
@@ -315,33 +316,33 @@ class Pickler(object):
                 except KeyError:
                     # well, we can't do anything with that, so we ignore it
                     pass
-        
-        elif reduce_val:
-            # at this point, reduce_val should be some kind of iterable
-            # pad out to len 5
-            rv_as_list = list(reduce_val)
-            insufficiency = 5 - len(rv_as_list)
-            if insufficiency:
-                rv_as_list += [None] * insufficiency
 
-            if rv_as_list[0].__name__ == '__newobj__':
-                rv_as_list[0] = tags.NEWOBJ
+            elif reduce_val:
+                # at this point, reduce_val should be some kind of iterable
+                # pad out to len 5
+                rv_as_list = list(reduce_val)
+                insufficiency = 5 - len(rv_as_list)
+                if insufficiency:
+                    rv_as_list += [None] * insufficiency
 
-            f, args, state, listitems, dictitems = rv_as_list
+                if rv_as_list[0].__name__ == '__newobj__':
+                    rv_as_list[0] = tags.NEWOBJ
 
-            # check that getstate/setstate is sane
-            if not (state and hasattr(obj, '__getstate__') and not hasattr(obj, '__setstate__') and not isinstance(obj, dict)):
-                # turn iterators to iterables for convenient serialization
-                if rv_as_list[3]:
-                    rv_as_list[3] = tuple(rv_as_list[3])
+                f, args, state, listitems, dictitems = rv_as_list
 
-                if rv_as_list[4]:
-                    rv_as_list[4] = tuple(rv_as_list[4])
+                # check that getstate/setstate is sane
+                if not (state and hasattr(obj, '__getstate__') and not hasattr(obj, '__setstate__') and not isinstance(obj, dict)):
+                    # turn iterators to iterables for convenient serialization
+                    if rv_as_list[3]:
+                        rv_as_list[3] = tuple(rv_as_list[3])
 
-                data[tags.REDUCE] = list(map(self._flatten, rv_as_list))
+                    if rv_as_list[4]:
+                        rv_as_list[4] = tuple(rv_as_list[4])
 
-                return data
-                
+                    data[tags.REDUCE] = list(map(self._flatten, rv_as_list))
+
+                    return data
+
         if has_class and not util.is_module(obj):
             if self.unpicklable:
                 class_name = util.importable_name(cls)
@@ -381,9 +382,6 @@ class Pickler(object):
 
         if util.is_sequence_subclass(obj):
             return self._flatten_sequence_obj(obj, data)
-
-        if util.is_noncomplex(obj):
-            return [self._flatten(v) for v in obj]
 
         if util.is_iterator(obj):
             # force list in python 3
