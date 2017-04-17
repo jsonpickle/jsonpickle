@@ -10,7 +10,6 @@ from __future__ import absolute_import, division, unicode_literals
 import base64
 import quopri
 import sys
-import gc
 
 from . import util
 from . import tags
@@ -78,7 +77,7 @@ class _IDProxy(_Proxy):
 
     def get(self):
         return self._objs[self._index]
-    
+
 
 def _obj_setattr(obj, attr, proxy):
     setattr(obj, attr, proxy.get())
@@ -110,7 +109,6 @@ class Unpickler(object):
         self._obj_to_idx = {}
         self._objs = []
         self._proxies = []
-        self._promises = {}
 
     def restore(self, obj, reset=True):
         """Restores a flattened object to its original python state.
@@ -136,7 +134,7 @@ class Unpickler(object):
         for (obj, attr, proxy, method) in self._proxies:
             method(obj, attr, proxy)
         self._proxies = []
-            
+
     def _restore(self, obj):
         if has_tag(obj, tags.B64):
             restore = self._restore_base64

@@ -289,29 +289,32 @@ class Pickler(object):
                 try:
                     reduce_val = obj.__reduce__()
                 except TypeError:
-                    # A lot of builtin types have a reduce which just raises a TypeError
+                    # A lot of builtin types have a reduce which
+                    # just raises a TypeError
                     # we ignore those
                     pass
 
-        # test for a reduce implementation, and redirect before doing anything else
-        # if that is what reduce requests
+            # test for a reduce implementation, and redirect before
+            # doing anything else if that is what reduce requests
             elif has_reduce_ex:
                 try:
                     # we're implementing protocol 2
                     reduce_val = obj.__reduce_ex__(2)
                 except TypeError:
-                    # A lot of builtin types have a reduce which just raises a TypeError
+                    # A lot of builtin types have a reduce which
+                    # just raises a TypeError
                     # we ignore those
                     pass
 
             if reduce_val and isinstance(reduce_val, (str, unicode)):
                 try:
-                        varpath = iter(reduce_val.split('.'))
-                        # curmod will be transformed by the loop into the value to pickle
-                        curmod = sys.modules[next(varpath)]
-                        for modname in varpath:
-                            curmod = getattr(curmod, modname)
-                            # replace obj with value retrieved
+                    varpath = iter(reduce_val.split('.'))
+                    # curmod will be transformed by the
+                    # loop into the value to pickle
+                    curmod = sys.modules[next(varpath)]
+                    for modname in varpath:
+                        curmod = getattr(curmod, modname)
+                        # replace obj with value retrieved
                         return self._flatten(curmod)
                 except KeyError:
                     # well, we can't do anything with that, so we ignore it
@@ -331,7 +334,9 @@ class Pickler(object):
                 f, args, state, listitems, dictitems = rv_as_list
 
                 # check that getstate/setstate is sane
-                if not (state and hasattr(obj, '__getstate__') and not hasattr(obj, '__setstate__') and not isinstance(obj, dict)):
+                if not (state and hasattr(obj, '__getstate__')
+                            and not hasattr(obj, '__setstate__')
+                            and not isinstance(obj, dict)):
                     # turn iterators to iterables for convenient serialization
                     if rv_as_list[3]:
                         rv_as_list[3] = tuple(rv_as_list[3])
@@ -349,7 +354,8 @@ class Pickler(object):
                 data[tags.OBJECT] = class_name
 
             if has_getnewargs_ex:
-                data[tags.NEWARGSEX] = list(map(self._flatten, obj.__getnewargs_ex__()))
+                data[tags.NEWARGSEX] = list(
+                    map(self._flatten, obj.__getnewargs_ex__()))
 
             if has_getnewargs and not has_getnewargs_ex:
                 data[tags.NEWARGS] = self._flatten(obj.__getnewargs__())

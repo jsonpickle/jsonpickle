@@ -407,7 +407,7 @@ def has_reduce(obj):
     # reduce
     if is_noncomplex(obj):
          return (False, True)
-    
+
     has_reduce = False
     has_reduce_ex = False
 
@@ -417,7 +417,7 @@ def has_reduce(obj):
     # For object instance
     has_reduce = in_dict(obj, REDUCE) or in_slots(obj, REDUCE)
     has_reduce_ex = in_dict(obj, REDUCE_EX) or in_slots(obj, REDUCE_EX) 
-    
+
     # turn to the MRO
     for base in type(obj).__mro__:
         if is_reducible(base):
@@ -441,7 +441,6 @@ def has_reduce(obj):
         if not has_reduce_ex_cls is object_reduce_ex:
              has_reduce_ex = has_reduce_ex_cls
 
-    
     return (has_reduce, has_reduce_ex)
 
 
