@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+Version 0.9.5 - TBD 2017
+------------------------
+    * Better support for objects that implement the reduce protocol.
+      (`#170 <https://github.com/jsonpickle/jsonpickle/pull/170>`_).
+
 Version 0.9.4 - January 10, 2017
 --------------------------------
     * Arbitrary byte streams are now better supported.
