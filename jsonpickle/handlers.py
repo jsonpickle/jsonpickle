@@ -197,83 +197,8 @@ class RegexHandler(BaseHandler):
     def restore(self, data):
         return re.compile(data['pattern'])
 
+
 RegexHandler.handles(type(re.compile('')))
-
-
-class SimpleReduceHandler(BaseHandler):
-    """Follow the __reduce__ protocol to pickle an object.
-
-    As long as the factory and its arguments are pickleable, this should
-    pickle any object that implements the reduce protocol.
-
-    """
-    def flatten(self, obj, data):
-        flatten = self.context.flatten
-        data['__reduce__'] = [flatten(i, reset=False) for i in obj.__reduce__()]
-        return data
-
-    def restore(self, data):
-        restore = self.context.restore
-        res = [restore(i, reset=False) for i in data['__reduce__']]
-        factory = res.pop(0)
-        args = res.pop(0)
-        obj = factory(*args)
-
-        if len(res) >= 1:
-            state = res[0]
-            if state and hasattr(obj, '__setstate__'):
-                obj.__setstate__(state)
-            if len(res) >= 2:
-                iterator = res[1]
-                obj.extend(iterator)
-            if len(res) == 3:
-                item_iter = res[2]
-                for k, v in item_iter:
-                    obj[k] = v
-
-        return obj
-
-
-class OrderedDictReduceHandler(SimpleReduceHandler):
-    """Serialize OrderedDict on Python 3.4+
-
-    Python 3.4+ returns multiple entries in an OrderedDict's
-    reduced form.  Previous versions return a two-item tuple.
-    OrderedDictReduceHandler makes the formats compatible.
-
-    """
-    def flatten(self, obj, data):
-        # __reduce__() on older pythons returned a list of
-        # [key, value] list pairs inside a tuple.
-        # Recreate that structure so that the file format
-        # is consistent between python versions.
-        flatten = self.context.flatten
-        reduced = obj.__reduce__()
-        factory = flatten(reduced[0], reset=False)
-        pairs = [list(x) for x in reduced[-1]]
-        args = flatten((pairs,), reset=False)
-        data['__reduce__'] = [factory, args]
-        return data
-
-
-SimpleReduceHandler.handles(time.struct_time)
-SimpleReduceHandler.handles(datetime.timedelta)
-SimpleReduceHandler.handles(collections.deque)
-if sys.version_info >= (2, 7):
-    SimpleReduceHandler.handles(collections.Counter)
-    if sys.version_info >= (3, 4):
-        OrderedDictReduceHandler.handles(collections.OrderedDict)
-    else:
-        SimpleReduceHandler.handles(collections.OrderedDict)
-
-if sys.version_info >= (3, 0):
-    SimpleReduceHandler.handles(decimal.Decimal)
-
-try:
-    import posix
-    SimpleReduceHandler.handles(posix.stat_result)
-except ImportError:
-    pass
 
 
 class QueueHandler(BaseHandler):

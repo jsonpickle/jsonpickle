@@ -338,18 +338,42 @@ def is_iterator(obj):
     return (isinstance(obj, collections.Iterator) and
             not isinstance(obj, io.IOBase) and not is_file)
 
+def is_collections(obj):
+    try:
+        return type(obj).__module__ == 'collections'
+    except:
+        return False
+
+IteratorType = type(iter(''))
 
 def is_reducible(obj):
     """
     Returns false if of a type which have special casing, and should not have their
     __reduce__ methods used
     """
-    return (not (is_list(obj) or is_list_like(obj) or is_primitive(obj) or
-                 is_bytes(obj) or is_unicode(obj) or
-                 is_dictionary(obj) or is_sequence(obj) or is_set(obj) or is_tuple(obj) or
-                 is_dictionary_subclass(obj) or is_sequence_subclass(obj) or is_noncomplex(obj)
-                 or is_function(obj) or is_module(obj) or type(obj) is object or obj is object
-                 or (is_type(obj) and obj.__module__ == 'datetime')))
+    # defaultdicts may contain functions which we cannot serialise
+    if is_collections(obj) and not isinstance(obj, collections.defaultdict):
+        return True
+    return (not
+                (is_list(obj) or
+                is_list_like(obj) or
+                is_primitive(obj) or
+                is_bytes(obj) or
+                is_unicode(obj) or
+                is_dictionary(obj) or
+                is_sequence(obj) or
+                is_set(obj) or
+                is_tuple(obj) or
+                is_dictionary_subclass(obj) or
+                is_sequence_subclass(obj) or
+                is_function(obj) or
+                is_module(obj) or
+                is_iterator(obj) or
+                type(getattr(obj, '__slots__', None)) is IteratorType or
+                type(obj) is object or
+                obj is object or
+                (is_type(obj) and obj.__module__ == 'datetime')
+                ))
 
 
 def in_dict(obj, key, default=False):
@@ -379,6 +403,12 @@ def has_reduce(obj):
     if not is_reducible(obj) or is_type(obj):
         return (False, False)
 
+    # in this case, reduce works and is desired
+    # notwithstanding depending on default object
+    # reduce
+    if is_noncomplex(obj):
+         return (False, True)
+
     has_reduce = False
     has_reduce_ex = False
 
@@ -386,19 +416,31 @@ def has_reduce(obj):
     REDUCE_EX = '__reduce_ex__'
 
     # For object instance
-    has_reduce = in_dict(obj, REDUCE)
-    has_reduce_ex = in_dict(obj, REDUCE_EX)
-
-    has_reduce = has_reduce or in_slots(obj, REDUCE)
-    has_reduce_ex = has_reduce_ex or in_slots(obj, REDUCE_EX)
+    has_reduce = in_dict(obj, REDUCE) or in_slots(obj, REDUCE)
+    has_reduce_ex = in_dict(obj, REDUCE_EX) or in_slots(obj, REDUCE_EX) 
 
     # turn to the MRO
     for base in type(obj).__mro__:
         if is_reducible(base):
             has_reduce = has_reduce or in_dict(base, REDUCE)
             has_reduce_ex = has_reduce_ex or in_dict(base, REDUCE_EX)
-        if has_reduce_ex and has_reduce_ex:
-            return (True, True)
+        if has_reduce and has_reduce_ex:
+            return (has_reduce, has_reduce_ex)
+
+    # for things that don't have a proper dict but can be getattred (rare, but includes some
+    # builtins)
+    cls = type(obj)
+    object_reduce = getattr(object, REDUCE)
+    object_reduce_ex = getattr(object, REDUCE_EX)
+    if not has_reduce:
+         has_reduce_cls = getattr(cls, REDUCE, False)
+         if not has_reduce_cls is object_reduce:
+             has_reduce = has_reduce_cls
+
+    if not has_reduce_ex:
+        has_reduce_ex_cls = getattr(cls, REDUCE_EX, False)
+        if not has_reduce_ex_cls is object_reduce_ex:
+             has_reduce_ex = has_reduce_ex_cls
 
     return (has_reduce, has_reduce_ex)
 

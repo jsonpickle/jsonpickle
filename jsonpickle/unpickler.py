@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (C) 2008 John Paulett (john -at- paulett.org)
-# Copyright (C) 2009, 2011, 2013 David Aguilar (davvid -at- gmail.com)
+# Copyright (C) 2009, 2011, 2013 David Aguilar (davvid -at- gmail.com) and contributors
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
@@ -69,6 +69,14 @@ class _Proxy(object):
 
     def reset(self, instance):
         self.instance = instance
+
+class _IDProxy(_Proxy):
+    def __init__(self, objs, index):
+        self._index = index
+        self._objs = objs
+
+    def get(self):
+        return self._objs[self._index]
 
 
 def _obj_setattr(obj, attr, proxy):
@@ -176,13 +184,19 @@ class Unpickler(object):
         Assumes that iterator items (the last two) are represented as lists
         as per pickler implementation.
         """
+        proxy = _Proxy()
+        self._mkref(proxy)
         reduce_val = obj[tags.REDUCE]
-        f, args, state, listitems, dictitems = map(self._restore, reduce_val)
+        reduce_tuple = f, args, state, listitems, dictitems = map(self._restore, reduce_val)
 
         if f == tags.NEWOBJ or f.__name__ == '__newobj__':
             # mandated special case
             cls = args[0]
+            if not isinstance(cls, type):
+                cls = self._restore(cls)
+
             stage1 = cls.__new__(cls, *args[1:])
+
         else:
             stage1 = f(*args)
 
@@ -192,11 +206,25 @@ class Unpickler(object):
             except AttributeError:
                 # it's fine - we'll try the prescribed default methods
                 try:
-                    stage1.__dict__.update(state)
+                    # we can't do a straight update here because we
+                    # need object identity of the state dict to be
+                    # preserved so that _swap_proxies works out
+                    for k in stage1.__dict__.keys():
+                        if k not in state:
+                            state[k] = stage1.__dict__[k]
+                    stage1.__dict__ = state
                 except AttributeError:
                     # next prescribed default
-                    for k, v in state.items():
-                        setattr(stage1, k, v)
+                    try:
+                        for k, v in state.items():
+                            setattr(stage1, k, v)
+                    except:
+                        dict_state, slots_state = state
+                        if dict_state:
+                            stage1.__dict__.update(dict_state)
+                        if slots_state:
+                            for k, v in slots_state.items():
+                                setattr(stage1, k, v)
 
         if listitems:
             # should be lists if not None
@@ -210,11 +238,16 @@ class Unpickler(object):
             for k, v in dictitems:
                 stage1.__setitem__(k, v)
 
-        self._mkref(stage1)
+        proxy.reset(stage1)
+        self._swapref(proxy, stage1)
         return stage1
 
     def _restore_id(self, obj):
-        return self._objs[obj[tags.ID]]
+        try:
+            idx = obj[tags.ID]
+            return self._objs[idx]
+        except IndexError:
+            return _IDProxy(self._objs, idx)
 
     def _restore_ref(self, obj):
         return self._namedict.get(obj[tags.REF])
@@ -416,6 +449,10 @@ class Unpickler(object):
             self._namestack.append(str_k)
             k = restore_key(k)
             data[k] = self._restore(v)
+            # k is currently a proxy and must be replaced
+            if isinstance(data[k], _Proxy):
+                self._proxies.append((data, k, data[k], _obj_setvalue))
+
             self._namestack.pop()
         return data
 

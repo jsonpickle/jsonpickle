@@ -12,6 +12,7 @@ import jsonpickle
 from jsonpickle import handlers
 from jsonpickle import tags
 from jsonpickle.compat import queue, set, unicode, bytes, PY2, PY_MINOR
+import jsonpickle.util as util
 
 from helper import SkippableTest
 
@@ -428,11 +429,11 @@ class AdvancedObjectsTestCase(SkippableTest):
         self.assertEqual(newobj.c.name, 'c')
 
     def test_newstyleslots_iterable(self):
-        obj = ThingWithIterableSlots('a', 'b')
+        obj = ThingWithIterableSlots('alpha', 'bravo')
         jsonstr = jsonpickle.encode(obj)
         newobj = jsonpickle.decode(jsonstr)
-        self.assertEqual(newobj.a, 'a')
-        self.assertEqual(newobj.b, 'b')
+        self.assertEqual(newobj.a, 'alpha')
+        self.assertEqual(newobj.b, 'bravo')
 
     def test_newstyleslots_string_slot(self):
         obj = ThingWithStringSlots('a', 'b')
@@ -520,6 +521,22 @@ class AdvancedObjectsTestCase(SkippableTest):
         self.assertTrue('<BrokenReprThing "test">' in flattened)
         self.assertTrue(flattened['<BrokenReprThing "test">'])
 
+
+    def test_ordered_dict_reduces(self):
+        if sys.version_info < (2, 7):
+            return
+
+        d = collections.OrderedDict()
+        d.update(c=3)
+        d.update(a=1)
+        d.update(b=2)
+
+        has_reduce, has_reduce_ex = util.has_reduce(d)
+
+        self.assertTrue(util.is_reducible(d))
+        self.assertTrue(has_reduce or has_reduce_ex)
+
+        
     def test_ordered_dict(self):
         if sys.version_info < (2, 7):
             return
@@ -670,7 +687,6 @@ class AdvancedObjectsTestCase(SkippableTest):
         flat = self.pickler.flatten(obj)
         actual = flat[tags.STATE]
         self.assertEqual(expect, actual)
-
         restored = self.unpickler.restore(flat)
         self.assertEqual(expect, restored)
 
