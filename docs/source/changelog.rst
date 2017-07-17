@@ -1,8 +1,8 @@
 Change Log
 ==========
 
-Version 0.9.5 - TBD 2017
-------------------------
+Version 0.9.5 - July 16, 2017
+-----------------------------
     * Better support for objects that implement the reduce protocol.
       (`#170 <https://github.com/jsonpickle/jsonpickle/pull/170>`_).
 
