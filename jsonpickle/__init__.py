@@ -9,6 +9,11 @@
 
 """Python library for serializing any arbitrary object graph into JSON.
 
+.. warning::
+
+    jsonpickle can execute arbitrary Python code. Do not load jsonpickles from
+    untrusted / unauthenticated sources.
+
 jsonpickle can take almost any Python object and turn the object into JSON.
 Additionally, it can reconstitute the object back into Python.
 
@@ -31,11 +36,6 @@ Use jsonpickle to transform the object into a JSON string::
 Use jsonpickle to recreate a Python object from a JSON string::
 
     thawed = jsonpickle.decode(frozen)
-
-.. warning::
-
-    Loading a JSON string from an untrusted source represents a potential
-    security vulnerability.  jsonpickle makes no attempt to sanitize the input.
 
 The new object has the same type and data, but essentially is now a copy of
 the original.
