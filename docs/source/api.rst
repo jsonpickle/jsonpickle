@@ -100,6 +100,9 @@ Low Level API
 
 Typically this low level functionality is not needed by clients.
 
+Note that arguments like ``safe=True`` do not make it safe to load an untrusted
+jsonpickle string.
+
 :mod:`jsonpickle.pickler` -- Python to JSON
 -------------------------------------------
 
