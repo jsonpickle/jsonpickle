@@ -31,10 +31,8 @@ directory::
     # site-wide python install
     virtualenv --no-site-packages env
 
-    # use pip to install the dependencies listed in the requirements file
-    ./env/bin/pip install --upgrade -r requirements-2.txt  # Python2
-    ./env/bin/pip install --upgrade -r requirements-3.txt  # Python3
-    ./env/bin/pip install --upgrade -r requirements-test.txt
+    # use pip to install development and testing dependencies
+    ./env/bin/pip install --upgrade -r requirements-dev.txt
 
 To run the suite, simply invoke :file:`tests/runtests.py`::
 

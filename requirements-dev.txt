@@ -1,0 +1,12 @@
+coverage
+demjson
+enum34; python_version < '3.4'
+feedparser
+jsonlib; python_version < '3.0'
+nose
+numpy
+pymongo
+simplejson
+sqlalchemy
+ujson
+yajl

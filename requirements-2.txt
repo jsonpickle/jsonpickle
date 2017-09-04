@@ -1,6 +1,0 @@
-demjson
-feedparser
-jsonlib
-simplejson
-ujson
-yajl
