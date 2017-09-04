@@ -328,7 +328,7 @@ class Pickler(object):
                 if insufficiency:
                     rv_as_list += [None] * insufficiency
 
-                if rv_as_list[0].__name__ == '__newobj__':
+                if getattr(rv_as_list[0], '__name__', '') == '__newobj__':
                     rv_as_list[0] = tags.NEWOBJ
 
                 f, args, state, listitems, dictitems = rv_as_list
