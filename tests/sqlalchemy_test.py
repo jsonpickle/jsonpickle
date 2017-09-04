@@ -6,42 +6,38 @@ import jsonpickle
 
 from helper import SkippableTest
 
+try:
+    import sqlalchemy as sqa
+    from sqlalchemy.ext import declarative
+    from sqlalchemy.orm import Session
+    HAS_SQA = True
+except ImportError:
+    HAS_SQA = False
 
-Table = None
+if HAS_SQA:
+
+    Base = declarative.declarative_base()
+
+    class Table(Base):
+        __tablename__ = 'table'
+        id = sqa.Column(sqa.Integer, primary_key=True)
+        name = sqa.Column(sqa.Text)
+        value = sqa.Column(sqa.Float)
 
 
 class SQLAlchemyTestCase(SkippableTest):
 
     def setUp(self):
-        global Table
+        """Create a new sqlalchemy engine for the test"""
 
-        try:
-            import sqlalchemy as sqa
+        if HAS_SQA:
+            url = 'sqlite:///:memory:'
+            self.engine = sqa.create_engine(url)
+            Base.metadata.drop_all(self.engine)
+            Base.metadata.create_all(self.engine)
             self.should_skip = False
-        except ImportError:
+        else:
             self.should_skip = True
-            return
-
-        from sqlalchemy.ext import declarative
-        from sqlalchemy.orm import Session
-
-        Base = declarative.declarative_base()
-
-        class Table(Base):
-            __tablename__ = 'table'
-            id = sqa.Column(sqa.Integer, primary_key=True)
-            name = sqa.Column(sqa.Text)
-            value = sqa.Column(sqa.Float)
-
-        url = 'sqlite:///:memory:'
-        self.engine = engine = sqa.create_engine(url)
-
-        Base.metadata.drop_all(engine)
-        Base.metadata.create_all(engine)
-
-        self.Base = Base
-        self.Session = Session
-        self.sqa = sqa
 
     def test_sqlalchemy_roundtrip_with_detached_session(self):
         """Test cloned SQLAlchemy objects detached from any session"""
@@ -51,7 +47,7 @@ class SQLAlchemyTestCase(SkippableTest):
 
         expect = Table(name='coolness', value=11.0)
 
-        session = self.Session(bind=self.engine, expire_on_commit=False)
+        session = Session(bind=self.engine, expire_on_commit=False)
         session.add(expect)
         session.commit()
 
@@ -75,7 +71,7 @@ class SQLAlchemyTestCase(SkippableTest):
 
         expect = Table(name='coolness', value=11.0)
 
-        session = self.Session(bind=self.engine, expire_on_commit=False)
+        session = Session(bind=self.engine, expire_on_commit=False)
         session.add(expect)
         session.commit()
 
