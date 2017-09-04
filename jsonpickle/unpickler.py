@@ -33,6 +33,11 @@ def _make_backend(backend):
         return backend
 
 
+def _safe_hasattr(obj, attr):
+    """A safe (but slow) hasattr() that avoids hasattr"""
+    return attr in dir(obj)
+
+
 class _Proxy(object):
     """Proxies are dummy objects that are later replaced by real instances
 
@@ -189,7 +194,7 @@ class Unpickler(object):
         reduce_val = obj[tags.REDUCE]
         reduce_tuple = f, args, state, listitems, dictitems = map(self._restore, reduce_val)
 
-        if f == tags.NEWOBJ or f.__name__ == '__newobj__':
+        if f == tags.NEWOBJ or getattr(f, '__name__', '') == '__newobj__':
             # mandated special case
             cls = args[0]
             if not isinstance(cls, type):
@@ -341,7 +346,7 @@ class Unpickler(object):
         if isinstance(instance, tuple):
             return instance
 
-        if (hasattr(instance, 'default_factory') and
+        if (_safe_hasattr(instance, 'default_factory') and
                 isinstance(instance.default_factory, _Proxy)):
             instance.default_factory = instance.default_factory.get()
 
@@ -350,6 +355,7 @@ class Unpickler(object):
     def _restore_from_dict(self, obj, instance, ignorereserved=True):
         restore_key = self._restore_key_fn()
         method = _obj_setattr
+        deferred = {}
 
         for k, v in sorted(obj.items(), key=util.itemgetter):
             # ignore the reserved attribute
@@ -365,7 +371,13 @@ class Unpickler(object):
             value = self._restore(v)
             if (util.is_noncomplex(instance) or
                     util.is_dictionary_subclass(instance)):
-                instance[k] = value
+                try:
+                    instance[k] = value
+                except TypeError:
+                    # Immutable object, must be constructed in one shot
+                    deferred[k] = value
+                    self._namestack.pop()
+                    continue
             else:
                 setattr(instance, k, value)
 
@@ -377,8 +389,14 @@ class Unpickler(object):
             # step out
             self._namestack.pop()
 
+        if deferred:
+            # SQLAlchemy Immutable mappings must be constructed in one shot
+            instance = instance.__class__(deferred)
+
+        return instance
+
     def _restore_object_instance_variables(self, obj, instance):
-        self._restore_from_dict(obj, instance)
+        instance = self._restore_from_dict(obj, instance)
 
         # Handle list and set subclasses
         if has_tag(obj, tags.SEQ):
@@ -405,12 +423,14 @@ class Unpickler(object):
             # implements described default handling
             # of state for object with instance dict
             # and no slots
-            self._restore_from_dict(state, instance, ignorereserved=False)
+            instance = self._restore_from_dict(
+                    state, instance, ignorereserved=False)
         elif has_slots:
-            self._restore_from_dict(state[1], instance, ignorereserved=False)
+            instance = self._restore_from_dict(
+                    state[1], instance, ignorereserved=False)
             if has_slots_and_dict:
-                self._restore_from_dict(state[0],
-                                        instance, ignorereserved=False)
+                instance = self._restore_from_dict(
+                        state[0], instance, ignorereserved=False)
         elif (not hasattr(instance, '__getnewargs__')
               and not hasattr(instance, '__getnewargs_ex__')):
             # __setstate__ is not implemented so that means that the best

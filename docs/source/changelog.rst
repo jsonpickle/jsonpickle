@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+Version 0.9.6 - Unreleased Beta
+-------------------------------
+    * Better support for SQLAlchemy
+      (`#180 <https://github.com/jsonpickle/jsonpickle/issues/180>`_).
+
 Version 0.9.5 - July 16, 2017
 -----------------------------
     * Better support for objects that implement the reduce protocol.

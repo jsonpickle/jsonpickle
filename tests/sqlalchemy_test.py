@@ -87,6 +87,34 @@ class SQLAlchemyTestCase(SkippableTest):
         self.assertEqual(expect.name, actual.name)
         self.assertEqual(expect.value, actual.value)
 
+    def test_sqlalchemy_with_dynamic_table(self):
+        """Test creating a table dynamically, per #180"""
+
+        if self.should_skip:
+            return self.skip('sqlalchemy is not installed')
+
+        meta = sqa.MetaData()
+        expect = sqa.Table('test', meta,
+                sqa.Column('id', sqa.Integer()),
+                sqa.Column('text', sqa.Text()))
+
+        jsonstr = jsonpickle.dumps(expect)
+        actual = jsonpickle.loads(jsonstr)
+
+        self.assertEqual(expect.__class__, actual.__class__)
+        self.assertEqual(expect.name, actual.name)
+        # These must be unique instances
+        self.assertNotEqual(expect.metadata, actual.metadata)
+        # Columns names must exactly match
+        self.assertEqual(sorted(expect.columns.keys()),
+                         sorted(actual.columns.keys()))
+        # As should the types
+        self.assertEqual(expect.c.id.name, actual.c.id.name)
+        self.assertEqual(expect.c.id.type.__class__,
+                         actual.c.id.type.__class__)
+        self.assertEqual(expect.c.text.name, actual.c.text.name)
+        self.assertEqual(expect.c.text.type.__class__,
+                         actual.c.text.type.__class__)
 
 def suite():
     suite = unittest.TestSuite()
