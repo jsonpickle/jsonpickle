@@ -38,6 +38,7 @@ params = dict(
 		'testing': [
 			'pytest>=2.8',
 			'pytest-sugar',
+			'collective.checkdocs',
 		],
 		'docs': [
 			'sphinx',
