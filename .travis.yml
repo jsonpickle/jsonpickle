@@ -1,23 +1,32 @@
+dist: trusty
 sudo: false
 language: python
-python:
-- 2.7
-- 3.6
+
+jobs:
+  fast_finish: true
+  include:
+  - python: 2.7
+  - python: &latest_py3 3.6
+  - stage: deploy
+    if: tag IS present
+    python: *latest_py3
+    install: skip
+    script: skip
+    before_deploy: python bootstrap.py
+    deploy:
+      provider: pypi
+      on:
+        tags: true
+        all_branches: true
+      user: jaraco
+      # supply password with `travis encrypt --add deploy.password`
+      distributions: dists
+      skip_cleanup: true
+      skip_upload_docs: true
+
+cache: pip
+
 install:
-- pip install tox "setuptools>=28.2"
-script:
-- tox
-branches:
-  except:
-  - skeleton
-deploy:
-  provider: pypi
-  server: https://upload.pypi.org/legacy/
-  on:
-    tags: true
-    all_branches: true
-    python: 3.6
-  user: jaraco
-  # supply password with `travis encrypt --add deploy.password`
-  distributions: dists
-  skip_upload_docs: true
+- pip install tox
+
+script: tox
