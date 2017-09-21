@@ -18,7 +18,8 @@ jobs:
         tags: true
         all_branches: true
       user: jaraco
-      # supply password with `travis encrypt --add deploy.password`
+      password:
+        secure: ... # encrypt password with `travis encrypt`
       distributions: dists
       skip_cleanup: true
       skip_upload_docs: true
