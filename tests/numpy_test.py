@@ -123,24 +123,32 @@ class NumpyTestCase(SkippableTest):
 
     def test_shape(self):
         """test that shapes containing zeros, which cannot be represented as nested lists, are deserialized correctly"""
+        if self.should_skip:
+            return self.skip('numpy is not importable')
         a = np.eye(3)[3:]
         _a = self.roundtrip(a)
         npt.assert_array_equal(a, _a)
 
     def test_accuracy(self):
         """test if the string representation maintains accuracy"""
+        if self.should_skip:
+            return self.skip('numpy is not importable')
         rand = np.random.randn(3, 3)
         _rand = self.roundtrip(rand)
         npt.assert_array_equal(rand, _rand)
 
     def test_b64(self):
         """test that binary encoding works"""
+        if self.should_skip:
+            return self.skip('numpy is not importable')
         a = np.random.rand(10, 10)    # array of substantial size is stored as b64
         _a = self.roundtrip(a)
         npt.assert_array_equal(a, _a)
 
     def test_views(self):
         """Test that views are maintained under serialization"""
+        if self.should_skip:
+            return self.skip('numpy is not importable')
         rng = np.arange(20)  # a range of an array
         view = rng[10:]  # a view referencing a portion of an array
         data = [rng, view]
@@ -152,6 +160,8 @@ class NumpyTestCase(SkippableTest):
 
     def test_strides(self):
         """test that cases with non-standard strides and offsets work correctly"""
+        if self.should_skip:
+            return self.skip('numpy is not importable')
         arr = np.eye(3)
         view = arr[1:, 1:]
         self.assertTrue(view.base is arr)
@@ -167,6 +177,8 @@ class NumpyTestCase(SkippableTest):
 
     def test_weird_arrays(self):
         """test that we disallow serialization of references to arrays that do not effectively own their memory"""
+        if self.should_skip:
+            return self.skip('numpy is not importable')
         a = np.arange(9)
         b = a[5:]
         a.strides = 1
@@ -190,6 +202,8 @@ class NumpyTestCase(SkippableTest):
 
     def test_transpose(self):
         """test handling of non-c-contiguous memory layout"""
+        if self.should_skip:
+            return self.skip('numpy is not importable')
         # simple case; view a c-contiguous array
         a = np.arange(9).reshape(3, 3)
         b = a[1:, 1:]
@@ -238,12 +252,16 @@ class NumpyTestCase(SkippableTest):
 
     def test_fortran_base(self):
         """Test a base array in fortran order"""
+        if self.should_skip:
+            return self.skip('numpy is not importable')
         a = np.asfortranarray(np.arange(100).reshape((10, 10)))
         _a = self.roundtrip(a)
         npt.assert_array_equal(a, _a)
 
     def test_buffer(self):
         """test behavior with memoryviews which are not ndarrays"""
+        if self.should_skip:
+            return self.skip('numpy is not importable')
         bstring = 'abcdefgh'.encode('utf-8')
         a = np.frombuffer(bstring, dtype=np.byte)
         if PY2 or (PY3 and PY_MINOR <= 3):
@@ -257,6 +275,8 @@ class NumpyTestCase(SkippableTest):
 
     def test_as_strided(self):
         """test object with array interface which isnt an ndarray, like the result of as_strided"""
+        if self.should_skip:
+            return self.skip('numpy is not importable')
         a = np.arange(10)
         b = np.lib.stride_tricks.as_strided(a, shape=(5,), strides=(a.dtype.itemsize * 2,))
         data = [a, b]
@@ -273,6 +293,8 @@ class NumpyTestCase(SkippableTest):
 
     def test_immutable(self):
         """test that immutability flag is copied correctly"""
+        if self.should_skip:
+            return self.skip('numpy is not importable')
         a = np.arange(10)
         a.flags.writeable = False
         _a = self.roundtrip(a)
@@ -284,6 +306,8 @@ class NumpyTestCase(SkippableTest):
 
     def test_byteorder(self):
         """test that byteorder is properly conserved across views, for text and binary encoding"""
+        if self.should_skip:
+            return self.skip('numpy is not importable')
         # small arr is stored as text
         a = np.arange(10).newbyteorder()
         b = a[:].newbyteorder()
