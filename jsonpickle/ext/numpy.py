@@ -156,6 +156,9 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
         if isinstance(values, list):
             # decode text representation
             arr = super(NumpyNDArrayHandlerBinary, self).restore(data)
+        elif isinstance(values, float):
+            # single-value array
+            arr = np.array([values], dtype=self.restore_dtype(data))
         else:
             # decode binary representation
             buffer = b64decode(values)

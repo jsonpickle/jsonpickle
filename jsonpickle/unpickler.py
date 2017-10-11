@@ -199,9 +199,7 @@ class Unpickler(object):
             cls = args[0]
             if not isinstance(cls, type):
                 cls = self._restore(cls)
-
             stage1 = cls.__new__(cls, *args[1:])
-
         else:
             stage1 = f(*args)
 
