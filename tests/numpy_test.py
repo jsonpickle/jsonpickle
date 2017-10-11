@@ -322,6 +322,23 @@ class NumpyTestCase(SkippableTest):
         npt.assert_array_equal(a, _a)
         npt.assert_array_equal(b, _b)
 
+    def test_ndarray_roundtrip_scikit(self):
+        if self.should_skip:
+            return self.skip('numpy is not importable')
+        try:
+            from sklearn.linear_model import SGDClassifier
+        except ImportError:
+            return self.skip('sklearn is not importable')
+
+        clf = SGDClassifier(loss='log', penalty='l2',
+                            alpha=1e-4, n_iter=1, random_state=42, n_jobs=-1)
+        np.random.seed(13)
+        x = np.random.rand(10, 5)
+        y = np.random.randint(low=0, high=2, size=10)
+        clf.fit(x, y)
+
+        self.roundtrip(clf)
+
 
 def suite():
     suite = unittest.TestSuite()

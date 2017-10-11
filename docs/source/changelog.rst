@@ -6,6 +6,9 @@ Version 0.9.6 - Unreleased Beta
     * Better support for SQLAlchemy
       (`#180 <https://github.com/jsonpickle/jsonpickle/issues/180>`_).
 
+    * Better support for NumPy and SciKit-Learn.
+      (`#184 <https://github.com/jsonpickle/jsonpickle/issues/184>`_).
+
 Version 0.9.5 - July 16, 2017
 -----------------------------
     * Better support for objects that implement the reduce protocol.
