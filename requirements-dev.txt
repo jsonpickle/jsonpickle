@@ -7,7 +7,6 @@ nose
 numpy
 pymongo
 simplejson
-scikit-learn
 sqlalchemy
 ujson
 yajl
