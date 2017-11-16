@@ -8,6 +8,7 @@ python:
 
 jobs:
   fast_finish: true
+  include:
   - stage: deploy
     if: tag IS present
     python: *latest_py3
