@@ -338,11 +338,13 @@ def is_iterator(obj):
     return (isinstance(obj, collections.Iterator) and
             not isinstance(obj, io.IOBase) and not is_file)
 
+
 def is_collections(obj):
     try:
         return type(obj).__module__ == 'collections'
     except:
         return False
+
 
 IteratorType = type(iter(''))
 

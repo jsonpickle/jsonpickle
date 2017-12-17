@@ -75,6 +75,7 @@ class _Proxy(object):
     def reset(self, instance):
         self.instance = instance
 
+
 class _IDProxy(_Proxy):
     def __init__(self, objs, index):
         self._index = index
