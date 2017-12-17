@@ -19,11 +19,11 @@ from .backend import JSONBackend
 
 
 def decode(string, backend=None, context=None, keys=False, reset=True,
-           safe=False):
+           safe=False, classes=None):
     backend = _make_backend(backend)
     if context is None:
         context = Unpickler(keys=keys, backend=backend, safe=safe)
-    return context.restore(backend.decode(string), reset=reset)
+    return context.restore(backend.decode(string), reset=reset, classes=classes)
 
 
 def _make_backend(backend):
@@ -116,7 +116,10 @@ class Unpickler(object):
         self._objs = []
         self._proxies = []
 
-    def restore(self, obj, reset=True):
+        # Extra local classes not accessible globally
+        self._classes = {}
+
+    def restore(self, obj, reset=True, classes=None):
         """Restores a flattened object to its original python state.
 
         Simply returns any of the basic builtin types
@@ -130,10 +133,24 @@ class Unpickler(object):
         """
         if reset:
             self.reset()
+        if classes:
+            self.register_classes(classes)
         value = self._restore(obj)
         if reset:
             self._swap_proxies()
         return value
+
+    def register_classes(self, classes):
+        """Register one or more classes
+
+        :param classes: sequence of classes or a single class to register
+
+        """
+        if isinstance(classes, (list, tuple, set)):
+            for cls in classes:
+                self.register_classes(cls)
+        else:
+            self._classes[util.importable_name(classes)] = classes
 
     def _swap_proxies(self):
         """Replace proxies with their corresponding instances"""
@@ -257,7 +274,7 @@ class Unpickler(object):
         return self._namedict.get(obj[tags.REF])
 
     def _restore_type(self, obj):
-        typeref = loadclass(obj[tags.TYPE])
+        typeref = loadclass(obj[tags.TYPE], classes=self._classes)
         if typeref is None:
             return obj
         return typeref
@@ -271,7 +288,7 @@ class Unpickler(object):
 
     def _restore_object(self, obj):
         class_name = obj[tags.OBJECT]
-        cls = loadclass(class_name)
+        cls = loadclass(class_name, classes=self._classes)
         handler = handlers.get(cls, handlers.get(class_name))
         if handler is not None:  # custom handler
             proxy = _Proxy()
@@ -287,7 +304,7 @@ class Unpickler(object):
         return self._restore_object_instance(obj, cls)
 
     def _restore_function(self, obj):
-        return loadclass(obj[tags.FUNCTION])
+        return loadclass(obj[tags.FUNCTION], classes=self._classes)
 
     def _loadfactory(self, obj):
         try:
@@ -310,7 +327,7 @@ class Unpickler(object):
         if has_tag(obj, tags.NEWARGSEX):
             args, kwargs = obj[tags.NEWARGSEX]
         else:
-            args = getargs(obj)
+            args = getargs(obj, classes=self._classes)
             kwargs = {}
         if args:
             args = self._restore(args)
@@ -577,7 +594,7 @@ def loadclass(module_and_name, classes=None):
         return None
 
 
-def getargs(obj):
+def getargs(obj, classes=None):
     """Return arguments suitable for __new__()"""
     # Let saved newargs take precedence over everything
     if has_tag(obj, tags.NEWARGSEX):
@@ -594,7 +611,7 @@ def getargs(obj):
         obj_dict = obj[tags.OBJECT]
     except KeyError:
         return []
-    typeref = loadclass(obj_dict)
+    typeref = loadclass(obj_dict, classes=classes)
     if not typeref:
         return []
     if hasattr(typeref, '_fields'):

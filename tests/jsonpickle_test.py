@@ -678,6 +678,35 @@ class JSONPickleTestCase(SkippableTest):
         self.assertEqual(decoded.a[1][0:3], '[1,')
         self.assertEqual(decoded.a[2][0][0:3], '[1,')
 
+    def test_can_serialize_inner_classes(self):
+
+        class InnerScope(object):
+            """Private class visible to this method only"""
+            def __init__(self, name):
+                self.name = name
+
+        obj = InnerScope('test')
+        encoded = jsonpickle.encode(obj)
+        # Single class
+        decoded = jsonpickle.decode(encoded, classes=InnerScope)
+        self._test_inner_class(InnerScope, obj, decoded)
+        # List of classes
+        decoded = jsonpickle.decode(encoded, classes=[InnerScope])
+        self._test_inner_class(InnerScope, obj, decoded)
+        # Tuple of classes
+        decoded = jsonpickle.decode(encoded, classes=(InnerScope,))
+        self._test_inner_class(InnerScope, obj, decoded)
+        # Set of classes
+        decoded = jsonpickle.decode(encoded, classes=set([InnerScope]))
+        self._test_inner_class(InnerScope, obj, decoded)
+
+    def _test_inner_class(self, InnerScope, obj, decoded):
+        import_name = jsonpickle.util.importable_name(InnerScope)
+        self.assertEqual(import_name, 'jsonpickle_test.InnerScope')
+
+        self.assertTrue(isinstance(obj, InnerScope))
+        self.assertEqual(decoded.name, obj.name)
+
 
 class PicklableNamedTuple(object):
     """
