@@ -548,7 +548,7 @@ class Unpickler(object):
         self._namedict[self._refname()] = instance
 
 
-def loadclass(module_and_name):
+def loadclass(module_and_name, classes=None):
     """Loads the module and returns the class.
 
     >>> cls = loadclass('datetime.datetime')
@@ -561,12 +561,19 @@ def loadclass(module_and_name):
     0
 
     """
+    # Check if the class exists in a caller-provided scope
+    if classes:
+        try:
+            return classes[module_and_name]
+        except KeyError:
+            pass
+    # Otherwise, load classes from globally-accessible imports
     try:
         module, name = module_and_name.rsplit('.', 1)
         module = util.untranslate_module_name(module)
         __import__(module)
         return getattr(sys.modules[module], name)
-    except:
+    except (AttributeError, ImportError, ValueError):
         return None
 
 
