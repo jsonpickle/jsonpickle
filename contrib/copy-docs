@@ -1,0 +1,6 @@
+#!/bin/sh
+# This script requires a clone of jsonpickle.github.com sibling to jsonpickle.
+cd docs &&
+rm -rf build &&
+make html &&
+cp -r build/html/* ../../jsonpickle.github.com
