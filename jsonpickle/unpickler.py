@@ -388,10 +388,14 @@ class Unpickler(object):
             if (util.is_noncomplex(instance) or
                     util.is_dictionary_subclass(instance)):
                 try:
-                    instance[k] = value
+                    if k == '__dict__':
+                        setattr(instance, k, value)
+                    else:
+                        instance[k] = value
                 except TypeError:
                     # Immutable object, must be constructed in one shot
-                    deferred[k] = value
+                    if k != '__dict__':
+                        deferred[k] = value
                     self._namestack.pop()
                     continue
             else:

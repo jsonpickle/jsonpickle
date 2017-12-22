@@ -452,6 +452,12 @@ class Pickler(object):
                     value = self._getref(factory)
             data['default_factory'] = value
 
+        # Sub-classes of dict
+        if hasattr(obj, '__dict__'):
+            dict_data = {}
+            self._flatten_dict_obj(obj.__dict__, dict_data)
+            data['__dict__'] = dict_data
+
         return data
 
     def _flatten_obj_attrs(self, obj, attrs, data):

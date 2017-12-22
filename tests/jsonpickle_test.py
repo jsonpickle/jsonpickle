@@ -83,6 +83,14 @@ class ThingWithProps(object):
         return self.identity == other.identity
 
 
+class UserDict(dict):
+    """A user class that inherits from :class:`dict`"""
+
+    def __init__(self, **kwargs):
+        dict.__init__(self, **kwargs)
+        self.valid = False
+
+
 class PicklingTestCase(unittest.TestCase):
 
     def setUp(self):
@@ -501,6 +509,28 @@ class JSONPickleTestCase(SkippableTest):
         pickled = jsonpickle.encode(str_dict, keys=True)
         unpickled = jsonpickle.decode(pickled)
         self.assertTrue('name' in unpickled)
+
+    def test_dict_subclass(self):
+        obj = UserDict()
+        obj.valid = True
+        obj.s = 'string'
+        obj.d = 'd_string'
+        obj['d'] = {}
+        obj['s'] = 'test'
+        pickle = jsonpickle.encode(obj)
+        actual = jsonpickle.decode(pickle)
+
+        self.assertEqual(type(actual), UserDict)
+        self.assertTrue('d' in actual)
+        self.assertTrue('s' in actual)
+        self.assertTrue(hasattr(actual, 'd'))
+        self.assertTrue(hasattr(actual, 's'))
+        self.assertTrue(hasattr(actual, 'valid'))
+        self.assertEqual(obj['d'], actual['d'])
+        self.assertEqual(obj['s'], actual['s'])
+        self.assertEqual(obj.d, actual.d)
+        self.assertEqual(obj.s, actual.s)
+        self.assertEqual(obj.valid, actual.valid)
 
     def test_list_of_objects(self):
         """Test that objects in lists are referenced correctly"""

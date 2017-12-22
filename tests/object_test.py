@@ -593,12 +593,16 @@ class AdvancedObjectsTestCase(SkippableTest):
         obj = DictSubclass()
         obj['key1'] = 1
 
+        expect = {
+                tags.OBJECT: 'object_test.DictSubclass',
+                'key1': 1,
+                '__dict__': {},
+        }
         flattened = self.pickler.flatten(obj)
-        self.assertEqual({'key1': 1, tags.OBJECT: 'object_test.DictSubclass'},
-                         flattened)
-        self.assertEqual(flattened[tags.OBJECT], 'object_test.DictSubclass')
+        self.assertEqual(expect, flattened)
 
         inflated = self.unpickler.restore(flattened)
+        self.assertEqual(type(inflated), DictSubclass)
         self.assertEqual(1, inflated['key1'])
         self.assertEqual(inflated.name, 'Test')
 
