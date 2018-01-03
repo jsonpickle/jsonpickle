@@ -4,7 +4,7 @@
 .. image:: https://img.shields.io/pypi/pyversions/skeleton.svg
 
 .. image:: https://img.shields.io/travis/jaraco/skeleton/master.svg
-   :target: http://travis-ci.org/jaraco/skeleton
+   :target: https://travis-ci.org/jaraco/skeleton
 
 .. image:: https://readthedocs.org/projects/skeleton/badge/?version=latest
-   :target: http://skeleton.readthedocs.io/en/latest/?badge=latest
+   :target: https://skeleton.readthedocs.io/en/latest/?badge=latest
