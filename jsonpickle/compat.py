@@ -29,10 +29,10 @@ except NameError:
 
 try:
     long = long
-    numeric_types = (int, long)
+    numeric_types = (int, float, long)
 except NameError:
     long = int
-    numeric_types = (int,)
+    numeric_types = (int, float)
 
 try:
     unichr = unichr

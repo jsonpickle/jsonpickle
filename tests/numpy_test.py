@@ -334,6 +334,14 @@ class NumpyTestCase(SkippableTest):
             return self.skip('numpy is not importable')
         self.roundtrip(np.array(0.0))
 
+    def test_nested_data_list_of_dict_with_list_keys(self):
+        """Ensure we can handle numpy arrays within a nested structure"""
+        obj = [{'key': [np.array(0)]}]
+        self.roundtrip(obj)
+
+        obj = [{'key': [np.array([1.0])]}]
+        self.roundtrip(obj)
+
 
 def suite():
     suite = unittest.TestSuite()

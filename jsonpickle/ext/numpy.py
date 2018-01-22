@@ -10,7 +10,7 @@ import numpy as np
 
 import ast
 from ..handlers import BaseHandler, register, unregister
-from ..compat import unicode
+from ..compat import unicode, numeric_types
 from ..util import b64decode, b64encode
 
 __all__ = ['register_handlers', 'unregister_handlers']
@@ -156,7 +156,7 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
         if isinstance(values, list):
             # decode text representation
             arr = super(NumpyNDArrayHandlerBinary, self).restore(data)
-        elif isinstance(values, float):
+        elif isinstance(values, numeric_types):
             # single-value array
             arr = np.array([values], dtype=self.restore_dtype(data))
         else:
