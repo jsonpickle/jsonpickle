@@ -121,8 +121,8 @@ class NumpyTestCase(SkippableTest):
             assert_equal(decoded, array)
             self.assertEqual(decoded.dtype, array.dtype)
 
-    def test_shape(self):
-        """test that shapes containing zeros, which cannot be represented as nested lists, are deserialized correctly"""
+    def test_shapes_containing_zeroes(self):
+        """Test shapes which cannot be represented as nested lists"""
         if self.should_skip:
             return self.skip('numpy is not importable')
         a = np.eye(3)[3:]
@@ -130,7 +130,7 @@ class NumpyTestCase(SkippableTest):
         npt.assert_array_equal(a, _a)
 
     def test_accuracy(self):
-        """test if the string representation maintains accuracy"""
+        """Test the accuracy of the string representation"""
         if self.should_skip:
             return self.skip('numpy is not importable')
         rand = np.random.randn(3, 3)
@@ -138,15 +138,15 @@ class NumpyTestCase(SkippableTest):
         npt.assert_array_equal(rand, _rand)
 
     def test_b64(self):
-        """test that binary encoding works"""
+        """Test the binary encoding"""
         if self.should_skip:
             return self.skip('numpy is not importable')
-        a = np.random.rand(10, 10)    # array of substantial size is stored as b64
+        a = np.random.rand(10, 10)  # array of substantial size is stored as b64
         _a = self.roundtrip(a)
         npt.assert_array_equal(a, _a)
 
     def test_views(self):
-        """Test that views are maintained under serialization"""
+        """Test views under serialization"""
         if self.should_skip:
             return self.skip('numpy is not importable')
         rng = np.arange(20)  # a range of an array
@@ -159,7 +159,7 @@ class NumpyTestCase(SkippableTest):
         self.assertEqual(_data[1][5], -1)
 
     def test_strides(self):
-        """test that cases with non-standard strides and offsets work correctly"""
+        """Test non-standard strides and offsets"""
         if self.should_skip:
             return self.skip('numpy is not importable')
         arr = np.eye(3)
@@ -176,7 +176,7 @@ class NumpyTestCase(SkippableTest):
         self.assertTrue(_view.base is _arr)
 
     def test_weird_arrays(self):
-        """test that we disallow serialization of references to arrays that do not effectively own their memory"""
+        """Test references to arrays that do not effectively own their memory"""
         if self.should_skip:
             return self.skip('numpy is not importable')
         a = np.arange(9)
@@ -232,8 +232,8 @@ class NumpyTestCase(SkippableTest):
         npt.assert_array_equal(a, _a)
         npt.assert_array_equal(b, _b)
 
-        # now a.data.contiguous is False; we have to make a deepcopy to make this work
-        # note that this is a pretty contrived example though!
+        # now a.data.contiguous is False; we have to make a deepcopy to make
+        # this work note that this is a pretty contrived example though!
         a = np.arange(8).reshape(2, 2, 2).copy()
         a.strides = a.strides[0], a.strides[2], a.strides[1]
         b = a[1:, 1:]
@@ -274,16 +274,23 @@ class NumpyTestCase(SkippableTest):
             self.assertEqual(len(w), warn_count)
 
     def test_as_strided(self):
-        """test object with array interface which isnt an ndarray, like the result of as_strided"""
+        """Test the result of as_strided()
+
+        as_strided() returns an object that implements the array interface but
+        is not an ndarray.
+
+        """
         if self.should_skip:
             return self.skip('numpy is not importable')
         a = np.arange(10)
-        b = np.lib.stride_tricks.as_strided(a, shape=(5,), strides=(a.dtype.itemsize * 2,))
+        b = np.lib.stride_tricks.as_strided(a, shape=(5,),
+                                            strides=(a.dtype.itemsize * 2,))
         data = [a, b]
 
         with warnings.catch_warnings(record=True) as w:
-            # as_strided returns a DummyArray object, which we can not currently serialize correctly
-            # FIXME: would be neat to add support for all objects implementing the __array_interface__
+            # as_strided returns a DummyArray object, which we can not
+            # currently serialize correctly FIXME: would be neat to add
+            # support for all objects implementing the __array_interface__
             _data = self.roundtrip(data)
             self.assertEqual(len(w), 1)
 
@@ -305,7 +312,7 @@ class NumpyTestCase(SkippableTest):
             self.assertTrue(True)
 
     def test_byteorder(self):
-        """test that byteorder is properly conserved across views, for text and binary encoding"""
+        """Test the byteorder for text and binary encodings"""
         if self.should_skip:
             return self.skip('numpy is not importable')
         # small arr is stored as text
