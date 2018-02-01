@@ -37,7 +37,7 @@ params = dict(
 	extras_require={
 		'testing': [
 			'pytest>=2.8',
-			'pytest-sugar',
+			# 'pytest-sugar',
 			'collective.checkdocs',
 		],
 		'docs': [
