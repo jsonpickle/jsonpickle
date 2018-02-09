@@ -1,8 +1,8 @@
 Change Log
 ==========
 
-Version 0.9.6 - Unreleased Beta
--------------------------------
+Version 0.9.6 - February 9, 2018
+--------------------------------
     * Better support for SQLAlchemy
       (`#180 <https://github.com/jsonpickle/jsonpickle/issues/180>`_).
 
