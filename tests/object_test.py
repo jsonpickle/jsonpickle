@@ -563,6 +563,20 @@ class AdvancedObjectsTestCase(SkippableTest):
         self.assertEqual(-6, decoded[4][6])
         self.assertEqual(d, decoded)
 
+    def test_ordered_dict_nested(self):
+        bottom = collections.OrderedDict([('z', 1), ('a', 2)])
+        middle = collections.OrderedDict([('c', bottom)])
+        top = collections.OrderedDict([('b', middle)])
+
+        encoded = jsonpickle.encode(top)
+        decoded = jsonpickle.decode(encoded)
+        self.assertEqual(top, decoded)
+
+        # test unpicklable=False
+        encoded = jsonpickle.encode(top, unpicklable=False)
+        decoded = jsonpickle.decode(encoded)
+        self.assertEqual(top, decoded)
+
     def test_posix_stat_result(self):
         try:
             import posix
