@@ -529,6 +529,14 @@ class AdvancedObjectsTestCase(SkippableTest):
         decoded = jsonpickle.decode(encoded)
         self.assertEqual(d, decoded)
 
+    def test_ordered_dict_unpicklable(self):
+        if sys.version_info < (2, 7):
+            return
+        d = collections.OrderedDict([('c', 3), ('a', 1), ('b', 2)])
+        encoded = jsonpickle.encode(d, unpicklable=False)
+        decoded = jsonpickle.decode(encoded)
+        self.assertEqual(d, decoded)
+
     def test_ordered_dict_reduces(self):
         if sys.version_info < (2, 7):
             return
