@@ -521,35 +521,21 @@ class AdvancedObjectsTestCase(SkippableTest):
         self.assertTrue('<BrokenReprThing "test">' in flattened)
         self.assertTrue(flattened['<BrokenReprThing "test">'])
 
+    def test_ordered_dict(self):
+        if sys.version_info < (2, 7):
+            return
+        d = collections.OrderedDict([('c', 3), ('a', 1), ('b', 2)])
+        encoded = jsonpickle.encode(d)
+        decoded = jsonpickle.decode(encoded)
+        self.assertEqual(d, decoded)
 
     def test_ordered_dict_reduces(self):
         if sys.version_info < (2, 7):
             return
-
-        d = collections.OrderedDict()
-        d.update(c=3)
-        d.update(a=1)
-        d.update(b=2)
-
+        d = collections.OrderedDict([('c', 3), ('a', 1), ('b', 2)])
         has_reduce, has_reduce_ex = util.has_reduce(d)
-
         self.assertTrue(util.is_reducible(d))
         self.assertTrue(has_reduce or has_reduce_ex)
-
-        
-    def test_ordered_dict(self):
-        if sys.version_info < (2, 7):
-            return
-
-        d = collections.OrderedDict()
-        d.update(c=3)
-        d.update(a=1)
-        d.update(b=2)
-
-        encoded = jsonpickle.encode(d)
-        decoded = jsonpickle.decode(encoded)
-
-        self.assertEqual(d, decoded)
 
     def test_ordered_dict_int_keys(self):
         if sys.version_info < (2, 7):
