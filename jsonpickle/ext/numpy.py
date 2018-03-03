@@ -136,7 +136,10 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
             data = super(NumpyNDArrayHandlerBinary, self).flatten(obj, data)
         else:
             # encode as binary
-            buffer = obj.tobytes(order='a')	 # numpy docstring is lacking as of 1.11.2, but this is the option we need
+            if hasattr(obj, 'tobytes'):
+                buffer = obj.tobytes(order='a') # numpy docstring is lacking as of 1.11.2, but this is the option we need
+            else:
+                buffer = obj.tostring(order='a') # numpy < 1.9 compatibility
             if self.compression:
                 buffer = self.compression.compress(buffer)
             data['values'] = b64encode(buffer)
