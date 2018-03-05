@@ -6,5 +6,8 @@
 .. image:: https://img.shields.io/travis/jaraco/skeleton/master.svg
    :target: https://travis-ci.org/jaraco/skeleton
 
-.. image:: https://readthedocs.org/projects/skeleton/badge/?version=latest
-   :target: https://skeleton.readthedocs.io/en/latest/?badge=latest
+.. .. image:: https://img.shields.io/appveyor/ci/jaraco/skeleton/master.svg
+..    :target: https://ci.appveyor.com/project/jaraco/skeleton/branch/master
+
+.. .. image:: https://readthedocs.org/projects/skeleton/badge/?version=latest
+..    :target: https://skeleton.readthedocs.io/en/latest/?badge=latest
