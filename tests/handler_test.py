@@ -54,6 +54,16 @@ class DecoratedHandler(NullHandler):
     pass
 
 
+
+class SithHandler(jsonpickle.handlers.BaseHandler):
+    """(evil) serialization handler that rewrites the entire object"""
+
+    def flatten(self, obj, data):
+        data['name'] = obj.name
+        data['py/object'] = 'sith.lord'
+        return data
+
+
 class HandlerTestCase(unittest.TestCase):
 
     def setUp(self):
@@ -70,7 +80,7 @@ class HandlerTestCase(unittest.TestCase):
 
     def test_custom_handler(self):
         """Ensure that the custom handler is indeed used"""
-        expect = CustomObject('hello')
+        expect = CustomObject('jarjar')
         encoded = jsonpickle.encode(expect)
         actual = jsonpickle.decode(encoded)
         self.assertEqual(expect.name, actual.name)
@@ -120,6 +130,18 @@ class HandlerTestCase(unittest.TestCase):
 
         self.assertTrue(self.roundtrip(db).creator is DecoratedHandler)
         self.assertTrue(self.roundtrip(dc).creator is DecoratedHandler)
+
+    def test_custom_handler_can_rewrite_everything(self):
+        """Test the low-level pickling structures"""
+        jsonpickle.unregister(CustomObject)
+        jsonpickle.register(CustomObject, SithHandler)
+        obj = CustomObject('jarjar')  # secret sith lord jarjar
+        pickler = jsonpickle.Pickler()
+        data = pickler.flatten(obj)
+        self.assertTrue(isinstance(data, dict))
+        self.assertEqual(len(data), 2)
+        self.assertEqual('jarjar', data['name'])
+        self.assertEqual('sith.lord', data['py/object'])
 
 
 def suite():
