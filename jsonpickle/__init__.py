@@ -58,13 +58,12 @@ from __future__ import absolute_import, division, unicode_literals
 from . import pickler
 from . import unpickler
 from .backend import JSONBackend
-from .version import VERSION
+from .version import __version__
 
 # ensure built-in handlers are loaded
 from . import handlers as _
 
 __all__ = ('encode', 'decode')
-__version__ = VERSION
 
 json = JSONBackend()
 
