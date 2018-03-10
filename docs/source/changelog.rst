@@ -1,9 +1,9 @@
 Change Log
 ==========
 
-Verison 0.9.7 - TBD 2018
+Version 0.9.7 - TBD 2018
 ------------------------
-    * Better support for older (pre-1.9) versionso of numpy
+    * Better support for older (pre-1.9) versions of numpy
       (`#195 <https://github.com/jsonpickle/jsonpickle/pull/195>`_).
 
 Version 0.9.6 - February 9, 2018
