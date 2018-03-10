@@ -59,13 +59,12 @@ from . import pickler
 from . import unpickler
 from .backend import JSONBackend
 from .version import __version__
+from .backend import json
 
 # ensure built-in handlers are loaded
 from . import handlers as _
 
 __all__ = ('encode', 'decode')
-
-json = JSONBackend()
 
 # Export specific JSONPluginMgr methods into the jsonpickle namespace
 set_preferred_backend = json.set_preferred_backend

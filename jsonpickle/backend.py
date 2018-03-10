@@ -275,3 +275,6 @@ class JSONBackend(object):
             self.remove_backend(backend)
             return False
         return True
+
+
+json = JSONBackend()
