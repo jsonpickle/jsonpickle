@@ -103,15 +103,15 @@ Typically this low level functionality is not needed by clients.
 Note that arguments like ``safe=True`` do not make it safe to load an untrusted
 jsonpickle string.
 
-:mod:`jsonpickle.pickler` -- Python to JSON
--------------------------------------------
+:mod:`jsonpickle.pickler` -- Python to JSON-compatible dict
+-----------------------------------------------------------
 
 .. automodule:: jsonpickle.pickler
     :members:
     :undoc-members:
 
-:mod:`jsonpickle.unpickler` -- JSON to Python
----------------------------------------------
+:mod:`jsonpickle.unpickler` -- JSON-compatible dict to Python
+-------------------------------------------------------------
 
 .. automodule:: jsonpickle.unpickler
     :members:
