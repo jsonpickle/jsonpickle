@@ -62,6 +62,7 @@ from .version import __version__
 from .backend import json
 from .handlers import register  # side-effect: registers built-in handlers
 from .handlers import unregister
+from .pickler import Pickler, encode
 
 __all__ = ('encode', 'decode')
 
@@ -72,62 +73,6 @@ set_encoder_options = json.set_encoder_options
 load_backend = json.load_backend
 remove_backend = json.remove_backend
 enable_fallthrough = json.enable_fallthrough
-
-
-def encode(value,
-           unpicklable=True,
-           make_refs=True,
-           keys=False,
-           max_depth=None,
-           backend=None,
-           warn=False,
-           max_iter=None,
-           numeric_keys=False):
-    """Return a JSON formatted representation of value, a Python object.
-
-    :param unpicklable: If set to False then the output will not contain the
-        information necessary to turn the JSON data back into Python objects,
-        but a simpler JSON stream is produced.
-    :param max_depth: If set to a non-negative integer then jsonpickle will
-        not recurse deeper than 'max_depth' steps into the object.  Anything
-        deeper than 'max_depth' is represented using a Python repr() of the
-        object.
-    :param make_refs: If set to False jsonpickle's referencing support is
-        disabled.  Objects that are id()-identical won't be preserved across
-        encode()/decode(), but the resulting JSON stream will be conceptually
-        simpler.  jsonpickle detects cyclical objects and will break the cycle
-        by calling repr() instead of recursing when make_refs is set False.
-    :param keys: If set to True then jsonpickle will encode non-string
-        dictionary keys instead of coercing them into strings via `repr()`.
-    :param warn: If set to True then jsonpickle will warn when it
-        returns None for an object which it cannot pickle
-        (e.g. file descriptors).
-    :param max_iter: If set to a non-negative integer then jsonpickle will
-        consume at most `max_iter` items when pickling iterators.
-
-    >>> encode('my string') == '"my string"'
-    True
-    >>> encode(36) == '36'
-    True
-    >>> encode({'foo': True}) == '{"foo": true}'
-    True
-    >>> encode({'foo': True}, max_depth=1) == '{"foo": "True"}'
-    True
-
-
-    """
-    if backend is None:
-        backend = json
-    return pickler.encode(value,
-                          backend=backend,
-                          unpicklable=unpicklable,
-                          make_refs=make_refs,
-                          keys=keys,
-                          max_depth=max_depth,
-                          warn=warn,
-                          max_iter=max_iter,
-                          numeric_keys=numeric_keys)
-
 
 def decode(string, backend=None, keys=False, classes=None):
     """Convert a JSON string into a Python object.

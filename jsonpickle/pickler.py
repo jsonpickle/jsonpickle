@@ -15,12 +15,12 @@ from itertools import chain, islice
 from . import util
 from . import tags
 from . import handlers
-from .backend import JSONBackend
+from .backend import JSONBackend, json
 from .compat import numeric_types, unicode, PY3, PY2
 
 
 def encode(value,
-           unpicklable=False,
+           unpicklable=True,
            make_refs=True,
            keys=False,
            max_depth=None,
@@ -30,24 +30,50 @@ def encode(value,
            context=None,
            max_iter=None,
            numeric_keys=False):
-    backend = _make_backend(backend)
-    if context is None:
-        context = Pickler(unpicklable=unpicklable,
-                          make_refs=make_refs,
-                          keys=keys,
-                          backend=backend,
-                          max_depth=max_depth,
-                          warn=warn,
-                          max_iter=max_iter,
-                          numeric_keys=numeric_keys)
+    """Return a JSON formatted representation of value, a Python object.
+
+    :param unpicklable: If set to False then the output will not contain the
+        information necessary to turn the JSON data back into Python objects,
+        but a simpler JSON stream is produced.
+    :param max_depth: If set to a non-negative integer then jsonpickle will
+        not recurse deeper than 'max_depth' steps into the object.  Anything
+        deeper than 'max_depth' is represented using a Python repr() of the
+        object.
+    :param make_refs: If set to False jsonpickle's referencing support is
+        disabled.  Objects that are id()-identical won't be preserved across
+        encode()/decode(), but the resulting JSON stream will be conceptually
+        simpler.  jsonpickle detects cyclical objects and will break the cycle
+        by calling repr() instead of recursing when make_refs is set False.
+    :param keys: If set to True then jsonpickle will encode non-string
+        dictionary keys instead of coercing them into strings via `repr()`.
+    :param warn: If set to True then jsonpickle will warn when it
+        returns None for an object which it cannot pickle
+        (e.g. file descriptors).
+    :param max_iter: If set to a non-negative integer then jsonpickle will
+        consume at most `max_iter` items when pickling iterators.
+
+    >>> encode('my string') == '"my string"'
+    True
+    >>> encode(36) == '36'
+    True
+    >>> encode({'foo': True}) == '{"foo": true}'
+    True
+    >>> encode({'foo': True}, max_depth=1) == '{"foo": "True"}'
+    True
+
+
+    """
+    backend = backend or json
+    context = context or Pickler(
+            unpicklable=unpicklable,
+            make_refs=make_refs,
+            keys=keys,
+            backend=backend,
+            max_depth=max_depth,
+            warn=warn,
+            max_iter=max_iter,
+            numeric_keys=numeric_keys)
     return backend.encode(context.flatten(value, reset=reset))
-
-
-def _make_backend(backend):
-    if backend is None:
-        return JSONBackend()
-    else:
-        return backend
 
 
 class Pickler(object):
@@ -63,7 +89,7 @@ class Pickler(object):
                  numeric_keys=False):
         self.unpicklable = unpicklable
         self.make_refs = make_refs
-        self.backend = _make_backend(backend)
+        self.backend = backend or json
         self.keys = keys
         self.warn = warn
         self.numeric_keys = numeric_keys
