@@ -60,9 +60,8 @@ from . import unpickler
 from .backend import JSONBackend
 from .version import __version__
 from .backend import json
-
-# ensure built-in handlers are loaded
-from . import handlers as _
+from .handlers import register  # side-effect: registers built-in handlers
+from .handlers import unregister
 
 __all__ = ('encode', 'decode')
 
