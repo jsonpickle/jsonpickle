@@ -63,6 +63,7 @@ from .backend import json
 from .handlers import register  # side-effect: registers built-in handlers
 from .handlers import unregister
 from .pickler import Pickler, encode
+from .unpickler import Unpickler, decode
 
 __all__ = ('encode', 'decode')
 
@@ -73,29 +74,6 @@ set_encoder_options = json.set_encoder_options
 load_backend = json.load_backend
 remove_backend = json.remove_backend
 enable_fallthrough = json.enable_fallthrough
-
-def decode(string, backend=None, keys=False, classes=None):
-    """Convert a JSON string into a Python object.
-
-    The keyword argument 'keys' defaults to False.
-    If set to True then jsonpickle will decode non-string dictionary keys
-    into python objects via the jsonpickle protocol.
-
-    The keyword argument 'classes' defaults to None.
-    If set to a single class, or a sequence (list, set, tuple) of classes,
-    then the classes will be made available when constructing objects.  This
-    can be used to give jsonpickle access to local classes that are not
-    available through the global module import scope.
-
-    >>> str(decode('"my string"'))
-    'my string'
-    >>> decode('36')
-    36
-    """
-    if backend is None:
-        backend = json
-    return unpickler.decode(string, backend=backend, keys=keys, classes=classes)
-
 
 # json.load(),loads(), dump(), dumps() compatibility
 dumps = encode

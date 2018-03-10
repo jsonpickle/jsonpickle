@@ -15,22 +15,32 @@ from . import util
 from . import tags
 from . import handlers
 from .compat import numeric_types, set, unicode
-from .backend import JSONBackend
+from .backend import JSONBackend, json
 
 
 def decode(string, backend=None, context=None, keys=False, reset=True,
            safe=False, classes=None):
-    backend = _make_backend(backend)
-    if context is None:
-        context = Unpickler(keys=keys, backend=backend, safe=safe)
-    return context.restore(backend.decode(string), reset=reset, classes=classes)
+    """Convert a JSON string into a Python object.
 
+    The keyword argument 'keys' defaults to False.
+    If set to True then jsonpickle will decode non-string dictionary keys
+    into python objects via the jsonpickle protocol.
 
-def _make_backend(backend):
-    if backend is None:
-        return JSONBackend()
-    else:
-        return backend
+    The keyword argument 'classes' defaults to None.
+    If set to a single class, or a sequence (list, set, tuple) of classes,
+    then the classes will be made available when constructing objects.  This
+    can be used to give jsonpickle access to local classes that are not
+    available through the global module import scope.
+
+    >>> decode('"my string"') == 'my string'
+    True
+    >>> decode('36')
+    36
+    """
+    backend = backend or json
+    context = context or Unpickler(keys=keys, backend=backend, safe=safe)
+    data = backend.decode(string)
+    return context.restore(data, reset=reset, classes=classes)
 
 
 def _safe_hasattr(obj, attr):
@@ -96,7 +106,7 @@ def _obj_setvalue(obj, idx, proxy):
 class Unpickler(object):
 
     def __init__(self, backend=None, keys=False, safe=False):
-        self.backend = _make_backend(backend)
+        self.backend = backend or json
         self.keys = keys
         self.safe = safe
 
