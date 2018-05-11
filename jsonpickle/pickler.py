@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (C) 2008 John Paulett (john -at- paulett.org)
-# Copyright (C) 2009, 2011, 2013 David Aguilar (davvid -at- gmail.com) and contributors
+# Copyright (C) 2009, 2011, 2013 David Aguilar (davvid -at- gmail.com)
+# and contributors
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
@@ -10,12 +11,13 @@ from __future__ import absolute_import, division, unicode_literals
 import base64
 import warnings
 import sys
+import types
 from itertools import chain, islice
 
 from . import util
 from . import tags
 from . import handlers
-from .backend import JSONBackend, json
+from .backend import json
 from .compat import numeric_types, unicode, PY3, PY2
 
 
@@ -206,7 +208,7 @@ class Pickler(object):
 
     def _get_flattener(self, obj):
 
-        if PY2 and isinstance(obj, file):
+        if PY2 and isinstance(obj, types.FileType):
             return self._flatten_file
 
         if util.is_primitive(obj):
@@ -267,14 +269,14 @@ class Pickler(object):
         """
         Special case file objects
         """
-        assert not PY3 and isinstance(obj, file)
+        assert not PY3 and isinstance(obj, types.FileType)
         return None
 
     def _flatten_bytestring(self, obj):
         if PY2:
             try:
                 return obj.decode('utf-8')
-            except:
+            except Exception:
                 pass
         return {tags.B64: base64.encodestring(obj).decode('utf-8')}
 
@@ -361,8 +363,8 @@ class Pickler(object):
 
                 # check that getstate/setstate is sane
                 if not (state and hasattr(obj, '__getstate__')
-                            and not hasattr(obj, '__setstate__')
-                            and not isinstance(obj, dict)):
+                        and not hasattr(obj, '__setstate__')
+                        and not isinstance(obj, dict)):
                     # turn iterators to iterables for convenient serialization
                     if rv_as_list[3]:
                         rv_as_list[3] = tuple(rv_as_list[3])
@@ -417,7 +419,8 @@ class Pickler(object):
 
         if util.is_iterator(obj):
             # force list in python 3
-            data[tags.ITERATOR] = list(map(self._flatten, islice(obj, self._max_iter)))
+            data[tags.ITERATOR] = list(
+                map(self._flatten, islice(obj, self._max_iter)))
             return data
 
         if has_dict:
@@ -528,7 +531,7 @@ class Pickler(object):
             elif not isinstance(k, (str, unicode)):
                 try:
                     k = repr(k)
-                except:
+                except Exception:
                     k = unicode(k)
 
         data[k] = self._flatten(v)

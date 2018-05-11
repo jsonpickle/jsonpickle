@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (C) 2008 John Paulett (john -at- paulett.org)
-# Copyright (C) 2009, 2011, 2013 David Aguilar (davvid -at- gmail.com) and contributors
+# Copyright (C) 2009, 2011, 2013 David Aguilar (davvid -at- gmail.com)
+# and contributors
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
@@ -15,7 +16,7 @@ from . import util
 from . import tags
 from . import handlers
 from .compat import numeric_types, set, unicode
-from .backend import JSONBackend, json
+from .backend import json
 
 
 def decode(string, backend=None, context=None, keys=False, reset=True,
@@ -198,7 +199,8 @@ class Unpickler(object):
         elif util.is_dictionary(obj):
             restore = self._restore_dict
         else:
-            restore = lambda x: x
+            def restore(x):
+                return x
         return restore(obj)
 
     def _restore_base64(self, obj):
@@ -220,7 +222,7 @@ class Unpickler(object):
         proxy = _Proxy()
         self._mkref(proxy)
         reduce_val = obj[tags.REDUCE]
-        reduce_tuple = f, args, state, listitems, dictitems = map(self._restore, reduce_val)
+        f, args, state, listitems, dictitems = map(self._restore, reduce_val)
 
         if f == tags.NEWOBJ or getattr(f, '__name__', '') == '__newobj__':
             # mandated special case
@@ -249,7 +251,7 @@ class Unpickler(object):
                     try:
                         for k, v in state.items():
                             setattr(stage1, k, v)
-                    except:
+                    except Exception:
                         dict_state, slots_state = state
                         if dict_state:
                             stage1.__dict__.update(dict_state)
@@ -344,9 +346,11 @@ class Unpickler(object):
         if kwargs:
             kwargs = self._restore(kwargs)
 
-        is_oldstyle = not (isinstance(cls, type) or getattr(cls, '__meta__', None))
+        is_oldstyle = (
+            not (isinstance(cls, type) or getattr(cls, '__meta__', None)))
         try:
-            if (not is_oldstyle) and hasattr(cls, '__new__'):  # new style classes
+            if (not is_oldstyle) and hasattr(cls, '__new__'):
+                # new style classes
                 if factory:
                     instance = cls.__new__(cls, factory, *args, **kwargs)
                     instance.default_factory = factory
@@ -363,7 +367,7 @@ class Unpickler(object):
             except TypeError:  # fail gracefully
                 try:
                     instance = make_blank_classic(cls)
-                except:  # fail gracefully
+                except Exception:  # fail gracefully
                     return self._mkref(obj)
 
         proxy.reset(instance)
@@ -476,9 +480,11 @@ class Unpickler(object):
         children = [self._restore(v) for v in obj]
         parent.extend(children)
         method = _obj_setvalue
-        proxies = [(parent, idx, value, method)
-                    for idx, value in enumerate(parent)
-                        if isinstance(value, _Proxy)]
+        proxies = [
+            (parent, idx, value, method)
+            for idx, value in enumerate(parent)
+            if isinstance(value, _Proxy)
+        ]
         self._proxies.extend(proxies)
         return parent
 
@@ -521,7 +527,8 @@ class Unpickler(object):
         if self.keys:
             restore_key = self._restore_pickled_key
         else:
-            restore_key = lambda key: key
+            def restore_key(key):
+                return key
         return restore_key
 
     def _restore_pickled_key(self, key):

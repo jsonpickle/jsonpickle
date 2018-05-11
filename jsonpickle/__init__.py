@@ -55,17 +55,22 @@ added to JSON::
 """
 from __future__ import absolute_import, division, unicode_literals
 
-from . import pickler
-from . import unpickler
-from .backend import JSONBackend
-from .version import __version__
 from .backend import json
-from .handlers import register  # side-effect: registers built-in handlers
-from .handlers import unregister
-from .pickler import Pickler, encode
-from .unpickler import Unpickler, decode
+from .pickler import encode
+from .unpickler import decode
+
+# Export other names not in __all__
+from .backend import JSONBackend  # noqa: F401
+from .version import __version__  # noqa: F401
+from .handlers import register  # noqa: F401
+from .handlers import unregister  # noqa: F401
+from .pickler import Pickler  # noqa: F401
+from .unpickler import Unpickler  # noqa: F401
 
 __all__ = ('encode', 'decode')
+
+# register built-in handlers
+__import__('jsonpickle.handlers', level=0)
 
 # Export specific JSONPluginMgr methods into the jsonpickle namespace
 set_preferred_backend = json.set_preferred_backend
@@ -75,6 +80,6 @@ load_backend = json.load_backend
 remove_backend = json.remove_backend
 enable_fallthrough = json.enable_fallthrough
 
-# json.load(),loads(), dump(), dumps() compatibility
+# json.load(), loads(), dump(), dumps() compatibility
 dumps = encode
 loads = decode

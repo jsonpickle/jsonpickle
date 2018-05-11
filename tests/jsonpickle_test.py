@@ -399,6 +399,22 @@ class JSONPickleTestCase(SkippableTest):
             % tags.OBJECT
         )
 
+    def test_API_names(self):
+        """
+        Enforce expected names in main module
+        """
+        names = list(vars(jsonpickle))
+        self.assertIn('pickler', names)
+        self.assertIn('unpickler', names)
+        self.assertIn('JSONBackend', names)
+        self.assertIn('__version__', names)
+        self.assertIn('register', names)
+        self.assertIn('unregister', names)
+        self.assertIn('Pickler', names)
+        self.assertIn('Unpickler', names)
+        self.assertIn('encode', names)
+        self.assertIn('decode', names)
+
     def test_encode(self):
         expect = self.obj
         pickle = jsonpickle.encode(self.obj)
@@ -1374,6 +1390,7 @@ def suite():
     suite.addTest(doctest.DocTestSuite(jsonpickle.pickler))
     suite.addTest(doctest.DocTestSuite(jsonpickle.unpickler))
     return suite
+
 
 if __name__ == '__main__':
     unittest.main(defaultTest='suite')

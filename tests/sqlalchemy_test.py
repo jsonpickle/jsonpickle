@@ -94,9 +94,10 @@ class SQLAlchemyTestCase(SkippableTest):
             return self.skip('sqlalchemy is not installed')
 
         meta = sqa.MetaData()
-        expect = sqa.Table('test', meta,
-                sqa.Column('id', sqa.Integer()),
-                sqa.Column('text', sqa.Text()))
+        expect = sqa.Table(
+            'test', meta,
+            sqa.Column('id', sqa.Integer()),
+            sqa.Column('text', sqa.Text()))
 
         jsonstr = jsonpickle.dumps(expect)
         actual = jsonpickle.loads(jsonstr)
@@ -115,6 +116,7 @@ class SQLAlchemyTestCase(SkippableTest):
         self.assertEqual(expect.c.text.name, actual.c.text.name)
         self.assertEqual(expect.c.text.type.__class__,
                          actual.c.text.type.__class__)
+
 
 def suite():
     suite = unittest.TestSuite()

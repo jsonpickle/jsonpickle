@@ -99,5 +99,6 @@ def suite():
     suite.addTest(unittest.makeSuite(DocumentTestCase))
     return suite
 
+
 if __name__ == '__main__':
     unittest.main(defaultTest='suite')

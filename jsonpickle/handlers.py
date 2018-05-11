@@ -4,7 +4,8 @@ Custom handlers may be created to handle other objects. Each custom handler
 must derive from :class:`jsonpickle.handlers.BaseHandler` and
 implement ``flatten`` and ``restore``.
 
-A handler can be bound to other types by calling :func:`jsonpickle.handlers.register`.
+A handler can be bound to other types by calling
+:func:`jsonpickle.handlers.register`.
 
 :class:`jsonpickle.customhandlers.SimpleReduceHandler` is suitable for handling
 objects that implement the reduce protocol::
@@ -21,13 +22,9 @@ objects that implement the reduce protocol::
 
 """
 from __future__ import absolute_import, division, unicode_literals
-import collections
 import copy
 import datetime
-import decimal
 import re
-import sys
-import time
 import uuid
 
 from . import util
@@ -46,11 +43,14 @@ class Registry(object):
         :param cls_or_name: the type or its fully qualified name
         :param default: default value, if a matching handler is not found
 
-        Looks up a handler by type reference or its fully qualified name. If a direct match
-        is not found, the search is performed over all handlers registered with base=True.
+        Looks up a handler by type reference or its fully
+        qualified name. If a direct match
+        is not found, the search is performed over all
+        handlers registered with base=True.
         """
         handler = self._handlers.get(cls_or_name)
-        if handler is None and util.is_type(cls_or_name):  # attempt to find a base class
+        # attempt to find a base class
+        if handler is None and util.is_type(cls_or_name):
             for cls, base_handler in self._base_handlers.items():
                 if issubclass(cls_or_name, cls):
                     return base_handler
@@ -60,10 +60,13 @@ class Registry(object):
         """Register the a custom handler for a class
 
         :param cls: The custom object class to handle
-        :param handler: The custom handler class (if None, a decorator wrapper is returned)
-        :param base: Indicates whether the handler should be registered for all subclasses
+        :param handler: The custom handler class (if
+            None, a decorator wrapper is returned)
+        :param base: Indicates whether the handler should
+            be registered for all subclasses
 
-        This function can be also used as a decorator by omitting the `handler` argument::
+        This function can be also used as a decorator
+        by omitting the `handler` argument::
 
             @jsonpickle.handlers.register(Foo, base=True)
             class FooHandler(jsonpickle.handlers.BaseHandler):
@@ -79,7 +82,8 @@ class Registry(object):
             raise TypeError('{0!r} is not a class/type'.format(cls))
         # store both the name and the actual type for the ugly cases like
         # _sre.SRE_Pattern that cannot be loaded back directly
-        self._handlers[util.importable_name(cls)] = self._handlers[cls] = handler
+        self._handlers[util.importable_name(cls)] = \
+            self._handlers[cls] = handler
         if base:
             # only store the actual type for subclass checking
             self._base_handlers[cls] = handler
@@ -214,6 +218,7 @@ class QueueHandler(BaseHandler):
     def restore(self, data):
         return queue.Queue()
 
+
 QueueHandler.handles(queue.Queue)
 
 
@@ -228,7 +233,8 @@ class CloneFactory(object):
         return clone(self.exemplar)
 
     def __repr__(self):
-        return ('<CloneFactory object at 0x%x (%s)>' % (id(self), self.exemplar))
+        return (
+            '<CloneFactory object at 0x%x (%s)>' % (id(self), self.exemplar))
 
 
 class UUIDHandler(BaseHandler):
@@ -240,5 +246,6 @@ class UUIDHandler(BaseHandler):
 
     def restore(self, data):
         return uuid.UUID(data['hex'])
+
 
 UUIDHandler.handles(uuid.UUID)

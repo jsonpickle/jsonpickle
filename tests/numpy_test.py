@@ -113,7 +113,8 @@ class NumpyTestCase(SkippableTest):
 
         if not PY2:
             arrays.extend([
-                np.rec.array([('NGC1001', 11), ('NGC1002', 1.), ('NGC1003', 1.)],
+                np.rec.array([
+                    ('NGC1001', 11), ('NGC1002', 1.), ('NGC1003', 1.)],
                              dtype=[('target', 'S20'), ('V_mag', 'f4')])
             ])
         for array in arrays:

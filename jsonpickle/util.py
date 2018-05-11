@@ -63,10 +63,14 @@ def has_method(obj, name):
     if not isinstance(func, (types.MethodType, types.FunctionType)):
         return False
 
-    # need to go through __dict__'s since in py3 methods are essentially descriptors
-    base_type = obj if is_type(obj) else obj.__class__  # __class__ for old-style classes
+    # need to go through __dict__'s since in py3
+    # methods are essentially descriptors
+
+    # __class__ for old-style classes
+    base_type = obj if is_type(obj) else obj.__class__
     original = None
-    for subtype in inspect.getmro(base_type):  # there is no .mro() for old-style classes
+    # there is no .mro() for old-style classes
+    for subtype in inspect.getmro(base_type):
         original = vars(subtype).get(name)
         if original is not None:
             break
@@ -342,22 +346,23 @@ def is_iterator(obj):
 def is_collections(obj):
     try:
         return type(obj).__module__ == 'collections'
-    except:
+    except Exception:
         return False
 
 
 IteratorType = type(iter(''))
 
+
 def is_reducible(obj):
     """
-    Returns false if of a type which have special casing, and should not have their
-    __reduce__ methods used
+    Returns false if of a type which have special casing,
+    and should not have their __reduce__ methods used
     """
     # defaultdicts may contain functions which we cannot serialise
     if is_collections(obj) and not isinstance(obj, collections.defaultdict):
         return True
     return (not
-                (is_list(obj) or
+            (is_list(obj) or
                 is_list_like(obj) or
                 is_primitive(obj) or
                 is_bytes(obj) or
@@ -375,7 +380,7 @@ def is_reducible(obj):
                 type(obj) is object or
                 obj is object or
                 (is_type(obj) and obj.__module__ == 'datetime')
-                ))
+             ))
 
 
 def in_dict(obj, key, default=False):
@@ -391,7 +396,9 @@ def in_slots(obj, key, default=False):
     Returns true if key exists in obj.__slots__; false if not in.
     If obj.__slots__ is absent, return default
     """
-    return (key in obj.__slots__) if getattr(obj, '__slots__', None) else default
+    return (
+        (key in obj.__slots__) if getattr(obj, '__slots__', None) else default
+    )
 
 
 def has_reduce(obj):
@@ -409,7 +416,7 @@ def has_reduce(obj):
     # notwithstanding depending on default object
     # reduce
     if is_noncomplex(obj):
-         return (False, True)
+        return (False, True)
 
     has_reduce = False
     has_reduce_ex = False
@@ -419,7 +426,7 @@ def has_reduce(obj):
 
     # For object instance
     has_reduce = in_dict(obj, REDUCE) or in_slots(obj, REDUCE)
-    has_reduce_ex = in_dict(obj, REDUCE_EX) or in_slots(obj, REDUCE_EX) 
+    has_reduce_ex = in_dict(obj, REDUCE_EX) or in_slots(obj, REDUCE_EX)
 
     # turn to the MRO
     for base in type(obj).__mro__:
@@ -429,20 +436,20 @@ def has_reduce(obj):
         if has_reduce and has_reduce_ex:
             return (has_reduce, has_reduce_ex)
 
-    # for things that don't have a proper dict but can be getattred (rare, but includes some
-    # builtins)
+    # for things that don't have a proper dict but can be
+    # getattred (rare, but includes some builtins)
     cls = type(obj)
     object_reduce = getattr(object, REDUCE)
     object_reduce_ex = getattr(object, REDUCE_EX)
     if not has_reduce:
-         has_reduce_cls = getattr(cls, REDUCE, False)
-         if not has_reduce_cls is object_reduce:
-             has_reduce = has_reduce_cls
+        has_reduce_cls = getattr(cls, REDUCE, False)
+        if has_reduce_cls is not object_reduce:
+            has_reduce = has_reduce_cls
 
     if not has_reduce_ex:
         has_reduce_ex_cls = getattr(cls, REDUCE_EX, False)
-        if not has_reduce_ex_cls is object_reduce_ex:
-             has_reduce_ex = has_reduce_ex_cls
+        if has_reduce_ex_cls is not object_reduce_ex:
+            has_reduce_ex = has_reduce_ex_cls
 
     return (has_reduce, has_reduce_ex)
 
