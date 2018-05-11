@@ -54,7 +54,6 @@ class DecoratedHandler(NullHandler):
     pass
 
 
-
 class SithHandler(jsonpickle.handlers.BaseHandler):
     """(evil) serialization handler that rewrites the entire object"""
 

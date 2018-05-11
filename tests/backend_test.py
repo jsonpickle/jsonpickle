@@ -138,7 +138,7 @@ class JsonlibTestCase(BackendBase):
             return self.skip('no jsonlib for python3')
         expected_pickled = (
             '{"things":[{'
-            '"py\/object":"backend_test.Thing",'
+            r'"py\/object":"backend_test.Thing",'
             '"name":"data","child":null}'
             ']}')
         self.assertEncodeDecode(expected_pickled)
@@ -165,7 +165,7 @@ class UJsonTestCase(BackendBase):
     def test_backend(self):
         expected_pickled = (
             '{"things":[{'
-            '"py\/object":"backend_test.Thing",'
+            r'"py\/object":"backend_test.Thing",'
             '"name":"data","child":null}'
             ']}')
         self.assertEncodeDecode(expected_pickled)

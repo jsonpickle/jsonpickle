@@ -55,17 +55,16 @@ added to JSON::
 """
 from __future__ import absolute_import, division, unicode_literals
 
-from . import pickler
-from . import unpickler
-from .backend import JSONBackend
-from .version import __version__
+import importlib
+
 from .backend import json
-from .handlers import register  # side-effect: registers built-in handlers
-from .handlers import unregister
-from .pickler import Pickler, encode
-from .unpickler import Unpickler, decode
+from .pickler import encode
+from .unpickler import decode
 
 __all__ = ('encode', 'decode')
+
+# register built-in handlers
+importlib.import_module('.handlers', package=__name__)
 
 # Export specific JSONPluginMgr methods into the jsonpickle namespace
 set_preferred_backend = json.set_preferred_backend

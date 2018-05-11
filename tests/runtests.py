@@ -10,8 +10,8 @@
 import os
 import sys
 
-testdir = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(1, os.path.dirname(testdir))
+testdir = os.path.dirname(os.path.abspath(__file__))  # noqa: E402
+sys.path.insert(1, os.path.dirname(testdir))  # noqa: E402
 
 import unittest
 

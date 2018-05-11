@@ -1375,5 +1375,6 @@ def suite():
     suite.addTest(doctest.DocTestSuite(jsonpickle.unpickler))
     return suite
 
+
 if __name__ == '__main__':
     unittest.main(defaultTest='suite')

@@ -744,7 +744,9 @@ class AdvancedObjectsTestCase(SkippableTest):
 
         restore = self.unpickler.restore
         flatten = self.pickler.flatten
-        roundtrip = lambda obj: restore(flatten(obj))
+
+        def roundtrip(obj):
+            return restore(flatten(obj))
         self.assertTrue(roundtrip(IntEnumTest.X) is IntEnumTest.X)
         self.assertTrue(roundtrip(IntEnumTest) is IntEnumTest)
 
@@ -792,7 +794,7 @@ class AdvancedObjectsTestCase(SkippableTest):
             self.assertEqual(type(encoded), unicode)
         else:
             self.assertNotEqual(encoded, u1)
-            b64ustr= base64.encodestring(b'foo').decode('utf-8')
+            b64ustr = base64.encodestring(b'foo').decode('utf-8')
             self.assertEqual({tags.B64: b64ustr}, encoded)
             self.assertEqual(type(encoded[tags.B64]), unicode)
         decoded = self.unpickler.restore(encoded)
@@ -805,7 +807,7 @@ class AdvancedObjectsTestCase(SkippableTest):
         # bytestrings that we can't decode to UTF-8 will always be wrapped
         encoded = self.pickler.flatten(b2)
         self.assertNotEqual(encoded, b2)
-        b64ustr= base64.encodestring(b'foo\xff').decode('utf-8')
+        b64ustr = base64.encodestring(b'foo\xff').decode('utf-8')
         self.assertEqual({tags.B64: b64ustr}, encoded)
         self.assertEqual(type(encoded[tags.B64]), unicode)
         decoded = self.unpickler.restore(encoded)
@@ -854,6 +856,7 @@ class UnicodeMixinHandler(handlers.BaseHandler):
 
     def restore(self, obj):
         return UnicodeMixin(obj['value'])
+
 
 handlers.register(UnicodeMixin, UnicodeMixinHandler)
 

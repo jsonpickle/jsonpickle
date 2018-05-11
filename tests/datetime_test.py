@@ -34,6 +34,7 @@ class UTC(datetime.tzinfo):
     def dst(self, dt):
         return datetime.timedelta()
 
+
 utc = UTC()
 
 
@@ -258,6 +259,7 @@ def suite():
     suite.addTest(unittest.makeSuite(DateTimeAdvancedTestCase))
     suite.addTest(unittest.makeSuite(DateTimeInnerReferenceTestCase))
     return suite
+
 
 if __name__ == '__main__':
     unittest.main(defaultTest='suite')

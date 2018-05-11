@@ -22,8 +22,10 @@ exec(open(version).read(), scope)
 SETUP_ARGS = dict(
     name='jsonpickle',
     version=scope['__version__'],
-    description='Python library for serializing any arbitrary object graph into JSON',
-    long_description='jsonpickle converts complex Python objects to and from JSON.',
+    description=(
+        'Python library for serializing any arbitrary object graph into JSON'),
+    long_description=(
+        'jsonpickle converts complex Python objects to and from JSON.'),
     author='David Aguilar',
     author_email='davvid@gmail.com',
     url='http://jsonpickle.github.io/',
