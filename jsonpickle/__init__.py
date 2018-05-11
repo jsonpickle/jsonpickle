@@ -74,6 +74,6 @@ load_backend = json.load_backend
 remove_backend = json.remove_backend
 enable_fallthrough = json.enable_fallthrough
 
-# json.load(),loads(), dump(), dumps() compatibility
+# json.load(), loads(), dump(), dumps() compatibility
 dumps = encode
 loads = decode
