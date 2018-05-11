@@ -7,19 +7,6 @@ implement ``flatten`` and ``restore``.
 A handler can be bound to other types by calling
 :func:`jsonpickle.handlers.register`.
 
-:class:`jsonpickle.customhandlers.SimpleReduceHandler` is suitable for handling
-objects that implement the reduce protocol::
-
-    from jsonpickle import handlers
-
-    class MyCustomObject(handlers.BaseHandler):
-        ...
-
-        def __reduce__(self):
-            return MyCustomObject, self._get_args()
-
-    handlers.register(MyCustomObject, handlers.SimpleReduceHandler)
-
 """
 from __future__ import absolute_import, division, unicode_literals
 import copy
@@ -147,7 +134,7 @@ class BaseHandler(object):
         Register this handler for the given class. Suitable as a decorator,
         e.g.::
 
-            @SimpleReduceHandler.handles
+            @MyCustomHandler.handles
             class MyCustomClass:
                 def __reduce__(self):
                     ...
