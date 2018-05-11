@@ -55,8 +55,6 @@ added to JSON::
 """
 from __future__ import absolute_import, division, unicode_literals
 
-import importlib
-
 from .backend import json
 from .pickler import encode
 from .unpickler import decode
@@ -72,7 +70,7 @@ from .unpickler import Unpickler  # noqa: F401
 __all__ = ('encode', 'decode')
 
 # register built-in handlers
-importlib.import_module('.handlers', package=__name__)
+__import__('jsonpickle.handlers', level=0)
 
 # Export specific JSONPluginMgr methods into the jsonpickle namespace
 set_preferred_backend = json.set_preferred_backend
