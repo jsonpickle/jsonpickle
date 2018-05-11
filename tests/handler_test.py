@@ -132,10 +132,10 @@ class HandlerTestCase(unittest.TestCase):
 
     def test_custom_handler_can_rewrite_everything(self):
         """Test the low-level pickling structures"""
-        jsonpickle.unregister(CustomObject)
-        jsonpickle.register(CustomObject, SithHandler)
+        jsonpickle.handlers.unregister(CustomObject)
+        jsonpickle.handlers.register(CustomObject, SithHandler)
         obj = CustomObject('jarjar')  # secret sith lord jarjar
-        pickler = jsonpickle.Pickler()
+        pickler = jsonpickle.pickler.Pickler()
         data = pickler.flatten(obj)
         self.assertTrue(isinstance(data, dict))
         self.assertEqual(len(data), 2)
