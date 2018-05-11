@@ -21,6 +21,10 @@ Version 0.9.5 - July 16, 2017
 -----------------------------
     * Better support for objects that implement the reduce protocol.
       (`#170 <https://github.com/jsonpickle/jsonpickle/pull/170>`_).
+      This backward-incompatible change removes the SimpleReduceHandler.
+      Any projects registering that handler for a particular type should
+      instead remove references to the handler and jsonpickle will now
+      handle those types directly.
 
 Version 0.9.4 - January 10, 2017
 --------------------------------
