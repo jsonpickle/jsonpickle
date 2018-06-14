@@ -24,7 +24,6 @@ jobs:
         secure: ... # encrypt password with `travis encrypt`
       distributions: dists
       skip_cleanup: true
-      skip_upload_docs: true
 
 cache: pip
 
