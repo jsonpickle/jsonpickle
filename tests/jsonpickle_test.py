@@ -19,7 +19,7 @@ import jsonpickle.handlers
 from jsonpickle import tags, util
 from jsonpickle.compat import unicode
 from jsonpickle.compat import unichr
-from jsonpickle.compat import PY32, PY3
+from jsonpickle.compat import PY32, PY3, PY2
 
 from helper import SkippableTest
 
@@ -89,6 +89,12 @@ class UserDict(dict):
     def __init__(self, **kwargs):
         dict.__init__(self, **kwargs)
         self.valid = False
+
+
+class Outer(object):
+    class Middle(object):
+        class Inner(object):
+            pass
 
 
 class PicklingTestCase(unittest.TestCase):
@@ -747,11 +753,46 @@ class JSONPickleTestCase(SkippableTest):
         self._test_inner_class(InnerScope, obj, decoded)
 
     def _test_inner_class(self, InnerScope, obj, decoded):
-        import_name = jsonpickle.util.importable_name(InnerScope)
-        self.assertEqual(import_name, 'jsonpickle_test.InnerScope')
-
         self.assertTrue(isinstance(obj, InnerScope))
         self.assertEqual(decoded.name, obj.name)
+
+    def test_can_serialize_nested_classes(self):
+        if PY2 or PY32:
+            return self.skip('Serialization of nested classes requires '
+                             'Python >= 3.3')
+
+        middle = Outer.Middle
+        inner = Outer.Middle.Inner
+        encoded_middle = jsonpickle.encode(middle)
+        encoded_inner = jsonpickle.encode(inner)
+
+        decoded_middle = jsonpickle.decode(encoded_middle)
+        decoded_inner = jsonpickle.decode(encoded_inner)
+
+        self.assertTrue(isinstance(decoded_middle, type))
+        self.assertTrue(isinstance(decoded_inner, type))
+        self.assertEqual(decoded_middle, middle)
+        self.assertEqual(decoded_inner, inner)
+
+    def test_can_serialize_nested_class_objects(self):
+        if PY2 or PY32:
+            return self.skip('Serialization of nested classes requires '
+                             'Python >= 3.3')
+
+        middle_obj = Outer.Middle()
+        middle_obj.attribute = 5
+        inner_obj = Outer.Middle.Inner()
+        inner_obj.attribute = 6
+        encoded_middle_obj = jsonpickle.encode(middle_obj)
+        encoded_inner_obj = jsonpickle.encode(inner_obj)
+
+        decoded_middle_obj = jsonpickle.decode(encoded_middle_obj)
+        decoded_inner_obj = jsonpickle.decode(encoded_inner_obj)
+
+        self.assertTrue(isinstance(decoded_middle_obj, Outer.Middle))
+        self.assertTrue(isinstance(decoded_inner_obj, Outer.Middle.Inner))
+        self.assertEqual(decoded_middle_obj.attribute, middle_obj.attribute)
+        self.assertEqual(decoded_inner_obj.attribute, inner_obj.attribute)
 
 
 class PicklableNamedTuple(object):
