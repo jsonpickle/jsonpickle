@@ -110,7 +110,8 @@ def is_object(obj):
     False
     """
     return (isinstance(obj, object) and
-            not isinstance(obj, (type, types.FunctionType)))
+            not isinstance(obj, (type, types.FunctionType,
+                                 types.BuiltinFunctionType)))
 
 
 def is_primitive(obj):
@@ -277,7 +278,7 @@ def is_module_function(obj):
     """
 
     return (hasattr(obj, '__class__') and
-            isinstance(obj, types.FunctionType) and
+            isinstance(obj, (types.FunctionType, types.BuiltinFunctionType)) and
             hasattr(obj, '__module__') and
             hasattr(obj, '__name__') and
             obj.__name__ != '<lambda>')

@@ -395,6 +395,13 @@ class PicklingTestCase(unittest.TestCase):
         self.assertEqual(expect, actual)
         self.assertTrue(expect is actual)
 
+    def test_builtin_function(self):
+        expect = dir
+        json = jsonpickle.encode(expect)
+        actual = jsonpickle.decode(json)
+        self.assertEqual(expect, actual)
+        self.assertTrue(expect is actual)
+
 
 class JSONPickleTestCase(SkippableTest):
 
