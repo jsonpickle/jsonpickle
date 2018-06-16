@@ -3,6 +3,10 @@ Change Log
 
 Version 0.9.7 - TBD 2018
 ------------------------
+    * Nested classes are now supported on Python 3.3+.
+      (`#180 <https://github.com/jsonpickle/jsonpickle/pull/206>`_,
+      `#176 <https://github.com/jsonpickle/jsonpickle/issues/176>`_).
+
     * Better support for older (pre-1.9) versions of numpy
       (`#195 <https://github.com/jsonpickle/jsonpickle/pull/195>`_).
 
