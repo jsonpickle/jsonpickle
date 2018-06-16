@@ -606,13 +606,21 @@ def loadclass(module_and_name, classes=None):
         except KeyError:
             pass
     # Otherwise, load classes from globally-accessible imports
-    try:
-        module, name = module_and_name.rsplit('.', 1)
-        module = util.untranslate_module_name(module)
-        __import__(module)
-        return getattr(sys.modules[module], name)
-    except (AttributeError, ImportError, ValueError):
-        return None
+    names = module_and_name.split('.')
+    # First assume that everything up to the last dot is the module name,
+    # then try other splits to handle classes that are defined within
+    # classes
+    for up_to in range(len(names)-1, 0, -1):
+        module = util.untranslate_module_name('.'.join(names[:up_to]))
+        try:
+            __import__(module)
+            obj = sys.modules[module]
+            for class_name in names[up_to:]:
+                obj = getattr(obj, class_name)
+            return obj
+        except (AttributeError, ImportError, ValueError) as ex:
+            continue
+    return None
 
 
 def getargs(obj, classes=None):
