@@ -191,7 +191,7 @@ class Pickler(object):
         self._seen.append(obj)
         max_reached = self._depth == self._max_depth
 
-        if max_reached or (not self.make_refs and id(obj) in self._objs):
+        if (max_reached or (not self.make_refs and id(obj) in self._objs)) and not util.is_primitive(obj):
             # break the cycle
             flatten_func = repr
         else:
