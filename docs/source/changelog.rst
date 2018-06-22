@@ -3,6 +3,13 @@ Change Log
 
 Version 0.9.7 - TBD 2018
 ------------------------
+    * jsonpickle will always flatten primitives, even when ``max_depth``
+      is reached, which avoids encoding unicode strings into their
+      ``u'string'`` representation.
+
+      (`#180 <https://github.com/jsonpickle/jsonpickle/pull/207>`_,
+      `#176 <https://github.com/jsonpickle/jsonpickle/issues/198>`_).
+
     * Nested classes are now supported on Python 3.3+.
       (`#180 <https://github.com/jsonpickle/jsonpickle/pull/206>`_,
       `#176 <https://github.com/jsonpickle/jsonpickle/issues/176>`_).
