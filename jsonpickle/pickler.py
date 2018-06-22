@@ -60,8 +60,8 @@ def encode(value,
     True
     >>> encode({'foo': True}) == '{"foo": true}'
     True
-    >>> encode({'foo': True}, max_depth=1) == '{"foo": "True"}'
-    True
+    >>> encode({'foo': [1, 2, [3, 4]]}, max_depth=1)
+    '{"foo": "[1, 2, [3, 4]]"}'
 
 
     """
