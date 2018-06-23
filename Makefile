@@ -3,8 +3,8 @@
 # External commands
 CTAGS ?= ctags
 FIND ?= find
-NOSE ?= nosetests
 PYTHON ?= python
+NOSE ?= $(PYTHON) -m nose
 RM_R ?= rm -fr
 SH ?= sh
 TOX ?= tox
