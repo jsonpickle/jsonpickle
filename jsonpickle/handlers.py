@@ -14,8 +14,8 @@ import datetime
 import re
 import uuid
 
+from . import compat
 from . import util
-from .compat import queue
 from .compat import unicode
 
 
@@ -203,10 +203,10 @@ class QueueHandler(BaseHandler):
         return data
 
     def restore(self, data):
-        return queue.Queue()
+        return compat.queue.Queue()
 
 
-QueueHandler.handles(queue.Queue)
+QueueHandler.handles(compat.queue.Queue)
 
 
 class CloneFactory(object):
