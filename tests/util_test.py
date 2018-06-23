@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
-#
 # Copyright (C) 2008 John Paulett (john -at- paulett.org)
+# Copyright (C) 2009-2018 David Aguilar (davvid -at- gmail.com)
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
