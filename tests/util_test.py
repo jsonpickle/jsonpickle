@@ -9,7 +9,6 @@ import unittest
 import doctest
 import time
 
-import jsonpickle.util
 from jsonpickle.compat import unicode, long, PY2
 from jsonpickle import util
 
@@ -195,7 +194,7 @@ class UtilTestCase(unittest.TestCase):
     def test_has_method(self):
         instance = MethodTestClass()
         x = 1
-        has_method = jsonpickle.util.has_method
+        has_method = util.has_method
 
         # no attribute
         self.assertFalse(has_method(instance, 'foo'))
@@ -234,7 +233,7 @@ class UtilTestCase(unittest.TestCase):
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(UtilTestCase))
-    suite.addTest(doctest.DocTestSuite(jsonpickle.util))
+    suite.addTest(doctest.DocTestSuite(util))
     return suite
 
 
