@@ -795,6 +795,13 @@ class AdvancedObjectsTestCase(SkippableTest):
         decoded = jsonpickle.decode(encoded)
         self.assertEqual(enums_list, decoded)
 
+    def test_enum_unpicklable(self):
+        obj = Message(MessageTypes.STATUS, MessageCommands.STATUS_ALL)
+        encoded = jsonpickle.encode(obj, unpicklable=False)
+        decoded = jsonpickle.decode(encoded)
+        self.assertTrue('message_type' in decoded)
+        self.assertTrue('command' in decoded)
+
     def test_bytes_unicode(self):
         b1 = b'foo'
         b2 = b'foo\xff'
