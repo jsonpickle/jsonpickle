@@ -1,3 +1,4 @@
+from __future__ import absolute_import, division, unicode_literals
 import base64
 import collections
 import decimal
@@ -7,10 +8,11 @@ import unittest
 import datetime
 
 import jsonpickle
+from jsonpickle import compat
 from jsonpickle import handlers
 from jsonpickle import tags
-from jsonpickle.compat import queue, set, unicode, bytes, PY2, PY_MINOR
-import jsonpickle.util as util
+from jsonpickle import util
+from jsonpickle.compat import queue, PY2
 
 from helper import SkippableTest
 
@@ -178,30 +180,63 @@ class ThingWithClassAsDefaultFactory(collections.defaultdict):
 
 try:
     import enum
-
-    class IntEnumTest(enum.IntEnum):
-        X = 1
-        Y = 2
-
-    class StringEnumTest(enum.Enum):
-        A = 'a'
-        B = 'b'
-
-    class SubEnum(enum.Enum):
-        a = 1
-        b = 2
-
-    class EnumClass(object):
-
-        def __init__(self):
-            self.enum_a = SubEnum.a
-            self.enum_b = SubEnum.b
-
-
 except ImportError:
-    IntEnumTest = None
-    StringEnumTest = None
-    EnumClass = None
+    import types
+
+    class enum(types.ModuleType):
+
+        class Enum(object):
+            pass
+        class IntEnum(object):
+            pass
+
+
+class IntEnumTest(enum.IntEnum):
+    X = 1
+    Y = 2
+
+
+class StringEnumTest(enum.Enum):
+    A = 'a'
+    B = 'b'
+
+
+class SubEnum(enum.Enum):
+    a = 1
+    b = 2
+
+
+class EnumClass(object):
+
+    def __init__(self):
+        self.enum_a = SubEnum.a
+        self.enum_b = SubEnum.b
+
+
+class MessageTypes(enum.Enum):
+    STATUS = 'STATUS',
+    CONTROL = 'CONTROL'
+
+
+class MessageStatus(enum.Enum):
+    OK = 'OK',
+    ERROR = 'ERROR'
+
+
+class MessageCommands(enum.Enum):
+    STATUS_ALL = 'STATUS_ALL'
+
+
+class Message(object):
+
+    def __init__(self, message_type, command, status=None, body=None):
+        self.message_type = MessageTypes(message_type)
+        if command:
+            self.command = MessageCommands(command)
+        if status:
+            self.status = MessageStatus(status)
+        if body:
+            self.body = body
 
 
 class ThingWithTimedeltaAttribute(object):
@@ -305,11 +340,7 @@ class AdvancedObjectsTestCase(SkippableTest):
 
     def test_deque_roundtrip(self):
         """Make sure we can handle collections.deque"""
-        py26 = PY2 and PY_MINOR < 7
-        if py26:
-            old_deque = collections.deque([0, 1, 2])
-        else:
-            old_deque = collections.deque([0, 1, 2], maxlen=5)
+        old_deque = collections.deque([0, 1, 2], maxlen=5)
         encoded = jsonpickle.encode(old_deque)
         new_deque = jsonpickle.decode(encoded)
         self.assertNotEqual(encoded, 'nil')
@@ -319,9 +350,8 @@ class AdvancedObjectsTestCase(SkippableTest):
         self.assertEqual(new_deque[1], 1)
         self.assertEqual(old_deque[2], 2)
         self.assertEqual(new_deque[2], 2)
-        if not py26:
-            self.assertEqual(old_deque.maxlen, 5)
-            self.assertEqual(new_deque.maxlen, 5)
+        self.assertEqual(old_deque.maxlen, 5)
+        self.assertEqual(new_deque.maxlen, 5)
 
     def test_namedtuple_roundtrip(self):
         old_nt = NamedTuple(0, 1, 2)
@@ -737,9 +767,6 @@ class AdvancedObjectsTestCase(SkippableTest):
         self.assertEqual(type(roundtrip), object)
 
     def test_enum34(self):
-        if IntEnumTest is None or StringEnumTest is None:
-            return self.skip('enum34 module is not installed')
-
         restore = self.unpickler.restore
         flatten = self.pickler.flatten
 
@@ -752,8 +779,6 @@ class AdvancedObjectsTestCase(SkippableTest):
         self.assertTrue(roundtrip(StringEnumTest) is StringEnumTest)
 
     def test_enum34_nested(self):
-        if EnumClass is None:
-            return self.skip('enum34 module is not installed')
         ec = EnumClass()
         encoded = jsonpickle.encode(ec)
         decoded = jsonpickle.decode(encoded)
@@ -762,8 +787,6 @@ class AdvancedObjectsTestCase(SkippableTest):
         self.assertEqual(ec.enum_b, decoded.enum_b)
 
     def test_enum_references(self):
-        if IntEnumTest is None:
-            return self.skip('enum34 module is not installed')
         a = IntEnumTest.X
         b = IntEnumTest.X
 
@@ -775,42 +798,42 @@ class AdvancedObjectsTestCase(SkippableTest):
     def test_bytes_unicode(self):
         b1 = b'foo'
         b2 = b'foo\xff'
-        u1 = unicode('foo')
+        u1 = 'foo'
 
         # unicode strings get encoded/decoded as is
         encoded = self.pickler.flatten(u1)
         self.assertTrue(encoded == u1)
-        self.assertTrue(type(encoded) is unicode)
+        self.assertTrue(isinstance(encoded, compat.ustr))
         decoded = self.unpickler.restore(encoded)
         self.assertTrue(decoded == u1)
-        self.assertTrue(type(decoded) is unicode)
+        self.assertTrue(isinstance(decoded, compat.ustr))
 
         # bytestrings are wrapped in PY3 but in PY2 we try to decode first
         encoded = self.pickler.flatten(b1)
         if PY2:
             self.assertEqual(encoded, u1)
-            self.assertEqual(type(encoded), unicode)
+            self.assertTrue(isinstance(encoded, compat.ustr))
         else:
             self.assertNotEqual(encoded, u1)
             b64ustr = base64.encodestring(b'foo').decode('utf-8')
             self.assertEqual({tags.B64: b64ustr}, encoded)
-            self.assertEqual(type(encoded[tags.B64]), unicode)
+            self.assertTrue(isinstance(encoded[tags.B64], compat.ustr))
         decoded = self.unpickler.restore(encoded)
         self.assertTrue(decoded == b1)
         if PY2:
-            self.assertTrue(type(decoded) is unicode)
+            self.assertTrue(isinstance(decoded, compat.ustr))
         else:
-            self.assertTrue(type(decoded) is bytes)
+            self.assertTrue(isinstance(decoded, bytes))
 
         # bytestrings that we can't decode to UTF-8 will always be wrapped
         encoded = self.pickler.flatten(b2)
         self.assertNotEqual(encoded, b2)
         b64ustr = base64.encodestring(b'foo\xff').decode('utf-8')
         self.assertEqual({tags.B64: b64ustr}, encoded)
-        self.assertEqual(type(encoded[tags.B64]), unicode)
+        self.assertTrue(isinstance(encoded[tags.B64], compat.ustr))
         decoded = self.unpickler.restore(encoded)
         self.assertEqual(decoded, b2)
-        self.assertTrue(type(decoded) is bytes)
+        self.assertTrue(isinstance(decoded, bytes))
 
     def test_backcompat_bytes_quoted_printable(self):
         """Test decoding bytes objects from older jsonpickle versions"""
@@ -820,11 +843,11 @@ class AdvancedObjectsTestCase(SkippableTest):
 
         # older versions of jsonpickle used a quoted-printable encoding
         expect = b1
-        actual = self.unpickler.restore({tags.BYTES: unicode('foo')})
+        actual = self.unpickler.restore({tags.BYTES: 'foo'})
         self.assertEqual(expect, actual)
 
         expect = b2
-        actual = self.unpickler.restore({tags.BYTES: unicode('foo=FF')})
+        actual = self.unpickler.restore({tags.BYTES: 'foo=FF'})
         self.assertEqual(expect, actual)
 
     def test_nested_objects(self):
@@ -840,7 +863,7 @@ class Mixin(object):
         return True
 
 
-class UnicodeMixin(unicode, Mixin):
+class UnicodeMixin(str, Mixin):
     def __add__(self, rhs):
         obj = super(UnicodeMixin, self).__add__(rhs)
         return UnicodeMixin(obj)
@@ -863,8 +886,8 @@ class ExternalHandlerTestCase(unittest.TestCase):
 
     def test_unicode_mixin(self):
         obj = UnicodeMixin('test')
-        self.assertEqual(type(obj), UnicodeMixin)
-        self.assertEqual(unicode(obj), unicode('test'))
+        self.assertTrue(isinstance(obj, UnicodeMixin))
+        self.assertEqual(obj, 'test')
 
         # Encode into JSON
         content = jsonpickle.encode(obj)
@@ -873,8 +896,8 @@ class ExternalHandlerTestCase(unittest.TestCase):
         new_obj = jsonpickle.decode(content)
         new_obj += ' passed'
 
-        self.assertEqual(unicode(new_obj), unicode('test passed'))
-        self.assertEqual(type(new_obj), UnicodeMixin)
+        self.assertEqual(new_obj, 'test passed')
+        self.assertTrue(isinstance(new_obj, UnicodeMixin))
         self.assertTrue(new_obj.ok())
 
 

@@ -18,14 +18,14 @@ import types
 import inspect
 
 from . import tags
-from .compat import set, unicode, long, bytes, PY3
+from . import compat
+from .compat import numeric_types, string_types, PY2, PY3
 
-if not PY3:
+if PY2:
     import __builtin__
 
 SEQUENCES = (list, set, tuple)
-SEQUENCES_SET = set(SEQUENCES)
-PRIMITIVES = set((unicode, bool, float, int, long))
+PRIMITIVES = (compat.ustr, bool, type(None)) + numeric_types
 
 
 def is_type(obj):
@@ -123,11 +123,7 @@ def is_primitive(obj):
     >>> is_primitive([4,4])
     False
     """
-    if obj is None:
-        return True
-    elif type(obj) in PRIMITIVES:
-        return True
-    return False
+    return type(obj) in PRIMITIVES
 
 
 def is_dictionary(obj):
@@ -147,7 +143,7 @@ def is_sequence(obj):
     True
 
     """
-    return type(obj) in SEQUENCES_SET
+    return type(obj) in SEQUENCES
 
 
 def is_list(obj):
@@ -179,7 +175,7 @@ def is_bytes(obj):
 
 def is_unicode(obj):
     """Helper method to see if the object is a unicode string"""
-    return type(obj) is unicode
+    return type(obj) is compat.ustr
 
 
 def is_tuple(obj):
@@ -200,8 +196,9 @@ def is_dictionary_subclass(obj):
     True
     """
     # TODO: add UserDict
-    return (hasattr(obj, '__class__') and
-            issubclass(obj.__class__, dict) and not is_dictionary(obj))
+    return (hasattr(obj, '__class__')
+            and issubclass(obj.__class__, dict)
+            and type(obj) is not dict)
 
 
 def is_sequence_subclass(obj):
@@ -214,10 +211,10 @@ def is_sequence_subclass(obj):
     >>> is_sequence_subclass(Temp())
     True
     """
-    return (hasattr(obj, '__class__') and
-            (issubclass(obj.__class__, SEQUENCES) or
-                is_list_like(obj)) and
-            not is_sequence(obj))
+    return (hasattr(obj, '__class__')
+            and (issubclass(obj.__class__, SEQUENCES)
+                or is_list_like(obj))
+                and not is_sequence(obj))
 
 
 def is_noncomplex(obj):
@@ -336,7 +333,7 @@ def is_list_like(obj):
 
 def is_iterator(obj):
     is_file = False
-    if not PY3:
+    if PY2:
         is_file = isinstance(obj, __builtin__.file)
 
     return (isinstance(obj, collections.Iterator) and
@@ -515,16 +512,16 @@ def importable_name(cls):
 
 def b64encode(data):
     payload = base64.b64encode(data)
-    if PY3 and type(payload) is bytes:
+    if PY3 and not isinstance(payload, bytes):
         payload = payload.decode('ascii')
     return payload
 
 
 def b64decode(payload):
-    if PY3 and type(payload) is not bytes:
+    if PY3 and not isinstance(payload, bytes):
         payload = bytes(payload, 'ascii')
     return base64.b64decode(payload)
 
 
 def itemgetter(obj, getter=operator.itemgetter(0)):
-    return unicode(getter(obj))
+    return compat.ustr(getter(obj))

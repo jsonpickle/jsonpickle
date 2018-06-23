@@ -7,7 +7,6 @@ these custom key names to identify dictionaries
 that need to be specially handled.
 """
 from __future__ import absolute_import, division, unicode_literals
-from .compat import set
 
 
 BYTES = 'py/bytes'
@@ -31,7 +30,7 @@ TUPLE = 'py/tuple'
 TYPE = 'py/type'
 
 # All reserved tag names
-RESERVED = set([
+RESERVED = {
     BYTES,
     FUNCTION,
     ID,
@@ -49,4 +48,4 @@ RESERVED = set([
     STATE,
     TUPLE,
     TYPE,
-])
+}

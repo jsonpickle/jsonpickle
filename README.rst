@@ -10,6 +10,9 @@ For complete documentation, please visit the
 Bug reports and merge requests are encouraged at the
 `jsonpickle repository on github <https://github.com/jsonpickle/jsonpickle>`_.
 
+jsonpickle supports Python 2.7 and Python 3.4 or greater.
+
+
 Install
 =======
 

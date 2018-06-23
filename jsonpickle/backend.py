@@ -1,6 +1,6 @@
 from __future__ import absolute_import, division, unicode_literals
 
-from .compat import unicode
+from .compat import string_types
 
 
 class JSONBackend(object):
@@ -113,7 +113,7 @@ class JSONBackend(object):
                 not self._store(self._decoders, name, mod, loads)):
             return False
 
-        if isinstance(loads_exc, (str, unicode)):
+        if isinstance(loads_exc, string_types):
             # This backend's decoder exception is part of the backend
             if not self._store(self._decoder_exceptions, name, mod, loads_exc):
                 return False

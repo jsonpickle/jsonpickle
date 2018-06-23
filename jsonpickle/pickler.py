@@ -11,11 +11,12 @@ import sys
 import types
 from itertools import chain, islice
 
+from . import compat
 from . import util
 from . import tags
 from . import handlers
 from .backend import json
-from .compat import numeric_types, unicode, PY3, PY2
+from .compat import numeric_types, string_types, PY3, PY2
 
 
 def encode(value,
@@ -331,7 +332,7 @@ class Pickler(object):
                     # we ignore those
                     pass
 
-            if reduce_val and isinstance(reduce_val, (str, unicode)):
+            if reduce_val and isinstance(reduce_val, string_types):
                 try:
                     varpath = iter(reduce_val.split('.'))
                     # curmod will be transformed by the
@@ -404,7 +405,7 @@ class Pickler(object):
                 data[tags.REPR] = '%s/%s' % (obj.__name__,
                                              obj.__name__)
             else:
-                data = unicode(obj)
+                data = compat.ustr(obj)
             return data
 
         if util.is_dictionary_subclass(obj):
@@ -517,7 +518,7 @@ class Pickler(object):
         if not util.is_picklable(k, v):
             return data
         if self.keys:
-            if not isinstance(k, (str, unicode)) or k.startswith(tags.JSON_KEY):
+            if not isinstance(k, string_types) or k.startswith(tags.JSON_KEY):
                 k = self._escape_key(k)
         else:
             if k is None:
@@ -525,11 +526,11 @@ class Pickler(object):
 
             if self.numeric_keys and isinstance(k, numeric_types):
                 pass
-            elif not isinstance(k, (str, unicode)):
+            elif not isinstance(k, string_types):
                 try:
                     k = repr(k)
                 except Exception:
-                    k = unicode(k)
+                    k = compat.ustr(k)
 
         data[k] = self._flatten(v)
         return data
@@ -578,6 +579,6 @@ def _mktyperef(obj):
 def _wrap_string_slot(string):
     """Converts __slots__ = 'a' into __slots__ = ('a',)
     """
-    if isinstance(string, (str, unicode)):
+    if isinstance(string, string_types):
         return (string,)
     return string

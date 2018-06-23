@@ -1,15 +1,15 @@
 from __future__ import absolute_import
-
+import ast
 import sys
 import zlib
 import warnings
 
 import numpy as np
 
-import ast
 from ..handlers import BaseHandler, register, unregister
-from ..compat import unicode, numeric_types
+from ..compat import numeric_types
 from ..util import b64decode, b64encode
+from .. import compat
 
 __all__ = ['register_handlers', 'unregister_handlers']
 
@@ -28,7 +28,7 @@ class NumpyBaseHandler(BaseHandler):
         if hasattr(dtype, 'tostring'):
             data['dtype'] = dtype.tostring()
         else:
-            dtype = unicode(dtype)
+            dtype = compat.ustr(dtype)
             prefix = '(numpy.record, '
             if dtype.startswith(prefix):
                 dtype = dtype[len(prefix):-1]

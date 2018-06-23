@@ -12,7 +12,7 @@ import sys
 from . import util
 from . import tags
 from . import handlers
-from .compat import numeric_types, set, unicode
+from .compat import numeric_types
 from .backend import json
 
 
@@ -389,7 +389,7 @@ class Unpickler(object):
             if ignorereserved and k in tags.RESERVED:
                 continue
             if isinstance(k, numeric_types):
-                str_k = unicode(k)
+                str_k = k.__str__()
             else:
                 str_k = k
             self._namestack.append(str_k)
@@ -496,7 +496,7 @@ class Unpickler(object):
         restore_key = self._restore_key_fn()
         for k, v in sorted(obj.items(), key=util.itemgetter):
             if isinstance(k, numeric_types):
-                str_k = unicode(k)
+                str_k = k.__str__()
             else:
                 str_k = k
             self._namestack.append(str_k)

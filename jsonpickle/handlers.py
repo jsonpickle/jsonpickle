@@ -15,7 +15,6 @@ import uuid
 
 from . import compat
 from . import util
-from .compat import unicode
 
 
 class Registry(object):
@@ -154,7 +153,7 @@ class DatetimeHandler(BaseHandler):
     def flatten(self, obj, data):
         pickler = self.context
         if not pickler.unpicklable:
-            return unicode(obj)
+            return compat.ustr(obj)
         cls, args = obj.__reduce__()
         flatten = pickler.flatten
         payload = util.b64encode(args[0])

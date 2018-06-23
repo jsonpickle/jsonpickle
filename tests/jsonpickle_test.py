@@ -4,7 +4,7 @@
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
-
+from __future__ import absolute_import, division, unicode_literals
 import doctest
 import os
 import unittest
@@ -14,10 +14,8 @@ import jsonpickle
 import jsonpickle.backend
 import jsonpickle.handlers
 
-from jsonpickle import tags, util
-from jsonpickle.compat import unicode
-from jsonpickle.compat import unichr
-from jsonpickle.compat import PY32, PY3, PY2
+from jsonpickle import compat, tags, util
+from jsonpickle.compat import PY2, PY3
 
 from helper import SkippableTest
 
@@ -110,9 +108,9 @@ class PicklingTestCase(unittest.TestCase):
         self.assertEqual('a string', self.unpickler.restore('a string'))
 
     def test_unicode(self):
-        self.assertEqual(unicode('a string'),
+        self.assertEqual('a string',
                          self.pickler.flatten('a string'))
-        self.assertEqual(unicode('a string'),
+        self.assertEqual('a string',
                          self.unpickler.restore('a string'))
 
     def test_int(self):
@@ -456,7 +454,10 @@ class JSONPickleTestCase(SkippableTest):
         self.assertEqual(type(self.obj), type(actual))
 
     def test_unicode_dict_keys(self):
-        uni = unichr(0x1234)
+        if PY2:
+            uni = unichr(0x1234)
+        else:
+            uni = chr(0x1234)
         pickle = jsonpickle.encode({uni: uni})
         actual = jsonpickle.decode(pickle)
         self.assertTrue(uni in actual)
@@ -510,7 +511,7 @@ class JSONPickleTestCase(SkippableTest):
         thing = Thing('random')
         pickle = jsonpickle.encode({thing: True})
         actual = jsonpickle.decode(pickle)
-        self.assertEqual(actual, {unicode('Thing("random")'): True})
+        self.assertEqual(actual, {'Thing("random")': True})
 
     def test_int_dict_keys_defaults(self):
         int_dict = {1000: [1, 2]}

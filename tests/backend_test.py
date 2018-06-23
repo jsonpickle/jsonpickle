@@ -1,8 +1,9 @@
+from __future__ import absolute_import, division, unicode_literals
 import unittest
 from warnings import warn
 
 import jsonpickle
-from jsonpickle.compat import unicode
+from jsonpickle import compat
 from jsonpickle.compat import PY2
 from jsonpickle.compat import PY3
 
@@ -105,7 +106,7 @@ class DemjsonTestCase(BackendBase):
         self.set_preferred_backend('demjson')
 
     def test_backend(self):
-        expected_pickled = unicode(
+        expected_pickled = compat.ustr(
             '{"things":[{'
             '"child":null,'
             '"name":"data",'

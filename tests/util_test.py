@@ -5,11 +5,12 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 
+from __future__ import absolute_import, division, unicode_literals
 import unittest
 import doctest
 import time
 
-from jsonpickle.compat import unicode, long, PY2
+from jsonpickle import compat
 from jsonpickle import util
 
 
@@ -66,7 +67,7 @@ class UtilTestCase(unittest.TestCase):
         self.assertTrue(util.is_primitive(float(3)))
 
     def test_is_primitive_long(self):
-        self.assertTrue(util.is_primitive(long(3)))
+        self.assertTrue(util.is_primitive(2 ** 64))
 
     def test_is_primitive_bool(self):
         self.assertTrue(util.is_primitive(True))
@@ -77,15 +78,12 @@ class UtilTestCase(unittest.TestCase):
 
     def test_is_primitive_bytes(self):
         self.assertFalse(util.is_primitive(b'hello'))
-        if PY2:
-            self.assertFalse(util.is_primitive('foo'))
-        else:
-            self.assertTrue(util.is_primitive('foo'))
+        self.assertFalse(util.is_primitive('foo'.encode('utf-8')))
+        self.assertTrue(util.is_primitive('foo'))
 
     def test_is_primitive_unicode(self):
-        self.assertTrue(util.is_primitive(unicode('hello')))
-        self.assertTrue(util.is_primitive(unicode('')))
-        self.assertTrue(util.is_primitive(unicode('hello')))
+        self.assertTrue(util.is_primitive(compat.ustr('')))
+        self.assertTrue(util.is_primitive('hello'))
 
     def test_is_primitive_list(self):
         self.assertFalse(util.is_primitive([]))
