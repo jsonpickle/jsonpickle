@@ -5,7 +5,6 @@ import jsonpickle
 from jsonpickle.compat import unicode
 from jsonpickle.compat import PY2
 from jsonpickle.compat import PY3
-from jsonpickle.compat import PY32
 
 from helper import SkippableTest
 
@@ -78,13 +77,9 @@ class JsonTestCase(BackendBase):
 
 class SimpleJsonTestCase(BackendBase):
     def setUp(self):
-        if PY32:
-            return
         self.set_preferred_backend('simplejson')
 
     def test_backend(self):
-        if PY32:
-            return self.skip('no simplejson for python3.2')
         expected_pickled = (
             '{"things": [{'
             '"py/object": "backend_test.Thing", '
@@ -173,8 +168,7 @@ def suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(JsonTestCase))
     suite.addTest(unittest.makeSuite(UJsonTestCase))
-    if not PY32:
-        suite.addTest(unittest.makeSuite(SimpleJsonTestCase))
+    suite.addTest(unittest.makeSuite(SimpleJsonTestCase))
     if has_module('demjson'):
         suite.addTest(unittest.makeSuite(DemjsonTestCase))
     if has_module('yajl'):

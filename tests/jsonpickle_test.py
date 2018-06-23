@@ -623,8 +623,6 @@ class JSONPickleTestCase(SkippableTest):
         """Test that we can call jsonpickle.load_backend()
 
         """
-        if PY32:
-            return self.skip('no simplejson for python 3.2')
         jsonpickle.load_backend('simplejson', 'dumps', 'loads', ValueError)
         self.assertTrue(True)
 
@@ -762,7 +760,7 @@ class JSONPickleTestCase(SkippableTest):
         self.assertEqual(decoded.name, obj.name)
 
     def test_can_serialize_nested_classes(self):
-        if PY2 or PY32:
+        if PY2:
             return self.skip('Serialization of nested classes requires '
                              'Python >= 3.3')
 
@@ -780,7 +778,7 @@ class JSONPickleTestCase(SkippableTest):
         self.assertEqual(decoded_inner, inner)
 
     def test_can_serialize_nested_class_objects(self):
-        if PY2 or PY32:
+        if PY2:
             return self.skip('Serialization of nested classes requires '
                              'Python >= 3.3')
 

@@ -9,7 +9,6 @@ PY_MAJOR = sys.version_info[0]
 PY_MINOR = sys.version_info[1]
 PY2 = PY_MAJOR == 2
 PY3 = PY_MAJOR == 3
-PY32 = PY3 and PY_MINOR == 2
 
 try:
     bytes = bytes

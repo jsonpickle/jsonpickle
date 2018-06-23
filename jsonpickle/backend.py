@@ -1,6 +1,5 @@
 from __future__ import absolute_import, division, unicode_literals
 
-from .compat import PY32
 from .compat import unicode
 
 
@@ -42,8 +41,7 @@ class JSONBackend(object):
         # Whether we've loaded any backends successfully
         self._verified = False
 
-        if not PY32:
-            self.load_backend('simplejson')
+        self.load_backend('simplejson')
         self.load_backend('json')
         self.load_backend('demjson', 'encode', 'decode', 'JSONDecodeError')
         self.load_backend('jsonlib', 'write', 'read', 'ReadError')
