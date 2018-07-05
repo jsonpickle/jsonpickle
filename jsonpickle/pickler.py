@@ -16,7 +16,7 @@ from . import util
 from . import tags
 from . import handlers
 from .backend import json
-from .compat import numeric_types, string_types, PY3, PY2
+from .compat import numeric_types, string_types, PY3, PY2, encodebytes
 
 
 def encode(value,
@@ -276,7 +276,7 @@ class Pickler(object):
                 return obj.decode('utf-8')
             except Exception:
                 pass
-        return {tags.B64: base64.encodebytes(obj).decode('utf-8')}
+        return {tags.B64: encodebytes(obj).decode('utf-8')}
 
     def _flatten_obj_instance(self, obj):
         """Recursively flatten an instance and return a json-friendly dict
