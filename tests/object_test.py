@@ -822,7 +822,7 @@ class AdvancedObjectsTestCase(SkippableTest):
             self.assertTrue(isinstance(encoded, compat.ustr))
         else:
             self.assertNotEqual(encoded, u1)
-            b64ustr = base64.encodestring(b'foo').decode('utf-8')
+            b64ustr = base64.encodebytes(b'foo').decode('utf-8')
             self.assertEqual({tags.B64: b64ustr}, encoded)
             self.assertTrue(isinstance(encoded[tags.B64], compat.ustr))
         decoded = self.unpickler.restore(encoded)
@@ -835,7 +835,7 @@ class AdvancedObjectsTestCase(SkippableTest):
         # bytestrings that we can't decode to UTF-8 will always be wrapped
         encoded = self.pickler.flatten(b2)
         self.assertNotEqual(encoded, b2)
-        b64ustr = base64.encodestring(b'foo\xff').decode('utf-8')
+        b64ustr = base64.encodebytes(b'foo\xff').decode('utf-8')
         self.assertEqual({tags.B64: b64ustr}, encoded)
         self.assertTrue(isinstance(encoded[tags.B64], compat.ustr))
         decoded = self.unpickler.restore(encoded)
