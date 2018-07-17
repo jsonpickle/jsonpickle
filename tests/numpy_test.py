@@ -4,6 +4,7 @@ import datetime
 import warnings
 
 import jsonpickle
+from jsonpickle import handlers
 from jsonpickle.compat import PY2, PY3
 
 from helper import SkippableTest
@@ -13,6 +14,8 @@ try:
     import numpy.testing as npt
     from numpy.compat import asbytes
     from numpy.testing import assert_equal
+
+    from jsonpickle.ext import numpy as numpy_ext
 except ImportError:
     np = None
 
@@ -340,6 +343,12 @@ class NumpyTestCase(SkippableTest):
 
         obj = [{'key': [np.array([1.0])]}]
         self.roundtrip(obj)
+
+    def test_size_threshold_None(self):
+        handler = numpy_ext.NumpyNDArrayHandlerView(size_threshold=None)
+        handlers.registry.unregister(np.ndarray)
+        handlers.registry.register(np.ndarray, handler, base=True)
+        self.roundtrip(np.array([0, 1]))
 
 
 def suite():
