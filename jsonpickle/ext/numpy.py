@@ -100,7 +100,7 @@ class NumpyNDArrayHandler(NumpyBaseHandler):
 
 
 class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
-    """stores arrays with size greater than 'size_treshold' as
+    """stores arrays with size greater than 'size_threshold' as
     (optionally) compressed base64
 
     Notes
@@ -109,17 +109,17 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
     that would be less language-agnostic
     """
 
-    def __init__(self, size_treshold=16, compression=zlib):
+    def __init__(self, size_threshold=16, compression=zlib):
         """
-        :param size_treshold: nonnegative int or None
-            valid values for 'size_treshold' are all nonnegative
+        :param size_threshold: nonnegative int or None
+            valid values for 'size_threshold' are all nonnegative
             integers and None
-            if size_treshold is None, values are always stored as nested lists
+            if size_threshold is None, values are always stored as nested lists
         :param compression: a compression module or None
             valid values for 'compression' are {zlib, bz2, None}
             if compresion is None, no compression is applied
         """
-        self.size_treshold = size_treshold
+        self.size_threshold = size_threshold
         self.compression = compression
 
     def flatten_byteorder(self, obj, data):
@@ -134,7 +134,7 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
 
     def flatten(self, obj, data):
         """encode numpy to json"""
-        if self.size_treshold >= obj.size or self.size_treshold is None:
+        if self.size_threshold >= obj.size or self.size_threshold is None:
             # encode as text
             data = super(NumpyNDArrayHandlerBinary, self).flatten(obj, data)
         else:
@@ -206,21 +206,21 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
     as we cannot guarantee whatever custom logic such classes
     implement is correctly reproduced.
     """
-    def __init__(self, mode='warn', size_treshold=16, compression=zlib):
+    def __init__(self, mode='warn', size_threshold=16, compression=zlib):
         """
         :param mode: {'warn', 'raise', 'ignore'}
             How to react when encountering array-like objects whos
             references we cannot safely serialize
-        :param size_treshold: nonnegative int or None
-            valid values for 'size_treshold' are all nonnegative
+        :param size_threshold: nonnegative int or None
+            valid values for 'size_threshold' are all nonnegative
             integers and None
-            if size_treshold is None, values are always stored as nested lists
+            if size_threshold is None, values are always stored as nested lists
         :param compression: a compression module or None
             valid values for 'compression' are {zlib, bz2, None}
             if compresion is None, no compression is applied
         """
         super(NumpyNDArrayHandlerView, self).__init__(
-            size_treshold, compression)
+            size_threshold, compression)
         self.mode = mode
 
     def flatten(self, obj, data):
@@ -254,7 +254,7 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
                 if byteorder:
                     data['byteorder'] = byteorder
 
-            if self.size_treshold >= obj.size:
+            if self.size_threshold >= obj.size:
                 # not used in restore since base is present, but
                 # include values for human-readability
                 super(NumpyNDArrayHandlerBinary, self).flatten(obj, data)
