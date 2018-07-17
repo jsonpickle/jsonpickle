@@ -134,7 +134,7 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
 
     def flatten(self, obj, data):
         """encode numpy to json"""
-        if self.size_threshold >= obj.size or self.size_threshold is None:
+        if self.size_threshold is None or self.size_threshold >= obj.size:
             # encode as text
             data = super(NumpyNDArrayHandlerBinary, self).flatten(obj, data)
         else:
@@ -254,7 +254,7 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
                 if byteorder:
                     data['byteorder'] = byteorder
 
-            if self.size_threshold >= obj.size:
+            if self.size_threshold is None or self.size_threshold >= obj.size:
                 # not used in restore since base is present, but
                 # include values for human-readability
                 super(NumpyNDArrayHandlerBinary, self).flatten(obj, data)
