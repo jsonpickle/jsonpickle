@@ -28,7 +28,7 @@ SETUP_ARGS = dict(
         'jsonpickle converts complex Python objects to and from JSON.'),
     author='David Aguilar',
     author_email='davvid@gmail.com',
-    url='http://jsonpickle.github.io/',
+    url='https://jsonpickle.github.io/',
     license='BSD',
     platforms=['POSIX', 'Windows'],
     keywords=['json pickle', 'json', 'pickle', 'marshal',

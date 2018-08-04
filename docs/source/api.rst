@@ -41,13 +41,13 @@ Supported backends:
 
  * :mod:`json`
  * `simplejson <http://undefined.org/python/#simplejson>`_
- * `demjson <http://deron.meranda.us/python/demjson/>`_
+ * `demjson <httphttps://deron.meranda.us/python/demjson/>`_
 
 Experimental backends:
 
- * `jsonlib <http://pypi.python.org/pypi/jsonlib/>`_
- * yajl via `py-yajl <http://github.com/rtyler/py-yajl/>`_
- * `ujson <https://pypi.python.org/pypi/ujson/>`_
+ * `jsonlib <https://pypi.org/project/jsonlib/>`_
+ * yajl via `py-yajl <https://github.com/rtyler/py-yajl/>`_
+ * `ujson <https://pypi.org/project/ujson/>`_
 
 .. autofunction:: jsonpickle.set_preferred_backend
 
