@@ -98,7 +98,7 @@ class UtilTestCase(unittest.TestCase):
         self.assertFalse(util.is_primitive((1,)))
 
     def test_is_primitive_set(self):
-        self.assertFalse(util.is_primitive(set([1, 3])))
+        self.assertFalse(util.is_primitive({1, 3}))
 
     def test_is_primitive_object(self):
         self.assertFalse(util.is_primitive(Thing('test')))
@@ -107,7 +107,7 @@ class UtilTestCase(unittest.TestCase):
         self.assertTrue(util.is_list([1, 2]))
 
     def test_is_list_set(self):
-        self.assertTrue(util.is_set(set([1, 2])))
+        self.assertTrue(util.is_set({1, 2}))
 
     def test_is_list_tuple(self):
         self.assertTrue(util.is_tuple((1, 2)))
