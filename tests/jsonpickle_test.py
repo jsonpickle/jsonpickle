@@ -186,7 +186,7 @@ class PicklingTestCase(unittest.TestCase):
         self.assertEqual(data, newdata)
 
     def test_set_roundtrip(self):
-        data = set([1, 2, 3])
+        data = {1, 2, 3}
         newdata = jsonpickle.decode(jsonpickle.encode(data))
         self.assertEqual(data, newdata)
 
@@ -279,7 +279,7 @@ class PicklingTestCase(unittest.TestCase):
     def test_set_not_unpicklable(self):
         self.pickler.unpicklable = False
 
-        flattened = self.pickler.flatten(set(['one', 2, 3]))
+        flattened = self.pickler.flatten({'one', 2, 3})
         self.assertTrue('one' in flattened)
         self.assertTrue(2 in flattened)
         self.assertTrue(3 in flattened)
@@ -753,7 +753,7 @@ class JSONPickleTestCase(SkippableTest):
         decoded = jsonpickle.decode(encoded, classes=(InnerScope,))
         self._test_inner_class(InnerScope, obj, decoded)
         # Set of classes
-        decoded = jsonpickle.decode(encoded, classes=set([InnerScope]))
+        decoded = jsonpickle.decode(encoded, classes={InnerScope})
         self._test_inner_class(InnerScope, obj, decoded)
 
     def _test_inner_class(self, InnerScope, obj, decoded):
@@ -763,7 +763,7 @@ class JSONPickleTestCase(SkippableTest):
     def test_can_serialize_nested_classes(self):
         if PY2:
             return self.skip('Serialization of nested classes requires '
-                             'Python >= 3.3')
+                             'Python >= 3')
 
         middle = Outer.Middle
         inner = Outer.Middle.Inner
@@ -781,7 +781,7 @@ class JSONPickleTestCase(SkippableTest):
     def test_can_serialize_nested_class_objects(self):
         if PY2:
             return self.skip('Serialization of nested classes requires '
-                             'Python >= 3.3')
+                             'Python >= 3')
 
         middle_obj = Outer.Middle()
         middle_obj.attribute = 5

@@ -489,7 +489,7 @@ class Unpickler(object):
         return tuple([self._restore(v) for v in obj[tags.TUPLE]])
 
     def _restore_set(self, obj):
-        return set([self._restore(v) for v in obj[tags.SET]])
+        return {self._restore(v) for v in obj[tags.SET]}
 
     def _restore_dict(self, obj):
         data = {}

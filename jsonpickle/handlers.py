@@ -64,7 +64,7 @@ class Registry(object):
                 return handler_cls
             return _register
         if not util.is_type(cls):
-            raise TypeError('{0!r} is not a class/type'.format(cls))
+            raise TypeError('{!r} is not a class/type'.format(cls))
         # store both the name and the actual type for the ugly cases like
         # _sre.SRE_Pattern that cannot be loaded back directly
         self._handlers[util.importable_name(cls)] = \
@@ -219,7 +219,7 @@ class CloneFactory(object):
 
     def __repr__(self):
         return (
-            '<CloneFactory object at 0x%x (%s)>' % (id(self), self.exemplar))
+            '<CloneFactory object at 0x{:x} ({})>'.format(id(self), self.exemplar))
 
 
 class UUIDHandler(BaseHandler):

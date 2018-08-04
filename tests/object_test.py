@@ -367,9 +367,6 @@ class AdvancedObjectsTestCase(SkippableTest):
         self.assertEqual(old_nt[2], new_nt[2])
 
     def test_counter_roundtrip(self):
-        if sys.version_info < (2, 7):
-            # collections.Counter was introduced in Python 2.7
-            return
         counter = collections.Counter({1: 2})
         encoded = jsonpickle.encode(counter)
         decoded = jsonpickle.decode(encoded)
@@ -378,9 +375,6 @@ class AdvancedObjectsTestCase(SkippableTest):
         self.assertEqual(decoded.get('1'), 2)
 
     def test_counter_roundtrip_with_keys(self):
-        if sys.version_info < (2, 7):
-            # collections.Counter was introduced in Python 2.7
-            return
         counter = collections.Counter({1: 2})
         encoded = jsonpickle.encode(counter, keys=True)
         decoded = jsonpickle.decode(encoded, keys=True)
@@ -550,32 +544,24 @@ class AdvancedObjectsTestCase(SkippableTest):
         self.assertTrue(flattened['<BrokenReprThing "test">'])
 
     def test_ordered_dict(self):
-        if sys.version_info < (2, 7):
-            return
         d = collections.OrderedDict([('c', 3), ('a', 1), ('b', 2)])
         encoded = jsonpickle.encode(d)
         decoded = jsonpickle.decode(encoded)
         self.assertEqual(d, decoded)
 
     def test_ordered_dict_unpicklable(self):
-        if sys.version_info < (2, 7):
-            return
         d = collections.OrderedDict([('c', 3), ('a', 1), ('b', 2)])
         encoded = jsonpickle.encode(d, unpicklable=False)
         decoded = jsonpickle.decode(encoded)
         self.assertEqual(d, decoded)
 
     def test_ordered_dict_reduces(self):
-        if sys.version_info < (2, 7):
-            return
         d = collections.OrderedDict([('c', 3), ('a', 1), ('b', 2)])
         has_reduce, has_reduce_ex = util.has_reduce(d)
         self.assertTrue(util.is_reducible(d))
         self.assertTrue(has_reduce or has_reduce_ex)
 
     def test_ordered_dict_int_keys(self):
-        if sys.version_info < (2, 7):
-            return
         d = {
             1: collections.OrderedDict([(2, -2), (3, -3)]),
             4: collections.OrderedDict([(5, -5), (6, -6)]),
