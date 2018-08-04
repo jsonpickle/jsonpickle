@@ -10,13 +10,9 @@
 import sys
 import timeit
 
-IS_25_DOWN = sys.version_info[:2] <= (2, 5)
-
 number = 1000
 
 mod = 'json'
-if IS_25_DOWN:
-    mod = 'simplejson'
 
 json = """\
 import feedparser

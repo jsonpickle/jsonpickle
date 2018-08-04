@@ -763,7 +763,7 @@ class JSONPickleTestCase(SkippableTest):
     def test_can_serialize_nested_classes(self):
         if PY2:
             return self.skip('Serialization of nested classes requires '
-                             'Python >= 3.3')
+                             'Python >= 3')
 
         middle = Outer.Middle
         inner = Outer.Middle.Inner
@@ -781,7 +781,7 @@ class JSONPickleTestCase(SkippableTest):
     def test_can_serialize_nested_class_objects(self):
         if PY2:
             return self.skip('Serialization of nested classes requires '
-                             'Python >= 3.3')
+                             'Python >= 3')
 
         middle_obj = Outer.Middle()
         middle_obj.attribute = 5

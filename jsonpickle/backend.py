@@ -10,7 +10,7 @@ class JSONBackend(object):
         simplejson, json, demjson
 
     simplejson is a fast and popular backend and is tried first.
-    json comes with python2.6 and is tried second.
+    json comes with Python and is tried second.
     demjson is the most permissive backend and is tried last.
 
     """
