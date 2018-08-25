@@ -372,7 +372,6 @@ def is_reducible(obj):
                 is_sequence_subclass(obj) or
                 is_function(obj) or
                 is_module(obj) or
-                is_iterator(obj) or
                 type(getattr(obj, '__slots__', None)) is IteratorType or
                 type(obj) is object or
                 obj is object or
