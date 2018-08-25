@@ -332,9 +332,7 @@ def is_list_like(obj):
 
 
 def is_iterator(obj):
-    is_file = False
-    if PY2:
-        is_file = isinstance(obj, __builtin__.file)
+    is_file = PY2 and isinstance(obj, __builtin__.file)
 
     return (isinstance(obj, collections.Iterator) and
             not isinstance(obj, io.IOBase) and not is_file)
