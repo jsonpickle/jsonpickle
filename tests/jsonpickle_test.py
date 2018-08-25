@@ -937,6 +937,18 @@ class PickleProtocol2ReduceTuple(object):
                 )
 
 
+@compat.iterator
+class ReducibleIterator(object):
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        raise StopIteration()
+
+    def __reduce__(self):
+        return ReducibleIterator, ()
+
+
 def protocol_2_reduce_tuple_func(*args):
     return PickleProtocol2ReduceTupleFunc(*args)
 
@@ -1266,6 +1278,17 @@ class PicklingProtocol2TestCase(SkippableTest):
         self.assertEqual(next(decoded), '1')
         self.assertEqual(next(decoded), '2')
         self.assertEqual(next(decoded), '3')
+
+    def test_reduce_iterable(self):
+        """
+        An reducible object should be pickleable even if
+        it is also iterable.
+        """
+        instance = ReducibleIterator()
+        self.assertTrue(util.is_iterator(instance))
+        encoded = jsonpickle.encode(instance)
+        decoded = jsonpickle.decode(encoded)
+        self.assertIsInstance(decoded, ReducibleIterator)
 
     def test_reduce_string(self):
         """
