@@ -167,7 +167,7 @@ class JSONBackend(object):
     dumps = encode
 
     def backend_encode(self, name, obj):
-        optargs, optkwargs = self._encoder_options[name]
+        optargs, optkwargs = self._encoder_options.get(name, ([], {}))
         encoder_kwargs = optkwargs.copy()
         encoder_args = (obj,) + tuple(optargs)
         return self._encoders[name](*encoder_args, **encoder_kwargs)
