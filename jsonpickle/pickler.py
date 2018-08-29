@@ -209,11 +209,11 @@ class Pickler(object):
         if PY2 and isinstance(obj, types.FileType):
             return self._flatten_file
 
-        if util.is_primitive(obj):
-            return lambda obj: obj
-
         if util.is_bytes(obj):
             return self._flatten_bytestring
+
+        if util.is_primitive(obj):
+            return lambda obj: obj
 
         list_recurse = self._list_recurse
 
