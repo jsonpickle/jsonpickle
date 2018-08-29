@@ -19,7 +19,7 @@ import inspect
 
 from . import tags
 from . import compat
-from .compat import numeric_types, string_types, PY2, PY3
+from .compat import numeric_types, PY2, PY3
 
 if PY2:
     import __builtin__
@@ -212,9 +212,11 @@ def is_sequence_subclass(obj):
     True
     """
     return (hasattr(obj, '__class__')
-            and (issubclass(obj.__class__, SEQUENCES)
-                or is_list_like(obj))
-                and not is_sequence(obj))
+            and (
+                issubclass(obj.__class__, SEQUENCES)
+                or is_list_like(obj)
+            )
+            and not is_sequence(obj))
 
 
 def is_noncomplex(obj):
