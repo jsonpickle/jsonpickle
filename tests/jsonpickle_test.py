@@ -455,7 +455,7 @@ class JSONPickleTestCase(SkippableTest):
 
     def test_unicode_dict_keys(self):
         if PY2:
-            uni = unichr(0x1234)
+            uni = unichr(0x1234)  # noqa
         else:
             uni = chr(0x1234)
         pickle = jsonpickle.encode({uni: uni})

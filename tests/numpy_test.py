@@ -5,7 +5,7 @@ import warnings
 
 import jsonpickle
 from jsonpickle import handlers
-from jsonpickle.compat import PY2, PY3
+from jsonpickle.compat import PY2
 
 from helper import SkippableTest
 

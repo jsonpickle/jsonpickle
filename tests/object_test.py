@@ -1,9 +1,7 @@
 from __future__ import absolute_import, division, unicode_literals
-import base64
 import collections
 import decimal
 import re
-import sys
 import unittest
 import datetime
 
@@ -187,6 +185,7 @@ except ImportError:
 
         class Enum(object):
             pass
+
         class IntEnum(object):
             pass
 
