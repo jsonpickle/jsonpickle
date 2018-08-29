@@ -19,7 +19,7 @@ import inspect
 
 from . import tags
 from . import compat
-from .compat import numeric_types, string_types, PY2, PY3
+from .compat import numeric_types, string_types, PY2, PY3, class_types
 
 if PY2:
     import __builtin__
@@ -42,10 +42,7 @@ def is_type(obj):
     True
     """
     # use "isinstance" and not "is" to allow for metaclasses
-    if PY3:
-        return isinstance(obj, type)
-    else:
-        return isinstance(obj, (type, types.ClassType))
+    return isinstance(obj, class_types)
 
 
 def has_method(obj, name):
