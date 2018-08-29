@@ -18,3 +18,9 @@ else:
     ustr = unicode
     from base64 import encodestring as encodebytes
     from base64 import decodestring as decodebytes
+
+
+def iterator(class_):
+    if PY2 and hasattr(class_, '__next__'):
+        class_.next = class_.__next__
+    return class_
