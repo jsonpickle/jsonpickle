@@ -1,6 +1,7 @@
 bson
 coverage
 demjson
+ecdsa
 enum34; python_version < '3.4'
 feedparser
 jsonlib; python_version < '3.0'
