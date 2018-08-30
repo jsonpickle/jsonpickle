@@ -5,7 +5,6 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 from __future__ import absolute_import, division, unicode_literals
-import base64
 import warnings
 import sys
 import types
@@ -189,7 +188,12 @@ class Pickler(object):
         self._seen.append(obj)
         max_reached = self._depth == self._max_depth
 
-        if (max_reached or (not self.make_refs and id(obj) in self._objs)) and not util.is_primitive(obj):
+        in_cycle = (
+            max_reached or (
+                not self.make_refs
+                and id(obj) in self._objs
+            )) and not util.is_primitive(obj)
+        if in_cycle:
             # break the cycle
             flatten_func = repr
         else:
@@ -402,8 +406,7 @@ class Pickler(object):
 
         if util.is_module(obj):
             if self.unpicklable:
-                data[tags.REPR] = '{}/{}'.format(obj.__name__,
-                                             obj.__name__)
+                data[tags.REPR] = '{name}/{name}'.format(name=obj.__name__)
             else:
                 data = compat.ustr(obj)
             return data
