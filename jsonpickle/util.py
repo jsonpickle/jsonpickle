@@ -505,16 +505,17 @@ def importable_name(cls):
 
 
 def b64encode(data):
-    payload = base64.b64encode(data)
-    if PY3 and is_bytes(payload):
-        payload = payload.decode('ascii')
-    return payload
+    """
+    Encode binary data to ascii text in base64. Data must be bytes.
+    """
+    return base64.b64encode(data).decode('ascii')
 
 
 def b64decode(payload):
-    if PY3 and not is_bytes(payload):
-        payload = bytes(payload, 'ascii')
-    return base64.b64decode(payload)
+    """
+    Decode payload - must be ascii text.
+    """
+    return base64.b64decode(payload.encode('ascii'))
 
 
 def itemgetter(obj, getter=operator.itemgetter(0)):
