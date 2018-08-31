@@ -243,21 +243,14 @@ def is_function(obj):
     >>> is_function(1)
     False
     """
-    if type(obj) in (types.FunctionType,
-                     types.MethodType,
-                     types.LambdaType,
-                     types.BuiltinFunctionType,
-                     types.BuiltinMethodType):
-        return True
-    if not hasattr(obj, '__class__'):
-        return False
-    module = translate_module_name(obj.__class__.__module__)
-    name = obj.__class__.__name__
-    return (module == '__builtin__' and
-            name in ('function',
-                     'builtin_function_or_method',
-                     'instancemethod',
-                     'method-wrapper'))
+    function_types = (
+        types.FunctionType,
+        types.MethodType,
+        types.LambdaType,
+        types.BuiltinFunctionType,
+        types.BuiltinMethodType,
+    )
+    return type(obj) in function_types
 
 
 def is_module_function(obj):
