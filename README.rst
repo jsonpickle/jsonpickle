@@ -12,6 +12,9 @@ Bug reports and merge requests are encouraged at the
 
 jsonpickle supports Python 2.7 and Python 3.4 or greater.
 
+Why jsonpickle?
+===============
+Data serialized with python's pickle (or cPickle or dill) is not easily readable outside of python. Using the json format, jsonpickle allows simple data types to be stored in a human-readable format, and more complex data types such as numpy arrays and pandas dataframes, to be machine-readable on any platform that supports json. E.g., unlike pickled data, jsonpickled data stored in an Amazon S3 bucket is indexible by Amazon's Athena.
 
 Install
 =======
@@ -45,6 +48,15 @@ enable the numpy extension by registering its handlers::
 
     >>> import jsonpickle.ext.numpy as jsonpickle_numpy
     >>> jsonpickle_numpy.register_handlers()
+
+Pandas Support
+=============
+jsonpickle includes a built-in pandas extension.  If would like to encode
+pandas DataFrame or Series objects then you must enable the pandas extension
+by registering its handlers::
+
+    >>> import jsonpickle.ext.pandas as jsonpickle_pandas
+    >>> jsonpickle_pandas.register_handlers()
 
 jsonpickleJS
 ============
