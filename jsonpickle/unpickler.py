@@ -239,8 +239,7 @@ class Unpickler(object):
                     # need object identity of the state dict to be
                     # preserved so that _swap_proxies works out
                     for k in stage1.__dict__.keys():
-                        if k not in state:
-                            state[k] = stage1.__dict__[k]
+                        state.setdefault(k, stage1.__dict__[k])
                     stage1.__dict__ = state
                 except AttributeError:
                     # next prescribed default
