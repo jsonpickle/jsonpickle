@@ -591,7 +591,7 @@ def loadclass(module_and_name, classes=None):
 
     >>> loadclass('does.not.exist')
 
-    >>> loadclass('__builtin__.int')()
+    >>> loadclass('builtins.int')()
     0
 
     """

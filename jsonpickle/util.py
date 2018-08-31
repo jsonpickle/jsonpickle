@@ -441,22 +441,22 @@ def has_reduce(obj):
 
 
 def translate_module_name(module):
-    """Rename builtin modules to a consistent (Python2) module name
+    """Rename builtin modules to a consistent module name.
+
+    Prefer the more modern naming.
 
     This is used so that references to Python's `builtins` module can
     be loaded in both Python 2 and 3.  We remap to the "__builtin__"
     name and unmap it when importing.
 
-    See untranslate_module_name() for the reverse operation.
+    Map the Python2 `exceptions` module to `builtins` because
+    `builtins` is a superset and contains everything that is
+    available in `exceptions`, which makes the translation simpler.
 
+    See untranslate_module_name() for the reverse operation.
     """
-    if (PY3 and module == 'builtins') or module == 'exceptions':
-        # We map the Python2 `exceptions` module to `__builtin__` because
-        # `__builtin__` is a superset and contains everything that is
-        # available in `exceptions`, which makes the translation simpler.
-        return '__builtin__'
-    else:
-        return module
+    lookup = dict(__builtin__='builtins', exceptions='builtins')
+    return lookup.get(module, module)
 
 
 def untranslate_module_name(module):
@@ -466,13 +466,17 @@ def untranslate_module_name(module):
     a module name available to the current version of Python.
 
     """
-    if PY3:
-        # remap `__builtin__` and `exceptions` to the `builtins` module
-        if module == '__builtin__':
-            module = 'builtins'
-        elif module == 'exceptions':
-            module = 'builtins'
-    return module
+    module = _0_9_6_compat_untranslate(module)
+    lookup = dict(builtins='__builtin__') if PY2 else {}
+    return lookup.get(module, module)
+
+
+def _0_9_6_compat_untranslate(module):
+    """Provide compatibility for pickles created with jsonpickle 0.9.6 and
+    earlier, remapping `exceptions` and `__builtin__` to `builtins`.
+    """
+    lookup = dict(__builtin__='builtins', exceptions='builtins')
+    return lookup.get(module, module)
 
 
 def importable_name(cls):
@@ -483,13 +487,13 @@ def importable_name(cls):
     >>> ex = Example()
     >>> importable_name(ex.__class__) == 'jsonpickle.util.Example'
     True
-    >>> importable_name(type(25)) == '__builtin__.int'
+    >>> importable_name(type(25)) == 'builtins.int'
     True
-    >>> importable_name(None.__class__) == '__builtin__.NoneType'
+    >>> importable_name(None.__class__) == 'builtins.NoneType'
     True
-    >>> importable_name(False.__class__) == '__builtin__.bool'
+    >>> importable_name(False.__class__) == 'builtins.bool'
     True
-    >>> importable_name(AttributeError) == '__builtin__.AttributeError'
+    >>> importable_name(AttributeError) == 'builtins.AttributeError'
     True
 
     """
