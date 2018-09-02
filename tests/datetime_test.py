@@ -81,16 +81,10 @@ class PersistantVariables(object):
         self._data = {}
 
     def __getitem__(self, key):
-        if key not in self._data:
-            self._data[key] = TimestampedVariable(None)
-
-        return self._data[key]
+        return self._data.setdefault(key, TimestampedVariable(None))
 
     def __setitem__(self, key, value):
-        if key not in self._data:
-            self._data[key] = TimestampedVariable(value)
-
-        return self._data[key]
+        return self._data.setdefault(key, TimestampedVariable(value))
 
     def __repr__(self):
         return str(self._data)
