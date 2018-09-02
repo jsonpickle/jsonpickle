@@ -1,10 +1,13 @@
 Change Log
 ==========
 
-Version 0.9.7 - TBD 2018
-------------------------
+Version 1.0 - September 1, 2018
+-------------------------------
     * *NOTE* jsonpickle no longer supports Python2.6, or Python3 < 3.4.
       The officially supported Python versions are now 2.7 and 3.4+.
+
+    * Improved Pandas and Numpy support.
+      (`#227 <https://github.com/jsonpickle/jsonpickle/pull/227>`_,
 
     * Improved support for pickling iterators.
       (`#216 <https://github.com/jsonpickle/jsonpickle/pull/216>`_,
@@ -12,6 +15,10 @@ Version 0.9.7 - TBD 2018
     * Better support for the stdlib `json` module when `simplejson`
       is not installed.
       (`#217 <https://github.com/jsonpickle/jsonpickle/pull/217>`_,
+
+    * jsonpickle will now output python3-style module names when
+      pickling builtins methods or functions.
+      (`#223 <https://github.com/jsonpickle/jsonpickle/pull/223>`_,
 
     * jsonpickle will always flatten primitives, even when ``max_depth``
       is reached, which avoids encoding unicode strings into their
