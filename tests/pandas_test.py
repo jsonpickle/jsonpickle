@@ -1,11 +1,7 @@
 from __future__ import absolute_import, division, unicode_literals
 import unittest
-import datetime
-import warnings
 
 import jsonpickle
-from jsonpickle import handlers
-from jsonpickle.compat import PY2, PY3
 
 from helper import SkippableTest
 
@@ -41,17 +37,17 @@ class PandasTestCase(SkippableTest):
         if self.should_skip:
             return self.skip('pandas is not importable')
         ser = pd.Series({
-                'an_int':np.int_(1),
-                'a_float':np.float_(2.5),
-                'a_nan':np.nan,
-                'a_minus_inf':-np.inf,
-                'an_inf':np.inf,
-                'a_str':np.str_('foo'),
-                'a_unicode':np.unicode_('bar'),
+                'an_int': np.int_(1),
+                'a_float': np.float_(2.5),
+                'a_nan': np.nan,
+                'a_minus_inf': -np.inf,
+                'an_inf': np.inf,
+                'a_str': np.str_('foo'),
+                'a_unicode': np.unicode_('bar'),
                 # TODO: the following dtypes are not currently supported.
-                #'object':np.object_({'a': 'b'}),
-                #'date':np.datetime64('2014-01-01'),
-                #'complex':np.complex_(1 - 2j)
+                # 'object': np.object_({'a': 'b'}),
+                # 'date': np.datetime64('2014-01-01'),
+                # 'complex': np.complex_(1 - 2j)
             })
         decoded_ser = self.roundtrip(ser)
         assert_series_equal(decoded_ser, ser)
@@ -60,17 +56,17 @@ class PandasTestCase(SkippableTest):
         if self.should_skip:
             return self.skip('pandas is not importable')
         df = pd.DataFrame({
-                'an_int':np.int_([1,2,3]),
-                'a_float':np.float_([2.5,3.5,4.5]),
-                'a_nan':np.array([np.nan]*3),
-                'a_minus_inf':np.array([-np.inf]*3),
-                'an_inf':np.array([np.inf]*3),
-                'a_str':np.str_('foo'),
-                'a_unicode':np.unicode_('bar'),
+                'an_int': np.int_([1, 2, 3]),
+                'a_float': np.float_([2.5, 3.5, 4.5]),
+                'a_nan': np.array([np.nan]*3),
+                'a_minus_inf': np.array([-np.inf]*3),
+                'an_inf': np.array([np.inf]*3),
+                'a_str': np.str_('foo'),
+                'a_unicode': np.unicode_('bar'),
                 # TODO: the following dtypes are not currently supported.
-                #'object':np.object_([{'a': 'b'}]*3),
-                #'date':np.array([np.datetime64('2014-01-01')]*3),
-                #'complex':np.complex_([1 - 2j, 2-1.2j, 3-1.3j])
+                # 'object': np.object_([{'a': 'b'}]*3),
+                # 'date': np.array([np.datetime64('2014-01-01')]*3),
+                # 'complex': np.complex_([1 - 2j, 2-1.2j, 3-1.3j])
             })
         decoded_df = self.roundtrip(df)
         assert_frame_equal(decoded_df, df)

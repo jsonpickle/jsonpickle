@@ -353,11 +353,13 @@ class NumpyTestCase(SkippableTest):
     def test_ndarray_dtype_object(self):
         a = np.array(['F'+str(i) for i in range(30)], dtype=np.object)
         buf = jsonpickle.encode(a)
-        # This is critical for reproducing the numpy segfault issue when restoring ndarray of dtype object
+        # This is critical for reproducing the numpy segfault issue when
+        # restoring ndarray of dtype object
         del a
         _a = jsonpickle.decode(buf)
         a = np.array(['F'+str(i) for i in range(30)], dtype=np.object)
         npt.assert_array_equal(a, _a)
+
 
 def suite():
     suite = unittest.TestSuite()
