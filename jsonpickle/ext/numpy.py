@@ -3,6 +3,7 @@ import ast
 import sys
 import zlib
 import warnings
+import json
 
 import numpy as np
 
@@ -10,6 +11,7 @@ from ..handlers import BaseHandler, register, unregister
 from ..compat import numeric_types
 from ..util import b64decode, b64encode
 from .. import compat
+
 
 __all__ = ['register_handlers', 'unregister_handlers']
 
@@ -139,7 +141,19 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
             data = super(NumpyNDArrayHandlerBinary, self).flatten(obj, data)
         else:
             # encode as binary
-            if hasattr(obj, 'tobytes'):
+            if obj.dtype == np.object:
+                # There's a bug deep in the bowels of numpy that causes a segfault when round-tripping an ndarray of dtype object.
+                # E.g., the following will result in a segfault:
+                #     import numpy as np
+                #     arr = np.array([str(i) for i in range(3)], dtype=np.object)
+                #     dtype = arr.dtype
+                #     shape = arr.shape
+                #     buf = arr.tobytes()
+                #     del arr
+                #     arr = np.ndarray(buffer=buf, dtype=dtype, shape=shape).copy()
+                # So, save as a binary-encoded list in this case
+                buffer = json.dumps(obj.tolist()).encode()
+            elif hasattr(obj, 'tobytes'):
                 # numpy docstring is lacking as of 1.11.2,
                 # but this is the option we need
                 buffer = obj.tobytes(order='a')
@@ -170,16 +184,25 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
             arr = np.array([values], dtype=self.restore_dtype(data))
         else:
             # decode binary representation
+            dtype = self.restore_dtype(data)
             buffer = b64decode(values)
             if self.compression:
                 buffer = self.compression.decompress(buffer)
-            arr = np.ndarray(
-                buffer=buffer,
-                dtype=self.restore_dtype(data),
-                shape=data.get('shape'),
-                order=data.get('order', 'C')
-            ).copy()  # make a copy, to force the result to own the data
-            self.restore_byteorder(data, arr)
+            # See note above about segfault bug for numpy dtype object. Those are saved as a list to work around that.
+            if dtype == np.object:
+                values = json.loads(buffer.decode())
+                arr = np.array(values, dtype=dtype, order=data.get('order', 'C'))
+                shape = data.get('shape', None)
+                if shape is not None:
+                    arr = arr.reshape(shape)
+            else:
+                arr = np.ndarray(
+                    buffer=buffer,
+                    dtype=dtype,
+                    shape=data.get('shape'),
+                    order=data.get('order', 'C')
+                ).copy()  # make a copy, to force the result to own the data
+                self.restore_byteorder(data, arr)
             self.restore_flags(data, arr)
 
         return arr
