@@ -572,7 +572,7 @@ class Pickler(object):
 def _mktyperef(obj):
     """Return a typeref dictionary
 
-    >>> _mktyperef(AssertionError) == {'py/type': '__builtin__.AssertionError'}
+    >>> _mktyperef(AssertionError) == {'py/type': 'builtins.AssertionError'}
     True
 
     """

@@ -321,7 +321,7 @@ class PicklingTestCase(unittest.TestCase):
 
         flattened = self.pickler.flatten(obj)
         self.assertEqual(flattened['typeref'],
-                         {tags.TYPE: '__builtin__.object'})
+                         {tags.TYPE: 'builtins.object'})
 
         inflated = self.unpickler.restore(flattened)
         self.assertEqual(inflated.typeref, object)
@@ -397,6 +397,19 @@ class PicklingTestCase(unittest.TestCase):
         actual = jsonpickle.decode(json)
         self.assertEqual(expect, actual)
         self.assertTrue(expect is actual)
+
+    def test_restore_legacy_builtins(self):
+        """
+        jsonpickle 0.9.6 and earlier used the Python 2 `__builtin__`
+        naming for builtins. Ensure those can be loaded until they're
+        no longer supported.
+        """
+        ae = jsonpickle.decode('{"py/type": "__builtin__.AssertionError"}')
+        assert ae is AssertionError
+        ae = jsonpickle.decode('{"py/type": "exceptions.AssertionError"}')
+        assert ae is AssertionError
+        cls = jsonpickle.decode('{"py/type": "__builtin__.int"}')
+        assert cls is int
 
 
 class JSONPickleTestCase(SkippableTest):
