@@ -8,6 +8,7 @@ PY2 = PY_MAJOR == 2
 PY3 = PY_MAJOR == 3
 
 class_types = (type,)
+iterator_types = (type(iter('')),)
 
 if PY3:
     import builtins

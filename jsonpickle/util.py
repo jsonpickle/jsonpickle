@@ -20,6 +20,7 @@ import inspect
 from . import tags
 from . import compat
 from .compat import numeric_types, PY2, PY3, class_types
+from .compat import iterator_types
 
 if PY2:
     import __builtin__
@@ -337,9 +338,6 @@ def is_collections(obj):
         return False
 
 
-IteratorType = type(iter(''))
-
-
 def is_reducible(obj):
     """
     Returns false if of a type which have special casing,
@@ -362,7 +360,7 @@ def is_reducible(obj):
                 is_sequence_subclass(obj) or
                 is_function(obj) or
                 is_module(obj) or
-                type(getattr(obj, '__slots__', None)) is IteratorType or
+                isinstance(getattr(obj, '__slots__', None), iterator_types) or
                 type(obj) is object or
                 obj is object or
                 (is_type(obj) and obj.__module__ == 'datetime')
