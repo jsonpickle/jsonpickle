@@ -7,24 +7,24 @@ PY_MAJOR = sys.version_info[0]
 PY2 = PY_MAJOR == 2
 PY3 = PY_MAJOR == 3
 
-class_types = type,
+class_types = (type,)
 
 if PY3:
-    import queue
     import builtins
+    import queue
+    from base64 import encodebytes, decodebytes
     string_types = (str,)
     numeric_types = (int, float)
     ustr = str
-    from base64 import encodebytes, decodebytes
 else:
-    queue = __import__('Queue')
     builtins = __import__('__builtin__')
-    string_types = (builtins.basestring,)
-    numeric_types = (int, float, builtins.long)
-    ustr = builtins.unicode
+    class_types += (types.ClassType,)
     encodebytes = base64.encodestring
     decodebytes = base64.decodestring
-    class_types += types.ClassType,
+    string_types = (builtins.basestring,)
+    numeric_types = (int, float, builtins.long)
+    queue = __import__('Queue')
+    ustr = builtins.unicode
 
 
 def iterator(class_):
