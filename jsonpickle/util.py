@@ -20,7 +20,7 @@ import inspect
 from . import tags
 from . import compat
 from .compat import numeric_types, PY2, PY3, class_types
-from .compat import iterator_types
+from .compat import abc_iterator, iterator_types
 
 if PY2:
     import __builtin__
@@ -326,8 +326,7 @@ def is_list_like(obj):
 
 def is_iterator(obj):
     is_file = PY2 and isinstance(obj, __builtin__.file)
-
-    return (isinstance(obj, collections.Iterator) and
+    return (isinstance(obj, abc_iterator) and
             not isinstance(obj, io.IOBase) and not is_file)
 
 

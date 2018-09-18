@@ -14,10 +14,12 @@ if PY3:
     import builtins
     import queue
     from base64 import encodebytes, decodebytes
+    from collections.abc import Iterator as abc_iterator
     string_types = (str,)
     numeric_types = (int, float)
     ustr = str
 else:
+    abc_iterator = __import__('collections').Iterator
     builtins = __import__('__builtin__')
     class_types += (types.ClassType,)
     encodebytes = base64.encodestring

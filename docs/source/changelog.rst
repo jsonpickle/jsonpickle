@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+Version 1.1 - Beta
+------------------
+    * Python 3.7 `collections.Iterator` deprecation warnings have been fixed.
+      (`#229 <https://github.com/jsonpickle/jsonpickle/issues/229>`_,
+
 Version 1.0 - September 1, 2018
 -------------------------------
     * *NOTE* jsonpickle no longer supports Python2.6, or Python3 < 3.4.
