@@ -29,11 +29,12 @@ Version 1.0 - September 1, 2018
       is reached, which avoids encoding unicode strings into their
       ``u'string'`` representation.
 
-      (`#180 <https://github.com/jsonpickle/jsonpickle/pull/207>`_,
-      `#176 <https://github.com/jsonpickle/jsonpickle/issues/198>`_).
+      (`#207 <https://github.com/jsonpickle/jsonpickle/pull/207>`_,
+      (`#180 <https://github.com/jsonpickle/jsonpickle/issues/180>`_,
+      `#198 <https://github.com/jsonpickle/jsonpickle/issues/198>`_).
 
     * Nested classes are now supported on Python 3.
-      (`#180 <https://github.com/jsonpickle/jsonpickle/pull/206>`_,
+      (`#206 <https://github.com/jsonpickle/jsonpickle/pull/206>`_,
       `#176 <https://github.com/jsonpickle/jsonpickle/issues/176>`_).
 
     * Better support for older (pre-1.9) versions of numpy

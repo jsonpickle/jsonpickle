@@ -26,8 +26,7 @@ Choosing and Loading Backends
 
 jsonpickle allows the user to specify what JSON backend to use
 when encoding and decoding. By default, jsonpickle will try to use, in
-the following order: `simplejson <http://undefined.org/python/#simplejson>`_,
-:mod:`json`, and `demjson <http://deron.meranda.us/python/demjson/>`_.
+the following order: :mod:`simplejson`, :mod:`json`, and :mod:`demjson`.
 The prefered backend can be set via :func:`jsonpickle.set_preferred_backend`.
 Additional JSON backends can be used via :func:`jsonpickle.load_backend`.
 
@@ -41,7 +40,7 @@ Supported backends:
 
  * :mod:`json`
  * `simplejson <http://undefined.org/python/#simplejson>`_
- * `demjson <httphttps://deron.meranda.us/python/demjson/>`_
+ * `demjson <https://deron.meranda.us/python/demjson/>`_
 
 Experimental backends:
 
