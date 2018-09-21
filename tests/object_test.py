@@ -1,4 +1,5 @@
 from __future__ import absolute_import, division, unicode_literals
+import enum
 import collections
 import decimal
 import re
@@ -174,20 +175,6 @@ class ThingWithClassAsDefaultFactory(collections.defaultdict):
 
     def __call__(self):
         return self.__class__()
-
-
-try:
-    import enum
-except ImportError:
-    import types
-
-    class enum(types.ModuleType):
-
-        class Enum(object):
-            pass
-
-        class IntEnum(object):
-            pass
 
 
 class IntEnumTest(enum.IntEnum):
