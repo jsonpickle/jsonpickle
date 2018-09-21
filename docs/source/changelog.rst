@@ -4,7 +4,7 @@ Change Log
 Version 1.1 - Beta
 ------------------
     * Python 3.7 `collections.Iterator` deprecation warnings have been fixed.
-      (`#229 <https://github.com/jsonpickle/jsonpickle/issues/229>`_,
+      (`#229 <https://github.com/jsonpickle/jsonpickle/issues/229>`_),
 
 Version 1.0 - September 1, 2018
 -------------------------------
@@ -12,25 +12,25 @@ Version 1.0 - September 1, 2018
       The officially supported Python versions are now 2.7 and 3.4+.
 
     * Improved Pandas and Numpy support.
-      (`#227 <https://github.com/jsonpickle/jsonpickle/pull/227>`_,
+      (`#227 <https://github.com/jsonpickle/jsonpickle/pull/227>`_)
 
     * Improved support for pickling iterators.
-      (`#216 <https://github.com/jsonpickle/jsonpickle/pull/216>`_,
+      (`#216 <https://github.com/jsonpickle/jsonpickle/pull/216>`_)
 
     * Better support for the stdlib `json` module when `simplejson`
       is not installed.
-      (`#217 <https://github.com/jsonpickle/jsonpickle/pull/217>`_,
+      (`#217 <https://github.com/jsonpickle/jsonpickle/pull/217>`_)
 
     * jsonpickle will now output python3-style module names when
       pickling builtins methods or functions.
-      (`#223 <https://github.com/jsonpickle/jsonpickle/pull/223>`_,
+      (`#223 <https://github.com/jsonpickle/jsonpickle/pull/223>`_)
 
     * jsonpickle will always flatten primitives, even when ``max_depth``
       is reached, which avoids encoding unicode strings into their
       ``u'string'`` representation.
 
       (`#207 <https://github.com/jsonpickle/jsonpickle/pull/207>`_,
-      (`#180 <https://github.com/jsonpickle/jsonpickle/issues/180>`_,
+      `#180 <https://github.com/jsonpickle/jsonpickle/issues/180>`_,
       `#198 <https://github.com/jsonpickle/jsonpickle/issues/198>`_).
 
     * Nested classes are now supported on Python 3.
