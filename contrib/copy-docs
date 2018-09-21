@@ -3,4 +3,9 @@
 cd docs &&
 rm -rf build &&
 make html &&
-cp -r build/html/* ../../jsonpickle.github.com
+rsync -avrP \
+	--delete \
+	--exclude=.git \
+	--exclude=.gitignore \
+	--exclude=.buildinfo \
+	build/html/ ../../jsonpickle.github.com/
