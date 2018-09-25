@@ -121,7 +121,7 @@ class DateTimeSimpleTestCase(unittest.TestCase):
         """
         pickled = jsonpickle.encode(obj)
         unpickled = jsonpickle.decode(pickled)
-        self.assertEquals(obj, unpickled)
+        self.assertEqual(obj, unpickled)
 
     def test_datetime(self):
         """
