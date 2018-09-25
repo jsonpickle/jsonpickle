@@ -142,27 +142,30 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
         else:
             # encode as binary
             if obj.dtype == np.object:
-                # There's a bug deep in the bowels of numpy that causes a segfault when round-tripping an ndarray of dtype object.
+                # There's a bug deep in the bowels of numpy that causes a
+                # segfault when round-tripping an ndarray of dtype object.
                 # E.g., the following will result in a segfault:
                 #     import numpy as np
-                #     arr = np.array([str(i) for i in range(3)], dtype=np.object)
+                #     arr = np.array([str(i) for i in range(3)],
+                #                    dtype=np.object)
                 #     dtype = arr.dtype
                 #     shape = arr.shape
                 #     buf = arr.tobytes()
                 #     del arr
-                #     arr = np.ndarray(buffer=buf, dtype=dtype, shape=shape).copy()
+                #     arr = np.ndarray(buffer=buf, dtype=dtype,
+                #                      shape=shape).copy()
                 # So, save as a binary-encoded list in this case
-                buffer = json.dumps(obj.tolist()).encode()
+                buf = json.dumps(obj.tolist()).encode()
             elif hasattr(obj, 'tobytes'):
                 # numpy docstring is lacking as of 1.11.2,
                 # but this is the option we need
-                buffer = obj.tobytes(order='a')
+                buf = obj.tobytes(order='a')
             else:
                 # numpy < 1.9 compatibility
-                buffer = obj.tostring(order='a')
+                buf = obj.tostring(order='a')
             if self.compression:
-                buffer = self.compression.compress(buffer)
-            data['values'] = b64encode(buffer)
+                buf = self.compression.compress(buf)
+            data['values'] = b64encode(buf)
             data['shape'] = obj.shape
             self.flatten_dtype(obj.dtype.newbyteorder('N'), data)
             self.flatten_byteorder(obj, data)
@@ -185,19 +188,21 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
         else:
             # decode binary representation
             dtype = self.restore_dtype(data)
-            buffer = b64decode(values)
+            buf = b64decode(values)
             if self.compression:
-                buffer = self.compression.decompress(buffer)
-            # See note above about segfault bug for numpy dtype object. Those are saved as a list to work around that.
+                buf = self.compression.decompress(buf)
+            # See note above about segfault bug for numpy dtype object. Those
+            # are saved as a list to work around that.
             if dtype == np.object:
-                values = json.loads(buffer.decode())
-                arr = np.array(values, dtype=dtype, order=data.get('order', 'C'))
+                values = json.loads(buf.decode())
+                arr = np.array(values, dtype=dtype,
+                               order=data.get('order', 'C'))
                 shape = data.get('shape', None)
                 if shape is not None:
                     arr = arr.reshape(shape)
             else:
                 arr = np.ndarray(
-                    buffer=buffer,
+                    buffer=buf,
                     dtype=dtype,
                     shape=data.get('shape'),
                     order=data.get('order', 'C')
