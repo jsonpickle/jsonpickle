@@ -19,7 +19,7 @@ if PY3:
     numeric_types = (int, float)
     ustr = str
 else:
-    from collections import Iterator as abc_iterator
+    from collections import Iterator as abc_iterator  # noqa
     builtins = __import__('__builtin__')
     class_types += (types.ClassType,)
     encodebytes = base64.encodestring
