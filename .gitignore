@@ -8,6 +8,7 @@
 /dist
 /env*
 /tags
+/.pytest_cache
 __pycache__
 .tox/
 .idea
