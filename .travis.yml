@@ -32,4 +32,4 @@ install:
   - "pip install tox"
 
 script:
-  - tox
+  - tox --develop --skip-missing-interpreters
