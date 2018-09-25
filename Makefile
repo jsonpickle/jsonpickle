@@ -4,7 +4,7 @@
 CTAGS ?= ctags
 FIND ?= find
 PYTHON ?= python
-NOSE ?= $(PYTHON) -m nose
+PYTEST ?= $(PYTHON) -m pytest
 RM_R ?= rm -fr
 SH ?= sh
 TOX ?= tox
@@ -12,7 +12,7 @@ TOX ?= tox
 # Options
 flags ?=
 timeout ?= 600
-TESTCMD ?= $(NOSE) --with-doctest $(flags)
+TESTCMD ?= $(PYTEST) --doctest-modules $(flags)
 TOXCMD ?= $(TOX) --develop --skip-missing-interpreters
 
 ifdef V

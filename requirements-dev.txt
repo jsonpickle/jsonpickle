@@ -5,10 +5,11 @@ ecdsa
 enum34; python_version < '3.4'
 feedparser
 jsonlib; python_version < '3.0'
-nose
 numpy
 pandas
 pymongo
+pytest
+pytest-cov
 simplejson
 sqlalchemy
 ujson
