@@ -2,9 +2,9 @@
    :target: https://badge.fury.io/py/jsonpickle
    :alt: PyPI
 
-.. image:: https://img.shields.io/pypi/pyversions/jsonpickle.svg
-   :target: https://badge.fury.io/py/jsonpickle
-   :alt: PyPI
+.. image:: https://img.shields.io/badge/docs-passing-green.svg
+   :target: http://jsonpickle.github.io/
+   :alt: docs
    
 .. image:: https://travis-ci.org/jsonpickle/jsonpickle.svg?branch=master
    :target: https://travis-ci.org/jsonpickle/jsonpickle
