@@ -1,3 +1,20 @@
+.. image:: https://badge.fury.io/py/jsonpickle.svg
+   :target: https://badge.fury.io/py/jsonpickle
+   :alt: PyPI
+
+.. image:: https://img.shields.io/pypi/pyversions/jsonpickle.svg
+   :target: https://badge.fury.io/py/jsonpickle
+   :alt: PyPI
+   
+.. image:: https://travis-ci.org/jsonpickle/jsonpickle.svg?branch=master
+   :target: https://travis-ci.org/jsonpickle/jsonpickle
+   :alt: travis
+
+.. image:: https://img.shields.io/badge/License-BSD%203--Clause-blue.svg
+   :target: https://github.com/jsonpickle/jsonpickle/blob/master/COPYING
+   :alt: BSD   
+
+   
 jsonpickle
 ==========
 jsonpickle is a library for the two-way conversion of complex Python objects
