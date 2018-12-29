@@ -68,7 +68,7 @@ The setup.cfg file implements the following features:
 - Supplies two 'extras':
   - testing: requirements for running tests
   - docs: requirements for building docs
-  - these extras split the declaration into "upstream" (requirements as declared by the skeleton) and "local" (those specific to the local project)
+  - these extras split the declaration into "upstream" (requirements as declared by the skeleton) and "local" (those specific to the local project); these markers help avoid merge conflicts
 - Placeholder for defining entry points
 
 Additionally, the setup.py file declares `use_scm_version` which relies on [setuptools_scm](https://pypi.org/project/setuptools_scm) to do two things:
