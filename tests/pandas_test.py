@@ -72,8 +72,8 @@ class PandasTestCase(SkippableTest):
         assert_frame_equal(decoded_df, df)
 
     def test_multindex_dataframe_roundtrip(self):
-        # if self.should_skip:
-        #     return self.skip('pandas is not importable')
+        if self.should_skip:
+            return self.skip('pandas is not importable')
 
         df = pd.DataFrame({
             'idx_lvl0': ['a', 'b', 'c'],
@@ -86,8 +86,7 @@ class PandasTestCase(SkippableTest):
             'a_str': np.str_('foo'),
             'a_unicode': np.unicode_('bar'),
         })
-
-        df.set_index(['idx_lvl0', 'idx_lvl1', ], inplace=True)
+        df = df.set_index(['idx_lvl0', 'idx_lvl1', ])
 
         decoded_df = self.roundtrip(df)
         assert_frame_equal(decoded_df, df)

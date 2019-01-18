@@ -59,7 +59,7 @@ class PandasDfHandler(BaseHandler):
         dtype = obj.dtypes.to_dict()
 
         # Handles named multi-indexes
-        index_col = obj.index.names if list(obj.index.names) != [None] else 0
+        index_col = list(obj.index.names) if list(obj.index.names) != [None] else 0
 
         meta = {'dtypes': {k: str(dtype[k]) for k in dtype},
                 'index_col': index_col}
@@ -70,6 +70,7 @@ class PandasDfHandler(BaseHandler):
     def restore(self, data):
         csv, meta = self.pp.restore_pandas(data)
         dtype = meta['dtypes'] if 'dtypes' in meta else None
+
         df = pd.read_csv(StringIO(csv),
                          index_col=meta.get('index_col', None),
                          dtype=dtype)
