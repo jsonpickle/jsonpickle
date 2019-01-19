@@ -56,15 +56,21 @@ class PandasDfHandler(BaseHandler):
     pp = PandasProcessor()
 
     def flatten(self, obj, data):
-        # TODO: handle multi-index
         dtype = obj.dtypes.to_dict()
-        meta = {'dtypes': {k: str(dtype[k]) for k in dtype}, 'index_col': 0}
+
+        # Handles named multi-indexes
+        index_col = list(obj.index.names) if list(obj.index.names) != [None] else 0
+
+        meta = {'dtypes': {k: str(dtype[k]) for k in dtype},
+                'index_col': index_col}
+
         data = self.pp.flatten_pandas(obj.to_csv(), data, meta)
         return data
 
     def restore(self, data):
         csv, meta = self.pp.restore_pandas(data)
         dtype = meta['dtypes'] if 'dtypes' in meta else None
+
         df = pd.read_csv(StringIO(csv),
                          index_col=meta.get('index_col', None),
                          dtype=dtype)
