@@ -1,15 +1,14 @@
 sudo: false
 dist: xenial
 language: python
-
 python:
-- 2.7
-#- 3.4  # broken for some reason
-- 3.5
-- 3.6
-- &latest_py3 3.7
-
-env: TOXENV=python
+  - "2.7"
+# - "3.4"  # tox fails in 3.4, jobs timeout
+  - "3.5"
+  - "3.6"
+  - &latest_py3 "3.7"
+install: pip install tox-travis
+script: tox --develop --skip-missing-interpreters
 
 jobs:
   fast_finish: true
@@ -29,9 +28,3 @@ jobs:
         secure: LZwSEE+UMTtwPsRF7Bdfz9pPa6bGnvSqIUEuKxJ4eqwguP6HhsVGRkg6pj6WVyz4+zqOwgBtF8nu6Ul1I9MlOYjhOeI/1BXHSW4AuuFc8GFNEI0O/22dpbaXKl3Va2iVbb0np5iVw8tMlnJDLe9zjEeuPgk/y0j9+x8x81iw0nM=
       distributions: dists
       skip_cleanup: true
-
-install:
-  - "pip install tox"
-
-script:
-  - tox --develop --skip-missing-interpreters
