@@ -1,10 +1,13 @@
 Change Log
 ==========
 
-Version 1.1 - Beta
-------------------
+Version 1.1 - January 22, 2019
+------------------------------
     * Python 3.7 `collections.Iterator` deprecation warnings have been fixed.
       (`#229 <https://github.com/jsonpickle/jsonpickle/issues/229>`_).
+
+    * Improved Pandas support for datetime and complex numbers.
+      (`#245 <https://github.com/jsonpickle/jsonpickle/pull/245>`_)
 
 Version 1.0 - September 1, 2018
 -------------------------------
