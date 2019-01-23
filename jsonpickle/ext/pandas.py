@@ -52,6 +52,23 @@ class PandasProcessor(object):
         return (buf, meta)
 
 
+def make_read_csv_params(meta):
+    meta_dtypes = meta.get('dtypes', {})
+
+    parse_dates = []
+    converters = {}
+    dtype = {}
+    for k, v in meta_dtypes.items():
+        if v.startswith('datetime'):
+            parse_dates.append(k)
+        elif v.startswith('complex'):
+            converters[k] = complex
+        else:
+            dtype[k] = v
+
+    return dict(dtype=dtype, parse_dates=parse_dates, converters=converters)
+
+
 class PandasDfHandler(BaseHandler):
     pp = PandasProcessor()
 
@@ -69,11 +86,10 @@ class PandasDfHandler(BaseHandler):
 
     def restore(self, data):
         csv, meta = self.pp.restore_pandas(data)
-        dtype = meta['dtypes'] if 'dtypes' in meta else None
-
+        params = make_read_csv_params(meta)
         df = pd.read_csv(StringIO(csv),
                          index_col=meta.get('index_col', None),
-                         dtype=dtype)
+                         **params)
         return df
 
 
@@ -90,8 +106,8 @@ class PandasSeriesHandler(BaseHandler):
 
     def restore(self, data):
         csv, meta = self.pp.restore_pandas(data)
-        dtypes = meta['dtypes'] if 'dtypes' in meta else None
-        df = pd.read_csv(StringIO(csv), dtype=dtypes)
+        params = make_read_csv_params(meta)
+        df = pd.read_csv(StringIO(csv), **params)
         ser = pd.Series(data=df.iloc[:, 1:].values[0],
                         index=df.columns[1:].values,
                         name=meta.get('name', None))

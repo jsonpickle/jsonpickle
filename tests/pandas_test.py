@@ -44,10 +44,10 @@ class PandasTestCase(SkippableTest):
             'an_inf': np.inf,
             'a_str': np.str_('foo'),
             'a_unicode': np.unicode_('bar'),
+            'date': np.datetime64('2014-01-01'),
+            'complex': np.complex_(1 - 2j),
             # TODO: the following dtypes are not currently supported.
             # 'object': np.object_({'a': 'b'}),
-            # 'date': np.datetime64('2014-01-01'),
-            # 'complex': np.complex_(1 - 2j)
         })
         decoded_ser = self.roundtrip(ser)
         assert_series_equal(decoded_ser, ser)
@@ -63,10 +63,10 @@ class PandasTestCase(SkippableTest):
             'an_inf': np.array([np.inf] * 3),
             'a_str': np.str_('foo'),
             'a_unicode': np.unicode_('bar'),
+            'date': np.array([np.datetime64('2014-01-01')] * 3),
+            'complex': np.complex_([1 - 2j, 2 - 1.2j, 3 - 1.3j]),
             # TODO: the following dtypes are not currently supported.
             # 'object': np.object_([{'a': 'b'}]*3),
-            # 'date': np.array([np.datetime64('2014-01-01')]*3),
-            # 'complex': np.complex_([1 - 2j, 2-1.2j, 3-1.3j])
         })
         decoded_df = self.roundtrip(df)
         assert_frame_equal(decoded_df, df)
