@@ -2,6 +2,8 @@
 ignore =
 	# Allow tabs for indentation
 	W191
+	# Workaround for https://github.com/PyCQA/pycodestyle/issues/836
+	E117
 	# W503 violates spec https://github.com/PyCQA/pycodestyle/issues/513
 	W503
 	# W504 has issues https://github.com/OCA/maintainer-quality-tools/issues/545
