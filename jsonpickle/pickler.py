@@ -68,8 +68,8 @@ def encode(value,
         NOTE: A side-effect of the above settings is that float values will be
         converted to Decimal when converting to json.
     :param fail_safe: If set to a function exceptions are ignored when pickling
-        and if a exception happens the object is pickled as None and the
-        function is called with the exception
+        and if a exception happens the function is called and the return value
+        is used as the value for the object that caused the error
 
     >>> encode('my string') == '"my string"'
     True
@@ -249,7 +249,7 @@ class Pickler(object):
             raise
         except Exception as e:
             if self.fail_safe is None: raise
-            else: self.fail_safe(e)
+            else: return self.fail_safe(e)
 
     def _list_recurse(self, obj):
         return [self._flatten(v) for v in obj]

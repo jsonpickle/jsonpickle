@@ -237,6 +237,10 @@ class ThingWithTimedeltaAttribute(object):
     def __getinitargs__(self):
         return self.offset,
 
+class FailSafeTestCase(SkippableTest):
+    class BadClass:
+        def __getstate__(self):
+            a # will raise NameError
 
 class IntKeysObject(object):
 
@@ -257,25 +261,41 @@ class AdvancedObjectsTestCase(SkippableTest):
         self.pickler.reset()
         self.unpickler.reset()
 
-    def test_no_error_when_failsafe(self):
-        class foo:
-            """should be pickled as None"""
-            def __getstate__(self):
-                a # will raise NameError
-        f = foo()
+    good = 'good'
 
-        good = 'good'
+    to_pickle = [BadClass(), good]
 
+    def test_no_error(self):
+        encoded = jsonpickle.encode(self.to_pickle, fail_safe=lambda e:None)
+        decoded = jsonpickle.decode(encoded)
+        assert decoded[0] is None
+        assert decoded[1] == 'good'
+
+    def test_error_recorded(self):
         recordedEx = []
         def recorder(exception):
             recordedEx.append(exception)
 
-        encoded = jsonpickle.encode([f,good], fail_safe=recorder)
-        decoded = jsonpickle.decode(encoded)
-        assert decoded[0] is None
-        assert decoded[1] == 'good'
+        encoded = jsonpickle.encode(self.to_pickle, fail_safe=recorder)
         assert len(recordedEx) == 1
         assert isinstance(recordedEx[0], Exception)
+
+    def test_custom_err_msg(self):
+        CUSTOM_ERR_MSG = "custom err msg"
+        encoded = jsonpickle.encode(self.to_pickle, fail_safe=lambda e:CUSTOM_ERR_MSG)
+        decoded = jsonpickle.decode(encoded)
+        assert decoded[0] == CUSTOM_ERR_MSG
+
+
+class AdvancedObjectsTestCase(SkippableTest):
+
+    def setUp(self):
+        self.pickler = jsonpickle.pickler.Pickler()
+        self.unpickler = jsonpickle.unpickler.Unpickler()
+
+    def tearDown(self):
+        self.pickler.reset()
+        self.unpickler.reset()
 
     def test_defaultdict_roundtrip(self):
         """Make sure we can handle collections.defaultdict(list)"""
@@ -927,6 +947,7 @@ class ExternalHandlerTestCase(unittest.TestCase):
 
 def suite():
     suite = unittest.TestSuite()
+    suite.addTest(unittest.makeSuite(FailSafeTestCase))
     suite.addTest(unittest.makeSuite(AdvancedObjectsTestCase))
     suite.addTest(unittest.makeSuite(ExternalHandlerTestCase))
     return suite
