@@ -266,10 +266,16 @@ class AdvancedObjectsTestCase(SkippableTest):
 
         good = 'good'
 
-        encoded = jsonpickle.encode([f,good], fail_safe=True)
+        recordedEx = []
+        def recorder(exception):
+            recordedEx.append(exception)
+
+        encoded = jsonpickle.encode([f,good], fail_safe=recorder)
         decoded = jsonpickle.decode(encoded)
         assert decoded[0] is None
         assert decoded[1] == 'good'
+        assert len(recordedEx) == 1
+        assert isinstance(recordedEx[0], Exception)
 
     def test_defaultdict_roundtrip(self):
         """Make sure we can handle collections.defaultdict(list)"""

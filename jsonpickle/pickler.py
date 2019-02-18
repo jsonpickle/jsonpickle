@@ -32,7 +32,7 @@ def encode(value,
            use_decimal=False,
            numeric_keys=False,
            use_base85=False):
-           fail_safe=False):
+           fail_safe=None):
     """Return a JSON formatted representation of value, a Python object.
 
     :param unpicklable: If set to False then the output will not contain the
@@ -67,8 +67,9 @@ def encode(value,
 
         NOTE: A side-effect of the above settings is that float values will be
         converted to Decimal when converting to json.
-    :param fail_safe: If set to True exceptions are ignored when pickling
-        and if a exception happens the object is pickled as None.
+    :param fail_safe: If set to a function exceptions are ignored when pickling
+        and if a exception happens the object is pickled as None and the
+        function is called with the exception
 
     >>> encode('my string') == '"my string"'
     True
@@ -113,7 +114,7 @@ class Pickler(object):
                  numeric_keys=False,
                  use_decimal=False,
                  use_base85=False):
-                 fail_safe=False):
+                 fail_safe=None):
         self.unpicklable = unpicklable
         self.make_refs = make_refs
         self.backend = backend or json
@@ -246,8 +247,9 @@ class Pickler(object):
 
         except (KeyboardInterrupt, SystemExit):
             raise
-        except Exception:
-            if not self.fail_safe: raise
+        except Exception as e:
+            if self.fail_safe is None: raise
+            else: self.fail_safe(e)
 
     def _list_recurse(self, obj):
         return [self._flatten(v) for v in obj]
