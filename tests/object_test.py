@@ -257,6 +257,20 @@ class AdvancedObjectsTestCase(SkippableTest):
         self.pickler.reset()
         self.unpickler.reset()
 
+    def test_no_error_when_failsafe(self):
+        class foo:
+            """should be pickled as None"""
+            def __getstate__(self):
+                a # will raise NameError
+        f = foo()
+
+        good = 'good'
+
+        encoded = jsonpickle.encode([f,good], fail_safe=True)
+        decoded = jsonpickle.decode(encoded)
+        assert decoded[0] is None
+        assert decoded[1] == 'good'
+
     def test_defaultdict_roundtrip(self):
         """Make sure we can handle collections.defaultdict(list)"""
         # setup

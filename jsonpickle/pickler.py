@@ -32,6 +32,7 @@ def encode(value,
            use_decimal=False,
            numeric_keys=False,
            use_base85=False):
+           fail_safe=False):
     """Return a JSON formatted representation of value, a Python object.
 
     :param unpicklable: If set to False then the output will not contain the
@@ -66,6 +67,8 @@ def encode(value,
 
         NOTE: A side-effect of the above settings is that float values will be
         converted to Decimal when converting to json.
+    :param fail_safe: If set to True exceptions are ignored when pickling
+        and if a exception happens the object is pickled as None.
 
     >>> encode('my string') == '"my string"'
     True
@@ -93,6 +96,7 @@ def encode(value,
             numeric_keys=numeric_keys,
             use_decimal=use_decimal,
             use_base85=use_base85)
+            fail_safe=fail_safe)
     return backend.encode(context.flatten(value, reset=reset))
 
 
@@ -109,6 +113,7 @@ class Pickler(object):
                  numeric_keys=False,
                  use_decimal=False,
                  use_base85=False):
+                 fail_safe=False):
         self.unpicklable = unpicklable
         self.make_refs = make_refs
         self.backend = backend or json
@@ -135,6 +140,9 @@ class Pickler(object):
         else:
             self._bytes_tag = tags.B64
             self._bytes_encoder = util.b64encode
+
+        # ignore exceptions
+        self.fail_safe = fail_safe
 
     def reset(self):
         self._objs = {}
@@ -222,19 +230,24 @@ class Pickler(object):
 
     def _flatten_obj(self, obj):
         self._seen.append(obj)
+
         max_reached = self._max_reached()
-        in_cycle = _in_cycle(obj, self._objs, max_reached, self.make_refs)
-        if in_cycle:
-            # break the cycle
-            flatten_func = repr
-        else:
-            flatten_func = self._get_flattener(obj)
 
-        if flatten_func is None:
-            self._pickle_warning(obj)
-            return None
+        try:
 
-        return flatten_func(obj)
+            in_cycle = _in_cycle(obj, self._objs, max_reached, self.make_refs)
+            if in_cycle:
+                # break the cycle
+                flatten_func = repr
+            else:
+                flatten_func = self._get_flattener(obj)
+
+                return flatten_func(obj)
+
+        except (KeyboardInterrupt, SystemExit):
+            raise
+        except Exception:
+            if not self.fail_safe: raise
 
     def _list_recurse(self, obj):
         return [self._flatten(v) for v in obj]
