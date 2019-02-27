@@ -76,7 +76,10 @@ class PandasDfHandler(BaseHandler):
         dtype = obj.dtypes.to_dict()
 
         # Handles named multi-indexes
-        index_col = list(obj.index.names) if list(obj.index.names) != [None] else 0
+        if list(obj.index.names) != [None]:
+            index_col = list(obj.index.names)
+        else:
+            index_col = 0
 
         meta = {'dtypes': {k: str(dtype[k]) for k in dtype},
                 'index_col': index_col}
