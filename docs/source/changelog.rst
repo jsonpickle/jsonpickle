@@ -1,6 +1,14 @@
 Change Log
 ==========
 
+Version 1.2 - TBD 2019
+----------------------
+    * Improved support for objects that contain dicts with Integer keys.
+      Previously, jsonpickle could not restore objects that contained
+      dicts with integer keys and provided getstate only.
+      These objects are now handled robustly.
+      (`#247 <https://github.com/jsonpickle/jsonpickle/issues/247>`_).
+
 Version 1.1 - January 22, 2019
 ------------------------------
     * Python 3.7 `collections.Iterator` deprecation warnings have been fixed.
