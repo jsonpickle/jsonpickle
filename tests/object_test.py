@@ -556,7 +556,7 @@ class AdvancedObjectsTestCase(SkippableTest):
         self.assertTrue(util.is_reducible(d))
         self.assertTrue(has_reduce or has_reduce_ex)
 
-    def test_int_keys_in_object_without_getstate_only(self):
+    def test_int_keys_in_object_with_getstate_only(self):
         obj = IntKeysObject()
         encoded = jsonpickle.encode(obj, keys=True)
         decoded = jsonpickle.decode(encoded, keys=True)
