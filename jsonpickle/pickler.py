@@ -5,6 +5,7 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 from __future__ import absolute_import, division, unicode_literals
+import decimal
 import warnings
 import sys
 import types
@@ -28,6 +29,7 @@ def encode(value,
            warn=False,
            context=None,
            max_iter=None,
+           use_decimal=False,
            numeric_keys=False):
     """Return a JSON formatted representation of value, a Python object.
 
@@ -50,6 +52,19 @@ def encode(value,
         (e.g. file descriptors).
     :param max_iter: If set to a non-negative integer then jsonpickle will
         consume at most `max_iter` items when pickling iterators.
+    :param use_decimal: If set to True jsonpickle will allow Decimal
+        instances to pass-through, with the assumption that the simplejson
+        backend will be used in `use_decimal` mode.  In order to use this mode
+        you will need to configure simplejson::
+
+            jsonpickle.set_encoder_options('simplejson',
+                                           use_decimal=True, sort_keys=True)
+            jsonpickle.set_decoder_options('simplejson',
+                                           use_decimal=True)
+            jsonpickle.set_preferred_backend('simplejson')
+
+        NOTE: A side-effect of the above settings is that float values will be
+        converted to Decimal when converting to json.
 
     >>> encode('my string') == '"my string"'
     True
@@ -71,7 +86,8 @@ def encode(value,
             max_depth=max_depth,
             warn=warn,
             max_iter=max_iter,
-            numeric_keys=numeric_keys)
+            numeric_keys=numeric_keys,
+            use_decimal=use_decimal)
     return backend.encode(context.flatten(value, reset=reset))
 
 
@@ -85,7 +101,8 @@ class Pickler(object):
                  keys=False,
                  warn=False,
                  max_iter=None,
-                 numeric_keys=False):
+                 numeric_keys=False,
+                 use_decimal=False):
         self.unpicklable = unpicklable
         self.make_refs = make_refs
         self.backend = backend or json
@@ -102,6 +119,8 @@ class Pickler(object):
         self._seen = []
         # maximum amount of items to take from a pickled iterator
         self._max_iter = max_iter
+        # Whether to allow decimals to pass-through
+        self._use_decimal = use_decimal
 
     def reset(self):
         self._objs = {}
@@ -217,6 +236,10 @@ class Pickler(object):
             return self._flatten_bytestring
 
         if util.is_primitive(obj):
+            return lambda obj: obj
+
+        # Decimal is a primitive when use_decimal is True
+        if self._use_decimal and isinstance(obj, decimal.Decimal):
             return lambda obj: obj
 
         list_recurse = self._list_recurse

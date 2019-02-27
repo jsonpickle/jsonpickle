@@ -1,4 +1,5 @@
 from __future__ import absolute_import, division, unicode_literals
+import decimal
 import unittest
 from warnings import warn
 
@@ -88,6 +89,35 @@ class SimpleJsonTestCase(BackendBase):
             '"child": null}'
             ']}')
         self.assertEncodeDecode(expected_pickled)
+
+    def test_decimal(self):
+        # Default behavior: Decimal is preserved
+        obj = decimal.Decimal(0.5)
+        as_json = jsonpickle.dumps(obj)
+        clone = jsonpickle.loads(as_json)
+        self.assertTrue(isinstance(clone, decimal.Decimal))
+        self.assertEqual(obj, clone)
+
+        # Custom behavior: we want to use simplejson's Decimal support.
+        jsonpickle.set_encoder_options('simplejson',
+                                       use_decimal=True, sort_keys=True)
+
+        jsonpickle.set_decoder_options('simplejson',
+                                       use_decimal=True)
+
+        # use_decimal mode allows Decimal objects to pass-through to simplejson.
+        # The end result is we get a simple '0.5' value as our json string.
+        as_json = jsonpickle.dumps(obj, unpicklable=True, use_decimal=True)
+        self.assertEqual(as_json, '0.5')
+        # But when loading we get back a Decimal.
+        clone = jsonpickle.loads(as_json)
+        self.assertTrue(isinstance(clone, decimal.Decimal))
+
+        # side-effect: floats become decimals too!
+        obj = 0.5
+        as_json = jsonpickle.dumps(obj)
+        clone = jsonpickle.loads(as_json)
+        self.assertTrue(isinstance(clone, decimal.Decimal))
 
 
 def has_module(module):
