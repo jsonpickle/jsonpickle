@@ -122,8 +122,8 @@ class JSONBackend(object):
             self._decoder_exceptions[name] = loads_exc
 
         # Setup the default args and kwargs for this encoder/decoder
-        self._encoder_options[name] = ([], {})
-        self._decoder_options[name] = ([], {})
+        self._encoder_options.setdefault(name, ([], {}))
+        self._decoder_options.setdefault(name, ([], {}))
 
         # Add this backend to the list of candidate backends
         self._backend_names.append(name)
