@@ -503,10 +503,10 @@ class AdvancedObjectsTestCase(SkippableTest):
         self.assertEqual(restored.data, data)
 
     def test_decimal(self):
-        obj = decimal.Decimal(1)
+        obj = decimal.Decimal('0.5')
         flattened = self.pickler.flatten(obj)
         inflated = self.unpickler.restore(flattened)
-        self.assertEqual(type(inflated), decimal.Decimal)
+        self.assertTrue(isinstance(inflated, decimal.Decimal))
 
     def test_repr_using_jsonpickle(self):
         thing = ObjWithJsonPickleRepr()
