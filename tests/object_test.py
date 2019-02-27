@@ -233,6 +233,15 @@ class ThingWithTimedeltaAttribute(object):
         return self.offset,
 
 
+class IntKeysObject(object):
+
+    def __init__(self):
+        self.data = {0: 0}
+
+    def __getstate__(self):
+        return self.__dict__
+
+
 class AdvancedObjectsTestCase(SkippableTest):
 
     def setUp(self):
@@ -546,6 +555,12 @@ class AdvancedObjectsTestCase(SkippableTest):
         has_reduce, has_reduce_ex = util.has_reduce(d)
         self.assertTrue(util.is_reducible(d))
         self.assertTrue(has_reduce or has_reduce_ex)
+
+    def test_int_keys_in_object_without_getstate_only(self):
+        obj = IntKeysObject()
+        encoded = jsonpickle.encode(obj, keys=True)
+        decoded = jsonpickle.decode(encoded, keys=True)
+        self.assertEqual(obj.data, decoded.data)
 
     def test_ordered_dict_int_keys(self):
         d = {

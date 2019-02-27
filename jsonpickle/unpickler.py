@@ -8,6 +8,7 @@ from __future__ import absolute_import, division, unicode_literals
 import quopri
 import sys
 
+from . import compat
 from . import util
 from . import tags
 from . import handlers
@@ -527,7 +528,9 @@ class Unpickler(object):
         return restore_key
 
     def _restore_pickled_key(self, key):
-        if key.startswith(tags.JSON_KEY):
+        """Restore a possibly pickled key"""
+        if (isinstance(key, compat.string_types) and
+                key.startswith(tags.JSON_KEY)):
             key = decode(key[len(tags.JSON_KEY):],
                          backend=self.backend, context=self,
                          keys=True, reset=False)
