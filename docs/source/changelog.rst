@@ -13,7 +13,7 @@ Version 1.2 - TBD 2019
       more space-efficient than base64. Python 3 can still read and write
       base64-encoded data, but Python 2 cannot read nor write base85. For
       backwards compatibility, the pickler can be configured to encode using
-      only base64 via the new ``prefer_base85`` argument.
+      only base64 via the new ``use_base85`` argument.
       (`#251 <https://github.com/jsonpickle/jsonpickle/issues/251>`_).
 
 .. _Base85: https://en.wikipedia.org/wiki/Ascii85
