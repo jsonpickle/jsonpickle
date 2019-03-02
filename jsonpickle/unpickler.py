@@ -12,7 +12,7 @@ from . import compat
 from . import util
 from . import tags
 from . import handlers
-from .compat import numeric_types, decodebytes
+from .compat import numeric_types
 from .backend import json
 
 
@@ -169,6 +169,8 @@ class Unpickler(object):
     def _restore(self, obj):
         if has_tag(obj, tags.B64):
             restore = self._restore_base64
+        elif has_tag(obj, tags.B85):
+            restore = self._restore_base85
         elif has_tag(obj, tags.BYTES):  # Backwards compatibility
             restore = self._restore_quopri
         elif has_tag(obj, tags.ID):
@@ -201,7 +203,10 @@ class Unpickler(object):
         return restore(obj)
 
     def _restore_base64(self, obj):
-        return decodebytes(obj[tags.B64].encode('utf-8'))
+        return util.b64decode(obj[tags.B64].encode('utf-8'))
+
+    def _restore_base85(self, obj):
+        return util.b85decode(obj[tags.B85].encode('utf-8'))
 
     #: For backwards compatibility with bytes data produced by older versions
     def _restore_quopri(self, obj):

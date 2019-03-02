@@ -16,7 +16,7 @@ from . import util
 from . import tags
 from . import handlers
 from .backend import json
-from .compat import numeric_types, string_types, PY3, PY2, encodebytes
+from .compat import numeric_types, string_types, PY3, PY2
 
 
 def encode(value,
@@ -30,7 +30,8 @@ def encode(value,
            context=None,
            max_iter=None,
            use_decimal=False,
-           numeric_keys=False):
+           numeric_keys=False,
+           prefer_base85=True):
     """Return a JSON formatted representation of value, a Python object.
 
     :param unpicklable: If set to False then the output will not contain the
@@ -75,7 +76,11 @@ def encode(value,
     >>> encode({'foo': [1, 2, [3, 4]]}, max_depth=1)
     '{"foo": "[1, 2, [3, 4]]"}'
 
-
+    :param prefer_base85:
+        If possible, use base85 to encode binary data. Base85 bloats binary data
+        by 1/4 as opposed to base64, which expands it by 1/3. This argument is
+        forced to False on Python 2 because it doesn't support it; base64 will
+        be used instead.
     """
     backend = backend or json
     context = context or Pickler(
@@ -87,7 +92,8 @@ def encode(value,
             warn=warn,
             max_iter=max_iter,
             numeric_keys=numeric_keys,
-            use_decimal=use_decimal)
+            use_decimal=use_decimal,
+            prefer_base85=prefer_base85)
     return backend.encode(context.flatten(value, reset=reset))
 
 
@@ -102,13 +108,15 @@ class Pickler(object):
                  warn=False,
                  max_iter=None,
                  numeric_keys=False,
-                 use_decimal=False):
+                 use_decimal=False,
+                 prefer_base85=True):
         self.unpicklable = unpicklable
         self.make_refs = make_refs
         self.backend = backend or json
         self.keys = keys
         self.warn = warn
         self.numeric_keys = numeric_keys
+        self.prefer_base85 = prefer_base85 and (not PY2)
         # The current recursion depth
         self._depth = -1
         # The maximal recursion depth
@@ -121,6 +129,13 @@ class Pickler(object):
         self._max_iter = max_iter
         # Whether to allow decimals to pass-through
         self._use_decimal = use_decimal
+
+        if self.prefer_base85:
+            self._bytes_tag = tags.B85
+            self._bytes_encoder = util.b85encode
+        else:
+            self._bytes_tag = tags.B64
+            self._bytes_encoder = util.b64encode
 
     def reset(self):
         self._objs = {}
@@ -301,9 +316,9 @@ class Pickler(object):
         if PY2:
             try:
                 return obj.decode('utf-8')
-            except Exception:
+            except UnicodeDecodeError:
                 pass
-        return {tags.B64: encodebytes(obj).decode('utf-8')}
+        return {self._bytes_tag: self._bytes_encoder(obj)}
 
     def _flatten_obj_instance(self, obj):
         """Recursively flatten an instance and return a json-friendly dict
