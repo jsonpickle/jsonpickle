@@ -9,6 +9,15 @@ Version 1.2 - TBD 2019
       These objects are now handled robustly.
       (`#247 <https://github.com/jsonpickle/jsonpickle/issues/247>`_).
 
+    * `Base85`_ is now the default binary data encoding on Python 3, as it's
+      more space-efficient than base64. Python 3 can still read and write
+      base64-encoded data, but Python 2 cannot read nor write base85. For
+      backwards compatibility, the pickler can be configured to encode using
+      only base64 via the new ``use_base85`` argument.
+      (`#251 <https://github.com/jsonpickle/jsonpickle/issues/251>`_).
+
+.. _Base85: https://en.wikipedia.org/wiki/Ascii85
+
 Version 1.1 - January 22, 2019
 ------------------------------
     * Python 3.7 `collections.Iterator` deprecation warnings have been fixed.

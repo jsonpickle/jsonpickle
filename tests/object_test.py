@@ -15,6 +15,13 @@ from jsonpickle.compat import queue, PY2, encodebytes
 
 from helper import SkippableTest
 
+if PY2:
+    default_bytes_encoder = util.b64encode
+    default_bytes_tag = tags.B64
+else:
+    default_bytes_encoder = util.b85encode
+    default_bytes_tag = tags.B85
+
 
 class Thing(object):
 
@@ -809,9 +816,9 @@ class AdvancedObjectsTestCase(SkippableTest):
             self.assertTrue(isinstance(encoded, compat.ustr))
         else:
             self.assertNotEqual(encoded, u1)
-            b64ustr = encodebytes(b'foo').decode('utf-8')
-            self.assertEqual({tags.B64: b64ustr}, encoded)
-            self.assertTrue(isinstance(encoded[tags.B64], compat.ustr))
+            encoded_ustr = default_bytes_encoder(b'foo')
+            self.assertEqual({default_bytes_tag: encoded_ustr}, encoded)
+            self.assertTrue(isinstance(encoded[default_bytes_tag], compat.ustr))
         decoded = self.unpickler.restore(encoded)
         self.assertTrue(decoded == b1)
         if PY2:
@@ -822,9 +829,9 @@ class AdvancedObjectsTestCase(SkippableTest):
         # bytestrings that we can't decode to UTF-8 will always be wrapped
         encoded = self.pickler.flatten(b2)
         self.assertNotEqual(encoded, b2)
-        b64ustr = encodebytes(b'foo\xff').decode('utf-8')
-        self.assertEqual({tags.B64: b64ustr}, encoded)
-        self.assertTrue(isinstance(encoded[tags.B64], compat.ustr))
+        encoded_ustr = default_bytes_encoder(b'foo\xff')
+        self.assertEqual({default_bytes_tag: encoded_ustr}, encoded)
+        self.assertTrue(isinstance(encoded[default_bytes_tag], compat.ustr))
         decoded = self.unpickler.restore(encoded)
         self.assertEqual(decoded, b2)
         self.assertTrue(isinstance(decoded, bytes))
