@@ -98,6 +98,7 @@ class PicklingTestCase(unittest.TestCase):
     def setUp(self):
         self.pickler = jsonpickle.pickler.Pickler()
         self.unpickler = jsonpickle.unpickler.Unpickler()
+        self.b85_pickler = jsonpickle.pickler.Pickler(use_base85=True)
 
     def tearDown(self):
         self.pickler.reset()
@@ -105,33 +106,24 @@ class PicklingTestCase(unittest.TestCase):
 
     @unittest.skipIf(not PY2, 'Python 2-specific base85 test')
     def test_base85_always_false_on_py2(self):
-        pickler = jsonpickle.pickler.Pickler(use_base85=True)
-        self.assertFalse(pickler.use_base85)
-
-    @unittest.skipIf(PY2, 'Base85 not supported on Python 2')
-    def test_base85_default_py3(self):
-        """Ensure Python 2 allows use_base85 as default on Python 3"""
-        pickler = jsonpickle.pickler.Pickler()
-        self.assertTrue(pickler.use_base85)
+        self.assertFalse(self.b85_pickler.use_base85)
 
     @unittest.skipIf(PY2, 'Base85 not supported on Python 2')
     def test_base85_override_py3(self):
         """Ensure the Python 2 check still lets us set use_base85 on Python 3"""
-        pickler = jsonpickle.pickler.Pickler(use_base85=False)
-        self.assertFalse(pickler.use_base85)
+        self.assertTrue(self.b85_pickler.use_base85)
 
     @unittest.skipIf(PY2, 'Base85 not supported on Python 2')
     def test_bytes_default_base85(self):
         data = os.urandom(16)
         encoded = util.b85encode(data)
-        self.assertEqual({tags.B85: encoded}, self.pickler.flatten(data))
+        self.assertEqual({tags.B85: encoded}, self.b85_pickler.flatten(data))
 
     @unittest.skipIf(PY2, 'Base85 not supported on Python 2')
-    def test_py3_bytes_base64_override(self):
-        pickler = jsonpickle.pickler.Pickler(use_base85=False)
+    def test_py3_bytes_base64_default(self):
         data = os.urandom(16)
         encoded = util.b64encode(data)
-        self.assertEqual({tags.B64: encoded}, pickler.flatten(data))
+        self.assertEqual({tags.B64: encoded}, self.pickler.flatten(data))
 
     @unittest.skipIf(not PY2, 'Python 2-specific base64 test')
     def test_py2_default_base64(self):
