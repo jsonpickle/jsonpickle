@@ -11,10 +11,9 @@ Version 1.2 - TBD 2019
 
     * Support for encoding binary data in `base85`_ instead of base64 has been
       added on Python 3. Base85 produces payloads about 10% smaller than base64,
-      albeit at the cost of lower throughput. For performance and backwards
+      albeit at the cost of lower throughput.  For performance and backwards
       compatibility with Python 2 the pickler uses base64 by default, but it can
-      be configured to only use ``base85`` with the new ``use_base85`` argument.
-
+      be configured to use ``base85`` with the new ``use_base85`` argument.
       (`#251 <https://github.com/jsonpickle/jsonpickle/issues/251>`_).
 
 .. _base85: https://en.wikipedia.org/wiki/Ascii85
