@@ -31,7 +31,7 @@ def encode(value,
            max_iter=None,
            use_decimal=False,
            numeric_keys=False,
-           use_base85=True):
+           use_base85=False):
     """Return a JSON formatted representation of value, a Python object.
 
     :param unpicklable: If set to False then the output will not contain the
@@ -79,8 +79,7 @@ def encode(value,
     :param use_base85:
         If possible, use base85 to encode binary data. Base85 bloats binary data
         by 1/4 as opposed to base64, which expands it by 1/3. This argument is
-        forced to False on Python 2 because it doesn't support it; base64 will
-        be used instead.
+        ignored on Python 2 because it doesn't support it.
     """
     backend = backend or json
     context = context or Pickler(
@@ -109,7 +108,7 @@ class Pickler(object):
                  max_iter=None,
                  numeric_keys=False,
                  use_decimal=False,
-                 use_base85=True):
+                 use_base85=False):
         self.unpicklable = unpicklable
         self.make_refs = make_refs
         self.backend = backend or json
