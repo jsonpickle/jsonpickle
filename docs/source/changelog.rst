@@ -16,7 +16,11 @@ Version 1.2 - TBD 2019
       be configured to use ``base85`` with the new ``use_base85`` argument.
       (`#251 <https://github.com/jsonpickle/jsonpickle/issues/251>`_).
 
+    * Dynamic SQLAlchemy tables in SQLAlchemy >= 1.3 are now supported.
+      (`#254 <https://github.com/jsonpickle/jsonpickle/issues/254>`_).
+
 .. _base85: https://en.wikipedia.org/wiki/Ascii85
+
 
 Version 1.1 - January 22, 2019
 ------------------------------

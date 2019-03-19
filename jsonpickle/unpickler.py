@@ -42,8 +42,15 @@ def decode(string, backend=None, context=None, keys=False, reset=True,
 
 
 def _safe_hasattr(obj, attr):
-    """A safe (but slow) hasattr() that avoids hasattr"""
-    return attr in dir(obj)
+    """Workaround unreliable hasattr() availability on sqlalchemy objects"""
+    try:
+        # In sqlalchemy >= 1.3 we can use hasattr().
+        return hasattr(obj, attr)
+    except RuntimeError:
+        # In older versions we use a safe (but slow) method to avoid hasattr().
+        # Older versions of sqlalchemy hit maximum recursion errors during
+        # deserialization.  The workaround is to avoid hasattr().
+        return attr in dir(obj)
 
 
 class _Proxy(object):
