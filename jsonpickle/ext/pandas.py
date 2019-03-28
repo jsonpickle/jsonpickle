@@ -121,6 +121,8 @@ class PandasSeriesHandler(BaseHandler):
 class PandasIndexHandler(BaseHandler):
     pp = PandasProcessor(size_threshold=None)
 
+    index_constructor = pd.Index
+
     def flatten(self, obj, data):
         meta = {'dtype': str(obj.dtype), 'name': obj.name}
         buf = encode(obj.tolist())
@@ -131,7 +133,7 @@ class PandasIndexHandler(BaseHandler):
         buf, meta = self.pp.restore_pandas(data)
         dtype = meta.get('dtype', None)
         name = meta.get('name', None)
-        idx = pd.Index(decode(buf), dtype=dtype, name=name)
+        idx = self.index_constructor(decode(buf), dtype=dtype, name=name)
         return idx
 
 
