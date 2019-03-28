@@ -4,6 +4,7 @@ import pandas as pd
 from io import StringIO
 import zlib
 
+from .. import encode, decode
 from ..handlers import BaseHandler, register, unregister
 from ..util import b64decode, b64encode
 from ..backend import json
@@ -122,7 +123,7 @@ class PandasIndexHandler(BaseHandler):
 
     def flatten(self, obj, data):
         meta = {'dtype': str(obj.dtype), 'name': obj.name}
-        buf = json.dumps(obj.tolist())
+        buf = encode(obj.tolist())
         data = self.pp.flatten_pandas(buf, data, meta)
         return data
 
@@ -130,7 +131,7 @@ class PandasIndexHandler(BaseHandler):
         buf, meta = self.pp.restore_pandas(data)
         dtype = meta.get('dtype', None)
         name = meta.get('name', None)
-        idx = pd.Index(json.loads(buf), dtype=dtype, name=name)
+        idx = pd.Index(decode(buf), dtype=dtype, name=name)
         return idx
 
 
