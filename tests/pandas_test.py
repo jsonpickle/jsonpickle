@@ -107,6 +107,14 @@ class PandasTestCase(SkippableTest):
         decoded_idx = self.roundtrip(idx)
         assert_index_equal(decoded_idx, idx)
 
+    def test_ragged_datetime_index_roundtrip(self):
+        if self.should_skip:
+            return self.skip('pandas is not importable')
+
+        idx = pd.DatetimeIndex(['2019-01-01', '2019-01-02', '2019-01-05',])
+        decoded_idx = self.roundtrip(idx)
+        assert_index_equal(decoded_idx, idx)
+
     def test_timedelta_index_roundtrip(self):
         if self.should_skip:
             return self.skip('pandas is not importable')
