@@ -137,10 +137,15 @@ class PandasIndexHandler(BaseHandler):
         return idx
 
 
+class PandasPeriodIndexHandler(PandasIndexHandler):
+    index_constructor = pd.PeriodIndex
+
+
 def register_handlers():
     register(pd.DataFrame, PandasDfHandler, base=True)
     register(pd.Series, PandasSeriesHandler, base=True)
     register(pd.Index, PandasIndexHandler, base=True)
+    register(pd.PeriodIndex, PandasPeriodIndexHandler, base=True)
 
 
 def unregister_handlers():
