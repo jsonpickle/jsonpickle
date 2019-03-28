@@ -119,7 +119,7 @@ class PandasSeriesHandler(BaseHandler):
 
 
 class PandasIndexHandler(BaseHandler):
-    pp = PandasProcessor()
+    pp = PandasProcessor(size_threshold=None)
 
     def flatten(self, obj, data):
         meta = {'dtype': str(obj.dtype), 'name': obj.name}
