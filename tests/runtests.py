@@ -26,6 +26,7 @@ import util_test
 import feedparser_test
 import bson_test
 import numpy_test
+import pandas_test
 
 
 def suite():
@@ -41,6 +42,7 @@ def suite():
     suite.addTest(feedparser_test.suite())
     suite.addTest(numpy_test.suite())
     suite.addTest(bson_test.suite())
+    suite.addTest(pandas_test.suite())
     return suite
 
 
