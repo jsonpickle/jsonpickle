@@ -77,24 +77,18 @@ class PandasDfHandler(BaseHandler):
     def flatten(self, obj, data):
         dtype = obj.dtypes.to_dict()
 
-        # Handles named multi-indexes
-        if list(obj.index.names) != [None]:
-            index_col = list(obj.index.names)
-        else:
-            index_col = 0
-
         meta = {'dtypes': {k: str(dtype[k]) for k in dtype},
-                'index_col': index_col}
+                'index': encode(obj.index)}
 
-        data = self.pp.flatten_pandas(obj.to_csv(), data, meta)
+        data = self.pp.flatten_pandas(obj.reset_index(drop=True).to_csv(index=False), data, meta)
         return data
 
     def restore(self, data):
         csv, meta = self.pp.restore_pandas(data)
         params = make_read_csv_params(meta)
         df = pd.read_csv(StringIO(csv),
-                         index_col=meta.get('index_col', None),
                          **params)
+        df.set_index(decode(meta["index"]), inplace=True)
         return df
 
 
@@ -123,9 +117,11 @@ class PandasIndexHandler(BaseHandler):
     pp = PandasProcessor(size_threshold=None)
 
     index_constructor = pd.Index
+    name_bundler = lambda _, obj: {'name': obj.name}
 
     def flatten(self, obj, data):
-        meta = {'dtype': str(obj.dtype), 'name': obj.name}
+        name_bundle = self.name_bundler(obj)
+        meta = dict(dtype= str(obj.dtype), **name_bundle)
         buf = encode(obj.tolist())
         data = self.pp.flatten_pandas(buf, data, meta)
         return data
@@ -133,13 +129,17 @@ class PandasIndexHandler(BaseHandler):
     def restore(self, data):
         buf, meta = self.pp.restore_pandas(data)
         dtype = meta.get('dtype', None)
-        name = meta.get('name', None)
-        idx = self.index_constructor(decode(buf), dtype=dtype, name=name)
+        name_bundle = {k: v for k, v in meta.items() if k in {'name', 'names'}}
+        idx = self.index_constructor(decode(buf), dtype=dtype, **name_bundle)
         return idx
 
 
 class PandasPeriodIndexHandler(PandasIndexHandler):
     index_constructor = pd.PeriodIndex
+
+
+class PandasMultiIndexHandler(PandasIndexHandler):
+    name_bundler = lambda _, obj: {'names': obj.names}
 
 
 class PandasTimestampHandler(BaseHandler):
@@ -199,6 +199,7 @@ def register_handlers():
     register(pd.Series, PandasSeriesHandler, base=True)
     register(pd.Index, PandasIndexHandler, base=True)
     register(pd.PeriodIndex, PandasPeriodIndexHandler, base=True)
+    register(pd.MultiIndex, PandasMultiIndexHandler, base=True)
     register(pd.Timestamp, PandasTimestampHandler, base=True)
     register(pd.Period, PandasPeriodHandler, base=True)
     register(pd.Interval, PandasIntervalHandler, base=True)
@@ -210,6 +211,7 @@ def unregister_handlers():
     unregister(pd.Series)
     unregister(pd.Index)
     unregister(pd.PeriodIndex)
+    unregister(pd.MultiIndex)
     unregister(pd.Timestamp)
     unregister(pd.Period)
     unregister(pd.Interval)

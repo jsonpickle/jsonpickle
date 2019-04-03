@@ -91,6 +91,16 @@ class PandasTestCase(SkippableTest):
         decoded_df = self.roundtrip(df)
         assert_frame_equal(decoded_df, df)
 
+    def test_dataframe_with_interval_index_roundtrip(self):
+        if self.should_skip:
+            return self.skip('pandas is not importable')
+
+        df = pd.DataFrame({"a": [1, 2], "b": [3, 4]},
+                           index=pd.IntervalIndex.from_breaks([1,2,4]))
+
+        decoded_df = self.roundtrip(df)
+        assert_frame_equal(decoded_df, df)
+
     def test_index_roundtrip(self):
         if self.should_skip:
             return self.skip('pandas is not importable')
@@ -168,6 +178,14 @@ class PandasTestCase(SkippableTest):
             return self.skip('pandas is not importable')
 
         idx = pd.IntervalIndex.from_breaks(pd.date_range('2019-01-01', '2019-01-10'))
+        decoded_idx = self.roundtrip(idx)
+        assert_index_equal(decoded_idx, idx)
+
+    def test_multi_index_roundtrip(self):
+        if self.should_skip:
+            return self.skip('pandas is not importable')
+
+        idx = pd.MultiIndex.from_product(((1,2,3), ("a", "b")))
         decoded_idx = self.roundtrip(idx)
         assert_index_equal(decoded_idx, idx)
 
