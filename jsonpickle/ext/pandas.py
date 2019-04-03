@@ -8,6 +8,7 @@ from .. import encode, decode
 from ..handlers import BaseHandler, register, unregister
 from ..util import b64decode, b64encode
 from ..backend import json
+from .numpy import register_handlers as register_numpy_handlers, unregister_handlers as unregister_numpy_handlers
 
 __all__ = ['register_handlers', 'unregister_handlers']
 
@@ -141,14 +142,74 @@ class PandasPeriodIndexHandler(PandasIndexHandler):
     index_constructor = pd.PeriodIndex
 
 
+class PandasTimestampHandler(BaseHandler):
+    pp = PandasProcessor()
+
+    def flatten(self, obj, data):
+        meta = {"isoformat": obj.isoformat()}
+        buf = ""
+        data = self.pp.flatten_pandas(buf, data, meta)
+        return data
+
+    def restore(self, data):
+        _, meta = self.pp.restore_pandas(data)
+        isoformat = meta['isoformat']
+        obj = pd.Timestamp(isoformat)
+        return obj
+
+
+class PandasPeriodHandler(BaseHandler):
+    pp = PandasProcessor()
+
+    def flatten(self, obj, data):
+        meta = {"start_time": encode(obj.start_time), "freqstr": obj.freqstr}
+        buf = ""
+        data = self.pp.flatten_pandas(buf, data, meta)
+        return data
+
+    def restore(self, data):
+        _, meta = self.pp.restore_pandas(data)
+        start_time = decode(meta['start_time'])
+        freqstr = meta['freqstr']
+        obj = pd.Period(start_time, freqstr)
+        return obj
+
+
+class PandasIntervalHandler(BaseHandler):
+    pp = PandasProcessor()
+
+    def flatten(self, obj, data):
+        meta = {"left": encode(obj.left), "right": encode(obj.right), "closed": obj.closed}
+        buf = ""
+        data = self.pp.flatten_pandas(buf, data, meta)
+        return data
+
+    def restore(self, data):
+        _, meta = self.pp.restore_pandas(data)
+        left = decode(meta['left'])
+        right = decode(meta['right'])
+        closed = str(meta['closed'])
+        obj = pd.Interval(left, right, closed=closed)
+        return obj
+
+
 def register_handlers():
+    register_numpy_handlers()
     register(pd.DataFrame, PandasDfHandler, base=True)
     register(pd.Series, PandasSeriesHandler, base=True)
     register(pd.Index, PandasIndexHandler, base=True)
     register(pd.PeriodIndex, PandasPeriodIndexHandler, base=True)
+    register(pd.Timestamp, PandasTimestampHandler, base=True)
+    register(pd.Period, PandasPeriodHandler, base=True)
+    register(pd.Interval, PandasIntervalHandler, base=True)
 
 
 def unregister_handlers():
+    unregister_numpy_handlers()
     unregister(pd.DataFrame)
     unregister(pd.Series)
     unregister(pd.Index)
+    unregister(pd.PeriodIndex)
+    unregister(pd.Timestamp)
+    unregister(pd.Period)
+    unregister(pd.Interval)

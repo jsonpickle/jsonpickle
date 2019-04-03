@@ -155,6 +155,46 @@ class PandasTestCase(SkippableTest):
         decoded_idx = self.roundtrip(idx)
         assert_index_equal(decoded_idx, idx)
 
+    def test_interval_index_roundtrip(self):
+        if self.should_skip:
+            return self.skip('pandas is not importable')
+
+        idx = pd.IntervalIndex.from_breaks(range(5))
+        decoded_idx = self.roundtrip(idx)
+        assert_index_equal(decoded_idx, idx)
+
+    def test_datetime_interval_index_roundtrip(self):
+        if self.should_skip:
+            return self.skip('pandas is not importable')
+
+        idx = pd.IntervalIndex.from_breaks(pd.date_range('2019-01-01', '2019-01-10'))
+        decoded_idx = self.roundtrip(idx)
+        assert_index_equal(decoded_idx, idx)
+
+    def test_timestamp_roundtrip(self):
+        if self.should_skip:
+            return self.skip('pandas is not importable')
+
+        obj = pd.Timestamp('2019-01-01')
+        decoded_obj = self.roundtrip(obj)
+        assert decoded_obj == obj
+
+    def test_period_roundtrip(self):
+        if self.should_skip:
+            return self.skip('pandas is not importable')
+
+        obj = pd.Timestamp('2019-01-01')
+        decoded_obj = self.roundtrip(obj)
+        assert decoded_obj == obj
+
+    def test_interval_roundtrip(self):
+        if self.should_skip:
+            return self.skip('pandas is not importable')
+
+        obj = pd.Interval(2, 4, closed=str('left'))
+        decoded_obj = self.roundtrip(obj)
+        assert decoded_obj == obj
+
     def test_b64(self):
         """Test the binary encoding"""
         if self.should_skip:
