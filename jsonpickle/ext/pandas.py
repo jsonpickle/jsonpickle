@@ -114,7 +114,7 @@ class PandasSeriesHandler(BaseHandler):
 
 
 class PandasIndexHandler(BaseHandler):
-    pp = PandasProcessor(size_threshold=None)
+    pp = PandasProcessor()
 
     index_constructor = pd.Index
     name_bundler = lambda _, obj: {'name': obj.name}
