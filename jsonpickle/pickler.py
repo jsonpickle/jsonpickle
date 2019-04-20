@@ -593,7 +593,7 @@ class Pickler(object):
                                       make_refs=self.make_refs)
 
     def _getstate(self, obj, data):
-        state = self._flatten_obj(obj)
+        state = self._flatten(obj)
         if self.unpicklable:
             data[tags.STATE] = state
         else:
