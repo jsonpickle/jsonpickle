@@ -227,8 +227,10 @@ class Unpickler(object):
         """
         proxy = _Proxy()
         self._mkref(proxy)
-        reduce_val = obj[tags.REDUCE]
-        f, args, state, listitems, dictitems = map(self._restore, reduce_val)
+        reduce_val = list(map(self._restore, obj[tags.REDUCE]))
+        if len(reduce_val) < 5:
+            reduce_val.extend([None] * (5 - len(reduce_val)))
+        f, args, state, listitems, dictitems = reduce_val
 
         if f == tags.NEWOBJ or getattr(f, '__name__', '') == '__newobj__':
             # mandated special case
