@@ -13,4 +13,4 @@ pytest-cov
 simplejson
 sqlalchemy
 ujson
-yajl
+yajl; sys_platform != 'win32'
