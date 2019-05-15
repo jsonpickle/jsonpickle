@@ -7,7 +7,7 @@ extensions = [
     'rst.linker',
 ]
 
-master_doc = 'index'
+master_doc = "index"
 
 link_files = {
     '../CHANGES.rst': dict(
