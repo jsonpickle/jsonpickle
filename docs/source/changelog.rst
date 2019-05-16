@@ -3,6 +3,11 @@ Change Log
 
 Version 1.2 - TBD 2019
 ----------------------
+    * Prevent stack overflows caused by bugs in user-defined `__getstate__`
+      functions which cause infinite recursion.
+      (`#260 <https://github.com/jsonpickle/jsonpickle/pull/260>`_)
+      (`#259 <https://github.com/jsonpickle/jsonpickle/issues/259>`_)
+
     * Improved support for objects that contain dicts with Integer keys.
       Previously, jsonpickle could not restore objects that contained
       dicts with integer keys and provided getstate only.
