@@ -411,7 +411,11 @@ class Pickler(object):
                     if rv_as_list[4]:
                         rv_as_list[4] = tuple(rv_as_list[4])
 
-                    data[tags.REDUCE] = list(map(self._flatten, rv_as_list))
+                    reduce_args = list(map(self._flatten, rv_as_list))
+                    last_index = len(reduce_args) - 1
+                    while last_index >= 2 and reduce_args[last_index] is None:
+                        last_index -= 1
+                    data[tags.REDUCE] = reduce_args[:last_index+1]
 
                     return data
 
