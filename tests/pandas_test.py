@@ -8,7 +8,7 @@ from helper import SkippableTest
 try:
     import pandas as pd
     import numpy as np
-    from pandas.testing import assert_series_equal, assert_frame_equal
+    from pandas.testing import assert_series_equal, assert_frame_equal, assert_index_equal
 
 except ImportError:
     np = None
@@ -90,6 +90,128 @@ class PandasTestCase(SkippableTest):
 
         decoded_df = self.roundtrip(df)
         assert_frame_equal(decoded_df, df)
+
+    def test_dataframe_with_interval_index_roundtrip(self):
+        if self.should_skip:
+            return self.skip('pandas is not importable')
+
+        df = pd.DataFrame({"a": [1, 2], "b": [3, 4]},
+                           index=pd.IntervalIndex.from_breaks([1,2,4]))
+
+        decoded_df = self.roundtrip(df)
+        assert_frame_equal(decoded_df, df)
+
+    def test_index_roundtrip(self):
+        if self.should_skip:
+            return self.skip('pandas is not importable')
+
+        idx = pd.Index(range(5, 10))
+        decoded_idx = self.roundtrip(idx)
+        assert_index_equal(decoded_idx, idx)
+
+    def test_datetime_index_roundtrip(self):
+        if self.should_skip:
+            return self.skip('pandas is not importable')
+
+        idx = pd.date_range(start='2019-01-01', end='2019-02-01', freq='D')
+        decoded_idx = self.roundtrip(idx)
+        assert_index_equal(decoded_idx, idx)
+
+    def test_ragged_datetime_index_roundtrip(self):
+        if self.should_skip:
+            return self.skip('pandas is not importable')
+
+        idx = pd.DatetimeIndex(['2019-01-01', '2019-01-02', '2019-01-05',])
+        decoded_idx = self.roundtrip(idx)
+        assert_index_equal(decoded_idx, idx)
+
+    def test_timedelta_index_roundtrip(self):
+        if self.should_skip:
+            return self.skip('pandas is not importable')
+
+        idx = pd.timedelta_range(start='1 day', periods=4, closed='right')
+        decoded_idx = self.roundtrip(idx)
+        assert_index_equal(decoded_idx, idx)
+
+    def test_period_index_roundtrip(self):
+        if self.should_skip:
+            return self.skip('pandas is not importable')
+
+        idx = pd.period_range(start='2017-01-01', end='2018-01-01', freq='M')
+        decoded_idx = self.roundtrip(idx)
+        assert_index_equal(decoded_idx, idx)
+
+    def test_int64_index_roundtrip(self):
+        if self.should_skip:
+            return self.skip('pandas is not importable')
+
+        idx = pd.Int64Index([-1, 0, 3, 4])
+        decoded_idx = self.roundtrip(idx)
+        assert_index_equal(decoded_idx, idx)
+
+    def test_uint64_index_roundtrip(self):
+        if self.should_skip:
+            return self.skip('pandas is not importable')
+
+        idx = pd.UInt64Index([0, 3, 4])
+        decoded_idx = self.roundtrip(idx)
+        assert_index_equal(decoded_idx, idx)
+
+    def test_float64_index_roundtrip(self):
+        if self.should_skip:
+            return self.skip('pandas is not importable')
+
+        idx = pd.Float64Index([0.1, 3.7, 4.2])
+        decoded_idx = self.roundtrip(idx)
+        assert_index_equal(decoded_idx, idx)
+
+    def test_interval_index_roundtrip(self):
+        if self.should_skip:
+            return self.skip('pandas is not importable')
+
+        idx = pd.IntervalIndex.from_breaks(range(5))
+        decoded_idx = self.roundtrip(idx)
+        assert_index_equal(decoded_idx, idx)
+
+    def test_datetime_interval_index_roundtrip(self):
+        if self.should_skip:
+            return self.skip('pandas is not importable')
+
+        idx = pd.IntervalIndex.from_breaks(pd.date_range('2019-01-01', '2019-01-10'))
+        decoded_idx = self.roundtrip(idx)
+        assert_index_equal(decoded_idx, idx)
+
+    def test_multi_index_roundtrip(self):
+        if self.should_skip:
+            return self.skip('pandas is not importable')
+
+        idx = pd.MultiIndex.from_product(((1,2,3), ("a", "b")))
+        decoded_idx = self.roundtrip(idx)
+        assert_index_equal(decoded_idx, idx)
+
+    def test_timestamp_roundtrip(self):
+        if self.should_skip:
+            return self.skip('pandas is not importable')
+
+        obj = pd.Timestamp('2019-01-01')
+        decoded_obj = self.roundtrip(obj)
+        assert decoded_obj == obj
+
+    def test_period_roundtrip(self):
+        if self.should_skip:
+            return self.skip('pandas is not importable')
+
+        obj = pd.Timestamp('2019-01-01')
+        decoded_obj = self.roundtrip(obj)
+        assert decoded_obj == obj
+
+    def test_interval_roundtrip(self):
+        if self.should_skip:
+            return self.skip('pandas is not importable')
+
+        obj = pd.Interval(2, 4, closed=str('left'))
+        decoded_obj = self.roundtrip(obj)
+        assert decoded_obj == obj
 
     def test_b64(self):
         """Test the binary encoding"""
