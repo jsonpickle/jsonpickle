@@ -417,7 +417,6 @@ class Pickler(object):
 
         if has_class and not util.is_module(obj):
             if self.unpicklable:
-                class_name = util.importable_name(cls)
                 data[tags.OBJECT] = class_name
 
             if has_getnewargs_ex:
