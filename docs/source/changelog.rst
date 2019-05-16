@@ -3,6 +3,9 @@ Change Log
 
 Version 1.2 - TBD 2019
 ----------------------
+    * Improved Pandas support with new handlers for more Pandas data types.
+      (`#256 <https://github.com/jsonpickle/jsonpickle/pull/256>`_)
+
     * Prevent stack overflows caused by bugs in user-defined `__getstate__`
       functions which cause infinite recursion.
       (`#260 <https://github.com/jsonpickle/jsonpickle/pull/260>`_)
