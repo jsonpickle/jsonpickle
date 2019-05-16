@@ -1,8 +1,8 @@
 Change Log
 ==========
 
-Version 1.2 - TBD 2019
-----------------------
+Version 1.2 - May 15, 2019
+--------------------------
     * Simplified JSON representation for `__reduce__` values.
       (`#261 <https://github.com/jsonpickle/jsonpickle/pull/261>`_)
 
