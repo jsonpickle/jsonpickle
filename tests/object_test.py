@@ -76,6 +76,10 @@ class GetstateReturnsList(object):
     def __setstate__(self, state):
         self.x, self.y = state[0], state[1]
 
+class GetstateRecursesInfintely(object):
+    def __getstate__(self):
+        return GetstateRecursesInfintely()
+
 
 class ListSubclassWithInit(list):
 
@@ -716,6 +720,11 @@ class AdvancedObjectsTestCase(SkippableTest):
         self.assertEqual(expect, actual)
         restored = self.unpickler.restore(flat)
         self.assertEqual(expect, restored)
+
+    def test_getstate_does_not_recurse_infinitely(self):
+        obj = GetstateRecursesInfintely()
+        pickler = jsonpickle.pickler.Pickler(max_depth=5)
+        pickler.flatten(obj)
 
     def test_thing_with_queue(self):
         obj = ThingWithQueue()
