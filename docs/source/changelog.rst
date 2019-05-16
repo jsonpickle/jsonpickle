@@ -3,6 +3,9 @@ Change Log
 
 Version 1.2 - TBD 2019
 ----------------------
+    * Simplified JSON representation for `__reduce__` values.
+      (`#261 <https://github.com/jsonpickle/jsonpickle/pull/261>`_)
+
     * Improved Pandas support with new handlers for more Pandas data types.
       (`#256 <https://github.com/jsonpickle/jsonpickle/pull/256>`_)
 
