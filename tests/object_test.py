@@ -76,6 +76,7 @@ class GetstateReturnsList(object):
     def __setstate__(self, state):
         self.x, self.y = state[0], state[1]
 
+
 class GetstateRecursesInfintely(object):
     def __getstate__(self):
         return GetstateRecursesInfintely()

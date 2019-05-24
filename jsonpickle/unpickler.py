@@ -627,7 +627,7 @@ def loadclass(module_and_name, classes=None):
             for class_name in names[up_to:]:
                 obj = getattr(obj, class_name)
             return obj
-        except (AttributeError, ImportError, ValueError) as ex:
+        except (AttributeError, ImportError, ValueError):
             continue
     return None
 

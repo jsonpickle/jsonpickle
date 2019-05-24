@@ -7,8 +7,8 @@ import zlib
 from .. import encode, decode
 from ..handlers import BaseHandler, register, unregister
 from ..util import b64decode, b64encode
-from ..backend import json
-from .numpy import register_handlers as register_numpy_handlers, unregister_handlers as unregister_numpy_handlers
+from .numpy import register_handlers as register_numpy_handlers
+from .numpy import unregister_handlers as unregister_numpy_handlers
 
 __all__ = ['register_handlers', 'unregister_handlers']
 
@@ -80,7 +80,8 @@ class PandasDfHandler(BaseHandler):
         meta = {'dtypes': {k: str(dtype[k]) for k in dtype},
                 'index': encode(obj.index)}
 
-        data = self.pp.flatten_pandas(obj.reset_index(drop=True).to_csv(index=False), data, meta)
+        data = self.pp.flatten_pandas(
+            obj.reset_index(drop=True).to_csv(index=False), data, meta)
         return data
 
     def restore(self, data):
@@ -88,7 +89,7 @@ class PandasDfHandler(BaseHandler):
         params = make_read_csv_params(meta)
         df = pd.read_csv(StringIO(csv),
                          **params)
-        df.set_index(decode(meta["index"]), inplace=True)
+        df.set_index(decode(meta['index']), inplace=True)
         return df
 
 
@@ -114,14 +115,16 @@ class PandasSeriesHandler(BaseHandler):
 
 
 class PandasIndexHandler(BaseHandler):
-    pp = PandasProcessor()
 
+    pp = PandasProcessor()
     index_constructor = pd.Index
-    name_bundler = lambda _, obj: {'name': obj.name}
+
+    def name_bundler(self, obj):
+        return {'name': obj.name}
 
     def flatten(self, obj, data):
         name_bundle = self.name_bundler(obj)
-        meta = dict(dtype= str(obj.dtype), **name_bundle)
+        meta = dict(dtype=str(obj.dtype), **name_bundle)
         buf = encode(obj.tolist())
         data = self.pp.flatten_pandas(buf, data, meta)
         return data
@@ -139,15 +142,17 @@ class PandasPeriodIndexHandler(PandasIndexHandler):
 
 
 class PandasMultiIndexHandler(PandasIndexHandler):
-    name_bundler = lambda _, obj: {'names': obj.names}
+
+    def name_bundler(self, obj):
+        return {'names': obj.names}
 
 
 class PandasTimestampHandler(BaseHandler):
     pp = PandasProcessor()
 
     def flatten(self, obj, data):
-        meta = {"isoformat": obj.isoformat()}
-        buf = ""
+        meta = {'isoformat': obj.isoformat()}
+        buf = ''
         data = self.pp.flatten_pandas(buf, data, meta)
         return data
 
@@ -162,8 +167,11 @@ class PandasPeriodHandler(BaseHandler):
     pp = PandasProcessor()
 
     def flatten(self, obj, data):
-        meta = {"start_time": encode(obj.start_time), "freqstr": obj.freqstr}
-        buf = ""
+        meta = {
+            'start_time': encode(obj.start_time),
+            'freqstr': obj.freqstr,
+        }
+        buf = ''
         data = self.pp.flatten_pandas(buf, data, meta)
         return data
 
@@ -179,8 +187,12 @@ class PandasIntervalHandler(BaseHandler):
     pp = PandasProcessor()
 
     def flatten(self, obj, data):
-        meta = {"left": encode(obj.left), "right": encode(obj.right), "closed": obj.closed}
-        buf = ""
+        meta = {
+            'left': encode(obj.left),
+            'right': encode(obj.right),
+            'closed': obj.closed
+        }
+        buf = ''
         data = self.pp.flatten_pandas(buf, data, meta)
         return data
 

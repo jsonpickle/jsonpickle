@@ -8,8 +8,9 @@ from helper import SkippableTest
 try:
     import pandas as pd
     import numpy as np
-    from pandas.testing import assert_series_equal, assert_frame_equal, assert_index_equal
-
+    from pandas.testing import assert_series_equal
+    from pandas.testing import assert_frame_equal
+    from pandas.testing import assert_index_equal
 except ImportError:
     np = None
 
@@ -95,8 +96,8 @@ class PandasTestCase(SkippableTest):
         if self.should_skip:
             return self.skip('pandas is not importable')
 
-        df = pd.DataFrame({"a": [1, 2], "b": [3, 4]},
-                           index=pd.IntervalIndex.from_breaks([1,2,4]))
+        df = pd.DataFrame({'a': [1, 2], 'b': [3, 4]},
+                          index=pd.IntervalIndex.from_breaks([1, 2, 4]))
 
         decoded_df = self.roundtrip(df)
         assert_frame_equal(decoded_df, df)
@@ -121,7 +122,7 @@ class PandasTestCase(SkippableTest):
         if self.should_skip:
             return self.skip('pandas is not importable')
 
-        idx = pd.DatetimeIndex(['2019-01-01', '2019-01-02', '2019-01-05',])
+        idx = pd.DatetimeIndex(['2019-01-01', '2019-01-02', '2019-01-05'])
         decoded_idx = self.roundtrip(idx)
         assert_index_equal(decoded_idx, idx)
 
@@ -177,7 +178,8 @@ class PandasTestCase(SkippableTest):
         if self.should_skip:
             return self.skip('pandas is not importable')
 
-        idx = pd.IntervalIndex.from_breaks(pd.date_range('2019-01-01', '2019-01-10'))
+        idx = pd.IntervalIndex.from_breaks(
+            pd.date_range('2019-01-01', '2019-01-10'))
         decoded_idx = self.roundtrip(idx)
         assert_index_equal(decoded_idx, idx)
 
@@ -185,7 +187,7 @@ class PandasTestCase(SkippableTest):
         if self.should_skip:
             return self.skip('pandas is not importable')
 
-        idx = pd.MultiIndex.from_product(((1,2,3), ("a", "b")))
+        idx = pd.MultiIndex.from_product(((1, 2, 3), ('a', 'b')))
         decoded_idx = self.roundtrip(idx)
         assert_index_equal(decoded_idx, idx)
 
