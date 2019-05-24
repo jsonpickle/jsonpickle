@@ -217,15 +217,13 @@ class Pickler(object):
         self._push()
         return self._pop(self._flatten_obj(obj))
 
+    def _max_reached(self):
+        return self._depth == self._max_depth
+
     def _flatten_obj(self, obj):
         self._seen.append(obj)
-        max_reached = self._depth == self._max_depth
-
-        in_cycle = (
-            max_reached or (
-                not self.make_refs
-                and id(obj) in self._objs
-            )) and not util.is_primitive(obj)
+        max_reached = self._max_reached()
+        in_cycle = _in_cycle(obj, self._objs, max_reached, self.make_refs)
         if in_cycle:
             # break the cycle
             flatten_func = repr
@@ -295,14 +293,24 @@ class Pickler(object):
     def _ref_obj_instance(self, obj):
         """Reference an existing object or flatten if new
         """
-        if self._mkref(obj):
-            # We've never seen this object so return its
-            # json representation.
+        if self.unpicklable:
+            if self._mkref(obj):
+                # We've never seen this object so return its
+                # json representation.
+                return self._flatten_obj_instance(obj)
+            # We've seen this object before so place an object
+            # reference tag in the data. This avoids infinite recursion
+            # when processing cyclical objects.
+            return self._getref(obj)
+        else:
+            max_reached = self._max_reached()
+            in_cycle = _in_cycle(obj, self._objs, max_reached, False)
+            if in_cycle:
+                # A circular becomes None.
+                return None
+
+            self._mkref(obj)
             return self._flatten_obj_instance(obj)
-        # We've seen this object before so place an object
-        # reference tag in the data. This avoids infinite recursion
-        # when processing cyclical objects.
-        return self._getref(obj)
 
     def _flatten_file(self, obj):
         """
@@ -607,6 +615,14 @@ class Pickler(object):
         if self.warn:
             msg = 'jsonpickle cannot pickle %r: replaced with None' % obj
             warnings.warn(msg)
+
+
+def _in_cycle(obj, objs, max_reached, make_refs):
+    return (
+        max_reached or (
+            not make_refs and id(obj) in objs
+        )
+    ) and not util.is_primitive(obj)
 
 
 def _mktyperef(obj):

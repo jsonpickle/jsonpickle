@@ -1461,12 +1461,14 @@ class PicklingProtocol2TestCase(SkippableTest):
         self.assertEqual(PickleProtocol2Thing, decoded.args[1].__class__)
         self.assertTrue(decoded.args[0] is decoded.args[1])
 
-    def test_handles_cyclical_objects(self):
+    def test_cyclical_objects(self, use_tuple=True):
         child = Capture(None)
         instance = Capture(child, child)
-        child.args = (instance,)  # create a cycle
-        # TODO we do not properly restore references inside of lists.
-        # Change the above tuple into a list to show the breakage.
+        # create a cycle
+        if use_tuple:
+            child.args = (instance,)
+        else:
+            child.args = [instance]
 
         encoded = jsonpickle.encode(instance)
         decoded = jsonpickle.decode(encoded)
@@ -1494,6 +1496,9 @@ class PicklingProtocol2TestCase(SkippableTest):
         self.assertTrue(decoded.args[0] is decoded.args[0].args[0].args[0])
         self.assertTrue(decoded.args[0] is decoded.args[1].args[0].args[0])
 
+    def test_cyclical_objects_list(self):
+        self.test_cyclical_objects(use_tuple=False)
+
     def test_handles_cyclical_objects_in_lists(self):
         child = PickleProtocol2ChildThing(None)
         instance = PickleProtocol2ChildThing([child, child])
@@ -1504,6 +1509,36 @@ class PicklingProtocol2TestCase(SkippableTest):
 
         self.assertTrue(decoded is decoded.child[0].child)
         self.assertTrue(decoded is decoded.child[1].child)
+
+    def test_cyclical_objects_unpickleable_false(self, use_tuple=True):
+        child = Capture(None)
+        instance = Capture(child, child)
+        # create a cycle
+        if use_tuple:
+            child.args = (instance,)
+        else:
+            child.args = [instance]
+        encoded = jsonpickle.encode(instance, unpicklable=False)
+        decoded = jsonpickle.decode(encoded)
+
+        self.assertTrue(isinstance(decoded, dict))
+        self.assertTrue('args' in decoded)
+        self.assertTrue('kwargs' in decoded)
+
+        # Tuple is lost via json
+        args = decoded['args']
+        self.assertTrue(isinstance(args, list))
+
+        # Get the children
+        self.assertEqual(len(args), 2)
+        decoded_child0 = args[0]
+        decoded_child1 = args[1]
+        self.assertTrue(isinstance(decoded_child0, dict))
+        # Circular references become None
+        self.assertEqual(decoded_child1, None)
+
+    def test_cyclical_objects_unpickleable_false_list(self):
+        self.test_cyclical_objects_unpickleable_false(use_tuple=False)
 
 
 def suite():

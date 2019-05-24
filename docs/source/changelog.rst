@@ -1,6 +1,12 @@
 Change Log
 ==========
 
+Version 1.3 - TBD
+-----------------
+    * Better support for cyclical references when encoding with
+      ``unpicklable=False``.
+      (`#264 <https://github.com/jsonpickle/jsonpickle/pull/264>`_)
+
 Version 1.2 - May 15, 2019
 --------------------------
     * Simplified JSON representation for `__reduce__` values.
