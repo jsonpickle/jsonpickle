@@ -25,14 +25,9 @@ class JSONBackend(object):
         self._decoders = {}
 
         # Options to pass to specific encoders
-        json_opts = ((), {'sort_keys': True})
-        self._encoder_options = {
-            'json': json_opts,
-            'simplejson': json_opts,
-            'django.util.simplejson': json_opts,
-        }
+        self._encoder_options = {}
 
-        # Options to pass to specific encoders
+        # Options to pass to specific decoders
         self._decoder_options = {}
 
         # The exception class that is thrown when a decoding error occurs
@@ -47,6 +42,15 @@ class JSONBackend(object):
         self.load_backend('jsonlib', 'write', 'read', 'ReadError')
         self.load_backend('yajl')
         self.load_backend('ujson')
+
+        # Defaults for various encoders
+        json_opts = ((), {'sort_keys': True})
+        self._encoder_options = {
+            'ujson': ((), {'sort_keys': True, 'escape_forward_slashes': False}),
+            'json': json_opts,
+            'simplejson': json_opts,
+            'django.util.simplejson': json_opts,
+        }
 
     def _verify(self):
         """Ensures that we've loaded at least one JSON backend."""
