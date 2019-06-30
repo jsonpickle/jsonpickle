@@ -242,25 +242,6 @@ class FailSafeTestCase(SkippableTest):
         def __getstate__(self):
             a # will raise NameError
 
-class IntKeysObject(object):
-
-    def __init__(self):
-        self.data = {0: 0}
-
-    def __getstate__(self):
-        return self.__dict__
-
-
-class AdvancedObjectsTestCase(SkippableTest):
-
-    def setUp(self):
-        self.pickler = jsonpickle.pickler.Pickler()
-        self.unpickler = jsonpickle.unpickler.Unpickler()
-
-    def tearDown(self):
-        self.pickler.reset()
-        self.unpickler.reset()
-
     good = 'good'
 
     to_pickle = [BadClass(), good]
@@ -285,6 +266,14 @@ class AdvancedObjectsTestCase(SkippableTest):
         encoded = jsonpickle.encode(self.to_pickle, fail_safe=lambda e:CUSTOM_ERR_MSG)
         decoded = jsonpickle.decode(encoded)
         assert decoded[0] == CUSTOM_ERR_MSG
+
+class IntKeysObject(object):
+
+    def __init__(self):
+        self.data = {0: 0}
+
+    def __getstate__(self):
+        return self.__dict__
 
 
 class AdvancedObjectsTestCase(SkippableTest):

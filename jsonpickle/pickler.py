@@ -31,7 +31,7 @@ def encode(value,
            max_iter=None,
            use_decimal=False,
            numeric_keys=False,
-           use_base85=False):
+           use_base85=False,
            fail_safe=None):
     """Return a JSON formatted representation of value, a Python object.
 
@@ -67,6 +67,10 @@ def encode(value,
 
         NOTE: A side-effect of the above settings is that float values will be
         converted to Decimal when converting to json.
+    :param use_base85:
+        If possible, use base85 to encode binary data. Base85 bloats binary data
+        by 1/4 as opposed to base64, which expands it by 1/3. This argument is
+        ignored on Python 2 because it doesn't support it.
     :param fail_safe: If set to a function exceptions are ignored when pickling
         and if a exception happens the function is called and the return value
         is used as the value for the object that caused the error
@@ -80,10 +84,6 @@ def encode(value,
     >>> encode({'foo': [1, 2, [3, 4]]}, max_depth=1)
     '{"foo": "[1, 2, [3, 4]]"}'
 
-    :param use_base85:
-        If possible, use base85 to encode binary data. Base85 bloats binary data
-        by 1/4 as opposed to base64, which expands it by 1/3. This argument is
-        ignored on Python 2 because it doesn't support it.
     """
     backend = backend or json
     context = context or Pickler(
@@ -96,7 +96,7 @@ def encode(value,
             max_iter=max_iter,
             numeric_keys=numeric_keys,
             use_decimal=use_decimal,
-            use_base85=use_base85)
+            use_base85=use_base85,
             fail_safe=fail_safe)
     return backend.encode(context.flatten(value, reset=reset))
 
@@ -113,7 +113,7 @@ class Pickler(object):
                  max_iter=None,
                  numeric_keys=False,
                  use_decimal=False,
-                 use_base85=False):
+                 use_base85=False,
                  fail_safe=None):
         self.unpicklable = unpicklable
         self.make_refs = make_refs
@@ -243,7 +243,11 @@ class Pickler(object):
             else:
                 flatten_func = self._get_flattener(obj)
 
-                return flatten_func(obj)
+            if flatten_func is None:
+                self._pickle_warning(obj)
+                return None
+
+            return flatten_func(obj)
 
         except (KeyboardInterrupt, SystemExit):
             raise
