@@ -249,11 +249,13 @@ class Pickler(object):
 
             return flatten_func(obj)
 
-        except (KeyboardInterrupt, SystemExit):
-            raise
+        except (KeyboardInterrupt, SystemExit) as e:
+            raise e
         except Exception as e:
-            if self.fail_safe is None: raise
-            else: return self.fail_safe(e)
+            if self.fail_safe is None:
+                raise e
+            else:
+                return self.fail_safe(e)
 
     def _list_recurse(self, obj):
         return [self._flatten(v) for v in obj]

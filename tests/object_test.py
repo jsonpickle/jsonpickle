@@ -237,35 +237,41 @@ class ThingWithTimedeltaAttribute(object):
     def __getinitargs__(self):
         return self.offset,
 
+
 class FailSafeTestCase(SkippableTest):
-    class BadClass:
+
+    class BadClass(object):
+
         def __getstate__(self):
-            a # will raise NameError
+            raise ValueError('Intentional error')
 
     good = 'good'
 
     to_pickle = [BadClass(), good]
 
     def test_no_error(self):
-        encoded = jsonpickle.encode(self.to_pickle, fail_safe=lambda e:None)
+        encoded = jsonpickle.encode(self.to_pickle, fail_safe=lambda e: None)
         decoded = jsonpickle.decode(encoded)
-        assert decoded[0] is None
-        assert decoded[1] == 'good'
+        self.assertEqual(decoded[0], None)
+        self.assertEqual(decoded[1], 'good')
 
     def test_error_recorded(self):
-        recordedEx = []
-        def recorder(exception):
-            recordedEx.append(exception)
+        exceptions = []
 
-        encoded = jsonpickle.encode(self.to_pickle, fail_safe=recorder)
-        assert len(recordedEx) == 1
-        assert isinstance(recordedEx[0], Exception)
+        def recorder(exception):
+            exceptions.append(exception)
+
+        jsonpickle.encode(self.to_pickle, fail_safe=recorder)
+        self.assertEqual(len(exceptions), 1)
+        self.assertTrue(isinstance(exceptions[0], Exception))
 
     def test_custom_err_msg(self):
-        CUSTOM_ERR_MSG = "custom err msg"
-        encoded = jsonpickle.encode(self.to_pickle, fail_safe=lambda e:CUSTOM_ERR_MSG)
+        CUSTOM_ERR_MSG = 'custom err msg'
+        encoded = jsonpickle.encode(self.to_pickle,
+                                    fail_safe=lambda e: CUSTOM_ERR_MSG)
         decoded = jsonpickle.decode(encoded)
-        assert decoded[0] == CUSTOM_ERR_MSG
+        self.assertEqual(decoded[0], CUSTOM_ERR_MSG)
+
 
 class IntKeysObject(object):
 
