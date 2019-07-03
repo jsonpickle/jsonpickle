@@ -1,0 +1,7 @@
+{
+    "python.pythonPath": "env27\\Scripts\\python.exe",
+    "python.testing.pytestEnabled": true,
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true,
+    "files.trimFinalNewlines": true
+}

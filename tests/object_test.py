@@ -237,6 +237,35 @@ class ThingWithTimedeltaAttribute(object):
     def __getinitargs__(self):
         return self.offset,
 
+class FailSafeTestCase(SkippableTest):
+    class BadClass:
+        def __getstate__(self):
+            a # will raise NameError
+
+    good = 'good'
+
+    to_pickle = [BadClass(), good]
+
+    def test_no_error(self):
+        encoded = jsonpickle.encode(self.to_pickle, fail_safe=lambda e:None)
+        decoded = jsonpickle.decode(encoded)
+        assert decoded[0] is None
+        assert decoded[1] == 'good'
+
+    def test_error_recorded(self):
+        recordedEx = []
+        def recorder(exception):
+            recordedEx.append(exception)
+
+        encoded = jsonpickle.encode(self.to_pickle, fail_safe=recorder)
+        assert len(recordedEx) == 1
+        assert isinstance(recordedEx[0], Exception)
+
+    def test_custom_err_msg(self):
+        CUSTOM_ERR_MSG = "custom err msg"
+        encoded = jsonpickle.encode(self.to_pickle, fail_safe=lambda e:CUSTOM_ERR_MSG)
+        decoded = jsonpickle.decode(encoded)
+        assert decoded[0] == CUSTOM_ERR_MSG
 
 class IntKeysObject(object):
 
@@ -907,6 +936,7 @@ class ExternalHandlerTestCase(unittest.TestCase):
 
 def suite():
     suite = unittest.TestSuite()
+    suite.addTest(unittest.makeSuite(FailSafeTestCase))
     suite.addTest(unittest.makeSuite(AdvancedObjectsTestCase))
     suite.addTest(unittest.makeSuite(ExternalHandlerTestCase))
     return suite
