@@ -86,3 +86,44 @@ License
 =======
 Licensed under the BSD License. See COPYING for details.
 See jsonpickleJS/LICENSE for details about the jsonpickleJS license.
+
+Development
+===========
+
+Use `make` to run the unit tests::
+
+        make test
+
+`pytest` is used to run unit tests internally.
+
+A `tox` target is provided to run tests against multiple
+python versions using `tox`::
+
+        make tox
+
+`jsonpickle` itself has no dependencies beyond the Python stdlib.
+`tox` is required for testing when using the `tox` test runner only.
+
+The testing requirements are specified in `requirements-dev.txt`.
+It is recommended to create a virtualenv and install the requirements there.::
+
+        python3 -mvenv env3x
+        vx env3x pip install --requirement requirements-dev.txt
+
+You can then execute tests inside the virtualenv::
+
+        vx env3x make test
+
+`vx` is a simple script that allows you to eschew the typical virtualenv
+`source activate` / `deactivate` dance.  The following steps clone
+`vx` to `~/src/vx` and symlinks to the script from `~/bin/vx`.
+This assumes that `$HOME/bin` is in your `$PATH`.::
+
+    mkdir -p ~/bin ~/src
+    cd ~/src && git clone git://github.com/davvid/vx.git
+    cd ~/bin && ln -s ../src/vx/vx
+
+You don't need `vx` to run the jsonpickle's tests -- you can always use the
+`activate` and `deactivate` virtualenv workflow instead.  `vx` is convenient
+when testing against multiple virtualenvs because it does not mutate your
+shell environment.
