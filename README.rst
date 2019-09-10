@@ -114,10 +114,11 @@ You can then execute tests inside the virtualenv::
 
         vx env3x make test
 
-`vx` is a simple script that allows you to eschew the typical virtualenv
-`source activate` / `deactivate` dance.  The following steps clone
-`vx` to `~/src/vx` and symlinks to the script from `~/bin/vx`.
-This assumes that `$HOME/bin` is in your `$PATH`.::
+`vx <https://github.com/davvid/vx/>`_ is a simple script that allows you to
+eschew the typical virtualenv `source activate` / `deactivate` dance.
+
+The following steps clone `vx` to `~/src/vx` and symlinks to the script from
+`~/bin/vx`.  This assumes that `$HOME/bin` is in your `$PATH`.::
 
     mkdir -p ~/bin ~/src
     cd ~/src && git clone git://github.com/davvid/vx.git
