@@ -330,6 +330,27 @@ class AdvancedObjectsTestCase(SkippableTest):
         # outer-most defaultdict
         self.assertEqual(newdefdict[3].default_factory, int)
 
+    def test_defaultdict_roundtrip_simple_lambda2(self):
+        default_factory = lambda: 0
+        defaultdict = collections.defaultdict
+        defdict = defaultdict(default_factory, {'a': defaultdict(default_factory)})
+        # roundtrip
+        encoded = jsonpickle.encode(defdict, keys=True)
+        decoded = jsonpickle.decode(encoded, keys=True)
+        self.assertEqual(type(decoded), defaultdict)
+        self.assertEqual(type(decoded['a']), defaultdict)
+
+    def test_defaultdict_and_things_roundtrip_simple_lambda(self):
+        thing = Thing('a')
+        defaultdict = collections.defaultdict
+        defdict = defaultdict(lambda: 0)
+        obj = [defdict, thing, thing]
+        # roundtrip
+        encoded = jsonpickle.encode(obj, keys=True)
+        decoded = jsonpickle.decode(encoded, keys=True)
+        self.assertEqual(decoded[0].default_factory(), 0)
+        self.assertIs(decoded[1], decoded[2])
+
     def test_defaultdict_subclass_with_self_as_default_factory(self):
         cls = ThingWithSelfAsDefaultFactory
         tree = cls()
