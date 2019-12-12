@@ -3,6 +3,10 @@ Change Log
 
 Version 1.3 - TBD
 -----------------
+    * Improved round tripping of default dicts.
+      (`#283 <https://github.com/jsonpickle/jsonpickle/pull/283>`_)
+      (`#282 <https://github.com/jsonpickle/jsonpickle/issues/282>`_)
+
     * Better support for cyclical references when encoding with
       ``unpicklable=False``.
       (`#264 <https://github.com/jsonpickle/jsonpickle/pull/264>`_)
