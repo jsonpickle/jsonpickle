@@ -3,6 +3,9 @@
 
 .. image:: https://img.shields.io/pypi/pyversions/skeleton.svg
 
+.. image:: https://dev.azure.com/jaraco/skeleton/_apis/build/status/jaraco.skeleton?branchName=master
+   :target: https://dev.azure.com/jaraco/skeleton/_build/latest?definitionId=1&branchName=master
+
 .. image:: https://img.shields.io/travis/jaraco/skeleton/master.svg
    :target: https://travis-ci.org/jaraco/skeleton
 
