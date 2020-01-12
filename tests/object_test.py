@@ -331,9 +331,9 @@ class AdvancedObjectsTestCase(SkippableTest):
         self.assertEqual(newdefdict[3].default_factory, int)
 
     def test_defaultdict_roundtrip_simple_lambda2(self):
-        default_factory = lambda: 0
         defaultdict = collections.defaultdict
-        defdict = defaultdict(default_factory, {'a': defaultdict(default_factory)})
+        payload = {'a': defaultdict(lambda: 0)}
+        defdict = defaultdict(lambda: 0, payload)
         # roundtrip
         encoded = jsonpickle.encode(defdict, keys=True)
         decoded = jsonpickle.decode(encoded, keys=True)

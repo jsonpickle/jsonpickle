@@ -544,7 +544,8 @@ class Pickler(object):
                     # We've never seen this object before so pickle it in-place.
                     # Create an instance from the factory and assume that the
                     # resulting instance is a suitable examplar.
-                    value = self._flatten_obj_instance(handlers.CloneFactory(factory()))
+                    value = self._flatten_obj_instance(
+                        handlers.CloneFactory(factory()))
                 else:
                     # We've seen this object before.
                     # Break the cycle by emitting a reference.
