@@ -1,10 +1,11 @@
 from __future__ import absolute_import, division, unicode_literals
 import enum
 import collections
+import datetime
 import decimal
 import re
+import threading
 import unittest
-import datetime
 
 import jsonpickle
 from jsonpickle import compat
@@ -915,6 +916,25 @@ class AdvancedObjectsTestCase(SkippableTest):
         flattened = self.pickler.flatten(obj)
         restored = self.unpickler.restore(flattened)
         self.assertEqual(restored.offset, datetime.timedelta(99))
+
+    def test_threading_lock(self):
+        obj = Thing('lock')
+        obj.lock = threading.Lock()
+        lock_class = obj.lock.__class__
+        # Roundtrip and make sure we get a lock object.
+        json = self.pickler.flatten(obj)
+        clone = self.unpickler.restore(json)
+        self.assertTrue(isinstance(clone.lock, lock_class))
+        self.assertFalse(clone.lock.locked())
+
+        # Serializing a locked lock should create a locked clone.
+        self.assertTrue(obj.lock.acquire())
+        json = self.pickler.flatten(obj)
+        obj.lock.release()
+        # Restore the locked lock state.
+        clone = self.unpickler.restore(json)
+        self.assertTrue(clone.lock.locked())
+        clone.lock.release()
 
 
 # Test classes for ExternalHandlerTestCase

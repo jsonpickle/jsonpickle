@@ -11,6 +11,7 @@ from __future__ import absolute_import, division, unicode_literals
 import copy
 import datetime
 import re
+import threading
 import uuid
 
 from . import compat
@@ -235,3 +236,20 @@ class UUIDHandler(BaseHandler):
 
 
 UUIDHandler.handles(uuid.UUID)
+
+
+class LockHandler(BaseHandler):
+    """Serialize threading.Lock objects"""
+
+    def flatten(self, obj, data):
+        data['locked'] = obj.locked()
+        return data
+
+    def restore(self, data):
+        lock = threading.Lock()
+        if data.get('locked', False):
+            lock.acquire()
+        return lock
+
+_lock = threading.Lock()
+LockHandler.handles(_lock.__class__)
