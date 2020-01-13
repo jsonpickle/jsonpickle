@@ -223,6 +223,24 @@ class Pickler(object):
         return self._flatten(obj)
 
     def _flatten(self, obj):
+
+        #########################################
+        # if obj is nonrecursive return immediately
+        # for performance reasons we don't want to do recursive checks
+        if PY2 and isinstance(obj, types.FileType):
+            return self._flatten_file(obj)
+
+        if util.is_bytes(obj):
+            return self._flatten_bytestring(obj)
+
+        if util.is_primitive(obj):
+            return obj
+
+        # Decimal is a primitive when use_decimal is True
+        if self._use_decimal and isinstance(obj, decimal.Decimal):
+            return obj
+        #########################################
+
         self._push()
         return self._pop(self._flatten_obj(obj))
 
@@ -261,19 +279,6 @@ class Pickler(object):
         return [self._flatten(v) for v in obj]
 
     def _get_flattener(self, obj):
-
-        if PY2 and isinstance(obj, types.FileType):
-            return self._flatten_file
-
-        if util.is_bytes(obj):
-            return self._flatten_bytestring
-
-        if util.is_primitive(obj):
-            return lambda obj: obj
-
-        # Decimal is a primitive when use_decimal is True
-        if self._use_decimal and isinstance(obj, decimal.Decimal):
-            return lambda obj: obj
 
         list_recurse = self._list_recurse
 
