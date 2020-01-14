@@ -251,5 +251,6 @@ class LockHandler(BaseHandler):
             lock.acquire()
         return lock
 
+
 _lock = threading.Lock()
 LockHandler.handles(_lock.__class__)
