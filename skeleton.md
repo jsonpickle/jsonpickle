@@ -123,9 +123,9 @@ Features include:
 - run on Ubuntu Xenial
 - correct for broken IPv6
 
-### Appveyor
+### AppVeyor
 
-A minimal template for running under Appveyor (Windows) is provided.
+A minimal template for running under AppVeyor (Windows) is provided.
 
 ### Continuous Deployments
 
