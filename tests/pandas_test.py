@@ -252,6 +252,37 @@ class PandasTestCase(SkippableTest):
         self.assertEqual(expect.index[0][1], actual.index[0][1])
         self.assertEqual(expect.index[0][2], actual.index[0][2])
 
+    def test_series_multi_index_strings(self):
+        """Test multi-index with strings"""
+        lets = ['A', 'B', 'C']
+        nums = ['1', '2', '3']
+        midx = pd.MultiIndex.from_product([lets, nums])
+        expect = pd.Series(0, index=midx)
+        actual = self.roundtrip(expect)
+
+        self.assertEqual(expect.values[0], actual.values[0])
+        self.assertEqual(0, actual.values[0])
+
+        self.assertEqual(expect.index[0], actual.index[0])
+        self.assertEqual(expect.index[1], actual.index[1])
+        self.assertEqual(expect.index[2], actual.index[2])
+        self.assertEqual(expect.index[3], actual.index[3])
+        self.assertEqual(expect.index[4], actual.index[4])
+        self.assertEqual(expect.index[5], actual.index[5])
+        self.assertEqual(expect.index[6], actual.index[6])
+        self.assertEqual(expect.index[7], actual.index[7])
+        self.assertEqual(expect.index[8], actual.index[8])
+
+        self.assertEqual(('A', '1'), actual.index[0])
+        self.assertEqual(('A', '2'), actual.index[1])
+        self.assertEqual(('A', '3'), actual.index[2])
+        self.assertEqual(('B', '1'), actual.index[3])
+        self.assertEqual(('B', '2'), actual.index[4])
+        self.assertEqual(('B', '3'), actual.index[5])
+        self.assertEqual(('C', '1'), actual.index[6])
+        self.assertEqual(('C', '2'), actual.index[7])
+        self.assertEqual(('C', '3'), actual.index[8])
+
 
 def suite():
     suite = unittest.TestSuite()
