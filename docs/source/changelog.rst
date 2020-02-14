@@ -3,6 +3,13 @@ Change Log
 
 Version 1.4 - TBD
 -----------------
+    * Improved serialization of dictionaries with non-string keys.
+      Previously, using an enum that was both the key and a value in
+      a dictionary could end up with incorrect references to other
+      objects.  The references are now properly maintained for dicts
+      with object keys that are also referenced in the dict's values.
+      (`#286 <https://github.com/jsonpickle/jsonpickle/issues/286>`_)
+
     * Improved serialization of pandas.Series objects.
       (`#287 <https://github.com/jsonpickle/jsonpickle/issues/287>`_)
 

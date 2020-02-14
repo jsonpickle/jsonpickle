@@ -532,9 +532,23 @@ class Pickler(object):
         if data is None:
             data = obj.__class__()
 
-        flatten = self._flatten_key_value_pair
-        for k, v in sorted(obj.items(), key=util.itemgetter):
-            flatten(k, v, data)
+        # If we allow non-string keys then we have to do a two-phase
+        # encoding to ensure that the reference IDs are deterministic.
+        if self.keys:
+            # Phase 1: serialize regular objects, ignore fancy keys.
+            flatten = self._flatten_string_key_value_pair
+            for k, v in sorted(obj.items(), key=util.itemgetter):
+                flatten(k, v, data)
+
+            # Phase 2: serialize non-string keys.
+            flatten = self._flatten_non_string_key_value_pair
+            for k, v in sorted(obj.items(), key=util.itemgetter):
+                flatten(k, v, data)
+        else:
+            # If we have string keys only then we only need a single pass.
+            flatten = self._flatten_key_value_pair
+            for k, v in sorted(obj.items(), key=util.itemgetter):
+                flatten(k, v, data)
 
         # the collections.defaultdict protocol
         if hasattr(obj, 'default_factory') and callable(obj.default_factory):
@@ -597,6 +611,39 @@ class Pickler(object):
             return data
         if self.keys:
             if not isinstance(k, string_types) or k.startswith(tags.JSON_KEY):
+                k = self._escape_key(k)
+        else:
+            if k is None:
+                k = 'null'  # for compatibility with common json encoders
+
+            if self.numeric_keys and isinstance(k, numeric_types):
+                pass
+            elif not isinstance(k, string_types):
+                try:
+                    k = repr(k)
+                except Exception:
+                    k = compat.ustr(k)
+
+        data[k] = self._flatten(v)
+        return data
+
+    def _flatten_non_string_key_value_pair(self, k, v, data):
+        """Flatten only non-string key/value pairs"""
+        if not util.is_picklable(k, v):
+            return data
+        if self.keys and not isinstance(k, string_types):
+            k = self._escape_key(k)
+            data[k] = self._flatten(v)
+        return data
+
+    def _flatten_string_key_value_pair(self, k, v, data):
+        """Flatten string key/value pairs only."""
+        if not util.is_picklable(k, v):
+            return data
+        if self.keys:
+            if not isinstance(k, string_types):
+                return data
+            elif k.startswith(tags.JSON_KEY):
                 k = self._escape_key(k)
         else:
             if k is None:

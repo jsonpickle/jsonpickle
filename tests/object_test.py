@@ -857,27 +857,39 @@ class AdvancedObjectsTestCase(SkippableTest):
         self.assertTrue('command' in decoded)
 
     def test_enum_int_key_and_value(self):
+        thing = Thing('test')
         value = IntEnumTest.X
+        value2 = IntEnumTest.Y
         expect = {
-            'thing': Thing('test'),
+            '__first__': thing,
+            'thing': thing,
             value: value,
+            value2: value2,
         }
         string = jsonpickle.encode(expect, keys=True)
         actual = jsonpickle.decode(string, keys=True)
-        self.assertEqual('test', actual['thing'].name)
+        self.assertEqual('test', actual['__first__'].name)
         self.assertEqual(value, actual[value])
+        self.assertEqual(value2, actual[value2])
+
+        actual_first = actual['__first__']
+        actual_thing = actual['thing']
+        self.assertTrue(actual_first is actual_thing)
 
     def test_enum_string_key_and_value(self):
+        thing = Thing('test')
         value = StringEnumTest.A
+        value2 = StringEnumTest.B
         expect = {
-            'thing': Thing('test'),
             value: value,
+            '__first__': thing,
+            value2: value2,
         }
         string = jsonpickle.encode(expect, keys=True)
         actual = jsonpickle.decode(string, keys=True)
-        self.assertEqual('test', actual['thing'].name)
+        self.assertEqual('test', actual['__first__'].name)
         self.assertEqual(value, actual[value])
-
+        self.assertEqual(value2, actual[value2])
 
     def test_bytes_unicode(self):
         b1 = b'foo'

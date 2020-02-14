@@ -50,6 +50,12 @@ def _safe_hasattr(obj, attr):
         return False
 
 
+def _is_json_key(key):
+    """Has this key a special object that has been encoded to JSON?"""
+    return (isinstance(key, compat.string_types)
+            and key.startswith(tags.JSON_KEY))
+
+
 class _Proxy(object):
     """Proxies are dummy objects that are later replaced by real instances
 
@@ -505,20 +511,49 @@ class Unpickler(object):
 
     def _restore_dict(self, obj):
         data = {}
-        restore_key = self._restore_key_fn()
-        for k, v in sorted(obj.items(), key=util.itemgetter):
-            if isinstance(k, numeric_types):
-                str_k = k.__str__()
-            else:
-                str_k = k
-            self._namestack.append(str_k)
-            k = restore_key(k)
-            data[k] = self._restore(v)
-            # k is currently a proxy and must be replaced
-            if isinstance(data[k], _Proxy):
-                self._proxies.append((data, k, data[k], _obj_setvalue))
 
-            self._namestack.pop()
+        # If we are decoding dicts that can have non-string keys then we
+        # need to do a two-phase decode where the non-string keys are
+        # processed last.  This ensures a deterministic order when
+        # assigning object IDs for references.
+        if self.keys:
+            # Phase 1: regular non-special keys.
+            for k, v in sorted(obj.items(), key=util.itemgetter):
+                if _is_json_key(k):
+                    continue
+                if isinstance(k, numeric_types):
+                    str_k = k.__str__()
+                else:
+                    str_k = k
+                self._namestack.append(str_k)
+                data[k] = self._restore(v)
+
+                self._namestack.pop()
+
+            # Phase 2: object keys only.
+            for k, v in sorted(obj.items(), key=util.itemgetter):
+                if not _is_json_key(k):
+                    continue
+                self._namestack.append(k)
+
+                k = self._restore_pickled_key(k)
+                data[k] = result = self._restore(v)
+                # k is currently a proxy and must be replaced
+                if isinstance(result, _Proxy):
+                    self._proxies.append((data, k, result, _obj_setvalue))
+
+                self._namestack.pop()
+        else:
+            # No special keys, thus we don't need to restore the keys either.
+            restore_key = self._restore_key_fn()
+            for k, v in sorted(obj.items(), key=util.itemgetter):
+                if isinstance(k, numeric_types):
+                    str_k = k.__str__()
+                else:
+                    str_k = k
+                self._namestack.append(str_k)
+                data[k] = self._restore(v)
+                self._namestack.pop()
         return data
 
     def _restore_key_fn(self):
@@ -542,8 +577,7 @@ class Unpickler(object):
 
     def _restore_pickled_key(self, key):
         """Restore a possibly pickled key"""
-        if (isinstance(key, compat.string_types) and
-                key.startswith(tags.JSON_KEY)):
+        if _is_json_key(key):
             key = decode(key[len(tags.JSON_KEY):],
                          backend=self.backend, context=self,
                          keys=True, reset=False)
