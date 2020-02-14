@@ -1,8 +1,8 @@
 Change Log
 ==========
 
-Version 1.3 - TBD
------------------
+Version 1.3 - February 13, 2019
+-------------------------------
     * Improved round tripping of default dicts.
       (`#283 <https://github.com/jsonpickle/jsonpickle/pull/283>`_)
       (`#282 <https://github.com/jsonpickle/jsonpickle/issues/282>`_)
