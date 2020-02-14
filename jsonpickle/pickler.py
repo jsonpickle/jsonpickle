@@ -609,20 +609,17 @@ class Pickler(object):
         """Flatten a key/value pair into the passed-in dictionary."""
         if not util.is_picklable(k, v):
             return data
-        if self.keys:
-            if not isinstance(k, string_types) or k.startswith(tags.JSON_KEY):
-                k = self._escape_key(k)
-        else:
-            if k is None:
-                k = 'null'  # for compatibility with common json encoders
 
-            if self.numeric_keys and isinstance(k, numeric_types):
-                pass
-            elif not isinstance(k, string_types):
-                try:
-                    k = repr(k)
-                except Exception:
-                    k = compat.ustr(k)
+        if k is None:
+            k = 'null'  # for compatibility with common json encoders
+
+        if self.numeric_keys and isinstance(k, numeric_types):
+            pass
+        elif not isinstance(k, string_types):
+            try:
+                k = repr(k)
+            except Exception:
+                k = compat.ustr(k)
 
         data[k] = self._flatten(v)
         return data
