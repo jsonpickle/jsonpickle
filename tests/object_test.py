@@ -856,6 +856,29 @@ class AdvancedObjectsTestCase(SkippableTest):
         self.assertTrue('message_type' in decoded)
         self.assertTrue('command' in decoded)
 
+    def test_enum_int_key_and_value(self):
+        value = IntEnumTest.X
+        expect = {
+            'thing': Thing('test'),
+            value: value,
+        }
+        string = jsonpickle.encode(expect, keys=True)
+        actual = jsonpickle.decode(string, keys=True)
+        self.assertEqual('test', actual['thing'].name)
+        self.assertEqual(value, actual[value])
+
+    def test_enum_string_key_and_value(self):
+        value = StringEnumTest.A
+        expect = {
+            'thing': Thing('test'),
+            value: value,
+        }
+        string = jsonpickle.encode(expect, keys=True)
+        actual = jsonpickle.decode(string, keys=True)
+        self.assertEqual('test', actual['thing'].name)
+        self.assertEqual(value, actual[value])
+
+
     def test_bytes_unicode(self):
         b1 = b'foo'
         b2 = b'foo\xff'
