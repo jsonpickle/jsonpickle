@@ -227,6 +227,31 @@ class PandasTestCase(SkippableTest):
         decoded_df = self.roundtrip(df)
         assert_frame_equal(decoded_df, df)
 
+    def test_series_list_index(self):
+        """Test pandas using series with a list index"""
+        expect = pd.Series(0, index=[1, 2, 3])
+        actual = self.roundtrip(expect)
+
+        self.assertEqual(expect.values[0], actual.values[0])
+        self.assertEqual(0, actual.values[0])
+
+        self.assertEqual(expect.index[0], actual.index[0])
+        self.assertEqual(expect.index[1], actual.index[1])
+        self.assertEqual(expect.index[2], actual.index[2])
+
+    def test_series_multi_index(self):
+        """Test pandas using series with a multi-index"""
+        expect = pd.Series(0, index=[[1], [2], [3]])
+        actual = self.roundtrip(expect)
+
+        self.assertEqual(expect.values[0], actual.values[0])
+        self.assertEqual(0, actual.values[0])
+
+        self.assertEqual(expect.index[0], actual.index[0])
+        self.assertEqual(expect.index[0][0], actual.index[0][0])
+        self.assertEqual(expect.index[0][1], actual.index[0][1])
+        self.assertEqual(expect.index[0][2], actual.index[0][2])
+
 
 def suite():
     suite = unittest.TestSuite()
