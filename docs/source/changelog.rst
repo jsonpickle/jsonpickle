@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+Version 1.4 - TBD
+-----------------
+    * Improved serialization of pandas.Series objects.
+      (`#196 <https://github.com/jsonpickle/jsonpickle/issues/196>`_)
+
 Version 1.3 - February 13, 2019
 -------------------------------
     * Improved round tripping of default dicts.

@@ -97,21 +97,19 @@ class PandasSeriesHandler(BaseHandler):
     pp = PandasProcessor()
 
     def flatten(self, obj, data):
-        dtypes = {k: str(pd.np.dtype(type(obj[k]))) for k in obj.keys()}
-        meta = {'dtypes': dtypes, 'name': obj.name}
-        # Save series as two rows rather than two cols to make preserving the
-        # type easier.
-        data = self.pp.flatten_pandas(obj.to_frame().T.to_csv(), data, meta)
+        """Flatten the index and values for reconstruction"""
+        data['name'] = obj.name
+        # This relies on the numpy handlers for the inner guts.
+        data['index'] = self.context.flatten(obj.index, reset=False)
+        data['values'] = self.context.flatten(obj.values, reset=False)
         return data
 
     def restore(self, data):
-        csv, meta = self.pp.restore_pandas(data)
-        params = make_read_csv_params(meta)
-        df = pd.read_csv(StringIO(csv), **params)
-        ser = pd.Series(data=df.iloc[:, 1:].values[0],
-                        index=df.columns[1:].values,
-                        name=meta.get('name', None))
-        return ser
+        """Restore the flattened data"""
+        name = data['name']
+        index = self.context.restore(data['index'], reset=False)
+        values = self.context.restore(data['values'], reset=False)
+        return pd.Series(values, index=index, name=name)
 
 
 class PandasIndexHandler(BaseHandler):
