@@ -402,7 +402,7 @@ class Unpickler(object):
         method = _obj_setattr
         deferred = {}
 
-        for k, v in sorted(obj.items(), key=util.itemgetter):
+        for k, v in util.items(obj):
             # ignore the reserved attribute
             if ignorereserved and k in tags.RESERVED:
                 continue
@@ -518,7 +518,7 @@ class Unpickler(object):
         # assigning object IDs for references.
         if self.keys:
             # Phase 1: regular non-special keys.
-            for k, v in sorted(obj.items(), key=util.itemgetter):
+            for k, v in util.items(obj):
                 if _is_json_key(k):
                     continue
                 if isinstance(k, numeric_types):
@@ -531,7 +531,7 @@ class Unpickler(object):
                 self._namestack.pop()
 
             # Phase 2: object keys only.
-            for k, v in sorted(obj.items(), key=util.itemgetter):
+            for k, v in util.items(obj):
                 if not _is_json_key(k):
                     continue
                 self._namestack.append(k)
@@ -545,8 +545,7 @@ class Unpickler(object):
                 self._namestack.pop()
         else:
             # No special keys, thus we don't need to restore the keys either.
-            restore_key = self._restore_key_fn()
-            for k, v in sorted(obj.items(), key=util.itemgetter):
+            for k, v in util.items(obj):
                 if isinstance(k, numeric_types):
                     str_k = k.__str__()
                 else:

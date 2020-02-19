@@ -600,6 +600,17 @@ class AdvancedObjectsTestCase(SkippableTest):
         self.assertTrue('<BrokenReprThing "test">' in flattened)
         self.assertTrue(flattened['<BrokenReprThing "test">'])
 
+    def test_ordered_dict_python3(self):
+        """Ensure that we preserve dict order on python3"""
+        if PY2:
+            return
+        # Python3 preserves dict order
+        obj = {'z': 'Z', 'x': 'X', 'y': 'Y'}
+        clone = jsonpickle.decode(jsonpickle.encode(obj))
+        expect = ['z', 'x', 'y']
+        actual = list(clone.keys())
+        self.assertEqual(expect, actual)
+
     def test_ordered_dict(self):
         d = collections.OrderedDict([('c', 3), ('a', 1), ('b', 2)])
         encoded = jsonpickle.encode(d)

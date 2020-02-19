@@ -537,17 +537,17 @@ class Pickler(object):
         if self.keys:
             # Phase 1: serialize regular objects, ignore fancy keys.
             flatten = self._flatten_string_key_value_pair
-            for k, v in sorted(obj.items(), key=util.itemgetter):
+            for k, v in util.items(obj):
                 flatten(k, v, data)
 
             # Phase 2: serialize non-string keys.
             flatten = self._flatten_non_string_key_value_pair
-            for k, v in sorted(obj.items(), key=util.itemgetter):
+            for k, v in util.items(obj):
                 flatten(k, v, data)
         else:
             # If we have string keys only then we only need a single pass.
             flatten = self._flatten_key_value_pair
-            for k, v in sorted(obj.items(), key=util.itemgetter):
+            for k, v in util.items(obj):
                 flatten(k, v, data)
 
         # the collections.defaultdict protocol

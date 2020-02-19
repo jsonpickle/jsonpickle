@@ -3,6 +3,8 @@ Change Log
 
 Version 1.4 - TBD
 -----------------
+    * Dict key order is preserved when pickling dictionaries on Python3.
+      (`#193 <https://github.com/jsonpickle/jsonpickle/issues/193>`_)
     * Improved serialization of dictionaries with non-string keys.
       Previously, using an enum that was both the key and a value in
       a dictionary could end up with incorrect references to other

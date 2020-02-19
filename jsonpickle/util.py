@@ -534,3 +534,19 @@ def b85decode(payload):
 
 def itemgetter(obj, getter=operator.itemgetter(0)):
     return compat.ustr(getter(obj))
+
+
+def items(obj):
+    """Iterate over dicts in a deterministic order
+
+    Python2 does not guarantee dict ordering, so this function
+    papers over the difference in behavior.  Python3 does guarantee
+    dict order, without use of OrderedDict, so no sorting is needed there.
+
+    """
+    if PY2:
+        for k, v in sorted(obj.iteritems(), key=itemgetter):
+            yield k, v
+    else:
+        for k, v in obj.items():
+            yield k, v
