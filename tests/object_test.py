@@ -12,7 +12,7 @@ from jsonpickle import compat
 from jsonpickle import handlers
 from jsonpickle import tags
 from jsonpickle import util
-from jsonpickle.compat import queue, PY2
+from jsonpickle.compat import queue, PY2, PY3_ORDERED_DICT
 
 from helper import SkippableTest
 
@@ -602,9 +602,9 @@ class AdvancedObjectsTestCase(SkippableTest):
 
     def test_ordered_dict_python3(self):
         """Ensure that we preserve dict order on python3"""
-        if PY2:
+        if not PY3_ORDERED_DICT:
             return
-        # Python3 preserves dict order
+        # Python3.6+ preserves dict order.
         obj = {'z': 'Z', 'x': 'X', 'y': 'Y'}
         clone = jsonpickle.decode(jsonpickle.encode(obj))
         expect = ['z', 'x', 'y']

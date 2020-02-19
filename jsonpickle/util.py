@@ -19,8 +19,15 @@ import inspect
 
 from . import tags
 from . import compat
-from .compat import numeric_types, PY2, PY3, class_types
-from .compat import abc_iterator, iterator_types
+from .compat import (
+    abc_iterator,
+    class_types,
+    iterator_types,
+    numeric_types,
+    PY2,
+    PY3,
+    PY3_ORDERED_DICT,
+)
 
 if PY2:
     import __builtin__
@@ -544,9 +551,9 @@ def items(obj):
     dict order, without use of OrderedDict, so no sorting is needed there.
 
     """
-    if PY2:
-        for k, v in sorted(obj.iteritems(), key=itemgetter):
+    if PY3_ORDERED_DICT:
+        for k, v in obj.items():
             yield k, v
     else:
-        for k, v in obj.items():
+        for k, v in sorted(obj.items(), key=itemgetter):
             yield k, v

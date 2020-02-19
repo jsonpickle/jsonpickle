@@ -6,6 +6,7 @@ import base64
 PY_MAJOR = sys.version_info[0]
 PY2 = PY_MAJOR == 2
 PY3 = PY_MAJOR == 3
+PY3_ORDERED_DICT = PY3 and sys.version_info[1] >= 6  # Python 3.6+
 
 class_types = (type,)
 iterator_types = (type(iter('')),)

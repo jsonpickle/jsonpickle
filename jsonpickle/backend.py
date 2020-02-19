@@ -1,7 +1,7 @@
 from __future__ import absolute_import, division, unicode_literals
 
 from .compat import string_types
-from .compat import PY2
+from .compat import PY3_ORDERED_DICT
 
 
 class JSONBackend(object):
@@ -45,9 +45,10 @@ class JSONBackend(object):
         self.load_backend('ujson')
 
         # Defaults for various encoders
-        json_opts = ((), {'sort_keys': PY2})
+        sort = not PY3_ORDERED_DICT
+        json_opts = ((), {'sort_keys': sort})
         self._encoder_options = {
-            'ujson': ((), {'sort_keys': PY2, 'escape_forward_slashes': False}),
+            'ujson': ((), {'sort_keys': sort, 'escape_forward_slashes': False}),
             'json': json_opts,
             'simplejson': json_opts,
             'django.util.simplejson': json_opts,
