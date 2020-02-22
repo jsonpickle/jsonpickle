@@ -1,4 +1,5 @@
 from __future__ import absolute_import, division, unicode_literals
+import array
 import enum
 import collections
 import datetime
@@ -981,6 +982,30 @@ class AdvancedObjectsTestCase(SkippableTest):
         clone = self.unpickler.restore(json)
         self.assertTrue(clone.lock.locked())
         clone.lock.release()
+
+    def _test_array_roundtrip(self, obj):
+        """Roundtrip an array and test invariants"""
+        json = self.pickler.flatten(obj)
+        clone = self.unpickler.restore(json)
+        self.assertTrue(isinstance(clone, array.array))
+        self.assertEqual(obj.typecode, clone.typecode)
+        self.assertEqual(len(obj), len(clone))
+        for j, k in zip(obj, clone):
+            self.assertEqual(j, k)
+        self.assertEqual(obj, clone)
+
+    def test_array_handler_numeric(self):
+        """Test numeric array.array typecodes that work in Python2+3"""
+        typecodes = ('b', 'B', 'h', 'H', 'i', 'I', 'l', 'L', 'f', 'd')
+        for typecode in typecodes:
+            obj = array.array(typecode, (1, 2, 3))
+            self._test_array_roundtrip(obj)
+
+    def test_array_handler_python2(self):
+        """Python2 allows the "c" byte/char typecode"""
+        if PY2:
+            obj = array.array('c', bytes('abcd'))
+            self._test_array_roundtrip(obj)
 
 
 # Test classes for ExternalHandlerTestCase

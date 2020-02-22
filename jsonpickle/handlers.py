@@ -8,6 +8,7 @@ A handler can be bound to other types by calling
 
 """
 from __future__ import absolute_import, division, unicode_literals
+import array
 import copy
 import datetime
 import re
@@ -140,6 +141,25 @@ class BaseHandler(object):
         """
         registry.register(cls, self)
         return cls
+
+
+class ArrayHandler(BaseHandler):
+    """Flatten and restore array.array objects"""
+
+    def flatten(self, obj, data):
+        data['typecode'] = obj.typecode
+        data['values'] = self.context.flatten(obj.tolist(), reset=False)
+        return data
+
+    def restore(self, data):
+        typecode = data['typecode']
+        values = self.context.restore(data['values'], reset=False)
+        if typecode == 'c':
+            values = [bytes(x) for x in values]
+        return array.array(typecode, values)
+
+
+ArrayHandler.handles(array.array)
 
 
 class DatetimeHandler(BaseHandler):

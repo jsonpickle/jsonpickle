@@ -3,6 +3,8 @@ Change Log
 
 Version 1.4 - TBD
 -----------------
+    * We now include a custom handler for `array.array` objects.
+      (`#199 <https://github.com/jsonpickle/jsonpickle/issues/199>`_)
     * Dict key order is preserved when pickling dictionaries on Python3.
       (`#193 <https://github.com/jsonpickle/jsonpickle/issues/193>`_)
     * Improved serialization of dictionaries with non-string keys.
