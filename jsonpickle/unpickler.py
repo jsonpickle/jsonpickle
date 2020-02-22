@@ -452,7 +452,7 @@ class Unpickler(object):
             if hasattr(instance, 'append'):
                 for v in obj[tags.SEQ]:
                     instance.append(self._restore(v))
-            if hasattr(instance, 'add'):
+            elif hasattr(instance, 'add'):
                 for v in obj[tags.SEQ]:
                     instance.add(self._restore(v))
 
