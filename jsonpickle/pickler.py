@@ -49,6 +49,14 @@ def encode(value,
         by calling repr() instead of recursing when make_refs is set False.
     :param keys: If set to True then jsonpickle will encode non-string
         dictionary keys instead of coercing them into strings via `repr()`.
+        This is typically what you want if you need to support Integer or
+        objects as dictionary keys.
+    :param numeric_keys: Only use this option if the backend supports integer
+        dict keys natively.  This flag tells jsonpickle to leave numeric keys
+        as-is rather than conforming them to json-friendly strings.
+        Using ``keys=True`` is the typical solution for integer keys, so only
+        use this if you have a specific use case where you want to allow the
+        backend to handle serialization of numeric dict keys.
     :param warn: If set to True then jsonpickle will warn when it
         returns None for an object which it cannot pickle
         (e.g. file descriptors).
