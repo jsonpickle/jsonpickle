@@ -284,6 +284,13 @@ class IntKeysObject(object):
         return self.__dict__
 
 
+class ExceptionWithArguments(Exception):
+
+    def __init__(self, value):
+        super(ExceptionWithArguments, self).__init__('test')
+        self.value = value
+
+
 class AdvancedObjectsTestCase(SkippableTest):
 
     def setUp(self):
@@ -1006,6 +1013,14 @@ class AdvancedObjectsTestCase(SkippableTest):
         if PY2:
             obj = array.array('c', bytes('abcd'))
             self._test_array_roundtrip(obj)
+
+    def test_exceptions_with_arguments(self):
+        """Ensure that we can roundtrip Exceptions that take arguments"""
+        obj = ExceptionWithArguments('example')
+        json = self.pickler.flatten(obj)
+        clone = self.unpickler.restore(json)
+        self.assertEqual(obj.value, clone.value)
+        self.assertEqual(obj.args, clone.args)
 
 
 # Test classes for ExternalHandlerTestCase
