@@ -162,7 +162,7 @@ class DateTimeSimpleTestCase(unittest.TestCase):
         obj = datetime.datetime.now()
         pickler = jsonpickle.pickler.Pickler(unpicklable=False)
         flattened = pickler.flatten(obj)
-        self.assertEqual(str(obj), flattened)
+        self.assertEqual(obj.isoformat(), flattened)
 
     def test_object_with_datetime(self):
         test_obj = ObjWithDate()
@@ -228,7 +228,7 @@ class DateTimeAdvancedTestCase(unittest.TestCase):
         flattened = pickler.flatten(obj)
         self.assertFalse(tags.REPR in flattened)
         self.assertFalse(tags.OBJECT in flattened)
-        self.assertEqual(str(obj), flattened)
+        self.assertEqual(obj.isoformat(), flattened)
 
     def test_datetime_dict_keys_defaults(self):
         """Test that we handle datetime objects as keys."""

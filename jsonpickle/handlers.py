@@ -174,7 +174,11 @@ class DatetimeHandler(BaseHandler):
     def flatten(self, obj, data):
         pickler = self.context
         if not pickler.unpicklable:
-            return compat.ustr(obj)
+            if hasattr(obj, 'isoformat'):
+                result = obj.isoformat()
+            else:
+                result = compat.ustr(obj)
+            return result
         cls, args = obj.__reduce__()
         flatten = pickler.flatten
         payload = util.b64encode(args[0])
