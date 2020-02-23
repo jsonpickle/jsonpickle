@@ -73,6 +73,8 @@ class BSONTestCase(SkippableTest):
 
     def test_datetime_with_fixed_offset_incremental(self):
         """Test creating an Unpickler and incrementally encoding"""
+        if self.should_skip:
+            return self.skip('bson is not installed')
         obj = datetime.datetime(
             2019, 1, 29, 18, 9, 8, 826000, tzinfo=bson.tz_util.utc)
         doc = jsonpickle.dumps(obj)
