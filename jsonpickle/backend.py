@@ -149,7 +149,7 @@ class JSONBackend(object):
             self._backend_names.remove(name)
         self._verified = bool(self._backend_names)
 
-    def encode(self, obj):
+    def encode(self, obj, indent=None, separators=None):
         """
         Attempt to encode an object into JSON.
 
@@ -161,20 +161,26 @@ class JSONBackend(object):
 
         if not self._fallthrough:
             name = self._backend_names[0]
-            return self.backend_encode(name, obj)
+            return self.backend_encode(
+                name, obj, indent=indent, separators=separators)
 
         for idx, name in enumerate(self._backend_names):
             try:
-                return self.backend_encode(name, obj)
+                return self.backend_encode(
+                    name, obj, indent=indent, separators=separators)
             except Exception as e:
                 if idx == len(self._backend_names) - 1:
                     raise e
     # def dumps
     dumps = encode
 
-    def backend_encode(self, name, obj):
+    def backend_encode(self, name, obj, indent=None, separators=None):
         optargs, optkwargs = self._encoder_options.get(name, ([], {}))
         encoder_kwargs = optkwargs.copy()
+        if indent is not None:
+            encoder_kwargs['indent'] = indent
+        if separators is not None:
+            encoder_kwargs['separators'] = separators
         encoder_args = (obj,) + tuple(optargs)
         return self._encoders[name](*encoder_args, **encoder_kwargs)
 

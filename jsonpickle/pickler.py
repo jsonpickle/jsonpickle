@@ -32,7 +32,9 @@ def encode(value,
            use_decimal=False,
            numeric_keys=False,
            use_base85=False,
-           fail_safe=None):
+           fail_safe=None,
+           indent=None,
+           separators=None):
     """Return a JSON formatted representation of value, a Python object.
 
     :param unpicklable: If set to False then the output will not contain the
@@ -82,6 +84,20 @@ def encode(value,
     :param fail_safe: If set to a function exceptions are ignored when pickling
         and if a exception happens the function is called and the return value
         is used as the value for the object that caused the error
+    :param indent: When `indent` is a non-negative integer, then JSON array
+        elements and object members will be pretty-printed with that indent
+        level.  An indent level of 0 will only insert newlines. ``None`` is
+        the most compact representation.  Since the default item separator is
+        ``(', ', ': ')``,  the output might include trailing whitespace when
+        ``indent`` is specified.  You can use ``separators=(',', ': ')`` to
+        avoid this.  This value is passed directly to the active JSON backend
+        library and not used by jsonpickle directly.
+    :param separators:
+        If ``separators`` is an ``(item_separator, dict_separator)`` tuple
+        then it will be used instead of the default ``(', ', ': ')``
+        separators.  ``(',', ':')`` is the most compact JSON representation.
+        This value is passed directly to the active JSON backend library and
+        not used by jsonpickle directly.
 
     >>> encode('my string') == '"my string"'
     True
@@ -106,7 +122,8 @@ def encode(value,
             use_decimal=use_decimal,
             use_base85=use_base85,
             fail_safe=fail_safe)
-    return backend.encode(context.flatten(value, reset=reset))
+    return backend.encode(context.flatten(value, reset=reset),
+                          indent=indent, separators=separators)
 
 
 class Pickler(object):

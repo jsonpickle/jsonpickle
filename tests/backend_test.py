@@ -62,6 +62,20 @@ class BackendBase(SkippableTest):
         actual = jsonpickle.decode(pickle)
         self.assertEqual(expect, actual)
 
+    def test_encode_with_indent_and_separators(self):
+        obj = {
+            'a': 1,
+            'b': 2,
+        }
+        expect = (
+            '{\n'
+            '    "a": 1,\n'
+            '    "b": 2\n'
+            '}'
+        )
+        actual = jsonpickle.encode(obj, indent=4, separators=(',', ': '))
+        self.assertEqual(expect, actual)
+
 
 class JsonTestCase(BackendBase):
     def setUp(self):
