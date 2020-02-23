@@ -6,3 +6,4 @@ include tests/*.py
 include docs/source/**
 include jsonpickleJS/**
 include *.txt
+include pyproject.toml
