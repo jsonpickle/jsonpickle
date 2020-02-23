@@ -29,7 +29,10 @@ class Wizard(object):
         return hash('Wizard %s' % self.name)
 
     def __eq__(self, other):
-        for (ka, va), (kb, vb) in zip(self.spells.items(), other.spells.items()):
+        for (ka, va), (kb, vb) in zip(
+            self.spells.items(),
+            other.spells.items()
+        ):
             if ka.name != kb.name:
                 print('Wizards differ: %s != %s' % (ka.name, kb.name))
                 return False
@@ -40,17 +43,20 @@ class Wizard(object):
         return self.name == other.name
 
     def __cmp__(self, other):
-        for (ka, va), (kb, vb) in zip(self.spells.items(), other.spells.items()):
-            cmp_name = cmp(ka.name, kb.name)
+        for (ka, va), (kb, vb) in zip(
+            self.spells.items(),
+            other.spells.items()
+        ):
+            cmp_name = cmp(ka.name, kb.name)  # noqa: F821
             if cmp_name != 0:
                 print('Wizards cmp: %s != %s' % (ka.name, kb.name))
                 return cmp_name
             for sa, sb in zip(va, vb):
-                cmp_spell = cmp(sa, sb)
+                cmp_spell = cmp(sa, sb)  # noqa: F821
                 if cmp_spell != 0:
                     print('Spells cmp: %s != %s' % (sa.name, sb.name))
                     return cmp_spell
-        return cmp(self.name, other.name)
+        return cmp(self.name, other.name)  # noqa: F821
 
 
 class Spell(object):
@@ -59,9 +65,11 @@ class Spell(object):
         self.caster = caster
         self.target = target
         self.name = name
-        if not target in caster.spells:
-            caster.spells[target] = []
-        caster.spells[target].append(self)
+        try:
+            spells = caster.spells[target]
+        except KeyError:
+            spells = caster.spells[target] = []
+        spells.append(self)
 
     def __hash__(self):
         return hash(
@@ -74,9 +82,9 @@ class Spell(object):
                 and self.target.name == other.target.name)
 
     def __cmp__(self, other):
-        return (cmp(self.name, other.name)
-                or cmp(self.caster.name, other.caster.name)
-                or cmp(self.target.name, other.target.name))
+        return (cmp(self.name, other.name)  # noqa: F821
+                or cmp(self.caster.name, other.caster.name)  # noqa: F821
+                or cmp(self.target.name, other.target.name))  # noqa: F821
 
 
 def hashsum(items):
@@ -89,7 +97,6 @@ def compare_spells(a, b):
             print('Keys differ: %s != %s' % (ka, kb))
             return False
     return True
-
 
 
 class MagicTestCase(unittest.TestCase):
@@ -107,16 +114,17 @@ class MagicTestCase(unittest.TestCase):
         self.assertEqual(wizard_morgana.spells[wizard_merlin][0], spell_c)
 
         # Merlin has cast Magic Missile on Morgana, and Stone Skin on himself
-        self.assertEqual(wizard_merlin.spells[wizard_morgana][0].name,
-            'magic-missile')
-        self.assertEqual(wizard_merlin.spells[wizard_merlin][0].name,
-            'stone-skin')
+        self.assertEqual(
+            wizard_merlin.spells[wizard_morgana][0].name, 'magic-missile')
+        self.assertEqual(
+            wizard_merlin.spells[wizard_merlin][0].name, 'stone-skin')
 
         # Morgana has cast Geas on Merlin
         self.assertEqual(wizard_morgana.spells[wizard_merlin][0].name, 'geas')
 
         # Merlin's first target was Morgana
-        merlin_spells_keys = list(wizard_merlin.spells.keys())
+        merlin_spells = wizard_merlin.spells
+        merlin_spells_keys = list(merlin_spells.keys())
         self.assertTrue(merlin_spells_keys[0] in wizard_merlin.spells)
         self.assertEqual(merlin_spells_keys[0], wizard_morgana)
 
@@ -131,12 +139,12 @@ class MagicTestCase(unittest.TestCase):
 
         # Merlin's first spell cast with himself as target is in the dictionary,
         # first by looking up directly with Merlin's instance object...
-        self.assertEqual(wizard_merlin,
-            wizard_merlin.spells[wizard_merlin][0].target)
+        self.assertEqual(
+            wizard_merlin, wizard_merlin.spells[wizard_merlin][0].target)
 
         # ...and then with the instance object directly from the dictionary keys
-        self.assertEqual(wizard_merlin,
-            wizard_merlin.spells[list(wizard_merlin.spells.keys())[1]][0].target)
+        self.assertEqual(
+            wizard_merlin, merlin_spells[merlin_spells_keys[1]][0].target)
 
         # Ensure Merlin's object is unique...
         self.assertEqual(id(wizard_merlin), id(merlin_spells_keys[1]))
