@@ -1,6 +1,7 @@
 """Test serializing pymongo bson structures"""
 
 import datetime
+import json
 import pickle
 import unittest
 
@@ -69,6 +70,22 @@ class BSONTestCase(SkippableTest):
         serialized = jsonpickle.dumps(dt)
         restored = jsonpickle.loads(serialized)
         self.assertEqual(restored, dt)
+
+    def test_datetime_with_fixed_offset_incremental(self):
+        """Test creating an Unpickler and incrementally encoding"""
+        obj = datetime.datetime(
+            2019, 1, 29, 18, 9, 8, 826000, tzinfo=bson.tz_util.utc)
+        doc = jsonpickle.dumps(obj)
+
+        # Restore the json using a custom unpickler context.
+        unpickler = jsonpickle.unpickler.Unpickler()
+        jsonpickle.loads(doc, context=unpickler)
+
+        # Incrementally restore using the same context
+        clone = json.loads(
+            doc, object_hook=lambda x: unpickler.restore(x, reset=False))
+
+        self.assertEqual(obj.tzinfo.__reduce__(), clone.tzinfo.__reduce__())
 
 
 def suite():
