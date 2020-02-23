@@ -3,6 +3,9 @@ Change Log
 
 Version 1.4 - TBD
 -----------------
+    * `datetime.datetime` objects are now represented in a more
+      human-readable format.
+      (`#109 <https://github.com/jsonpickle/jsonpickle/issues/109>`_)
     * We now include a custom handler for `array.array` objects.
       (`#199 <https://github.com/jsonpickle/jsonpickle/issues/199>`_)
     * Dict key order is preserved when pickling dictionaries on Python3.

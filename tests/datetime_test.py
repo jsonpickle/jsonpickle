@@ -201,7 +201,7 @@ class DateTimeAdvancedTestCase(unittest.TestCase):
 
         flattened = self.pickler.flatten(obj)
         self.assertTrue(tags.OBJECT in flattened)
-        self.assertTrue('__reduce__' in flattened)
+        self.assertTrue('iso' in flattened)
 
         inflated = self.unpickler.restore(flattened)
         self.assertEqual(obj, inflated)

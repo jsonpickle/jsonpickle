@@ -11,6 +11,7 @@ from __future__ import absolute_import, division, unicode_literals
 import array
 import copy
 import datetime
+import dateutil.parser
 import re
 import threading
 import uuid
@@ -196,9 +197,28 @@ class DatetimeHandler(BaseHandler):
         return cls.__new__(cls, *params)
 
 
-DatetimeHandler.handles(datetime.datetime)
 DatetimeHandler.handles(datetime.date)
 DatetimeHandler.handles(datetime.time)
+
+
+class DatetimeObjectHandler(BaseHandler):
+    """Serialization for datetime.datetime objects"""
+
+    def flatten(self, obj, data):
+        if not self.context.unpicklable:
+            return obj.isoformat()
+        data['iso'] = obj.isoformat()
+        data['tzinfo'] = self.context.flatten(obj.tzinfo, reset=False)
+        return data
+
+    def restore(self, data):
+        obj = dateutil.parser.isoparse(data['iso'])
+        tzinfo = self.context.restore(data['tzinfo'], reset=False)
+        obj = obj.replace(tzinfo=tzinfo)
+        return obj
+
+
+DatetimeObjectHandler.handles(datetime.datetime)
 
 
 class RegexHandler(BaseHandler):
