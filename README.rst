@@ -9,9 +9,8 @@
 .. image:: https://dev.azure.com/jaraco/jsonpickle/_apis/build/status/jaraco.jsonpickle?branchName=master
    :target: https://dev.azure.com/jaraco/jsonpickle/_build/latest?definitionId=1&branchName=master
 
-.. image:: https://img.shields.io/badge/docs-passing-green.svg
-   :target: http://jsonpickle.github.io/
-   :alt: docs
+.. image:: https://readthedocs.org/projects/jsonpickle/badge/?version=latest
+   :target: https://jsonpickle.readthedocs.io/en/latest/?badge=latest
 
 .. image:: https://travis-ci.org/jsonpickle/jsonpickle.svg?branch=master
    :target: https://travis-ci.org/jsonpickle/jsonpickle
@@ -29,7 +28,7 @@ and `JSON <http://json.org/>`_.  jsonpickle builds upon the existing JSON
 encoders, such as simplejson, json, and demjson.
 
 For complete documentation, please visit the
-`jsonpickle homepage <http://jsonpickle.github.io/>`_.
+`jsonpickle documentation <http://jsonpickle.readthedocs.io/>`_.
 
 Bug reports and merge requests are encouraged at the
 `jsonpickle repository on github <https://github.com/jsonpickle/jsonpickle>`_.
