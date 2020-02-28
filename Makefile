@@ -17,7 +17,7 @@ TOXCMD ?= $(TOX) --develop --skip-missing-interpreters
 TESTCMD ?= $(PYTEST) --doctest-modules
 ifdef V
     TESTCMD += --verbose
-    TOXCMD += --verbose
+    TOXCMD += -v
 endif
 
 # Data
