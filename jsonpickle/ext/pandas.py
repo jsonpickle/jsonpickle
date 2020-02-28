@@ -87,8 +87,11 @@ class PandasDfHandler(BaseHandler):
     def restore(self, data):
         csv, meta = self.pp.restore_pandas(data)
         params = make_read_csv_params(meta)
-        df = pd.read_csv(
-          StringIO(csv), **params) if data['values'].strip() else pd.DataFrame()
+        df = (
+            pd.read_csv(StringIO(csv), **params)
+            if data['values'].strip() else
+            pd.DataFrame()
+        )
         df.set_index(decode(meta['index']), inplace=True)
         return df
 

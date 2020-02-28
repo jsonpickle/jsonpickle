@@ -473,13 +473,13 @@ class Unpickler(object):
             # of state for object with instance dict
             # and no slots
             instance = self._restore_from_dict(
-                    state, instance, ignorereserved=False)
+                state, instance, ignorereserved=False)
         elif has_slots:
             instance = self._restore_from_dict(
-                    state[1], instance, ignorereserved=False)
+                state[1], instance, ignorereserved=False)
             if has_slots_and_dict:
                 instance = self._restore_from_dict(
-                        state[0], instance, ignorereserved=False)
+                    state[0], instance, ignorereserved=False)
         elif (not hasattr(instance, '__getnewargs__')
               and not hasattr(instance, '__getnewargs_ex__')):
             # __setstate__ is not implemented so that means that the best
@@ -654,7 +654,7 @@ def loadclass(module_and_name, classes=None):
     # First assume that everything up to the last dot is the module name,
     # then try other splits to handle classes that are defined within
     # classes
-    for up_to in range(len(names)-1, 0, -1):
+    for up_to in range(len(names) - 1, 0, -1):
         module = util.untranslate_module_name('.'.join(names[:up_to]))
         try:
             __import__(module)

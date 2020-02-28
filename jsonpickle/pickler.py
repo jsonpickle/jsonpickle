@@ -111,17 +111,17 @@ def encode(value,
     """
     backend = backend or json
     context = context or Pickler(
-            unpicklable=unpicklable,
-            make_refs=make_refs,
-            keys=keys,
-            backend=backend,
-            max_depth=max_depth,
-            warn=warn,
-            max_iter=max_iter,
-            numeric_keys=numeric_keys,
-            use_decimal=use_decimal,
-            use_base85=use_base85,
-            fail_safe=fail_safe)
+        unpicklable=unpicklable,
+        make_refs=make_refs,
+        keys=keys,
+        backend=backend,
+        max_depth=max_depth,
+        warn=warn,
+        max_iter=max_iter,
+        numeric_keys=numeric_keys,
+        use_decimal=use_decimal,
+        use_base85=use_base85,
+        fail_safe=fail_safe)
     return backend.encode(context.flatten(value, reset=reset),
                           indent=indent, separators=separators)
 
@@ -474,7 +474,7 @@ class Pickler(object):
                     last_index = len(reduce_args) - 1
                     while last_index >= 2 and reduce_args[last_index] is None:
                         last_index -= 1
-                    data[tags.REDUCE] = reduce_args[:last_index+1]
+                    data[tags.REDUCE] = reduce_args[:last_index + 1]
 
                     return data
 

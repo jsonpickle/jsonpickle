@@ -33,7 +33,7 @@ class BSONTestCase(SkippableTest):
     def test_FixedOffsetSerializable(self):
         if self.should_skip:
             return self.skip('bson is not installed')
-        fo = bson.tz_util.FixedOffset(-60*5, 'EST')
+        fo = bson.tz_util.FixedOffset(-60 * 5, 'EST')
         serialized = jsonpickle.dumps(fo)
         restored = jsonpickle.loads(serialized)
         self.assertEqual(vars(restored), vars(fo))
@@ -49,7 +49,7 @@ class BSONTestCase(SkippableTest):
     def test_stdlib_pickle(self):
         if self.should_skip:
             return self.skip('bson is not installed')
-        fo = bson.tz_util.FixedOffset(-60*5, 'EST')
+        fo = bson.tz_util.FixedOffset(-60 * 5, 'EST')
         serialized = pickle.dumps(fo)
         restored = pickle.loads(serialized)
         self.assertEqual(vars(restored), vars(fo))
@@ -65,7 +65,7 @@ class BSONTestCase(SkippableTest):
     def test_datetime_with_fixed_offset(self):
         if self.should_skip:
             return self.skip('bson is not installed')
-        fo = bson.tz_util.FixedOffset(-60*5, 'EST')
+        fo = bson.tz_util.FixedOffset(-60 * 5, 'EST')
         dt = datetime.datetime.now().replace(tzinfo=fo)
         serialized = jsonpickle.dumps(dt)
         restored = jsonpickle.loads(serialized)

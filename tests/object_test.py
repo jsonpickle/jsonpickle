@@ -698,9 +698,9 @@ class AdvancedObjectsTestCase(SkippableTest):
         obj['key1'] = 1
 
         expect = {
-                tags.OBJECT: 'object_test.DictSubclass',
-                'key1': 1,
-                '__dict__': {},
+            tags.OBJECT: 'object_test.DictSubclass',
+            'key1': 1,
+            '__dict__': {},
         }
         flattened = self.pickler.flatten(obj)
         self.assertEqual(expect, flattened)

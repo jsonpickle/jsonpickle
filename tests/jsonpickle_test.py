@@ -969,7 +969,7 @@ class PickleProtocol2ChildThing(object):
 
 class PickleProtocol2ReduceString(object):
     def __reduce__(self):
-        return __name__+'.slotmagic'
+        return __name__ + '.slotmagic'
 
 
 class PickleProtocol2ReduceExString(object):
@@ -978,7 +978,7 @@ class PickleProtocol2ReduceExString(object):
         assert False, "Should not be here"
 
     def __reduce_ex__(self, n):
-        return __name__+'.slotmagic'
+        return __name__ + '.slotmagic'
 
 
 class PickleProtocol2ReduceTuple(object):

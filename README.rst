@@ -12,16 +12,16 @@
 .. image:: https://img.shields.io/badge/docs-passing-green.svg
    :target: http://jsonpickle.github.io/
    :alt: docs
-   
+
 .. image:: https://travis-ci.org/jsonpickle/jsonpickle.svg?branch=master
    :target: https://travis-ci.org/jsonpickle/jsonpickle
    :alt: travis
 
 .. image:: https://img.shields.io/badge/License-BSD%203--Clause-blue.svg
    :target: https://github.com/jsonpickle/jsonpickle/blob/master/COPYING
-   :alt: BSD   
+   :alt: BSD
 
-   
+
 jsonpickle
 ==========
 jsonpickle is a library for the two-way conversion of complex Python objects
@@ -74,7 +74,7 @@ enable the numpy extension by registering its handlers::
     >>> jsonpickle_numpy.register_handlers()
 
 Pandas Support
-=============
+==============
 jsonpickle includes a built-in pandas extension.  If would like to encode
 pandas DataFrame or Series objects then you must enable the pandas extension
 by registering its handlers::

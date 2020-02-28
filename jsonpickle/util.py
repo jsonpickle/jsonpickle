@@ -216,12 +216,13 @@ def is_sequence_subclass(obj):
     >>> is_sequence_subclass(Temp())
     True
     """
-    return (hasattr(obj, '__class__')
-            and (
-                issubclass(obj.__class__, SEQUENCES)
-                or is_list_like(obj)
-            )
-            and not is_sequence(obj))
+    return (
+        hasattr(obj, '__class__')
+        and (
+            issubclass(obj.__class__, SEQUENCES)
+            or is_list_like(obj)
+        )
+        and not is_sequence(obj))
 
 
 def is_noncomplex(obj):
