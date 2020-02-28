@@ -40,6 +40,8 @@ stages:
 
     - script: |
         tox -- --junit-xml=test-results.xml
+      env:
+        TOXENV: {libs,sa10,sa12,sa13,sa}
       displayName: 'run tests'
 
     - task: PublishTestResults@2
