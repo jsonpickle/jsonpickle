@@ -1,8 +1,5 @@
-Change Log
-==========
-
-Version 1.4 - TBD
------------------
+v1.4
+====
     * ``jsonpickle.encode`` now supports the standard ``indent``
       and ``separators`` arguments, and passes them through to the
       active JSON backend library.
@@ -21,8 +18,8 @@ Version 1.4 - TBD
     * Improved serialization of pandas.Series objects.
       (`#287 <https://github.com/jsonpickle/jsonpickle/issues/287>`_)
 
-Version 1.3 - February 13, 2019
--------------------------------
+v1.3
+====
     * Improved round tripping of default dicts.
       (`#283 <https://github.com/jsonpickle/jsonpickle/pull/283>`_)
       (`#282 <https://github.com/jsonpickle/jsonpickle/issues/282>`_)
@@ -31,8 +28,8 @@ Version 1.3 - February 13, 2019
       ``unpicklable=False``.
       (`#264 <https://github.com/jsonpickle/jsonpickle/pull/264>`_)
 
-Version 1.2 - May 15, 2019
---------------------------
+v1.2
+====
     * Simplified JSON representation for `__reduce__` values.
       (`#261 <https://github.com/jsonpickle/jsonpickle/pull/261>`_)
 
@@ -63,16 +60,16 @@ Version 1.2 - May 15, 2019
 .. _base85: https://en.wikipedia.org/wiki/Ascii85
 
 
-Version 1.1 - January 22, 2019
-------------------------------
+v1.1
+====
     * Python 3.7 `collections.Iterator` deprecation warnings have been fixed.
       (`#229 <https://github.com/jsonpickle/jsonpickle/issues/229>`_).
 
     * Improved Pandas support for datetime and complex numbers.
       (`#245 <https://github.com/jsonpickle/jsonpickle/pull/245>`_)
 
-Version 1.0 - September 1, 2018
--------------------------------
+v1.0
+====
     * *NOTE* jsonpickle no longer supports Python2.6, or Python3 < 3.4.
       The officially supported Python versions are now 2.7 and 3.4+.
 
@@ -105,8 +102,8 @@ Version 1.0 - September 1, 2018
     * Better support for older (pre-1.9) versions of numpy
       (`#195 <https://github.com/jsonpickle/jsonpickle/pull/195>`_).
 
-Version 0.9.6 - February 9, 2018
---------------------------------
+v0.9.6
+======
     * Better support for SQLAlchemy
       (`#180 <https://github.com/jsonpickle/jsonpickle/issues/180>`_).
 
@@ -116,8 +113,8 @@ Version 0.9.6 - February 9, 2018
     * Better support for dict sub-classes
       (`#156 <https://github.com/jsonpickle/jsonpickle/issues/156>`_).
 
-Version 0.9.5 - July 16, 2017
------------------------------
+v0.9.5
+======
     * Better support for objects that implement the reduce protocol.
       (`#170 <https://github.com/jsonpickle/jsonpickle/pull/170>`_).
       This backward-incompatible change removes the SimpleReduceHandler.
@@ -125,8 +122,8 @@ Version 0.9.5 - July 16, 2017
       instead remove references to the handler and jsonpickle will now
       handle those types directly.
 
-Version 0.9.4 - January 10, 2017
---------------------------------
+v0.9.4
+======
     * Arbitrary byte streams are now better supported.
       (`#143 <https://github.com/jsonpickle/jsonpickle/issues/143>`_).
 
@@ -135,8 +132,8 @@ Version 0.9.4 - January 10, 2017
 
     * Fortran-ordered based NumPy arrays are now properly serialized.
 
-Version 0.9.3 - March 9, 2016
------------------------------
+v0.9.3
+======
     * UUID objects can now be serialized
       (`#130 <https://github.com/jsonpickle/jsonpickle/issues/130>`_).
 
@@ -149,21 +146,21 @@ Version 0.9.3 - March 9, 2016
 
     * Newer Numpy versions (v1.10+) are now supported.
 
-Version 0.9.2 - March 20, 2015
-------------------------------
+v0.9.2
+======
     * Fixes for serializing objects with custom handlers.
 
     * We now properly serialize deque objects constructed with a `maxlen` parameter.
 
     * Test suite fixes
 
-Version 0.9.1 - March 15, 2015
-------------------------------
+v0.9.1
+======
 
     * Support datetime objects with FixedOffsets.
 
-Version 0.9.0 - January 16, 2015
---------------------------------
+v0.9.0
+======
     * Support for Pickle Protocol v4.
 
     * We now support serializing defaultdict subclasses that use `self`
@@ -185,8 +182,8 @@ Version 0.9.0 - January 16, 2015
     * Added support for serializing numpy arrays, dtypes and scalars
       (see `jsonpickle.ext.numpy` module).
 
-Version 0.8.0 - September 6, 2014
----------------------------------
+v0.8.0
+======
 
     * We now support serializing objects that contain references to
       module-level functions
@@ -205,8 +202,8 @@ Version 0.8.0 - September 6, 2014
     * A Javascript implementation of jsonpickle is now included
       in the jsonpickleJS directory.
 
-Version 0.7.2 - August 6, 2014
-------------------------------
+v0.7.2
+======
 
     * We now properly serialize classes that inherit from classes
       that use `__slots__` and add additional slots in the derived class.
@@ -216,14 +213,14 @@ Version 0.7.2 - August 6, 2014
     * Better support for collections.defaultdict with custom factories.
     * Added support for `queue.Queue` objects.
 
-Version 0.7.1 - May 6, 2014
-------------------------------
+v0.7.1
+======
 
     * Added support for Python 3.4.
     * Added support for :class:`posix.stat_result`.
 
-Version 0.7.0 - March 15, 2014
-------------------------------
+v0.7.0
+======
 
     * Added ``handles`` decorator to :class:`jsonpickle.handlers.BaseHandler`,
       enabling simple declaration of a handler for a class.
@@ -239,20 +236,20 @@ Version 0.7.0 - March 15, 2014
       Backwards-compatible deserialization of repr-serialized objects
       is disabled in this mode.  e.g. `decode(string, safe=True)`
 
-Version 0.6.1 - August 25, 2013
--------------------------------
+v0.6.1
+======
 
     * Python 3.2 support, and additional fixes for Python 3.
 
-Version 0.6.0 - August 24, 2013
--------------------------------
+v0.6.0
+======
 
     * Python 3 support!
     * :class:`time.struct_time` is now serialized using the built-in
       :class:`jsonpickle.handlers.SimpleReduceHandler`.
 
-Version 0.5.0 - August 22, 2013
--------------------------------
+v0.5.0
+======
 
     * Non-string dictionary keys (e.g. ints, objects) are now supported
       by passing `keys=True` to :func:`jsonpickle.encode` and
@@ -265,8 +262,8 @@ Version 0.5.0 - August 22, 2013
       in 0.4.0.  This can be disabled by passing `make_refs=False` to
       :func:`jsonpickle.encode`.
 
-Version 0.4.0 - June 21, 2011
------------------------------
+0.4.0
+=====
 
     * Switch build from setuptools to distutils
     * Consistent dictionary key ordering
@@ -287,13 +284,13 @@ Version 0.4.0 - June 21, 2011
         unable to read data encoded by jsonpickle 0.4.0.
 
 
-Version 0.3.1 - December 12, 2009
----------------------------------
+0.3.1
+=====
 
     * Include tests and docs directories in sdist for distribution packages.
 
-Version 0.3.0 - December 11, 2009
----------------------------------
+0.3.0
+=====
 
     * Officially migrated to git from subversion. Project home now at
       `<http://jsonpickle.github.com/>`_. Thanks to Michael Jone's
@@ -318,8 +315,8 @@ Version 0.3.0 - December 11, 2009
     * Thanks also to Kieran Darcy, Eoghan Murray, and Antonin Hildebrand
       for their assistance!
 
-Version 0.2.0 - January 10, 2009
---------------------------------
+0.2.0
+=====
 
     * Support for all major Python JSON backends (including json in Python 2.6,
       simplejson, cjson, and demjson)
@@ -334,8 +331,8 @@ Version 0.2.0 - January 10, 2009
       `FirePython <http://github.com/darwin/firepython/tree/master>`_, and
       `Joose <http://code.google.com/p/joose-js/>`_)
 
-Version 0.1.0 - August 21, 2008
--------------------------------
+0.1.0
+=====
 
     * Added long as basic primitive (thanks Adam Fisk)
     * Prefer python-cjson to simplejson, if available
@@ -343,28 +340,28 @@ Version 0.1.0 - August 21, 2008
       simplejson's load/loads/dump/dumps
     * Added benchmark.py to compare simplejson and python-cjson
 
-Version 0.0.5 - July 21, 2008
------------------------------
+0.0.5
+=====
 
     * Changed prefix of special fields to conform with CouchDB
       requirements (Thanks Dean Landolt). Break backwards compatibility.
     * Moved to Google Code subversion
     * Fixed unit test imports
 
-Version 0.0.3
--------------
+0.0.3
+=====
 
     * Convert back to setup.py from pavement.py (issue found by spidaman)
 
-Version 0.0.2
--------------
+0.0.2
+=====
 
     * Handle feedparser's FeedParserDict
     * Converted project to Paver
     * Restructured directories
     * Increase test coverage
 
-Version 0.0.1
--------------
+0.0.1
+=====
 
     Initial release
