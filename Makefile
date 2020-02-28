@@ -12,9 +12,9 @@ TOX ?= tox
 # Options
 flags ?=
 timeout ?= 600
-TESTCMD ?= $(PYTEST) --doctest-modules $(flags)
 TOXCMD ?= $(TOX) --develop --skip-missing-interpreters
 
+TESTCMD ?= $(PYTEST) --doctest-modules
 ifdef V
     TESTCMD += --verbose
     TOXCMD += --verbose
@@ -42,7 +42,7 @@ help:
 .PHONY: help
 
 test:
-	$(TESTCMD) $(PYTHON_DIRS)
+	$(TESTCMD) $(PYTHON_DIRS) $(flags)
 .PHONY: test
 
 tox:
