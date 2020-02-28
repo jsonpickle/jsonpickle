@@ -33,12 +33,11 @@ PYTHON_DIRS += jsonpickle
 all:: help
 
 help:
-	@echo "================"
-	@echo "Makefile Targets"
-	@echo "================"
-	@echo "make help - print this message"
-	@echo "make test - run unit tests"
-	@echo "make clean - remove cruft"
+	@echo "---- Makefile Targets ----"
+	@echo "make help    - print this message"
+	@echo "make test    - run unit tests"
+	@echo "make tox     - run unit tests on multiple pythons with tox"
+	@echo "make clean   - remove cruft"
 .PHONY: help
 
 test:
