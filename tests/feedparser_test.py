@@ -75,6 +75,7 @@ class FeedParserTestCase(SkippableTest):
     def setUp(self):
         try:
             import feedparser
+
             self.should_skip = False
             self.doc = feedparser.parse(RSS_DOC)
         except ImportError:

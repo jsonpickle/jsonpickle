@@ -8,11 +8,11 @@ from helper import SkippableTest
 
 
 class EcdsaTestCase(SkippableTest):
-
     def setUp(self):
         try:
             from ecdsa import NIST384p
             from ecdsa.keys import SigningKey
+
             self.NIST384p = NIST384p
             self.SigningKey = SigningKey
             self.should_skip = False

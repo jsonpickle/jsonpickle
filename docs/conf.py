@@ -37,9 +37,14 @@ link_files = {
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = [
-    'sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.intersphinx',
-    'sphinx.ext.todo', 'sphinx.ext.coverage', 'sphinxtogithub',
-    'jaraco.packaging.sphinx', 'rst.linker',
+    'sphinx.ext.autodoc',
+    'sphinx.ext.doctest',
+    'sphinx.ext.intersphinx',
+    'sphinx.ext.todo',
+    'sphinx.ext.coverage',
+    'sphinxtogithub',
+    'jaraco.packaging.sphinx',
+    'rst.linker',
 ]
 
 sphinx_to_github = True
@@ -77,9 +82,8 @@ htmlhelp_basename = 'jsonpickledoc'
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
-latex_documents = [(
-    'index', 'jsonpickle.tex', 'jsonpickle Documentation',
-    'David Aguilar', 'manual'),
+latex_documents = [
+    ('index', 'jsonpickle.tex', 'jsonpickle Documentation', 'David Aguilar', 'manual'),
 ]
 
 

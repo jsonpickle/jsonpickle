@@ -17,11 +17,10 @@ class Object(object):
         self.offset = datetime.timedelta(offset)
 
     def __getinitargs__(self):
-        return self.offset,
+        return (self.offset,)
 
 
 class BSONTestCase(SkippableTest):
-
     def setUp(self):
         global bson
         try:
@@ -75,8 +74,7 @@ class BSONTestCase(SkippableTest):
         """Test creating an Unpickler and incrementally encoding"""
         if self.should_skip:
             return self.skip('bson is not installed')
-        obj = datetime.datetime(
-            2019, 1, 29, 18, 9, 8, 826000, tzinfo=bson.tz_util.utc)
+        obj = datetime.datetime(2019, 1, 29, 18, 9, 8, 826000, tzinfo=bson.tz_util.utc)
         doc = jsonpickle.dumps(obj)
 
         # Restore the json using a custom unpickler context.
@@ -84,8 +82,7 @@ class BSONTestCase(SkippableTest):
         jsonpickle.loads(doc, context=unpickler)
 
         # Incrementally restore using the same context
-        clone = json.loads(
-            doc, object_hook=lambda x: unpickler.restore(x, reset=False))
+        clone = json.loads(doc, object_hook=lambda x: unpickler.restore(x, reset=False))
 
         self.assertEqual(obj.tzinfo.__reduce__(), clone.tzinfo.__reduce__())
 

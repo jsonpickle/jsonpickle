@@ -19,7 +19,6 @@ from helper import SkippableTest
 
 
 class Thing(object):
-
     def __init__(self, name):
         self.name = name
         self.child = None
@@ -42,7 +41,6 @@ class BrokenReprThing(Thing):
 
 
 class GetstateDict(dict):
-
     def __init__(self, name, **kwargs):
         dict.__init__(self, **kwargs)
         self.name = name
@@ -67,7 +65,6 @@ class GetstateOnly(object):
 
 
 class GetstateReturnsList(object):
-
     def __init__(self, x, y):
         self.x = x
         self.y = y
@@ -85,7 +82,6 @@ class GetstateRecursesInfintely(object):
 
 
 class ListSubclassWithInit(list):
-
     def __init__(self, attr):
         self.attr = attr
         super(ListSubclassWithInit, self).__init__()
@@ -95,7 +91,6 @@ NamedTuple = collections.namedtuple('NamedTuple', 'a, b, c')
 
 
 class ObjWithJsonPickleRepr(object):
-
     def __init__(self):
         self.data = {'a': self}
 
@@ -112,7 +107,6 @@ class SetSubclass(set):
 
 
 class ThingWithFunctionRefs(object):
-
     def __init__(self):
         self.fn = func
 
@@ -122,7 +116,6 @@ def func(x):
 
 
 class ThingWithQueue(object):
-
     def __init__(self):
         self.child_1 = queue.Queue()
         self.child_2 = queue.Queue()
@@ -200,19 +193,18 @@ class SubEnum(enum.Enum):
 
 
 class EnumClass(object):
-
     def __init__(self):
         self.enum_a = SubEnum.a
         self.enum_b = SubEnum.b
 
 
 class MessageTypes(enum.Enum):
-    STATUS = 'STATUS',
+    STATUS = ('STATUS',)
     CONTROL = 'CONTROL'
 
 
 class MessageStatus(enum.Enum):
-    OK = 'OK',
+    OK = ('OK',)
     ERROR = 'ERROR'
 
 
@@ -221,7 +213,6 @@ class MessageCommands(enum.Enum):
 
 
 class Message(object):
-
     def __init__(self, message_type, command, status=None, body=None):
         self.message_type = MessageTypes(message_type)
         if command:
@@ -237,13 +228,11 @@ class ThingWithTimedeltaAttribute(object):
         self.offset = datetime.timedelta(offset)
 
     def __getinitargs__(self):
-        return self.offset,
+        return (self.offset,)
 
 
 class FailSafeTestCase(SkippableTest):
-
     class BadClass(object):
-
         def __getstate__(self):
             raise ValueError('Intentional error')
 
@@ -269,14 +258,12 @@ class FailSafeTestCase(SkippableTest):
 
     def test_custom_err_msg(self):
         CUSTOM_ERR_MSG = 'custom err msg'
-        encoded = jsonpickle.encode(self.to_pickle,
-                                    fail_safe=lambda e: CUSTOM_ERR_MSG)
+        encoded = jsonpickle.encode(self.to_pickle, fail_safe=lambda e: CUSTOM_ERR_MSG)
         decoded = jsonpickle.decode(encoded)
         self.assertEqual(decoded[0], CUSTOM_ERR_MSG)
 
 
 class IntKeysObject(object):
-
     def __init__(self):
         self.data = {0: 0}
 
@@ -285,14 +272,12 @@ class IntKeysObject(object):
 
 
 class ExceptionWithArguments(Exception):
-
     def __init__(self, value):
         super(ExceptionWithArguments, self).__init__('test')
         self.value = value
 
 
 class AdvancedObjectsTestCase(SkippableTest):
-
     def setUp(self):
         self.pickler = jsonpickle.pickler.Pickler()
         self.unpickler = jsonpickle.unpickler.Unpickler()
@@ -395,12 +380,13 @@ class AdvancedObjectsTestCase(SkippableTest):
         # should create an instance of cls.
         self.assertEqual(type(newtree['A']['D']), cls)
         # ensure that proxies do not escape into user code
-        self.assertNotEqual(type(newtree.default_factory),
-                            jsonpickle.unpickler._Proxy)
-        self.assertNotEqual(type(newtree['A'].default_factory),
-                            jsonpickle.unpickler._Proxy)
-        self.assertNotEqual(type(newtree['A']['Z'].default_factory),
-                            jsonpickle.unpickler._Proxy)
+        self.assertNotEqual(type(newtree.default_factory), jsonpickle.unpickler._Proxy)
+        self.assertNotEqual(
+            type(newtree['A'].default_factory), jsonpickle.unpickler._Proxy
+        )
+        self.assertNotEqual(
+            type(newtree['A']['Z'].default_factory), jsonpickle.unpickler._Proxy
+        )
         return newtree
 
     def test_deque_roundtrip(self):
@@ -729,12 +715,10 @@ class AdvancedObjectsTestCase(SkippableTest):
 
         flattened = self.pickler.flatten(obj)
         self.assertTrue(tags.OBJECT in flattened)
-        self.assertEqual('object_test.GetstateDict',
-                         flattened[tags.OBJECT])
+        self.assertEqual('object_test.GetstateDict', flattened[tags.OBJECT])
         self.assertTrue(tags.STATE in flattened)
         self.assertTrue(tags.TUPLE in flattened[tags.STATE])
-        self.assertEqual(['test', {'key1': 1}],
-                         flattened[tags.STATE][tags.TUPLE])
+        self.assertEqual(['test', {'key1': 1}], flattened[tags.STATE][tags.TUPLE])
 
     def test_getstate_dict_subclass_roundtrip_simple(self):
         obj = GetstateDict('test')
@@ -845,6 +829,7 @@ class AdvancedObjectsTestCase(SkippableTest):
 
         def roundtrip(obj):
             return restore(flatten(obj))
+
         self.assertTrue(roundtrip(IntEnumTest.X) is IntEnumTest.X)
         self.assertTrue(roundtrip(IntEnumTest) is IntEnumTest)
 
@@ -1036,7 +1021,6 @@ class UnicodeMixin(str, Mixin):
 
 
 class UnicodeMixinHandler(handlers.BaseHandler):
-
     def flatten(self, obj, data):
         data['value'] = obj
         return data
@@ -1049,7 +1033,6 @@ handlers.register(UnicodeMixin, UnicodeMixinHandler)
 
 
 class ExternalHandlerTestCase(unittest.TestCase):
-
     def test_unicode_mixin(self):
         obj = UnicodeMixin('test')
         self.assertTrue(isinstance(obj, UnicodeMixin))

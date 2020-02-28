@@ -21,19 +21,20 @@ except ImportError:
 
 
 class NumpyTestCase(SkippableTest):
-
     def setUp(self):
         if np is None:
             self.should_skip = True
             return
         self.should_skip = False
         import jsonpickle.ext.numpy
+
         jsonpickle.ext.numpy.register_handlers()
 
     def tearDown(self):
         if self.should_skip:
             return
         import jsonpickle.ext.numpy
+
         jsonpickle.ext.numpy.unregister_handlers()
 
     def roundtrip(self, obj):
@@ -54,19 +55,41 @@ class NumpyTestCase(SkippableTest):
             np.dtype(('f4', 'i4'), ('f2', 'i1')),
             np.dtype('1i4', align=True),
             np.dtype('M8[7D]'),
-            np.dtype({'names': ['f0', 'f1', 'f2'],
-                      'formats': ['<u4', '<u2', '<u2'],
-                      'offsets':[0, 0, 2]}, align=True)
+            np.dtype(
+                {
+                    'names': ['f0', 'f1', 'f2'],
+                    'formats': ['<u4', '<u2', '<u2'],
+                    'offsets': [0, 0, 2],
+                },
+                align=True,
+            ),
         ]
 
         if not PY2:
-            dtypes.extend([
-                np.dtype([('f0', 'i4'), ('f2', 'i1')]),
-                np.dtype([('top', [('tiles', ('>f4', (64, 64)), (1,)),
-                                   ('rtile', '>f4', (64, 36))], (3,)),
-                          ('bottom', [('bleft', ('>f4', (8, 64)), (1,)),
-                                      ('bright', '>f4', (8, 36))])]),
-            ])
+            dtypes.extend(
+                [
+                    np.dtype([('f0', 'i4'), ('f2', 'i1')]),
+                    np.dtype(
+                        [
+                            (
+                                'top',
+                                [
+                                    ('tiles', ('>f4', (64, 64)), (1,)),
+                                    ('rtile', '>f4', (64, 36)),
+                                ],
+                                (3,),
+                            ),
+                            (
+                                'bottom',
+                                [
+                                    ('bleft', ('>f4', (8, 64)), (1,)),
+                                    ('bright', '>f4', (8, 36)),
+                                ],
+                            ),
+                        ]
+                    ),
+                ]
+            )
 
         for dtype in dtypes:
             self.assertEqual(self.roundtrip(dtype), dtype)
@@ -85,7 +108,7 @@ class NumpyTestCase(SkippableTest):
             np.str_('foo'),
             np.unicode_('bar'),
             np.object_({'a': 'b'}),
-            np.complex_(1 - 2j)
+            np.complex_(1 - 2j),
         ]
         for value in values:
             decoded = self.roundtrip(value)
@@ -102,22 +125,31 @@ class NumpyTestCase(SkippableTest):
             np.array(['baz'.encode('utf-8')]),
             np.array(['2010', 'NaT', '2030']).astype('M'),
             np.rec.array(asbytes('abcdefg') * 100, formats='i2,a3,i4', shape=3),
-            np.rec.array([(1, 11, 'a'), (2, 22, 'b'),
-                          (3, 33, 'c'), (4, 44, 'd'),
-                          (5, 55, 'ex'), (6, 66, 'f'),
-                          (7, 77, 'g')],
-                         formats='u1,f4,a1'),
-            np.array(['1960-03-12', datetime.date(1960, 3, 12)],
-                     dtype='M8[D]'),
+            np.rec.array(
+                [
+                    (1, 11, 'a'),
+                    (2, 22, 'b'),
+                    (3, 33, 'c'),
+                    (4, 44, 'd'),
+                    (5, 55, 'ex'),
+                    (6, 66, 'f'),
+                    (7, 77, 'g'),
+                ],
+                formats='u1,f4,a1',
+            ),
+            np.array(['1960-03-12', datetime.date(1960, 3, 12)], dtype='M8[D]'),
             np.array([0, 1, -1, np.inf, -np.inf, np.nan], dtype='f2'),
         ]
 
         if not PY2:
-            arrays.extend([
-                np.rec.array([
-                    ('NGC1001', 11), ('NGC1002', 1.), ('NGC1003', 1.)],
-                    dtype=[('target', 'S20'), ('V_mag', 'f4')])
-            ])
+            arrays.extend(
+                [
+                    np.rec.array(
+                        [('NGC1001', 11), ('NGC1002', 1.0), ('NGC1003', 1.0)],
+                        dtype=[('target', 'S20'), ('V_mag', 'f4')],
+                    )
+                ]
+            )
         for array in arrays:
             decoded = self.roundtrip(array)
             assert_equal(decoded, array)
@@ -285,8 +317,9 @@ class NumpyTestCase(SkippableTest):
         if self.should_skip:
             return self.skip('numpy is not importable')
         a = np.arange(10)
-        b = np.lib.stride_tricks.as_strided(a, shape=(5,),
-                                            strides=(a.dtype.itemsize * 2,))
+        b = np.lib.stride_tricks.as_strided(
+            a, shape=(5,), strides=(a.dtype.itemsize * 2,)
+        )
         data = [a, b]
 
         with warnings.catch_warnings(record=True) as w:

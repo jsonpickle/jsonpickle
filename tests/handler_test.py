@@ -15,6 +15,7 @@ import jsonpickle.handlers
 
 class CustomObject(object):
     "A class to be serialized by a custom handler"
+
     def __init__(self, name=None, creator=None):
         self.name = name
         self.creator = creator
@@ -32,7 +33,6 @@ class CustomB(CustomA):
 
 
 class NullHandler(jsonpickle.handlers.BaseHandler):
-
     def flatten(self, obj, data):
         data['name'] = obj.name
         return data
@@ -64,7 +64,6 @@ class SithHandler(jsonpickle.handlers.BaseHandler):
 
 
 class HandlerTestCase(unittest.TestCase):
-
     def setUp(self):
         jsonpickle.handlers.register(CustomObject, NullHandler)
 
@@ -101,8 +100,7 @@ class HandlerTestCase(unittest.TestCase):
         self.assertTrue(new_subject['b'] is new_subject['c'])
 
     def test_invalid_class(self):
-        self.assertRaises(TypeError,
-                          jsonpickle.handlers.register, 'foo', NullHandler)
+        self.assertRaises(TypeError, jsonpickle.handlers.register, 'foo', NullHandler)
 
     def test_base_handler(self):
         a = CustomA('a')

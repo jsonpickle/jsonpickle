@@ -15,6 +15,7 @@ class JSONBackend(object):
     demjson is the most permissive backend and is tried last.
 
     """
+
     def __init__(self, fallthrough=True):
         # Whether we should fallthrough to the next backend
         self._fallthrough = fallthrough
@@ -58,9 +59,11 @@ class JSONBackend(object):
         """Ensures that we've loaded at least one JSON backend."""
         if self._verified:
             return
-        raise AssertionError('jsonpickle requires at least one of the '
-                             'following:\n'
-                             '    python2.6, simplejson, or demjson')
+        raise AssertionError(
+            'jsonpickle requires at least one of the '
+            'following:\n'
+            '    python2.6, simplejson, or demjson'
+        )
 
     def enable_fallthrough(self, enable):
         """
@@ -79,8 +82,7 @@ class JSONBackend(object):
         """
         self._fallthrough = enable
 
-    def load_backend(self, name,
-                     dumps='dumps', loads='loads', loads_exc=ValueError):
+    def load_backend(self, name, dumps='dumps', loads='loads', loads_exc=ValueError):
 
         """Load a JSON backend by name.
 
@@ -115,8 +117,9 @@ class JSONBackend(object):
         except AttributeError:
             return False
 
-        if (not self._store(self._encoders, name, mod, dumps) or
-                not self._store(self._decoders, name, mod, loads)):
+        if not self._store(self._encoders, name, mod, dumps) or not self._store(
+            self._decoders, name, mod, loads
+        ):
             return False
 
         if isinstance(loads_exc, string_types):
@@ -161,16 +164,17 @@ class JSONBackend(object):
 
         if not self._fallthrough:
             name = self._backend_names[0]
-            return self.backend_encode(
-                name, obj, indent=indent, separators=separators)
+            return self.backend_encode(name, obj, indent=indent, separators=separators)
 
         for idx, name in enumerate(self._backend_names):
             try:
                 return self.backend_encode(
-                    name, obj, indent=indent, separators=separators)
+                    name, obj, indent=indent, separators=separators
+                )
             except Exception as e:
                 if idx == len(self._backend_names) - 1:
                     raise e
+
     # def dumps
     dumps = encode
 
@@ -206,6 +210,7 @@ class JSONBackend(object):
                     raise e
                 else:
                     pass  # and try a more forgiving encoder, e.g. demjson
+
     # def loads
     loads = decode
 

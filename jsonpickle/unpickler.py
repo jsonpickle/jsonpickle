@@ -16,8 +16,9 @@ from .compat import numeric_types
 from .backend import json
 
 
-def decode(string, backend=None, context=None, keys=False, reset=True,
-           safe=False, classes=None):
+def decode(
+    string, backend=None, context=None, keys=False, reset=True, safe=False, classes=None
+):
     """Convert a JSON string into a Python object.
 
     The keyword argument 'keys' defaults to False.
@@ -52,8 +53,7 @@ def _safe_hasattr(obj, attr):
 
 def _is_json_key(key):
     """Has this key a special object that has been encoded to JSON?"""
-    return (isinstance(key, compat.string_types)
-            and key.startswith(tags.JSON_KEY))
+    return isinstance(key, compat.string_types) and key.startswith(tags.JSON_KEY)
 
 
 class _Proxy(object):
@@ -84,6 +84,7 @@ class _Proxy(object):
     when swapping proxies with real instances.
 
     """
+
     def __init__(self):
         self.instance = None
 
@@ -112,7 +113,6 @@ def _obj_setvalue(obj, idx, proxy):
 
 
 class Unpickler(object):
-
     def __init__(self, backend=None, keys=False, safe=False):
         self.backend = backend or json
         self.keys = keys
@@ -208,8 +208,10 @@ class Unpickler(object):
         elif util.is_dictionary(obj):
             restore = self._restore_dict
         else:
+
             def restore(x):
                 return x
+
         return restore(obj)
 
     def _restore_base64(self, obj):
@@ -359,8 +361,7 @@ class Unpickler(object):
         if kwargs:
             kwargs = self._restore(kwargs)
 
-        is_oldstyle = (
-            not (isinstance(cls, type) or getattr(cls, '__meta__', None)))
+        is_oldstyle = not (isinstance(cls, type) or getattr(cls, '__meta__', None))
         try:
             if (not is_oldstyle) and hasattr(cls, '__new__'):
                 # new style classes
@@ -391,8 +392,9 @@ class Unpickler(object):
 
         instance = self._restore_object_instance_variables(obj, instance)
 
-        if (_safe_hasattr(instance, 'default_factory') and
-                isinstance(instance.default_factory, _Proxy)):
+        if _safe_hasattr(instance, 'default_factory') and isinstance(
+            instance.default_factory, _Proxy
+        ):
             instance.default_factory = instance.default_factory.get()
 
         return instance
@@ -414,8 +416,7 @@ class Unpickler(object):
             k = restore_key(k)
             # step into the namespace
             value = self._restore(v)
-            if (util.is_noncomplex(instance) or
-                    util.is_dictionary_subclass(instance)):
+            if util.is_noncomplex(instance) or util.is_dictionary_subclass(instance):
                 try:
                     if k == '__dict__':
                         setattr(instance, k, value)
@@ -463,8 +464,9 @@ class Unpickler(object):
 
     def _restore_state(self, obj, instance):
         state = self._restore(obj[tags.STATE])
-        has_slots = (isinstance(state, tuple) and len(state) == 2
-                     and isinstance(state[1], dict))
+        has_slots = (
+            isinstance(state, tuple) and len(state) == 2 and isinstance(state[1], dict)
+        )
         has_slots_and_dict = has_slots and isinstance(state[0], dict)
         if hasattr(instance, '__setstate__'):
             instance.__setstate__(state)
@@ -472,16 +474,16 @@ class Unpickler(object):
             # implements described default handling
             # of state for object with instance dict
             # and no slots
-            instance = self._restore_from_dict(
-                state, instance, ignorereserved=False)
+            instance = self._restore_from_dict(state, instance, ignorereserved=False)
         elif has_slots:
-            instance = self._restore_from_dict(
-                state[1], instance, ignorereserved=False)
+            instance = self._restore_from_dict(state[1], instance, ignorereserved=False)
             if has_slots_and_dict:
                 instance = self._restore_from_dict(
-                    state[0], instance, ignorereserved=False)
-        elif (not hasattr(instance, '__getnewargs__')
-              and not hasattr(instance, '__getnewargs_ex__')):
+                    state[0], instance, ignorereserved=False
+                )
+        elif not hasattr(instance, '__getnewargs__') and not hasattr(
+            instance, '__getnewargs_ex__'
+        ):
             # __setstate__ is not implemented so that means that the best
             # we can do is return the result of __getstate__() rather than
             # return an empty shell of an object.
@@ -570,16 +572,22 @@ class Unpickler(object):
         if self.keys:
             restore_key = self._restore_pickled_key
         else:
+
             def restore_key(key):
                 return key
+
         return restore_key
 
     def _restore_pickled_key(self, key):
         """Restore a possibly pickled key"""
         if _is_json_key(key):
-            key = decode(key[len(tags.JSON_KEY):],
-                         backend=self.backend, context=self,
-                         keys=True, reset=False)
+            key = decode(
+                key[len(tags.JSON_KEY) :],
+                backend=self.backend,
+                context=self,
+                keys=True,
+                reset=False,
+            )
         return key
 
     def _refname(self):

@@ -19,22 +19,24 @@ from .backend import json
 from .compat import numeric_types, string_types, PY3, PY2
 
 
-def encode(value,
-           unpicklable=True,
-           make_refs=True,
-           keys=False,
-           max_depth=None,
-           reset=True,
-           backend=None,
-           warn=False,
-           context=None,
-           max_iter=None,
-           use_decimal=False,
-           numeric_keys=False,
-           use_base85=False,
-           fail_safe=None,
-           indent=None,
-           separators=None):
+def encode(
+    value,
+    unpicklable=True,
+    make_refs=True,
+    keys=False,
+    max_depth=None,
+    reset=True,
+    backend=None,
+    warn=False,
+    context=None,
+    max_iter=None,
+    use_decimal=False,
+    numeric_keys=False,
+    use_base85=False,
+    fail_safe=None,
+    indent=None,
+    separators=None,
+):
     """Return a JSON formatted representation of value, a Python object.
 
     :param unpicklable: If set to False then the output will not contain the
@@ -121,25 +123,28 @@ def encode(value,
         numeric_keys=numeric_keys,
         use_decimal=use_decimal,
         use_base85=use_base85,
-        fail_safe=fail_safe)
-    return backend.encode(context.flatten(value, reset=reset),
-                          indent=indent, separators=separators)
+        fail_safe=fail_safe,
+    )
+    return backend.encode(
+        context.flatten(value, reset=reset), indent=indent, separators=separators
+    )
 
 
 class Pickler(object):
-
-    def __init__(self,
-                 unpicklable=True,
-                 make_refs=True,
-                 max_depth=None,
-                 backend=None,
-                 keys=False,
-                 warn=False,
-                 max_iter=None,
-                 numeric_keys=False,
-                 use_decimal=False,
-                 use_base85=False,
-                 fail_safe=None):
+    def __init__(
+        self,
+        unpicklable=True,
+        make_refs=True,
+        max_depth=None,
+        backend=None,
+        keys=False,
+        warn=False,
+        max_iter=None,
+        numeric_keys=False,
+        use_decimal=False,
+        use_base85=False,
+        fail_safe=None,
+    ):
         self.unpicklable = unpicklable
         self.make_refs = make_refs
         self.backend = backend or json
@@ -460,9 +465,12 @@ class Pickler(object):
                 f, args, state, listitems, dictitems = rv_as_list
 
                 # check that getstate/setstate is sane
-                if not (state and hasattr(obj, '__getstate__')
-                        and not hasattr(obj, '__setstate__')
-                        and not isinstance(obj, dict)):
+                if not (
+                    state
+                    and hasattr(obj, '__getstate__')
+                    and not hasattr(obj, '__setstate__')
+                    and not isinstance(obj, dict)
+                ):
                     # turn iterators to iterables for convenient serialization
                     if rv_as_list[3]:
                         rv_as_list[3] = tuple(rv_as_list[3])
@@ -474,7 +482,7 @@ class Pickler(object):
                     last_index = len(reduce_args) - 1
                     while last_index >= 2 and reduce_args[last_index] is None:
                         last_index -= 1
-                    data[tags.REDUCE] = reduce_args[:last_index + 1]
+                    data[tags.REDUCE] = reduce_args[: last_index + 1]
 
                     return data
 
@@ -483,8 +491,7 @@ class Pickler(object):
                 data[tags.OBJECT] = class_name
 
             if has_getnewargs_ex:
-                data[tags.NEWARGSEX] = list(
-                    map(self._flatten, obj.__getnewargs_ex__()))
+                data[tags.NEWARGSEX] = list(map(self._flatten, obj.__getnewargs_ex__()))
 
             if has_getnewargs and not has_getnewargs_ex:
                 data[tags.NEWARGS] = self._flatten(obj.__getnewargs__())
@@ -519,8 +526,7 @@ class Pickler(object):
 
         if util.is_iterator(obj):
             # force list in python 3
-            data[tags.ITERATOR] = list(
-                map(self._flatten, islice(obj, self._max_iter)))
+            data[tags.ITERATOR] = list(map(self._flatten, islice(obj, self._max_iter)))
             return data
 
         if has_dict:
@@ -588,8 +594,7 @@ class Pickler(object):
                     # We've never seen this object before so pickle it in-place.
                     # Create an instance from the factory and assume that the
                     # resulting instance is a suitable examplar.
-                    value = self._flatten_obj_instance(
-                        handlers.CloneFactory(factory()))
+                    value = self._flatten_obj_instance(handlers.CloneFactory(factory()))
                 else:
                     # We've seen this object before.
                     # Break the cycle by emitting a reference.
@@ -620,12 +625,15 @@ class Pickler(object):
     def _flatten_newstyle_with_slots(self, obj, data):
         """Return a json-friendly dict for new-style objects with __slots__.
         """
-        allslots = [_wrap_string_slot(getattr(cls, '__slots__', tuple()))
-                    for cls in obj.__class__.mro()]
+        allslots = [
+            _wrap_string_slot(getattr(cls, '__slots__', tuple()))
+            for cls in obj.__class__.mro()
+        ]
 
         if not self._flatten_obj_attrs(obj, chain(*allslots), data):
-            attrs = [x for x in dir(obj)
-                     if not x.startswith('__') and not x.endswith('__')]
+            attrs = [
+                x for x in dir(obj) if not x.startswith('__') and not x.endswith('__')
+            ]
             self._flatten_obj_attrs(obj, attrs, data)
 
         return data
@@ -694,10 +702,14 @@ class Pickler(object):
         return data
 
     def _escape_key(self, k):
-        return tags.JSON_KEY + encode(k,
-                                      reset=False, keys=True,
-                                      context=self, backend=self.backend,
-                                      make_refs=self.make_refs)
+        return tags.JSON_KEY + encode(
+            k,
+            reset=False,
+            keys=True,
+            context=self,
+            backend=self.backend,
+            make_refs=self.make_refs,
+        )
 
     def _getstate(self, obj, data):
         state = self._flatten(obj)
@@ -715,9 +727,7 @@ class Pickler(object):
 
 def _in_cycle(obj, objs, max_reached, make_refs):
     return (
-        max_reached or (
-            not make_refs and id(obj) in objs
-        )
+        max_reached or (not make_refs and id(obj) in objs)
     ) and not util.is_primitive(obj)
 
 
