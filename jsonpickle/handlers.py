@@ -11,7 +11,9 @@ from __future__ import absolute_import, division, unicode_literals
 import array
 import copy
 import datetime
+import io
 import re
+import sys
 import threading
 import uuid
 
@@ -278,3 +280,18 @@ class LockHandler(BaseHandler):
 
 _lock = threading.Lock()
 LockHandler.handles(_lock.__class__)
+
+
+class TextIOHandler(BaseHandler):
+    """Serialize file descriptors as None because we cannot roundtrip"""
+
+    def flatten(self, obj, data):
+        return None
+
+    def restore(self, data):
+        """Restore should never get called because flatten() returns None"""
+        raise AssertionError('Restoring IO.TextIOHandler is not supported')
+
+
+if sys.version_info >= (3, 8):
+    TextIOHandler.handles(io.TextIOWrapper)
