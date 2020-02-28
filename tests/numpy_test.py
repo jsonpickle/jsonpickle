@@ -371,6 +371,8 @@ class NumpyTestCase(SkippableTest):
 
     def test_nested_data_list_of_dict_with_list_keys(self):
         """Ensure we can handle numpy arrays within a nested structure"""
+        if self.should_skip:
+            return self.skip('numpy is not importable')
         obj = [{'key': [np.array(0)]}]
         self.roundtrip(obj)
 
@@ -378,12 +380,16 @@ class NumpyTestCase(SkippableTest):
         self.roundtrip(obj)
 
     def test_size_threshold_None(self):
+        if self.should_skip:
+            return self.skip('numpy is not importable')
         handler = numpy_ext.NumpyNDArrayHandlerView(size_threshold=None)
         handlers.registry.unregister(np.ndarray)
         handlers.registry.register(np.ndarray, handler, base=True)
         self.roundtrip(np.array([0, 1]))
 
     def test_ndarray_dtype_object(self):
+        if self.should_skip:
+            return self.skip('numpy is not importable')
         a = np.array(['F' + str(i) for i in range(30)], dtype=np.object)
         buf = jsonpickle.encode(a)
         # This is critical for reproducing the numpy segfault issue when
@@ -392,6 +398,21 @@ class NumpyTestCase(SkippableTest):
         _a = jsonpickle.decode(buf)
         a = np.array(['F' + str(i) for i in range(30)], dtype=np.object)
         npt.assert_array_equal(a, _a)
+
+    def test_np_random(self):
+        """Ensure random.random() arrays can be serialized"""
+        if self.should_skip:
+            return self.skip('numpy is not importable')
+        obj = np.random.random(100)
+        encoded = jsonpickle.encode(obj)
+        clone = jsonpickle.decode(encoded)
+        self.assertEqual(100, len(clone))
+        for idx, (expect, actual) in enumerate(zip(obj, clone)):
+            self.assertEqual(
+                expect,
+                actual,
+                'Item at index %s differs.  %s != %s' % (idx, expect, actual),
+            )
 
 
 def suite():
