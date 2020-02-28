@@ -19,22 +19,36 @@ import sys, os
 sys.path.insert(0, os.path.abspath(os.path.join('..', '..')))
 import jsonpickle
 
-sys.path.insert(1, os.path.abspath(os.path.join('..', '..', 'thirdparty', 'sphinx-to-github')))
-try:
-    import sphinxtogithub
-    sphinxtogithub # import side-effects
-except ImportError, e:
-    raise ImportError('Could not import sphinxtogithub\n'
-                      'Is the git submodule populated at thirdparty/sphinx-to-github?\n'
-                      'At the project root run:\n'
-                      '\tgit submodule init\n'
-                      '\tgit submodule update')
+
+link_files = {
+    '../CHANGES.rst': dict(
+        using=dict(GH='https://github.com'),
+        replace=[
+            dict(
+                pattern=r'(Issue #|\B#)(?P<issue>\d+)',
+                url='{package_url}/issues/{issue}',
+            ),
+            dict(
+                pattern=r'^(?m)((?P<scm_version>v?\d+(\.\d+){1,2}))\n[-=]+\n',
+                with_scm='{text}\n{rev[timestamp]:%d %b %Y}\n',
+            ),
+            dict(
+                pattern=r'PEP[- ](?P<pep_number>\d+)',
+                url='https://www.python.org/dev/peps/pep-{pep_number:0>4}/',
+            ),
+        ],
+    )
+}
 
 # -- General configuration -----------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.intersphinx', 'sphinx.ext.todo', 'sphinx.ext.coverage', 'sphinxtogithub']
+extensions = [
+    'sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.intersphinx',
+    'sphinx.ext.todo', 'sphinx.ext.coverage', 'sphinxtogithub',
+    'jaraco.packaging.sphinx', 'rst.linker',
+]
 
 sphinx_to_github = True
 

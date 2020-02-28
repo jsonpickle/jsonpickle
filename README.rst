@@ -1,6 +1,13 @@
-.. image:: https://badge.fury.io/py/jsonpickle.svg
-   :target: https://badge.fury.io/py/jsonpickle
-   :alt: PyPI
+.. image:: https://img.shields.io/pypi/v/jsonpickle.svg
+   :target: `PyPI link`_
+
+.. image:: https://img.shields.io/pypi/pyversions/jsonpickle.svg
+   :target: `PyPI link`_
+
+.. _PyPI link: https://pypi.org/project/jsonpickle
+
+.. image:: https://dev.azure.com/jaraco/jsonpickle/_apis/build/status/jaraco.jsonpickle?branchName=master
+   :target: https://dev.azure.com/jaraco/jsonpickle/_build/latest?definitionId=1&branchName=master
 
 .. image:: https://img.shields.io/badge/docs-passing-green.svg
    :target: http://jsonpickle.github.io/

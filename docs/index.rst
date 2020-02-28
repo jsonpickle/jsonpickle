@@ -89,7 +89,7 @@ Change Log
 .. toctree::
    :maxdepth: 2
 
-   changelog
+   history
 
 License
 =======
