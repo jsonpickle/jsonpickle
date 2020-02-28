@@ -3,6 +3,7 @@
 # External commands
 CTAGS ?= ctags
 FIND ?= find
+NPROC ?= nproc
 PYTHON ?= python
 PYTEST ?= $(PYTHON) -m pytest
 RM_R ?= rm -fr
@@ -12,9 +13,22 @@ TOX ?= tox
 # Options
 flags ?=
 timeout ?= 600
-TOXCMD ?= $(TOX) --develop --skip-missing-interpreters
+
+# Default job count -- this is used if "-j" is not present in MAKEFLAGS.
+nproc := $(shell $(NPROC) 2>/dev/null || echo 4)
+# Extract the "-j#" flags in $(MAKEFLAGS) so that we can forward the value to
+# other commands.  This can be empty.
+JOB_FLAGS := $(shell echo -- $(MAKEFLAGS) | grep -o -e '-j[0-9]\+' | head -n 1)
+# Extract just the number from "-j#".
+JOB_COUNT := $(shell printf %s "$(JOB_FLAGS)" | sed -e 's/-j//')
+# We have "-jX" from MAKEFLAGS but tox wants "-j X"
+DASH_J := $(shell echo -- $(JOB_FLAGS) -j$(nproc) | grep -o -e '-j[0-9]\+' | head -n 1)
+NUM_JOBS := $(shell printf %s "$(DASH_J)" | sed -e 's/-j//')
 
 TESTCMD ?= $(PYTEST) --doctest-modules
+TOXCMD ?= $(TOX)
+TOXCMD += --parallel $(NUM_JOBS)
+TOXCMD += --develop --skip-missing-interpreters
 ifdef V
     TESTCMD += --verbose
     TOXCMD += -v
