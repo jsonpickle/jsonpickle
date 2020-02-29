@@ -15,6 +15,8 @@ from jsonpickle import tags
 from jsonpickle import util
 from jsonpickle.compat import queue, PY2, PY3_ORDERED_DICT
 
+import pytest
+
 from helper import SkippableTest
 
 
@@ -432,6 +434,12 @@ class AdvancedObjectsTestCase(SkippableTest):
         self.assertTrue(type(decoded) is collections.Counter)
         self.assertEqual(decoded.get(1), 2)
 
+    issue281 = pytest.mark.xfail(
+        'sys.version_info >= (3, 8)',
+        reason='https://github.com/jsonpickle/jsonpickle/issues/281',
+    )
+
+    @issue281
     def test_list_with_fd(self):
         fd = open(__file__, 'r')
         fd.close()
@@ -440,6 +448,7 @@ class AdvancedObjectsTestCase(SkippableTest):
         newobj = jsonpickle.decode(jsonstr)
         self.assertEqual([None], newobj)
 
+    @issue281
     def test_thing_with_fd(self):
         fd = open(__file__, 'r')
         fd.close()
@@ -448,6 +457,7 @@ class AdvancedObjectsTestCase(SkippableTest):
         newobj = jsonpickle.decode(jsonstr)
         self.assertEqual(None, newobj.name)
 
+    @issue281
     def test_dict_with_fd(self):
         fd = open(__file__, 'r')
         fd.close()
