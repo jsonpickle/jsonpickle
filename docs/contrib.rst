@@ -2,7 +2,7 @@
 Contributing to jsonpickle
 ==========================
 
-We welcome contributions from everyone.  Please fork jsonpickle on 
+We welcome contributions from everyone.  Please fork jsonpickle on
 `github <http://github.com/jsonpickle/jsonpickle>`_.
 
 Get the Code
@@ -21,68 +21,50 @@ Before code is pulled into the master jsonpickle branch, all tests should pass.
 If you are contributing an addition or a change in behavior, we ask that you
 document the change in the form of test cases.
 
-The jsonpickle test suite uses several JSON encoding libraries as well as
-several libraries for sample objects.  To simplify the process of setting up
-these libraries we recommend creating a virtualenv_ and using a pip_
-requirements file to install the dependencies.  In the base jsonpickle
-directory::
-
-    # create a virtualenv that is completely isolated from the
-    # site-wide python install
-    virtualenv --no-site-packages env
-
-    # use pip to install development and testing dependencies
-    ./env/bin/pip install --upgrade -r requirements-dev.txt
-
-To run the suite, simply invoke :file:`tests/runtests.py`::
-
-    $ ./env/bin/python tests/runtests.py
-    test_None (util_tests.IsPrimitiveTestCase) ... ok
-    test_bool (util_tests.IsPrimitiveTestCase) ... ok
-    test_dict (util_tests.IsPrimitiveTestCase) ... ok
-    test_float (util_tests.IsPrimitiveTestCase) ... ok
-    ...
-
-.. _virtualenv: http://pypi.python.org/pypi/virtualenv
-.. _pip: http://pypi.python.org/pypi/pip
-
-Testing with Tox
-================
-jsonpickle supports many versions of Python.  To make it easy to test
-mutiple versions of Python you should install the tox_ testing tool,
-e.g. on Debian::
-
-    $ sudo apt-get install tox
-
-Once tox_ is installed you can run the test suite against multiple Python
-interpreters::
-
-    $ make tox
-
-It is recommended that you install at least one Python2 and one Python3
-interpreter for use by tox_.
+The test suite is most readily run with the tox_ testing tool.
+Once installed, run the test suite against the default Python::
 
 .. _tox: https://tox.readthedocs.io/
+
+    tox
+
+It is recommended that you install at least one Python2 and one Python3
+interpreter for use by tox_. To test against Python 2.7 and 3.7::
+
+    tox -e py27,py37
+
+The jsonpickle test suite uses several JSON encoding libraries as well as
+several libraries for sample objects. To create an environment to test
+against these libs::
+
+    tox -e libs
+
+To test against these libs on Python 3.7::
+
+    tox -e py37-libs
+
+To create the enivornment without running tests::
+
+    tox -e libs --notest
+
+Now you may experiment and interact with jsonpickle under development
+from the virtualenv at ``.tox/libs/{bin/Scripts}/python``.
+
 
 Generate Documentation
 ======================
 
-You do not need to generate the documentation_ when contributing, though, if 
-you are interested, you can generate the docs yourself.  The following requires
-Sphinx_ (present if you follow the virtualenv instructions above)::
+Generating the documentation_ is not necessary when contributing.
+To build the docs::
 
-    # pull down the sphinx-to-github project
-    git submodule init
-    git submodule update
+    tox -e docs
 
-    cd docs
-    make html
+Now docs are available in ``build/html``.
 
-If you wish to browse the documentation, use Python's :mod:`SimpleHTTPServer`
+If you wish to browse the documentation, use Python's :mod:`http.server`
 to host them at http://localhost:8000::
 
-    cd build/html
-    python -m SimpleHTTPServer
+    python -m http.server -d build/html
 
 .. _documentation: http://jsonpickle.github.com
 .. _Sphinx: http://sphinx.pocoo.org
