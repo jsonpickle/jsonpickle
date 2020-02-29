@@ -10,9 +10,9 @@ python:
 env:
 - TOXENV=libs
 - TOXENV=sa10
-- TOXENV=sa12
 - TOXENV=sa11
-- TOXENV=sa
+- TOXENV=sa12
+- TOXENV=sa13
 
 cache: pip
 
