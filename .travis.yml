@@ -9,7 +9,7 @@ python:
   - &latest_py3 "3.7"
   - "3.8"
 install: pip install tox-travis
-script: make tox
+script: make tox flags='--parallel 0'
 
 jobs:
   fast_finish: true
