@@ -67,7 +67,7 @@ enable the numpy extension by registering its handlers::
     >>> jsonpickle_numpy.register_handlers()
 
 Pandas Support
-=============
+==============
 jsonpickle includes a built-in pandas extension.  If would like to encode
 pandas DataFrame or Series objects then you must enable the pandas extension
 by registering its handlers::
