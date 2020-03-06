@@ -7,8 +7,9 @@ python:
 # - "3.5" # ecdsa tests fail in 3.5.
   - "3.6"
   - &latest_py3 "3.7"
+  - "3.8"
 install: pip install tox-travis
-script: make tox
+script: make tox flags='--parallel 0'
 
 jobs:
   fast_finish: true

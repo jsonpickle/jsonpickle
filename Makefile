@@ -3,6 +3,7 @@
 # External commands
 CTAGS ?= ctags
 FIND ?= find
+NPROC ?= nproc
 PYTHON ?= python
 PYTEST ?= $(PYTHON) -m pytest
 RM_R ?= rm -fr
@@ -12,12 +13,25 @@ TOX ?= tox
 # Options
 flags ?=
 timeout ?= 600
-TESTCMD ?= $(PYTEST) --doctest-modules $(flags)
-TOXCMD ?= $(TOX) --develop --skip-missing-interpreters
 
+# Default job count -- this is used if "-j" is not present in MAKEFLAGS.
+nproc := $(shell $(NPROC) 2>/dev/null || echo 4)
+# Extract the "-j#" flags in $(MAKEFLAGS) so that we can forward the value to
+# other commands.  This can be empty.
+JOB_FLAGS := $(shell echo -- $(MAKEFLAGS) | grep -o -e '-j[0-9]\+' | head -n 1)
+# Extract just the number from "-j#".
+JOB_COUNT := $(shell printf %s "$(JOB_FLAGS)" | sed -e 's/-j//')
+# We have "-jX" from MAKEFLAGS but tox wants "-j X"
+DASH_J := $(shell echo -- $(JOB_FLAGS) -j$(nproc) | grep -o -e '-j[0-9]\+' | head -n 1)
+NUM_JOBS := $(shell printf %s "$(DASH_J)" | sed -e 's/-j//')
+
+TESTCMD ?= $(PYTEST) --doctest-modules
+TOXCMD ?= $(TOX)
+TOXCMD += --parallel $(NUM_JOBS)
+TOXCMD += --develop --skip-missing-interpreters
 ifdef V
     TESTCMD += --verbose
-    TOXCMD += --verbose
+    TOXCMD += -v
 endif
 
 # Data
@@ -33,16 +47,15 @@ PYTHON_DIRS += jsonpickle
 all:: help
 
 help:
-	@echo "================"
-	@echo "Makefile Targets"
-	@echo "================"
-	@echo "make help - print this message"
-	@echo "make test - run unit tests"
-	@echo "make clean - remove cruft"
+	@echo "---- Makefile Targets ----"
+	@echo "make help    - print this message"
+	@echo "make test    - run unit tests"
+	@echo "make tox     - run unit tests on multiple pythons with tox"
+	@echo "make clean   - remove cruft"
 .PHONY: help
 
 test:
-	$(TESTCMD) $(PYTHON_DIRS)
+	$(TESTCMD) $(PYTHON_DIRS) $(flags)
 .PHONY: test
 
 tox:
