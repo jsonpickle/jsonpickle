@@ -15,7 +15,6 @@ from jsonpickle import util
 
 
 class Thing(object):
-
     def __init__(self, name):
         self.name = name
         self.child = None
@@ -54,7 +53,6 @@ class MethodTestOldStyle:
 
 
 class UtilTestCase(unittest.TestCase):
-
     @unittest.skipIf(not compat.PY2, 'Python 2-specific Base85 test')
     def test_b85encode_crashes_on_python2(self):
         with self.assertRaises(NotImplementedError):
@@ -189,6 +187,7 @@ class UtilTestCase(unittest.TestCase):
             @classmethod
             def classmethod(cls):
                 pass
+
         f = Foo()
         self.assertTrue(util.is_function(f.method))
         self.assertTrue(util.is_function(f.staticmethod))

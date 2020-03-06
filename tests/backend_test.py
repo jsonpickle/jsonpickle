@@ -12,7 +12,6 @@ from helper import SkippableTest
 
 
 class Thing(object):
-
     def __init__(self, name):
         self.name = name
         self.child = None
@@ -22,7 +21,6 @@ SAMPLE_DATA = {'things': [Thing('data')]}
 
 
 class BackendBase(SkippableTest):
-
     def _is_installed(self, backend):
         if not jsonpickle.util.is_installed(backend):
             return self.skip('%s not available; please install' % backend)
@@ -67,12 +65,7 @@ class BackendBase(SkippableTest):
             'a': 1,
             'b': 2,
         }
-        expect = (
-            '{\n'
-            '    "a": 1,\n'
-            '    "b": 2\n'
-            '}'
-        )
+        expect = '{\n' '    "a": 1,\n' '    "b": 2\n' '}'
         actual = jsonpickle.encode(obj, indent=4, separators=(',', ': '))
         self.assertEqual(expect, actual)
 
@@ -87,7 +80,8 @@ class JsonTestCase(BackendBase):
             '"py/object": "backend_test.Thing", '
             '"name": "data", '
             '"child": null} '
-            ']}')
+            ']}'
+        )
         self.assertEncodeDecode(expected_pickled)
 
 
@@ -101,7 +95,8 @@ class SimpleJsonTestCase(BackendBase):
             '"py/object": "backend_test.Thing", '
             '"name": "data", '
             '"child": null}'
-            ']}')
+            ']}'
+        )
         self.assertEncodeDecode(expected_pickled)
 
     def test_decimal(self):
@@ -113,11 +108,9 @@ class SimpleJsonTestCase(BackendBase):
         self.assertEqual(obj, clone)
 
         # Custom behavior: we want to use simplejson's Decimal support.
-        jsonpickle.set_encoder_options('simplejson',
-                                       use_decimal=True, sort_keys=True)
+        jsonpickle.set_encoder_options('simplejson', use_decimal=True, sort_keys=True)
 
-        jsonpickle.set_decoder_options('simplejson',
-                                       use_decimal=True)
+        jsonpickle.set_decoder_options('simplejson', use_decimal=True)
 
         # use_decimal mode allows Decimal objects to pass-through to simplejson.
         # The end result is we get a simple '0.5' value as our json string.
@@ -138,14 +131,12 @@ def has_module(module):
     try:
         __import__(module)
     except ImportError:
-        warn(module + ' module not available for testing, '
-             'consider installing')
+        warn(module + ' module not available for testing, ' 'consider installing')
         return False
     return True
 
 
 class DemjsonTestCase(BackendBase):
-
     def setUp(self):
         self.set_preferred_backend('demjson')
 
@@ -155,7 +146,8 @@ class DemjsonTestCase(BackendBase):
             '"child":null,'
             '"name":"data",'
             '"py/object":"backend_test.Thing"}'
-            ']}')
+            ']}'
+        )
         self.assertEncodeDecode(expected_pickled)
 
     def test_int_dict_keys_with_numeric_keys(self):
@@ -178,7 +170,8 @@ class JsonlibTestCase(BackendBase):
             '{"things":[{'
             r'"py\/object":"backend_test.Thing",'
             '"name":"data","child":null}'
-            ']}')
+            ']}'
+        )
         self.assertEncodeDecode(expected_pickled)
 
 
@@ -191,12 +184,12 @@ class YajlTestCase(BackendBase):
             '{"things":[{'
             '"py/object":"backend_test.Thing",'
             '"name":"data","child":null}'
-            ']}')
+            ']}'
+        )
         self.assertEncodeDecode(expected_pickled)
 
 
 class UJsonTestCase(BackendBase):
-
     def setUp(self):
         self.set_preferred_backend('ujson')
 
@@ -205,7 +198,8 @@ class UJsonTestCase(BackendBase):
             '{"things":[{'
             r'"py\/object":"backend_test.Thing",'
             '"name":"data","child":null}'
-            ']}')
+            ']}'
+        )
         self.assertEncodeDecode(expected_pickled)
 
 

@@ -113,9 +113,9 @@ def is_object(obj):
     >>> is_object(lambda x: 1)
     False
     """
-    return (isinstance(obj, object) and
-            not isinstance(obj, (type, types.FunctionType,
-                                 types.BuiltinFunctionType)))
+    return isinstance(obj, object) and not isinstance(
+        obj, (type, types.FunctionType, types.BuiltinFunctionType)
+    )
 
 
 def is_primitive(obj):
@@ -201,9 +201,11 @@ def is_dictionary_subclass(obj):
     True
     """
     # TODO: add UserDict
-    return (hasattr(obj, '__class__')
-            and issubclass(obj.__class__, dict)
-            and type(obj) is not dict)
+    return (
+        hasattr(obj, '__class__')
+        and issubclass(obj.__class__, dict)
+        and type(obj) is not dict
+    )
 
 
 def is_sequence_subclass(obj):
@@ -216,12 +218,11 @@ def is_sequence_subclass(obj):
     >>> is_sequence_subclass(Temp())
     True
     """
-    return (hasattr(obj, '__class__')
-            and (
-                issubclass(obj.__class__, SEQUENCES)
-                or is_list_like(obj)
-            )
-            and not is_sequence(obj))
+    return (
+        hasattr(obj, '__class__')
+        and (issubclass(obj.__class__, SEQUENCES) or is_list_like(obj))
+        and not is_sequence(obj)
+    )
 
 
 def is_noncomplex(obj):
@@ -273,11 +274,13 @@ def is_module_function(obj):
 
     """
 
-    return (hasattr(obj, '__class__') and
-            isinstance(obj, (types.FunctionType, types.BuiltinFunctionType)) and
-            hasattr(obj, '__module__') and
-            hasattr(obj, '__name__') and
-            obj.__name__ != '<lambda>')
+    return (
+        hasattr(obj, '__class__')
+        and isinstance(obj, (types.FunctionType, types.BuiltinFunctionType))
+        and hasattr(obj, '__module__')
+        and hasattr(obj, '__name__')
+        and obj.__name__ != '<lambda>'
+    )
 
 
 def is_module(obj):
@@ -333,8 +336,9 @@ def is_list_like(obj):
 
 def is_iterator(obj):
     is_file = PY2 and isinstance(obj, __builtin__.file)
-    return (isinstance(obj, abc_iterator) and
-            not isinstance(obj, io.IOBase) and not is_file)
+    return (
+        isinstance(obj, abc_iterator) and not isinstance(obj, io.IOBase) and not is_file
+    )
 
 
 def is_collections(obj):
@@ -352,25 +356,25 @@ def is_reducible(obj):
     # defaultdicts may contain functions which we cannot serialise
     if is_collections(obj) and not isinstance(obj, collections.defaultdict):
         return True
-    return (not
-            (is_list(obj) or
-                is_list_like(obj) or
-                is_primitive(obj) or
-                is_bytes(obj) or
-                is_unicode(obj) or
-                is_dictionary(obj) or
-                is_sequence(obj) or
-                is_set(obj) or
-                is_tuple(obj) or
-                is_dictionary_subclass(obj) or
-                is_sequence_subclass(obj) or
-                is_function(obj) or
-                is_module(obj) or
-                isinstance(getattr(obj, '__slots__', None), iterator_types) or
-                type(obj) is object or
-                obj is object or
-                (is_type(obj) and obj.__module__ == 'datetime')
-             ))
+    return not (
+        is_list(obj)
+        or is_list_like(obj)
+        or is_primitive(obj)
+        or is_bytes(obj)
+        or is_unicode(obj)
+        or is_dictionary(obj)
+        or is_sequence(obj)
+        or is_set(obj)
+        or is_tuple(obj)
+        or is_dictionary_subclass(obj)
+        or is_sequence_subclass(obj)
+        or is_function(obj)
+        or is_module(obj)
+        or isinstance(getattr(obj, '__slots__', None), iterator_types)
+        or type(obj) is object
+        or obj is object
+        or (is_type(obj) and obj.__module__ == 'datetime')
+    )
 
 
 def in_dict(obj, key, default=False):
@@ -386,9 +390,7 @@ def in_slots(obj, key, default=False):
     Returns true if key exists in obj.__slots__; false if not in.
     If obj.__slots__ is absent, return default
     """
-    return (
-        (key in obj.__slots__) if getattr(obj, '__slots__', None) else default
-    )
+    return (key in obj.__slots__) if getattr(obj, '__slots__', None) else default
 
 
 def has_reduce(obj):

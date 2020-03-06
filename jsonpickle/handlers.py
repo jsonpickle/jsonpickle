@@ -22,7 +22,6 @@ from . import util
 
 
 class Registry(object):
-
     def __init__(self):
         self._handlers = {}
         self._base_handlers = {}
@@ -63,16 +62,17 @@ class Registry(object):
 
         """
         if handler is None:
+
             def _register(handler_cls):
                 self.register(cls, handler=handler_cls, base=base)
                 return handler_cls
+
             return _register
         if not util.is_type(cls):
             raise TypeError('{!r} is not a class/type'.format(cls))
         # store both the name and the actual type for the ugly cases like
         # _sre.SRE_Pattern that cannot be loaded back directly
-        self._handlers[util.importable_name(cls)] = \
-            self._handlers[cls] = handler
+        self._handlers[util.importable_name(cls)] = self._handlers[cls] = handler
         if base:
             # only store the actual type for subclass checking
             self._base_handlers[cls] = handler
@@ -90,7 +90,6 @@ get = registry.get
 
 
 class BaseHandler(object):
-
     def __init__(self, context):
         """
         Initialize a new handler to handle a registered type.
@@ -119,16 +118,14 @@ class BaseHandler(object):
             json-friendly representation of `obj` once this method has
             finished.
         """
-        raise NotImplementedError('You must implement flatten() in %s' %
-                                  self.__class__)
+        raise NotImplementedError('You must implement flatten() in %s' % self.__class__)
 
     def restore(self, obj):
         """
         Restore an object of the registered type from the json-friendly
         representation `obj` and return it.
         """
-        raise NotImplementedError('You must implement restore() in %s' %
-                                  self.__class__)
+        raise NotImplementedError('You must implement restore() in %s' % self.__class__)
 
     @classmethod
     def handles(self, cls):
@@ -173,6 +170,7 @@ class DatetimeHandler(BaseHandler):
     object.
 
     """
+
     def flatten(self, obj, data):
         pickler = self.context
         if not pickler.unpicklable:
@@ -224,6 +222,7 @@ class QueueHandler(BaseHandler):
     Construct a new Queue instance when restoring.
 
     """
+
     def flatten(self, obj, data):
         return data
 
@@ -245,9 +244,7 @@ class CloneFactory(object):
         return clone(self.exemplar)
 
     def __repr__(self):
-        return (
-            '<CloneFactory object at 0x{:x} ({})>'
-            .format(id(self), self.exemplar))
+        return '<CloneFactory object at 0x{:x} ({})>'.format(id(self), self.exemplar)
 
 
 class UUIDHandler(BaseHandler):

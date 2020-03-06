@@ -2,7 +2,7 @@
 jsonpickle Documentation
 ========================
 
-`jsonpickle <https://jsonpickle.github.io/>`_ is a Python library for
+``jsonpickle`` is a Python library for
 serialization and deserialization of complex Python objects to and from
 JSON.  The standard Python libraries for encoding Python into JSON, such as
 the stdlib's json, simplejson, and demjson, can only handle Python
@@ -89,7 +89,7 @@ Change Log
 .. toctree::
    :maxdepth: 2
 
-   changelog
+   history
 
 License
 =======

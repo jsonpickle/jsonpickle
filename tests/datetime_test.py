@@ -76,7 +76,6 @@ class TimestampedVariable(object):
 
 
 class PersistantVariables(object):
-
     def __init__(self):
         self._data = {}
 
@@ -91,7 +90,6 @@ class PersistantVariables(object):
 
 
 class DateTimeInnerReferenceTestCase(unittest.TestCase):
-
     def test_object_with_inner_datetime_refs(self):
         pvars = PersistantVariables()
         pvars['z'] = 1
@@ -113,7 +111,6 @@ class DateTimeInnerReferenceTestCase(unittest.TestCase):
 
 
 class DateTimeSimpleTestCase(unittest.TestCase):
-
     def _roundtrip(self, obj):
         """
         pickle and then unpickle object, then assert the new object is the
@@ -168,12 +165,10 @@ class DateTimeSimpleTestCase(unittest.TestCase):
         test_obj = ObjWithDate()
         json = jsonpickle.encode(test_obj)
         test_obj_decoded = jsonpickle.decode(json)
-        self.assertEqual(test_obj_decoded.data['ts'],
-                         test_obj_decoded.data_ref['ts'])
+        self.assertEqual(test_obj_decoded.data['ts'], test_obj_decoded.data_ref['ts'])
 
 
 class DateTimeAdvancedTestCase(unittest.TestCase):
-
     def setUp(self):
         self.pickler = jsonpickle.pickler.Pickler()
         self.unpickler = jsonpickle.unpickler.Unpickler()

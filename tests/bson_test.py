@@ -17,11 +17,10 @@ class Object(object):
         self.offset = datetime.timedelta(offset)
 
     def __getinitargs__(self):
-        return self.offset,
+        return (self.offset,)
 
 
 class BSONTestCase(SkippableTest):
-
     def setUp(self):
         global bson
         try:
@@ -33,7 +32,7 @@ class BSONTestCase(SkippableTest):
     def test_FixedOffsetSerializable(self):
         if self.should_skip:
             return self.skip('bson is not installed')
-        fo = bson.tz_util.FixedOffset(-60*5, 'EST')
+        fo = bson.tz_util.FixedOffset(-60 * 5, 'EST')
         serialized = jsonpickle.dumps(fo)
         restored = jsonpickle.loads(serialized)
         self.assertEqual(vars(restored), vars(fo))
@@ -49,7 +48,7 @@ class BSONTestCase(SkippableTest):
     def test_stdlib_pickle(self):
         if self.should_skip:
             return self.skip('bson is not installed')
-        fo = bson.tz_util.FixedOffset(-60*5, 'EST')
+        fo = bson.tz_util.FixedOffset(-60 * 5, 'EST')
         serialized = pickle.dumps(fo)
         restored = pickle.loads(serialized)
         self.assertEqual(vars(restored), vars(fo))
@@ -65,7 +64,7 @@ class BSONTestCase(SkippableTest):
     def test_datetime_with_fixed_offset(self):
         if self.should_skip:
             return self.skip('bson is not installed')
-        fo = bson.tz_util.FixedOffset(-60*5, 'EST')
+        fo = bson.tz_util.FixedOffset(-60 * 5, 'EST')
         dt = datetime.datetime.now().replace(tzinfo=fo)
         serialized = jsonpickle.dumps(dt)
         restored = jsonpickle.loads(serialized)
@@ -75,8 +74,7 @@ class BSONTestCase(SkippableTest):
         """Test creating an Unpickler and incrementally encoding"""
         if self.should_skip:
             return self.skip('bson is not installed')
-        obj = datetime.datetime(
-            2019, 1, 29, 18, 9, 8, 826000, tzinfo=bson.tz_util.utc)
+        obj = datetime.datetime(2019, 1, 29, 18, 9, 8, 826000, tzinfo=bson.tz_util.utc)
         doc = jsonpickle.dumps(obj)
 
         # Restore the json using a custom unpickler context.
@@ -84,8 +82,7 @@ class BSONTestCase(SkippableTest):
         jsonpickle.loads(doc, context=unpickler)
 
         # Incrementally restore using the same context
-        clone = json.loads(
-            doc, object_hook=lambda x: unpickler.restore(x, reset=False))
+        clone = json.loads(doc, object_hook=lambda x: unpickler.restore(x, reset=False))
 
         self.assertEqual(obj.tzinfo.__reduce__(), clone.tzinfo.__reduce__())
 

@@ -1,3 +1,0 @@
-[submodule "thirdparty/sphinx-to-github"]
-	path = thirdparty/sphinx-to-github
-	url = git://github.com/michaeljones/sphinx-to-github.git

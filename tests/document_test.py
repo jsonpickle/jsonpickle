@@ -5,7 +5,6 @@ import jsonpickle
 
 
 class Node(object):
-
     def __init__(self, name):
         self._name = name
         self._children = []
@@ -19,7 +18,6 @@ class Node(object):
 
 
 class Document(Node):
-
     def __init__(self, name):
         Node.__init__(self, name)
 
@@ -38,8 +36,7 @@ class Question(Node):
         Node.__init__(self, name)
 
     def __str__(self):
-        return ('Question "%s", parent: "%s"\n'
-                % (self._name, self._parent._name))
+        return 'Question "%s", parent: "%s"\n' % (self._name, self._parent._name)
 
     def __repr__(self):
         return self.__str__()
@@ -50,8 +47,7 @@ class Section(Node):
         Node.__init__(self, name)
 
     def __str__(self):
-        ret_str = ('Section "%s", parent: "%s"\n'
-                   % (self._name, self._parent._name))
+        ret_str = 'Section "%s", parent: "%s"\n' % (self._name, self._parent._name)
         for c in self._children:
             ret_str += repr(c)
         return ret_str
@@ -61,7 +57,6 @@ class Section(Node):
 
 
 class DocumentTestCase(unittest.TestCase):
-
     def test_cyclical(self):
         """Test that we can pickle cyclical data structure
 
