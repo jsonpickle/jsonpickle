@@ -3,6 +3,8 @@ Change Log
 
 Version 1.4 - TBD
 -----------------
+    * Python 3.8 support.
+      (`#292 <https://github.com/jsonpickle/jsonpickle/issues/292>`_)
     * ``jsonpickle.encode`` now supports the standard ``indent``
       and ``separators`` arguments, and passes them through to the
       active JSON backend library.
