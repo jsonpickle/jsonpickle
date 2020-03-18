@@ -15,14 +15,12 @@ text_type = eval('unicode') if str is bytes else str
 
 
 class QReduceHandler(handlers.BaseHandler):
-
     def flatten(self, obj, data):
         pickler = self.context
         if not pickler.unpicklable:
             return text_type(obj)
         flatten = pickler.flatten
-        data['__reduce__'] = [
-            flatten(i, reset=False) for i in obj.__reduce__()[1]]
+        data['__reduce__'] = [flatten(i, reset=False) for i in obj.__reduce__()[1]]
         return data
 
     def restore(self, data):
@@ -43,7 +41,6 @@ handlers.register(QtCore.QPointF, QReduceHandler)
 
 
 class QtTestCase(unittest.TestCase):
-
     def test_QPointF_roundtrip(self):
         expect = QtCore.QPointF(1.0, 2.0)
         json = jsonpickle.encode(expect)

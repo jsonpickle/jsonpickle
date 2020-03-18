@@ -37,6 +37,7 @@ endif
 # Data
 ARTIFACTS := build
 ARTIFACTS += dist
+ARTIFACTS += __pycache__
 ARTIFACTS += tags
 ARTIFACTS += *.egg-info
 
@@ -71,5 +72,6 @@ tags:
 
 clean:
 	$(FIND) $(PYTHON_DIRS) -name '*.py[cod]' -print0 | xargs -0 rm -f
+	$(FIND) $(PYTHON_DIRS) -name '__pycache__' -print0 | xargs -0 rm -fr
 	$(RM_R) $(ARTIFACTS)
 .PHONY: clean

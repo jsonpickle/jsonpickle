@@ -14,7 +14,6 @@ __all__ = ['register_handlers', 'unregister_handlers']
 
 
 class PandasProcessor(object):
-
     def __init__(self, size_threshold=500, compression=zlib):
         """
         :param size_threshold: nonnegative int or None
@@ -77,18 +76,21 @@ class PandasDfHandler(BaseHandler):
     def flatten(self, obj, data):
         dtype = obj.dtypes.to_dict()
 
-        meta = {'dtypes': {k: str(dtype[k]) for k in dtype},
-                'index': encode(obj.index)}
+        meta = {'dtypes': {k: str(dtype[k]) for k in dtype}, 'index': encode(obj.index)}
 
         data = self.pp.flatten_pandas(
-            obj.reset_index(drop=True).to_csv(index=False), data, meta)
+            obj.reset_index(drop=True).to_csv(index=False), data, meta
+        )
         return data
 
     def restore(self, data):
         csv, meta = self.pp.restore_pandas(data)
         params = make_read_csv_params(meta)
-        df = pd.read_csv(
-          StringIO(csv), **params) if data['values'].strip() else pd.DataFrame()
+        df = (
+            pd.read_csv(StringIO(csv), **params)
+            if data['values'].strip()
+            else pd.DataFrame()
+        )
         df.set_index(decode(meta['index']), inplace=True)
         return df
 
@@ -140,7 +142,6 @@ class PandasPeriodIndexHandler(PandasIndexHandler):
 
 
 class PandasMultiIndexHandler(PandasIndexHandler):
-
     def name_bundler(self, obj):
         return {'names': obj.names}
 
@@ -188,7 +189,7 @@ class PandasIntervalHandler(BaseHandler):
         meta = {
             'left': encode(obj.left),
             'right': encode(obj.right),
-            'closed': obj.closed
+            'closed': obj.closed,
         }
         buf = ''
         data = self.pp.flatten_pandas(buf, data, meta)

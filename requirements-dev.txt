@@ -9,7 +9,9 @@ numpy
 pandas
 pymongo
 pytest
+pytest-black
 pytest-cov
+pytest-flake8
 simplejson
 sqlalchemy
 ujson; python_version < '3.8'

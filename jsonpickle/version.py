@@ -1,1 +1,4 @@
-__version__ = '1.3'
+import importlib_metadata as metadata
+
+
+__version__ = metadata.version('jsonpickle')

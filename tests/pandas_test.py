@@ -16,19 +16,20 @@ except ImportError:
 
 
 class PandasTestCase(SkippableTest):
-
     def setUp(self):
         if np is None:
             self.should_skip = True
             return
         self.should_skip = False
         import jsonpickle.ext.pandas
+
         jsonpickle.ext.pandas.register_handlers()
 
     def tearDown(self):
         if self.should_skip:
             return
         import jsonpickle.ext.pandas
+
         jsonpickle.ext.pandas.unregister_handlers()
 
     def roundtrip(self, obj):
@@ -37,38 +38,42 @@ class PandasTestCase(SkippableTest):
     def test_series_roundtrip(self):
         if self.should_skip:
             return self.skip('pandas is not importable')
-        ser = pd.Series({
-            'an_int': np.int_(1),
-            'a_float': np.float_(2.5),
-            'a_nan': np.nan,
-            'a_minus_inf': -np.inf,
-            'an_inf': np.inf,
-            'a_str': np.str_('foo'),
-            'a_unicode': np.unicode_('bar'),
-            'date': np.datetime64('2014-01-01'),
-            'complex': np.complex_(1 - 2j),
-            # TODO: the following dtypes are not currently supported.
-            # 'object': np.object_({'a': 'b'}),
-        })
+        ser = pd.Series(
+            {
+                'an_int': np.int_(1),
+                'a_float': np.float_(2.5),
+                'a_nan': np.nan,
+                'a_minus_inf': -np.inf,
+                'an_inf': np.inf,
+                'a_str': np.str_('foo'),
+                'a_unicode': np.unicode_('bar'),
+                'date': np.datetime64('2014-01-01'),
+                'complex': np.complex_(1 - 2j),
+                # TODO: the following dtypes are not currently supported.
+                # 'object': np.object_({'a': 'b'}),
+            }
+        )
         decoded_ser = self.roundtrip(ser)
         assert_series_equal(decoded_ser, ser)
 
     def test_dataframe_roundtrip(self):
         if self.should_skip:
             return self.skip('pandas is not importable')
-        df = pd.DataFrame({
-            'an_int': np.int_([1, 2, 3]),
-            'a_float': np.float_([2.5, 3.5, 4.5]),
-            'a_nan': np.array([np.nan] * 3),
-            'a_minus_inf': np.array([-np.inf] * 3),
-            'an_inf': np.array([np.inf] * 3),
-            'a_str': np.str_('foo'),
-            'a_unicode': np.unicode_('bar'),
-            'date': np.array([np.datetime64('2014-01-01')] * 3),
-            'complex': np.complex_([1 - 2j, 2 - 1.2j, 3 - 1.3j]),
-            # TODO: the following dtypes are not currently supported.
-            # 'object': np.object_([{'a': 'b'}]*3),
-        })
+        df = pd.DataFrame(
+            {
+                'an_int': np.int_([1, 2, 3]),
+                'a_float': np.float_([2.5, 3.5, 4.5]),
+                'a_nan': np.array([np.nan] * 3),
+                'a_minus_inf': np.array([-np.inf] * 3),
+                'an_inf': np.array([np.inf] * 3),
+                'a_str': np.str_('foo'),
+                'a_unicode': np.unicode_('bar'),
+                'date': np.array([np.datetime64('2014-01-01')] * 3),
+                'complex': np.complex_([1 - 2j, 2 - 1.2j, 3 - 1.3j]),
+                # TODO: the following dtypes are not currently supported.
+                # 'object': np.object_([{'a': 'b'}]*3),
+            }
+        )
         decoded_df = self.roundtrip(df)
         assert_frame_equal(decoded_df, df)
 
@@ -76,18 +81,20 @@ class PandasTestCase(SkippableTest):
         if self.should_skip:
             return self.skip('pandas is not importable')
 
-        df = pd.DataFrame({
-            'idx_lvl0': ['a', 'b', 'c'],
-            'idx_lvl1': np.int_([1, 1, 2]),
-            'an_int': np.int_([1, 2, 3]),
-            'a_float': np.float_([2.5, 3.5, 4.5]),
-            'a_nan': np.array([np.nan] * 3),
-            'a_minus_inf': np.array([-np.inf] * 3),
-            'an_inf': np.array([np.inf] * 3),
-            'a_str': np.str_('foo'),
-            'a_unicode': np.unicode_('bar'),
-        })
-        df = df.set_index(['idx_lvl0', 'idx_lvl1', ])
+        df = pd.DataFrame(
+            {
+                'idx_lvl0': ['a', 'b', 'c'],
+                'idx_lvl1': np.int_([1, 1, 2]),
+                'an_int': np.int_([1, 2, 3]),
+                'a_float': np.float_([2.5, 3.5, 4.5]),
+                'a_nan': np.array([np.nan] * 3),
+                'a_minus_inf': np.array([-np.inf] * 3),
+                'an_inf': np.array([np.inf] * 3),
+                'a_str': np.str_('foo'),
+                'a_unicode': np.unicode_('bar'),
+            }
+        )
+        df = df.set_index(['idx_lvl0', 'idx_lvl1'])
 
         decoded_df = self.roundtrip(df)
         assert_frame_equal(decoded_df, df)
@@ -96,8 +103,9 @@ class PandasTestCase(SkippableTest):
         if self.should_skip:
             return self.skip('pandas is not importable')
 
-        df = pd.DataFrame({'a': [1, 2], 'b': [3, 4]},
-                          index=pd.IntervalIndex.from_breaks([1, 2, 4]))
+        df = pd.DataFrame(
+            {'a': [1, 2], 'b': [3, 4]}, index=pd.IntervalIndex.from_breaks([1, 2, 4])
+        )
 
         decoded_df = self.roundtrip(df)
         assert_frame_equal(decoded_df, df)
@@ -178,8 +186,7 @@ class PandasTestCase(SkippableTest):
         if self.should_skip:
             return self.skip('pandas is not importable')
 
-        idx = pd.IntervalIndex.from_breaks(
-            pd.date_range('2019-01-01', '2019-01-10'))
+        idx = pd.IntervalIndex.from_breaks(pd.date_range('2019-01-01', '2019-01-10'))
         decoded_idx = self.roundtrip(idx)
         assert_index_equal(decoded_idx, idx)
 
