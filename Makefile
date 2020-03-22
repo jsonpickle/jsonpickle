@@ -25,10 +25,14 @@ JOB_COUNT := $(shell printf %s "$(JOB_FLAGS)" | sed -e 's/-j//')
 DASH_J := $(shell echo -- $(JOB_FLAGS) -j$(nproc) | grep -o -e '-j[0-9]\+' | head -n 1)
 NUM_JOBS := $(shell printf %s "$(DASH_J)" | sed -e 's/-j//')
 
-TESTCMD ?= $(PYTEST) --doctest-modules
+TESTCMD ?= $(PYTEST)
 TOXCMD ?= $(TOX)
 TOXCMD += --parallel $(NUM_JOBS)
 TOXCMD += --develop --skip-missing-interpreters
+ifdef multi
+    TOXENV ?= 'py{26,27,32,33,34,35,36,37,38},py{27,37}-sa{10,11,12,13},py{27,37}-libs'
+    TOXCMD += -e $(TOXENV)
+endif
 ifdef V
     TESTCMD += --verbose
     TOXCMD += -v
@@ -56,7 +60,7 @@ help:
 .PHONY: help
 
 test:
-	$(TESTCMD) $(PYTHON_DIRS) $(flags)
+	$(TESTCMD) $(flags)
 .PHONY: test
 
 tox:
