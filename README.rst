@@ -105,35 +105,24 @@ Use `make` to run the unit tests::
 
 `pytest` is used to run unit tests internally.
 
-A `tox` target is provided to run tests against multiple
-python versions using `tox`::
+A `tox` target is provided to run tests using tox.
+Setting ``multi=1`` tests using all installed and supported Python versions::
 
         make tox
+        make tox multi=1
 
 `jsonpickle` itself has no dependencies beyond the Python stdlib.
 `tox` is required for testing when using the `tox` test runner only.
 
 The testing requirements are specified in `requirements-dev.txt`.
-It is recommended to create a virtualenv and install the requirements there.::
+It is recommended to create a virtualenv and run tests from within the
+virtualenv, or use a tool such as `vx <https://github.com/davvid/vx/>`_
+to activate the virtualenv without polluting the shell environment::
 
         python3 -mvenv env3x
         vx env3x pip install --requirement requirements-dev.txt
-
-You can then execute tests inside the virtualenv::
-
         vx env3x make test
 
-`vx <https://github.com/davvid/vx/>`_ is a simple script that allows you to
-eschew the typical virtualenv `source activate` / `deactivate` dance.
-
-The following steps clone `vx` to `~/src/vx` and symlinks to the script from
-`~/bin/vx`.  This assumes that `$HOME/bin` is in your `$PATH`.::
-
-    mkdir -p ~/bin ~/src
-    cd ~/src && git clone git://github.com/davvid/vx.git
-    cd ~/bin && ln -s ../src/vx/vx
-
-You don't need `vx` to run the jsonpickle's tests -- you can always use the
-`activate` and `deactivate` virtualenv workflow instead.  `vx` is convenient
-when testing against multiple virtualenvs because it does not mutate your
-shell environment.
+`jsonpickle` supports multiple Python versions, so using a combination of
+multiple virtualenvs and `tox` is useful in order to catch compatibility
+issues when developing.
