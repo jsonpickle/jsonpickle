@@ -120,7 +120,7 @@ Features include:
 
 Features include:
 - test against Python 3
-- run on Ubuntu Xenial
+- run on Ubuntu Bionic
 - correct for broken IPv6
 
 ### AppVeyor
