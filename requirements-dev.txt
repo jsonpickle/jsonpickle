@@ -9,7 +9,7 @@ numpy
 pandas
 pymongo
 pytest
-pytest-black
+pytest-black-multipy
 pytest-cov
 pytest-flake8
 simplejson
