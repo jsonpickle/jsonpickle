@@ -30,8 +30,8 @@ TOXCMD ?= $(TOX)
 TOXCMD += --parallel $(NUM_JOBS)
 TOXCMD += --develop --skip-missing-interpreters
 ifdef multi
-    TOXENV ?= 'py{26,27,32,33,34,35,36,37,38},py{27,37}-sa{10,11,12,13},py{27,37}-libs'
-    TOXCMD += -e $(TOXENV)
+    TOXCMD += -e
+    TOXCMD += 'py{27,36,37,38},py{27,37}-sa{10,11,12,13},py{27,37}-libs'
 endif
 ifdef V
     TESTCMD += --verbose
