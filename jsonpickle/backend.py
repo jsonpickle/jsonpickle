@@ -117,9 +117,8 @@ class JSONBackend(object):
         except AttributeError:
             return False
 
-        if not self._store(self._encoders, name, mod, dumps) or not self._store(
-            self._decoders, name, mod, loads
-        ):
+        if not self._store(self._encoders, name, mod, dumps) or not \
+                self._store(self._decoders, name, mod, loads):
             return False
 
         if isinstance(loads_exc, string_types):
