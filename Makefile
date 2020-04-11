@@ -27,8 +27,8 @@ nproc := $(shell sh -c '$(NPROC) 2>/dev/null || echo 4')
 # other commands.  This can be empty.
 JOB_FLAGS := $(shell echo -- $(MAKEFLAGS) | grep -o -e '-j[0-9]\+' | head -n 1)
 # Extract just the number from "-j#".
-JOB_COUNT := $(shell printf %s "$(JOB_FLAGS)" | sed -e 's/-j//')
-# We have "-jX" from MAKEFLAGS but tox wants "-j X"
+JOB_COUNT := $(shell printf '%s' "$(JOB_FLAGS)" | sed -e 's/-j//')
+# We have "-jX" from MAKEFLAGS but tox wants "--parallel X"
 DASH_J := $(shell echo -- $(JOB_FLAGS) -j$(nproc) | grep -o -e '-j[0-9]\+' | head -n 1)
 NUM_JOBS := $(shell printf %s "$(DASH_J)" | sed -e 's/-j//')
 
