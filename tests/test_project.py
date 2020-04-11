@@ -1,6 +1,5 @@
 __author__ = "Mihir Shrestha"
 
-import pytest
 import jsonpickle
 
 
