@@ -1,1 +1,1 @@
-collect_ignore = ['contrib']
+collect_ignore = ['contrib', 'setup', 'conftest']
