@@ -60,10 +60,11 @@ all:: help
 
 help:
 	@echo "---- Makefile Targets ----"
-	@echo "make help    - print this message"
-	@echo "make test    - run unit tests"
-	@echo "make tox     - run unit tests on multiple pythons with tox"
-	@echo "make clean   - remove cruft"
+	@echo "make help            - print this message"
+	@echo "make test            - run unit tests"
+	@echo "make tox		        - run unit tests using tox"
+	@echo "make tox multi=1     - run unit tests on multiple pythons using tox"
+	@echo "make clean           - remove cruft"
 .PHONY: help
 
 test:
