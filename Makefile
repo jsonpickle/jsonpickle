@@ -3,19 +3,26 @@
 # External commands
 CTAGS ?= ctags
 FIND ?= find
-NPROC ?= nproc
 PYTHON ?= python
 PYTEST ?= $(PYTHON) -m pytest
 RM_R ?= rm -fr
 SH ?= sh
 TOX ?= tox
+# Detect macOS to customize how we query the cpu count.
+uname_S := $(shell sh -c 'uname -s 2>/dev/null || echo unknown')
+ifeq ($(uname_S),Darwin)
+    NPROC ?= sysctl -n hw.activecpu
+else
+    NPROC ?= nproc
+endif
 
 # Options
 flags ?=
 timeout ?= 600
 
 # Default job count -- this is used if "-j" is not present in MAKEFLAGS.
-nproc := $(shell $(NPROC) 2>/dev/null || echo 4)
+nproc := $(shell sh -c '$(NPROC) 2>/dev/null || echo 4')
+
 # Extract the "-j#" flags in $(MAKEFLAGS) so that we can forward the value to
 # other commands.  This can be empty.
 JOB_FLAGS := $(shell echo -- $(MAKEFLAGS) | grep -o -e '-j[0-9]\+' | head -n 1)
