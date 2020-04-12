@@ -74,3 +74,23 @@ cTest1.setTemperature(30)
 print(c1.temperature)
 print(cTest1.getTemperature())
 
+
+class Dummy(object):
+    def __init__(self, name="Dummy"):
+        self._name = name
+
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, name):
+        self._name = name
+
+    def changeNameToDummy(self):
+        self.name = "Dummy"
+
+d = jsonpickle.decode(jsonpickle.encode(Dummy))
+print(d)
+
+
