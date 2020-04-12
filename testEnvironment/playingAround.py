@@ -21,7 +21,7 @@ class Celsius:
         self._temperature = value
 
     def __str__(self):
-        return f'{self._temperature}'
+        return str(self._temperature)
 
 
 class CelsiusTest:
