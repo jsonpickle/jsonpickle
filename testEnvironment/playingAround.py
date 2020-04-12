@@ -44,7 +44,7 @@ class CelsiusTest:
         self._temperature = temperature
 
     def __str__(self):
-        return f'{self._temperature}'
+        return str(self._temperature)
 
 
 # Creating two objects from the two different classes; Celsius has @property, CelsiusTest does not.
