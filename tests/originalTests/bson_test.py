@@ -6,8 +6,6 @@ import pickle
 import unittest
 import pytest
 
-pytest.skip()
-
 import jsonpickle
 
 from helper import SkippableTest

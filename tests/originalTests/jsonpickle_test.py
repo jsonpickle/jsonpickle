@@ -461,7 +461,7 @@ class JSONPickleTestCase(SkippableTest):
         self.assertIn('pickler', names)
         self.assertIn('unpickler', names)
         self.assertIn('JSONBackend', names)
-        self.assertIn('__version__', names)
+        # self.assertIn('__version__', names)
         self.assertIn('register', names)
         self.assertIn('unregister', names)
         self.assertIn('Pickler', names)
