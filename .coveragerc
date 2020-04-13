@@ -1,5 +1,6 @@
 [run]
 omit = .tox/*
+parallel = true
 source = jsonpickle
 
 [report]
