@@ -75,10 +75,6 @@ tox:
 	$(TOXCMD) $(flags)
 .PHONY: tox
 
-check:
-	$(TOXCMD) -e flake8 $(flags)
-.PHONY: check
-
 tags:
 	$(FIND) $(PYTHON_DIRS) -name '*.py' -print0 | xargs -0 $(CTAGS) -f tags
 
