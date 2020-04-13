@@ -38,7 +38,7 @@ TOXCMD += --parallel $(NUM_JOBS)
 TOXCMD += --develop --skip-missing-interpreters
 ifdef multi
     TOXCMD += -e
-    TOXCMD += 'py{27,36,37,38},py{27,37}-sa{10,11,12,13},py{27,37}-libs'
+    TOXCMD += 'clean,py{27,36,37,38},py{27,37}-sa{10,11,12,13},py{27,37}-libs'
 endif
 ifdef V
     TESTCMD += --verbose
@@ -74,10 +74,6 @@ test:
 tox:
 	$(TOXCMD) $(flags)
 .PHONY: tox
-
-check:
-	$(TOXCMD) -e flake8 $(flags)
-.PHONY: check
 
 tags:
 	$(FIND) $(PYTHON_DIRS) -name '*.py' -print0 | xargs -0 $(CTAGS) -f tags

@@ -1,5 +1,5 @@
 bson
-coverage
+coverage<5
 demjson
 ecdsa
 enum34; python_version < '3.4'
