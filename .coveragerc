@@ -1,5 +1,6 @@
 [run]
 omit = .tox/*
+parallel = true
 
 [report]
 show_missing = True
