@@ -37,3 +37,17 @@ def test_propertyIssue():
 
     dummy.changeNameToDummy()
     assert dummy.name == "Dummy"
+
+
+def test_dictionaryIdentity():
+    x = {}
+    y = [x, x]
+    z = jsonpickle.decode(jsonpickle.encode(y))
+
+    # Testing if it works with just the unencoded list
+    y[0]["name"] = "David"
+    assert y[0] == y[1]
+
+    # Testing it it works with the encoded list
+    z[0]["name"] = "David"
+    assert z[0] == z[1]
