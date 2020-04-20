@@ -1,3 +1,8 @@
+v1.4.1
+======
+    * Patch release for Python 3.8 `importlib_metadata` support.
+      (`#300 <https://github.com/jsonpickle/jsonpickle/issues/300>`_)
+
 v1.4
 ====
     * Python 3.8 support.
