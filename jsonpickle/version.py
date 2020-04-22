@@ -1,5 +1,10 @@
+import sys
+
 try:
-    import importlib_metadata as metadata
+    if sys.version_info < (3, 8):
+        import importlib_metadata as metadata
+    else:
+        from importlib import metadata
 except (ImportError, OSError):
     metadata = None
 
