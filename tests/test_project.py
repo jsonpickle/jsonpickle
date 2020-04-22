@@ -8,6 +8,7 @@ class Type(Enum):
     TWO = 2
 
 
+# Class to test Enum issue with
 class TestEnumObject:
     def __init__(self, num, objectType):
         self.num = num
@@ -36,13 +37,18 @@ class Dummy(object):
     def changeNameToDummy(self):
         self.name = "Dummy"
 
+    def __str__(self):
+        return "Dummy(name='{}')".format(str(self._name))
 
+
+# Initial test to see if pytest works
 def test_initialTest():
     x = "hello"
     y = jsonpickle.decode(jsonpickle.encode(x))
     assert x == y
 
 
+# Test to see if the @property issue has been fixed
 def test_propertyIssue():
     # Getting a decoded Dummy class
     decodedDummy = jsonpickle.decode(jsonpickle.encode(Dummy))
@@ -58,6 +64,7 @@ def test_propertyIssue():
     assert dummy.name == "Dummy"
 
 
+# Test to see if dictionary identity is preserved or not
 def test_dictionaryIdentity():
     x = {}
     y = [x, x]
@@ -72,6 +79,7 @@ def test_dictionaryIdentity():
     assert z[0] == z[1]
 
 
+# Test to see if enum issue has been resolved or not
 def test_enumIssue():
     a = TestEnumObject(1, Type.ONE)
     b = TestEnumObject(2, Type.ONE)
@@ -92,3 +100,41 @@ def test_enumIssue():
     exactlySameEnums = [a, d]
     exactlySameEnumsDecoded = jsonpickle.decode(jsonpickle.encode(exactlySameEnums))
     assert str(exactlySameEnumsDecoded[0]) == str(exactlySameEnumsDecoded[1])
+
+
+# Test to see if the parameter to ignore null fields works in JSON representation
+def test_removeNullFields():
+    newDummy = Dummy("Mihir")
+    newDummy.age = 21
+    newDummy.ethnicity = "Asian"
+    newDummy.children = None
+    newDummy.phone = None
+    newDummy.email = None
+
+    # This returns all the attributes
+    allAttributes = vars(newDummy)
+
+    # Getting all the null attributes
+    nullAttributes = []
+    for attr in allAttributes:
+        if getattr(newDummy, attr) is None:
+            nullAttributes.append(attr)
+
+    # Encoding dummy object by default that also includes null values
+    withNullEncoded = jsonpickle.encode(newDummy)
+
+    # Checking to see if the JSON representation contains all attribute values
+    for attr in allAttributes:
+        assert attr in withNullEncoded
+
+    # Encoding dummy object that also does not include null values
+    withoutNullEncoded = jsonpickle.encode(newDummy, nullValues=False)
+
+    # Checking to see if the JSON representation contains only non-null attribute values
+    for attr in allAttributes:
+        if attr in nullAttributes:
+            assert attr not in withoutNullEncoded
+        else:
+            assert attr in withoutNullEncoded
+
+

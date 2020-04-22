@@ -36,6 +36,7 @@ def encode(
     fail_safe=None,
     indent=None,
     separators=None,
+    nullValues = True
 ):
     """Return a JSON formatted representation of value, a Python object.
 
@@ -125,9 +126,19 @@ def encode(
         use_base85=use_base85,
         fail_safe=fail_safe,
     )
-    return backend.encode(
-        context.flatten(value, reset=reset), indent=indent, separators=separators
-    )
+
+    # Slightly brute-force method of removing null values
+    finalResult = backend.encode(context.flatten(value, reset=reset), indent=indent, separators=separators)
+    if nullValues:
+        return finalResult
+    else:
+        finalResult = finalResult.replace("null", "None")
+        evaluatedResult = eval(finalResult)
+        newDict = {}
+        for k, v in evaluatedResult.items():
+            if v is not None:
+                newDict[k] = v
+        return str(newDict)
 
 
 class Pickler(object):
