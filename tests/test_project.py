@@ -127,7 +127,7 @@ def test_removeNullFields():
     for attr in allAttributes:
         assert attr in withNullEncoded
 
-    # Encoding dummy object that also does not include null values
+    # Encoding dummy object that will does not include null values
     withoutNullEncoded = jsonpickle.encode(newDummy, nullValues=False)
 
     # Checking to see if the JSON representation contains only non-null attribute values
