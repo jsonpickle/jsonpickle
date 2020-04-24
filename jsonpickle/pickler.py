@@ -132,8 +132,11 @@ def encode(
     if nullValues:
         return finalResult
     else:
+        previousResult = finalResult
         finalResult = finalResult.replace("null", "None")
         evaluatedResult = eval(finalResult)
+        if type(evaluatedResult) is not dict:
+            return previousResult
         newDict = {}
         for k, v in evaluatedResult.items():
             if v is not None:
