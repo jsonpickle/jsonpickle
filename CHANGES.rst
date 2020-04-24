@@ -1,3 +1,9 @@
+v1.5
+====
+    * Use importlib.metadata from the stdlib on Python 3.8.
+      (`#305 <https://github.com/jsonpickle/jsonpickle/pull/305>`_)
+      (`#303 <https://github.com/jsonpickle/jsonpickle/issues/303>`_)
+
 v1.4.1
 ======
     * Patch release for Python 3.8 `importlib_metadata` support.
