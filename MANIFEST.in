@@ -1,4 +1,4 @@
-include COPYING README.rst
+include LICENSE README.rst
 include Rakefile
 include *.py
 include jsonpickle/*.py
