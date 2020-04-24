@@ -1,9 +1,0 @@
-include LICENSE README.rst
-include Rakefile
-include *.py
-include jsonpickle/*.py
-include tests/*.py
-include docs/source/**
-include jsonpickleJS/**
-include *.txt
-include pyproject.toml
