@@ -11,7 +11,7 @@ import sys
 import types
 from itertools import chain, islice
 import inspect
-
+import json as oldJson
 from . import compat
 from . import util
 from . import tags
@@ -21,26 +21,29 @@ from .compat import numeric_types, string_types, PY3, PY2
 
 
 def encode(
-    value,
-    unpicklable=True,
-    make_refs=True,
-    keys=False,
-    max_depth=None,
-    reset=True,
-    backend=None,
-    warn=False,
-    context=None,
-    max_iter=None,
-    use_decimal=False,
-    numeric_keys=False,
-    use_base85=False,
-    fail_safe=None,
-    indent=None,
-    separators=None,
-    nullValues = True
+        value,
+        unpicklable=True,
+        make_refs=True,
+        keys=False,
+        max_depth=None,
+        reset=True,
+        backend=None,
+        warn=False,
+        context=None,
+        max_iter=None,
+        use_decimal=False,
+        numeric_keys=False,
+        use_base85=False,
+        fail_safe=None,
+        indent=None,
+        separators=None,
+        nullValues=True,
+        encodeFunctionItself=False
 ):
     """Return a JSON formatted representation of value, a Python object.
 
+    :param encodeFunctionItself: If set to True, output will contain function code itself.
+    :param nullValues: If set to False, the output will not contain null values.
     :param unpicklable: If set to False then the output will not contain the
         information necessary to turn the JSON data back into Python objects,
         but a simpler JSON stream is produced.
@@ -113,12 +116,13 @@ def encode(
     '{"foo": "[1, 2, [3, 4]]"}'
 
     """
-    if inspect.isfunction(value):
+    # This checks if value is a function, if it is, then it just returns the function name and code in json format
+    if encodeFunctionItself and inspect.isfunction(value):
         jsonDict = {}
         functionCode = inspect.getsource(value)
         jsonDict["py/function"] = "__main__.{}".format(value.__name__)
         jsonDict["functionCode"] = functionCode
-        return str(jsonDict)
+        return oldJson.dumps(jsonDict)
 
     backend = backend or json
     context = context or Pickler(
@@ -154,18 +158,18 @@ def encode(
 
 class Pickler(object):
     def __init__(
-        self,
-        unpicklable=True,
-        make_refs=True,
-        max_depth=None,
-        backend=None,
-        keys=False,
-        warn=False,
-        max_iter=None,
-        numeric_keys=False,
-        use_decimal=False,
-        use_base85=False,
-        fail_safe=None,
+            self,
+            unpicklable=True,
+            make_refs=True,
+            max_depth=None,
+            backend=None,
+            keys=False,
+            warn=False,
+            max_iter=None,
+            numeric_keys=False,
+            use_decimal=False,
+            use_base85=False,
+            fail_safe=None,
     ):
         self.unpicklable = unpicklable
         self.make_refs = make_refs
@@ -488,10 +492,10 @@ class Pickler(object):
 
                 # check that getstate/setstate is sane
                 if not (
-                    state
-                    and hasattr(obj, '__getstate__')
-                    and not hasattr(obj, '__setstate__')
-                    and not isinstance(obj, dict)
+                        state
+                        and hasattr(obj, '__getstate__')
+                        and not hasattr(obj, '__setstate__')
+                        and not isinstance(obj, dict)
                 ):
                     # turn iterators to iterables for convenient serialization
                     if rv_as_list[3]:
@@ -749,8 +753,8 @@ class Pickler(object):
 
 def _in_cycle(obj, objs, max_reached, make_refs):
     return (
-        max_reached or (not make_refs and id(obj) in objs)
-    ) and not util.is_primitive(obj)
+                   max_reached or (not make_refs and id(obj) in objs)
+           ) and not util.is_primitive(obj)
 
 
 def _mktyperef(obj):

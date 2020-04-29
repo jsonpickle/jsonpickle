@@ -7,17 +7,18 @@
 from __future__ import absolute_import, division, unicode_literals
 import quopri
 import sys
-
+from ast import literal_eval
 from . import compat
 from . import util
 from . import tags
 from . import handlers
 from .compat import numeric_types
 from .backend import json
+import json as oldJson
 
 
 def decode(
-    string, backend=None, context=None, keys=False, reset=True, safe=False, classes=None
+    string, backend=None, context=None, keys=False, reset=True, safe=False, classes=None, encodeFunctionItself=False
 ):
     """Convert a JSON string into a Python object.
 
@@ -36,6 +37,14 @@ def decode(
     >>> decode('36')
     36
     """
+    # Brute force way of encoding functions, only works if encodeFunctionItself is set to True
+    jsonDict = oldJson.loads(string)
+    if encodeFunctionItself and "py/function" in jsonDict.keys():
+        print("WARNING: EXECUTING ANY FUNCTION THROUGH THIS CAN BE A HUGE SECURITY RISK. TO RUN THIS FUNCTION\n"
+              "TYPE IN EXEC() WITH THE JSON YOU HAVE DECODED INSIDE. FOR INSTANCE, IF YOU ENCODED FUNCTION X TO Y\n"
+              "DECODE IT WITH exec(jsonpickle.decode(Y)). IT IS ADVISED TO FIRST SEE THE CONTENTS OF THE FUNCTION\n"
+              "BY PRINTING IT OUT BEFORE EXECUTING TO BE SAFE.", file=sys.stderr)
+        return jsonDict["functionCode"]
     backend = backend or json
     context = context or Unpickler(keys=keys, backend=backend, safe=safe)
     data = backend.decode(string)

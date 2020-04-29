@@ -1,9 +1,10 @@
-import inspect
 import jsonpickle
 
 
-def calculateArea(length, width):
-    return length * width
+with open("test.json", "r") as f:
+    readJson = f.read()
+    decoded = jsonpickle.decode(readJson, encodeFunctionItself=True)
+    exec(decoded)
 
+print(calculateArea(5, 10))
 
-print(jsonpickle.encode(calculateArea))
