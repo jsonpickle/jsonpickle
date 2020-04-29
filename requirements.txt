@@ -6,7 +6,7 @@ enum34; python_version < '3.4'
 feedparser
 jsonlib; python_version < '3.0'
 numpy~=1.18.2
-pandas~=1.0.3
+pandas
 pymongo
 pytest~=5.4.1
 pytest-black
