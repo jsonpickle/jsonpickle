@@ -41,7 +41,6 @@ def encode(
         encodeFunctionItself=False
 ):
     """Return a JSON formatted representation of value, a Python object.
-
     :param encodeFunctionItself: If set to True, output will contain function code itself.
     :param nullValues: If set to False, the output will not contain null values.
     :param unpicklable: If set to False then the output will not contain the

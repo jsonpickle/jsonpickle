@@ -38,13 +38,16 @@ def decode(
     36
     """
     # Brute force way of encoding functions, only works if encodeFunctionItself is set to True
-    jsonDict = oldJson.loads(string)
-    if encodeFunctionItself and "py/function" in jsonDict.keys():
-        print("WARNING: EXECUTING ANY FUNCTION THROUGH THIS CAN BE A HUGE SECURITY RISK. TO RUN THIS FUNCTION\n"
-              "TYPE IN EXEC() WITH THE JSON YOU HAVE DECODED INSIDE. FOR INSTANCE, IF YOU ENCODED FUNCTION X TO Y\n"
-              "DECODE IT WITH exec(jsonpickle.decode(Y)). IT IS ADVISED TO FIRST SEE THE CONTENTS OF THE FUNCTION\n"
-              "BY PRINTING IT OUT BEFORE EXECUTING TO BE SAFE.", file=sys.stderr)
-        return jsonDict["functionCode"]
+    try:
+        jsonDict = oldJson.loads(string)
+        if encodeFunctionItself and "py/function" in jsonDict.keys():
+            print("WARNING: EXECUTING ANY FUNCTION THROUGH THIS CAN BE A HUGE SECURITY RISK. TO RUN THIS FUNCTION\n"
+                  "TYPE IN EXEC() WITH THE JSON YOU HAVE DECODED INSIDE. FOR INSTANCE, IF YOU ENCODED FUNCTION X TO Y\n"
+                  "DECODE IT WITH exec(jsonpickle.decode(Y)). IT IS ADVISED TO FIRST SEE THE CONTENTS OF THE FUNCTION\n"
+                  "BY PRINTING IT OUT BEFORE EXECUTING TO BE SAFE.", file=sys.stderr)
+            return jsonDict["functionCode"]
+    except oldJson.decoder.JSONDecodeError:
+        pass
     backend = backend or json
     context = context or Unpickler(keys=keys, backend=backend, safe=safe)
     data = backend.decode(string)
