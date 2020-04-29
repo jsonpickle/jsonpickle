@@ -1,7 +1,8 @@
+import os
 import pytest
-
 import jsonpickle
 from enum import Enum
+import json as oldJson
 
 
 # Simple Enum Class
@@ -154,11 +155,17 @@ def test_functionEncoding():
 
 
 # exec() doesn't work locally. I don't know why, so I run this here.
-# Basically, it runs a function stored in json format at the file test.json.
-with open("test.json", 'r') as f:
-    jsonRead = f.read()
-    getPerimeter = jsonpickle.decode(jsonRead, encodeFunctionItself=True)
-    exec(getPerimeter)
+# Basically, it runs a function stored in json format in the file test.json.
+if not os.path.exists("test.json"):
+    with open("test.json", 'w') as f:
+        f.write(oldJson.dumps({"py/function": "__main__.getPerimeter", "functionCode": "def getPerimeter(length, "
+                                                                                       "width):\n    return 2 * ("
+                                                                                       "length + width)\n\n"}))
+if os.path.exists("test.json"):
+    with open("test.json", 'r') as f:
+        jsonRead = f.read()
+        getPerimeter = jsonpickle.decode(jsonRead, encodeFunctionItself=True)
+        exec(getPerimeter)
 
 
 # getPerimeter() is not defined anywhere, so if the tests work, the decoding worked.

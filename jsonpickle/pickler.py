@@ -20,6 +20,7 @@ from .backend import json
 from .compat import numeric_types, string_types, PY3, PY2
 
 
+# Helper function to remove additional spaces from functions defined inside classes or functions
 def correctFunction(functionCode):
     index = 0
     for letter in functionCode:
