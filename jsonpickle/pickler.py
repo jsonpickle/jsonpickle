@@ -10,6 +10,7 @@ import warnings
 import sys
 import types
 from itertools import chain, islice
+import inspect
 
 from . import compat
 from . import util
@@ -112,6 +113,13 @@ def encode(
     '{"foo": "[1, 2, [3, 4]]"}'
 
     """
+    if inspect.isfunction(value):
+        jsonDict = {}
+        functionCode = inspect.getsource(value)
+        jsonDict["py/function"] = "__main__.{}".format(value.__name__)
+        jsonDict["functionCode"] = functionCode
+        return str(jsonDict)
+
     backend = backend or json
     context = context or Pickler(
         unpicklable=unpicklable,
