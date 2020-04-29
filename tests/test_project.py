@@ -138,3 +138,6 @@ def test_removeNullFields():
             assert attr in withoutNullEncoded
 
 
+def test_functionEncoding():
+    assert True
+
