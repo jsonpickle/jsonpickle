@@ -3,8 +3,7 @@ import jsonpickle
 
 with open("test.json", "r") as f:
     readJson = f.read()
-    calculateArea = jsonpickle.decode(readJson, encodeFunctionItself=True)
-    exec(calculateArea)
+    getPerimeter = jsonpickle.decode(readJson, encodeFunctionItself=True)
+    exec(getPerimeter)
 
-print(calculateArea(5, 10))
-
+print(getPerimeter(10, 10))

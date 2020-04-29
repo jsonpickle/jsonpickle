@@ -141,6 +141,30 @@ def test_removeNullFields():
             assert attr in withoutNullEncoded
 
 
-def test_functionEncoding():
-    assert True
+# Simple function to check if jsonpickle works with functions
+def getArea(length, width):
+    return length * width
 
+
+# Function to test if jsonpickle encodes the function itself
+def test_functionEncoding():
+    # global encodedFunction
+    encodedFunction = jsonpickle.encode(getArea, encodeFunctionItself=True)
+    assert "getArea" in encodedFunction
+
+
+# exec() doesn't work locally. I don't know why, so I run this here.
+# Basically, it runs a function stored in json format at the file test.json.
+with open("test.json", 'r') as f:
+    jsonRead = f.read()
+    getPerimeter = jsonpickle.decode(jsonRead, encodeFunctionItself=True)
+    exec(getPerimeter)
+
+
+# getPerimeter() is not defined anywhere, so if the tests work, the decoding worked.
+def test_functionDecoding():
+    assert getPerimeter(5, 10) == 30
+    assert getPerimeter(1, 1) == 4
+    assert getPerimeter(5, 5) == 20
+    assert getPerimeter(2, 3) == 10
+    assert getPerimeter(11, 0) == 22

@@ -20,6 +20,17 @@ from .backend import json
 from .compat import numeric_types, string_types, PY3, PY2
 
 
+def correctFunction(functionCode):
+    index = 0
+    for letter in functionCode:
+        if letter == ' ':
+            index += 1
+        else:
+            break
+    formattedCode = "".join([function[index:] + '\n' for function in functionCode.split('\n')])
+    return formattedCode
+
+
 def encode(
         value,
         unpicklable=True,
@@ -118,7 +129,7 @@ def encode(
     # This checks if value is a function, if it is, then it just returns the function name and code in json format
     if encodeFunctionItself and inspect.isfunction(value):
         jsonDict = {}
-        functionCode = inspect.getsource(value)
+        functionCode = correctFunction(inspect.getsource(value))
         jsonDict["py/function"] = "__main__.{}".format(value.__name__)
         jsonDict["functionCode"] = functionCode
         return oldJson.dumps(jsonDict)

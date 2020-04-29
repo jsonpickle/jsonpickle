@@ -1,0 +1,1 @@
+{"py/function": "__main__.getPerimeter", "functionCode": "def getPerimeter(length, width):\n    return 2 * (length + width)\n\n"}
