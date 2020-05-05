@@ -41,10 +41,10 @@ def decode(
     try:
         jsonDict = oldJson.loads(string)
         if encodeFunctionItself and "py/function" in jsonDict.keys():
-            print("WARNING: EXECUTING ANY FUNCTION THROUGH THIS CAN BE A HUGE SECURITY RISK. TO RUN THIS FUNCTION\n"
-                  "TYPE IN EXEC() WITH THE JSON YOU HAVE DECODED INSIDE. FOR INSTANCE, IF YOU ENCODED FUNCTION X TO Y\n"
-                  "DECODE IT WITH exec(jsonpickle.decode(Y)). IT IS ADVISED TO FIRST SEE THE CONTENTS OF THE FUNCTION\n"
-                  "BY PRINTING IT OUT BEFORE EXECUTING TO BE SAFE.", file=sys.stderr)
+            print("\nWARNING: EXECUTING ANY FUNCTION THROUGH THIS CAN BE A HUGE SECURITY RISK. TO RUN THIS FUNCTION\n"
+                  "TYPE IN EXEC() WITH THE JSON YOU HAVE DECODED INSIDE. FOR EXAMPLE, IF YOU ENCODED FUNCTION X TO Y,\n"
+                  "DECODE IT WITH exec(jsonpickle.decode(Y)). IT IS STRONGLY ADVISED TO FIRST SEE THE CONTENTS\n"
+                  "OF THE FUNCTION BY PRINTING IT OUT BEFORE EXECUTING TO BE SAFE.\n")
             return jsonDict["functionCode"]
     except oldJson.decoder.JSONDecodeError:
         pass

@@ -20,7 +20,7 @@ from .backend import json
 from .compat import numeric_types, string_types, PY3, PY2
 
 
-# Helper function to remove additional spaces from functions defined inside classes or functions
+# Helper function to remove additional spaces and tabs from functions defined inside classes or functions
 def correctFunction(functionCode):
     index = 0
     for letter in functionCode:
@@ -151,6 +151,8 @@ def encode(
     )
 
     # Slightly brute-force method of removing null values
+    # Works by calling the module json, decoding the new json back to a python dict, looping through the new dict
+    # and returning a new dict without None values
     finalResult = backend.encode(context.flatten(value, reset=reset), indent=indent, separators=separators)
     if nullValues:
         return finalResult

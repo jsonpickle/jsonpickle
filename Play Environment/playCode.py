@@ -4,6 +4,10 @@ import jsonpickle
 
 # Function that shows null values not being encoded
 def classExample():
+    """
+    For some classes, it can be much more concise to ignore/drop any field that is null. Could there be an optional parameter that enables this?
+    """
+
     # Null Values Decoding
     class Student:
         def __init__(self):
@@ -24,7 +28,7 @@ def classExample():
 
     mihir = Student()
 
-    print("Start of class example:")
+    print("\nStart of class example:")
     withNull = jsonpickle.encode(mihir)
     withoutNull = jsonpickle.encode(mihir, nullValues=False)
     print("JSON Data with null info   :", withNull)
@@ -40,7 +44,8 @@ def classExample():
 # Function that shows null values not being encoded in a dict
 def dictExample():
     print("Start of dict example:")
-    sampleDict = {"name": "Mihir", "age": 21, "hairColor": "black", "eyeColor": None, "ethnicity": None, "isStudent": True}
+    sampleDict = {"name": "Mihir", "age": 21, "hairColor": "black", "eyeColor": None, "ethnicity": None,
+                  "isStudent": True}
     encodedDictWithNull = jsonpickle.encode(sampleDict, nullValues=True)
     encodedDictWithoutNull = jsonpickle.encode(sampleDict, nullValues=False)
     print(f"This is the encoded dict with null values   : {encodedDictWithNull}")
@@ -48,5 +53,35 @@ def dictExample():
     print()
 
 
+# Function that shows functions can be encoded in JSON format
+def functionExample():
+    print("Start of function encoding example")
+
+    def fibonacci(n):
+        if n <= 1:
+            return n
+        else:
+            return fibonacci(n - 1) + fibonacci(n - 2)
+
+    filename = "functionDump.json"
+    with open(filename, "w") as f:
+        functionEncoded = jsonpickle.encode(fibonacci, encodeFunctionItself=True)
+        f.write(functionEncoded)
+
+    print("Encoded function:", functionEncoded)
+    print(f"Function has been dumped to {filename}")
+    print()
+
+
 classExample()
 dictExample()
+functionExample()
+
+with open("functionDump.json", 'r') as f:
+    jsonCode = f.read()
+    fibonacci = jsonpickle.decode(jsonCode, encodeFunctionItself=True)
+    print(fibonacci)
+    exec(fibonacci)
+
+for i in range(10):
+    print(fibonacci(i))
