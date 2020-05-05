@@ -48,8 +48,8 @@ def dictExample():
                   "isStudent": True}
     encodedDictWithNull = jsonpickle.encode(sampleDict, nullValues=True)
     encodedDictWithoutNull = jsonpickle.encode(sampleDict, nullValues=False)
-    print(f"This is the encoded dict with null values   : {encodedDictWithNull}")
-    print(f"This is the encoded dict without null values: {encodedDictWithoutNull}")
+    print("This is the encoded dict with null values   :", encodedDictWithNull)
+    print("This is the encoded dict without null values:", encodedDictWithoutNull)
     print()
 
 
