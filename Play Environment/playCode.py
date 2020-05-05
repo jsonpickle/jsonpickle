@@ -21,7 +21,7 @@ def classExample():
 
         def __str__(self):
             try:
-                return f"{self.name} is {self.age} years old"
+                return "{} is {} years old".format(self.name, self.age)
             except Exception as e:
                 print(e)
                 return ""
