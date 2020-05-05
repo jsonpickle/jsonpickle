@@ -69,7 +69,7 @@ def functionExample():
         f.write(functionEncoded)
 
     print("Encoded function:", functionEncoded)
-    print(f"Function has been dumped to {filename}")
+    print("Function has been dumped to", filename)
     print()
 
 
