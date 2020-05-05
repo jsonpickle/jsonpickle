@@ -155,21 +155,14 @@ def encode(
     if nullValues:
         return finalResult
     else:
-        previousResult = finalResult
-        finalResult = finalResult.replace("null", "None")
-        finalResult = finalResult.replace("true", "True")
-        finalResult = finalResult.replace("false", "False")
-        evaluatedResult = eval(finalResult)
-        if type(evaluatedResult) is not dict:
+        previousResult = oldJson.loads(finalResult)
+        if type(previousResult) is not dict:
             return previousResult
         newDict = {}
-        for k, v in evaluatedResult.items():
+        for k, v in previousResult.items():
             if v is not None:
                 newDict[k] = v
-        dictStr = str(newDict)
-        dictStr = dictStr.replace("True", "true")
-        dictStr = dictStr.replace("False", "false")
-        return dictStr
+        return oldJson.dumps(newDict)
 
 
 class Pickler(object):

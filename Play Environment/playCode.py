@@ -24,6 +24,7 @@ def classExample():
 
     mihir = Student()
 
+    print("Start of class example:")
     withNull = jsonpickle.encode(mihir)
     withoutNull = jsonpickle.encode(mihir, nullValues=False)
     print("JSON Data with null info   :", withNull)
@@ -33,15 +34,19 @@ def classExample():
     withoutNullDecoded = jsonpickle.decode(withoutNull)
     print("Decoded object with null info   :", withNullDecoded)
     print("Decoded object without null info:", withoutNullDecoded)
+    print()
 
 
 # Function that shows null values not being encoded in a dict
 def dictExample():
+    print("Start of dict example:")
     sampleDict = {"name": "Mihir", "age": 21, "hairColor": "black", "eyeColor": None, "ethnicity": None, "isStudent": True}
     encodedDictWithNull = jsonpickle.encode(sampleDict, nullValues=True)
     encodedDictWithoutNull = jsonpickle.encode(sampleDict, nullValues=False)
     print(f"This is the encoded dict with null values   : {encodedDictWithNull}")
     print(f"This is the encoded dict without null values: {encodedDictWithoutNull}")
+    print()
 
 
+classExample()
 dictExample()
