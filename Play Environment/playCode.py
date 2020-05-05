@@ -1,9 +1,22 @@
+# Demonstration Code
 import jsonpickle
 
 
-with open("test.json", "r") as f:
-    readJson = f.read()
-    getPerimeter = jsonpickle.decode(readJson, encodeFunctionItself=True)
-    exec(getPerimeter)
+class Student:
+    def __init__(self):
+        self.name = None
+        self.age = 50
+        self.hairColor = "Black"
+        self.ethnicity = None
+        self.eyeColor = "Black"
+        self.enrolled = True
+        self.x = [1,2,3,4,5,6,7]
 
-print(getPerimeter(10, 10))
+
+mihir = Student()
+
+withNull = jsonpickle.encode(mihir)
+print(withNull)
+
+withoutNull = jsonpickle.encode(mihir, nullValues=False)
+print(withoutNull)

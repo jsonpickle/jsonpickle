@@ -157,6 +157,8 @@ def encode(
     else:
         previousResult = finalResult
         finalResult = finalResult.replace("null", "None")
+        finalResult = finalResult.replace("true", "True")
+        finalResult = finalResult.replace("false", "False")
         evaluatedResult = eval(finalResult)
         if type(evaluatedResult) is not dict:
             return previousResult
@@ -164,7 +166,10 @@ def encode(
         for k, v in evaluatedResult.items():
             if v is not None:
                 newDict[k] = v
-        return str(newDict)
+        dictStr = str(newDict)
+        dictStr = dictStr.replace("True", "true")
+        dictStr = dictStr.replace("False", "false")
+        return dictStr
 
 
 class Pickler(object):
