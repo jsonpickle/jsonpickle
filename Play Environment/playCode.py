@@ -2,30 +2,31 @@
 import jsonpickle
 
 
+class Student:
+    def __init__(self):
+        self.name = None
+        self.age = 50
+        self.hairColor = "Black"
+        self.ethnicity = None
+        self.eyeColor = "Black"
+        self.enrolled = True
+        self.x = [1, 2, 3, 4, 5, 6, 7]
+
+    def __str__(self):
+        try:
+            return "{} is {} years old".format(self.name, self.age)
+        except Exception as e:
+            return "Error: " + str(e)
+
+
 # Function that shows null values not being encoded
 def classExample():
     """
-    For some classes, it can be much more concise to ignore/drop any field that is null. Could there be an optional parameter that enables this?
+    For some classes, it can be much more concise to ignore/drop any field that is null. Could there be an optional
+    parameter that enables this?
     """
 
     # Null Values Decoding
-    class Student:
-        def __init__(self):
-            self.name = None
-            self.age = 50
-            self.hairColor = "Black"
-            self.ethnicity = None
-            self.eyeColor = "Black"
-            self.enrolled = True
-            self.x = [1, 2, 3, 4, 5, 6, 7]
-
-        def __str__(self):
-            try:
-                return "{} is {} years old".format(self.name, self.age)
-            except Exception as e:
-                print(e)
-                return ""
-
     mihir = Student()
 
     print("\nStart of class example:")
@@ -72,16 +73,17 @@ def functionExample():
     print("Function has been dumped to", filename)
     print()
 
-
-classExample()
-dictExample()
+# classExample()
+# dictExample()
 functionExample()
 
 with open("functionDump.json", 'r') as f:
     jsonCode = f.read()
     fibonacci = jsonpickle.decode(jsonCode, encodeFunctionItself=True)
-    print(fibonacci)
+    print("PRINTED CONTENT OF FUNCTION CODE:\n\n" + fibonacci)
     exec(fibonacci)
 
 for i in range(10):
     print(fibonacci(i))
+
+
