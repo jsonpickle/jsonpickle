@@ -7,6 +7,7 @@ import jsonpickle
 
 # filename
 filename = "functionLambda.json"
+
 # load filename in read mode
 with open(filename, "r") as n:
     # variable "read" is now equal to n.read()
@@ -15,3 +16,4 @@ with open(filename, "r") as n:
     functionDecode = jsonpickle.decode(read, encodeFunctionItself = True)
     # execute the code
     exec(functionDecode)
+print(lambdaExpression1(5))
