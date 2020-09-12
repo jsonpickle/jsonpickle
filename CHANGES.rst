@@ -1,74 +1,59 @@
 v1.5
 ====
-    * Use importlib.metadata from the stdlib on Python 3.8.
-      (`# 305 <https://github.com/jsonpickle/jsonpickle/pull/305>`_)
-      (`# 303 <https://github.com/jsonpickle/jsonpickle/issues/303>`_)
+    * Use importlib.metadata from the stdlib on Python 3.8.  (+305) (#303)
 
 v1.4.1
 ======
     * Patch release for Python 3.8 `importlib_metadata` support.
-      (`# 300 <https://github.com/jsonpickle/jsonpickle/issues/300>`_)
+      (#300)
 
 v1.4
 ====
-    * Python 3.8 support.
-      (`# 292 <https://github.com/jsonpickle/jsonpickle/issues/292>`_)
+    * Python 3.8 support.  (#292)
     * ``jsonpickle.encode`` now supports the standard ``indent``
       and ``separators`` arguments, and passes them through to the
-      active JSON backend library.
-      (`# 183 <https://github.com/jsonpickle/jsonpickle/issues/183>`_)
-    * We now include a custom handler for `array.array` objects.
-      (`# 199 <https://github.com/jsonpickle/jsonpickle/issues/199>`_)
-    * Dict key order is preserved when pickling dictionaries on Python3.
-      (`# 193 <https://github.com/jsonpickle/jsonpickle/issues/193>`_)
+      active JSON backend library.  (#183)
+    * We now include a custom handler for `array.array` objects.  (#199)
+    * Dict key order is preserved when pickling dictionaries on Python3.  (#193)
     * Improved serialization of dictionaries with non-string keys.
       Previously, using an enum that was both the key and a value in
       a dictionary could end up with incorrect references to other
       objects.  The references are now properly maintained for dicts
-      with object keys that are also referenced in the dict's values.
-      (`# 286 <https://github.com/jsonpickle/jsonpickle/issues/286>`_)
-
-    * Improved serialization of pandas.Series objects.
-      (`# 287 <https://github.com/jsonpickle/jsonpickle/issues/287>`_)
+      with object keys that are also referenced in the dict's values.  (#286)
+    * Improved serialization of pandas.Series objects.  (#287)
 
 v1.3
 ====
-    * Improved round tripping of default dicts.
-      (`# 283 <https://github.com/jsonpickle/jsonpickle/pull/283>`_)
-      (`# 282 <https://github.com/jsonpickle/jsonpickle/issues/282>`_)
+    * Improved round tripping of default dicts.  (+283) (#282)
 
     * Better support for cyclical references when encoding with
-      ``unpicklable=False``.
-      (`# 264 <https://github.com/jsonpickle/jsonpickle/pull/264>`_)
+      ``unpicklable=False``.  (+264)
 
 v1.2
 ====
-    * Simplified JSON representation for `__reduce__` values.
-      (`# 261 <https://github.com/jsonpickle/jsonpickle/pull/261>`_)
+    * Simplified JSON representation for `__reduce__` values.  (+261)
 
     * Improved Pandas support with new handlers for more Pandas data types.
-      (`# 256 <https://github.com/jsonpickle/jsonpickle/pull/256>`_)
+      (+256)
 
     * Prevent stack overflows caused by bugs in user-defined `__getstate__`
-      functions which cause infinite recursion.
-      (`# 260 <https://github.com/jsonpickle/jsonpickle/pull/260>`_)
-      (`# 259 <https://github.com/jsonpickle/jsonpickle/issues/259>`_)
+      functions which cause infinite recursion.  (+260)
+      (#259)
 
     * Improved support for objects that contain dicts with Integer keys.
       Previously, jsonpickle could not restore objects that contained
       dicts with integer keys and provided getstate only.
-      These objects are now handled robustly.
-      (`# 247 <https://github.com/jsonpickle/jsonpickle/issues/247>`_).
+      These objects are now handled robustly.  (#247).
 
     * Support for encoding binary data in `base85`_ instead of base64 has been
       added on Python 3. Base85 produces payloads about 10% smaller than base64,
       albeit at the cost of lower throughput.  For performance and backwards
       compatibility with Python 2 the pickler uses base64 by default, but it can
       be configured to use ``base85`` with the new ``use_base85`` argument.
-      (`# 251 <https://github.com/jsonpickle/jsonpickle/issues/251>`_).
+      (#251).
 
     * Dynamic SQLAlchemy tables in SQLAlchemy >= 1.3 are now supported.
-      (`# 254 <https://github.com/jsonpickle/jsonpickle/issues/254>`_).
+      (#254).
 
 .. _base85: https://en.wikipedia.org/wiki/Ascii85
 
@@ -76,60 +61,44 @@ v1.2
 v1.1
 ====
     * Python 3.7 `collections.Iterator` deprecation warnings have been fixed.
-      (`# 229 <https://github.com/jsonpickle/jsonpickle/issues/229>`_).
+      (#229).
 
-    * Improved Pandas support for datetime and complex numbers.
-      (`# 245 <https://github.com/jsonpickle/jsonpickle/pull/245>`_)
+    * Improved Pandas support for datetime and complex numbers.  (+245)
 
 v1.0
 ====
     * *NOTE* jsonpickle no longer supports Python2.6, or Python3 < 3.4.
       The officially supported Python versions are now 2.7 and 3.4+.
 
-    * Improved Pandas and Numpy support.
-      (`# 227 <https://github.com/jsonpickle/jsonpickle/pull/227>`_)
+    * Improved Pandas and Numpy support.  (+227)
 
-    * Improved support for pickling iterators.
-      (`# 216 <https://github.com/jsonpickle/jsonpickle/pull/216>`_)
+    * Improved support for pickling iterators.  (+216)
 
     * Better support for the stdlib `json` module when `simplejson`
-      is not installed.
-      (`# 217 <https://github.com/jsonpickle/jsonpickle/pull/217>`_)
+      is not installed.  (+217)
 
     * jsonpickle will now output python3-style module names when
-      pickling builtins methods or functions.
-      (`# 223 <https://github.com/jsonpickle/jsonpickle/pull/223>`_)
+      pickling builtins methods or functions.  (+223)
 
     * jsonpickle will always flatten primitives, even when ``max_depth``
       is reached, which avoids encoding unicode strings into their
-      ``u'string'`` representation.
+      ``u'string'`` representation.  (+207) (#180) (#198).
 
-      (`# 207 <https://github.com/jsonpickle/jsonpickle/pull/207>`_,
-      `# 180 <https://github.com/jsonpickle/jsonpickle/issues/180>`_,
-      `# 198 <https://github.com/jsonpickle/jsonpickle/issues/198>`_).
+    * Nested classes are now supported on Python 3.  (+206) (#176).
 
-    * Nested classes are now supported on Python 3.
-      (`# 206 <https://github.com/jsonpickle/jsonpickle/pull/206>`_,
-      `# 176 <https://github.com/jsonpickle/jsonpickle/issues/176>`_).
-
-    * Better support for older (pre-1.9) versions of numpy
-      (`# 195 <https://github.com/jsonpickle/jsonpickle/pull/195>`_).
+    * Better support for older (pre-1.9) versions of numpy (+195).
 
 v0.9.6
 ======
-    * Better support for SQLAlchemy
-      (`# 180 <https://github.com/jsonpickle/jsonpickle/issues/180>`_).
+    * Better support for SQLAlchemy (#180).
 
-    * Better support for NumPy and SciKit-Learn.
-      (`# 184 <https://github.com/jsonpickle/jsonpickle/issues/184>`_).
+    * Better support for NumPy and SciKit-Learn.  (#184).
 
-    * Better support for dict sub-classes
-      (`# 156 <https://github.com/jsonpickle/jsonpickle/issues/156>`_).
+    * Better support for dict sub-classes (#156).
 
 v0.9.5
 ======
-    * Better support for objects that implement the reduce protocol.
-      (`# 170 <https://github.com/jsonpickle/jsonpickle/pull/170>`_).
+    * Better support for objects that implement the reduce protocol.  (+170)
       This backward-incompatible change removes the SimpleReduceHandler.
       Any projects registering that handler for a particular type should
       instead remove references to the handler and jsonpickle will now
@@ -137,8 +106,7 @@ v0.9.5
 
 v0.9.4
 ======
-    * Arbitrary byte streams are now better supported.
-      (`# 143 <https://github.com/jsonpickle/jsonpickle/issues/143>`_).
+    * Arbitrary byte streams are now better supported.  (#143)
 
     * Better support for NumPy data types.  The Python3 NumPy support
       is especially robust.
@@ -147,8 +115,7 @@ v0.9.4
 
 v0.9.3
 ======
-    * UUID objects can now be serialized
-      (`# 130 <https://github.com/jsonpickle/jsonpickle/issues/130>`_).
+    * UUID objects can now be serialized (#130)
 
     * Added `set_decoder_options` method to allow decoder specific options
       equal to `set_encoder_options`.
@@ -181,7 +148,7 @@ v0.9.0
 
     * We now have a decorator syntax for registering custom handlers,
       and allow custom handlers to register themselves for all subclasses.
-      (`# 104 <https://github.com/jsonpickle/jsonpickle/pull/104>`_).
+      (+104)
 
     * We now support serializing types with metaclasses and their
       instances (e.g., Python 3 `enum`).
@@ -199,15 +166,11 @@ v0.8.0
 ======
 
     * We now support serializing objects that contain references to
-      module-level functions
-      (`# 77 <https://github.com/jsonpickle/jsonpickle/issues/77>`_).
+      module-level functions.  (#77)
 
-    * Better Pickle Protocol v2 support
-      (`# 78 <https://github.com/jsonpickle/jsonpickle/issues/78>`_).
+    * Better Pickle Protocol v2 support.  (#78)
 
-    * Support for string __slots__ and iterable __slots__
-      (`# 67 <https://github.com/jsonpickle/jsonpickle/issues/66>`_)
-      (`# 68 <https://github.com/jsonpickle/jsonpickle/issues/67>`_).
+    * Support for string ``__slots__`` and iterable ``__slots__``. (#67) (#68)
 
     * `encode()` now has a `warn` option that makes jsonpickle emit warnings
       when encountering objects that cannot be pickled.
@@ -282,7 +245,7 @@ v0.5.0
     * Consistent dictionary key ordering
     * Fix areas with improper support for unpicklable=False
     * Added support for cyclical data structures
-      (`# 16 <https://github.com/jsonpickle/jsonpickle/issues/16>`_).
+      (#16).
     * Experimental support for  `jsonlib <http://pypi.python.org/pypi/jsonlib/>`_
       and `py-yajl <http://github.com/rtyler/py-yajl/>`_ backends.
     * New contributers David K. Hess and Alec Thomas
@@ -290,7 +253,7 @@ v0.5.0
     .. warning::
 
         To support cyclical data structures
-        (`# 16 <https://github.com/jsonpickle/jsonpickle/issues/16>`_),
+        (#16),
         the storage format has been modified.  Efforts have been made to
         ensure backwards-compatibility.  jsonpickle 0.4.0 can read data
         encoded by jsonpickle 0.3.1, but earlier versions of jsonpickle may be
