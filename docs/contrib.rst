@@ -21,10 +21,10 @@ Before code is pulled into the master jsonpickle branch, all tests should pass.
 If you are contributing an addition or a change in behavior, we ask that you
 document the change in the form of test cases.
 
-The test suite is most readily run with the tox_ testing tool.
-Once installed, run the test suite against the default Python::
-
 .. _tox: https://tox.readthedocs.io/
+
+The test suite is most readily run with the `tox`_ testing tool.
+Once installed, run the test suite against the default Python::
 
     tox
 
