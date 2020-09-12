@@ -9,24 +9,23 @@
 
 import os
 import sys
+import unittest
 
 testdir = os.path.dirname(os.path.abspath(__file__))  # noqa: E402
 sys.path.insert(1, os.path.dirname(testdir))  # noqa: E402
 
-import unittest
-
-import backend_test
-import datetime_test
-import document_test
-import handler_test
-import jsonpickle_test
-import object_test
-import stdlib_test
-import util_test
-import feedparser_test
-import bson_test
-import numpy_test
-import pandas_test
+import backend_test  # noqa: E402
+import datetime_test  # noqa: E402
+import document_test  # noqa: E402
+import handler_test  # noqa: E402
+import jsonpickle_test  # noqa: E402
+import object_test  # noqa: E402
+import stdlib_test  # noqa: E402
+import util_test  # noqa: E402
+import feedparser_test  # noqa: E402
+import bson_test  # noqa: E402
+import numpy_test  # noqa: E402
+import pandas_test  # noqa: E402
 
 
 def suite():
