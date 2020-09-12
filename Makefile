@@ -1,6 +1,7 @@
 #!/usr/bin/env make
 
 # External commands
+BLACK ?= black
 CTAGS ?= ctags
 FIND ?= find
 PYTHON ?= python
@@ -83,3 +84,7 @@ clean:
 	$(FIND) $(PYTHON_DIRS) -name '__pycache__' -print0 | xargs -0 rm -fr
 	$(RM_R) $(ARTIFACTS)
 .PHONY: clean
+
+format::
+	$(BLACK) --skip-string-normalization --target-version py27 $(PYTHON_DIRS)
+.PHONY: format
