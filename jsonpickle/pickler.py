@@ -181,8 +181,7 @@ class Pickler(object):
         self._seen = []
 
     def _push(self):
-        """Steps down one level in the namespace.
-        """
+        """Steps down one level in the namespace."""
         self._depth += 1
 
     def _pop(self, value):
@@ -347,8 +346,7 @@ class Pickler(object):
         return None
 
     def _ref_obj_instance(self, obj):
-        """Reference an existing object or flatten if new
-        """
+        """Reference an existing object or flatten if new"""
         if self.unpicklable:
             if self._mkref(obj):
                 # We've never seen this object so return its
@@ -384,8 +382,7 @@ class Pickler(object):
         return {self._bytes_tag: self._bytes_encoder(obj)}
 
     def _flatten_obj_instance(self, obj):
-        """Recursively flatten an instance and return a json-friendly dict
-        """
+        """Recursively flatten an instance and return a json-friendly dict"""
         data = {}
         has_class = hasattr(obj, '__class__')
         has_dict = hasattr(obj, '__dict__')
@@ -558,8 +555,7 @@ class Pickler(object):
         return data
 
     def _flatten_dict_obj(self, obj, data=None):
-        """Recursively call flatten() and return json-friendly dict
-        """
+        """Recursively call flatten() and return json-friendly dict"""
         if data is None:
             data = obj.__class__()
 
@@ -623,8 +619,7 @@ class Pickler(object):
         return ok
 
     def _flatten_newstyle_with_slots(self, obj, data):
-        """Return a json-friendly dict for new-style objects with __slots__.
-        """
+        """Return a json-friendly dict for new-style objects with __slots__."""
         allslots = [
             _wrap_string_slot(getattr(cls, '__slots__', tuple()))
             for cls in obj.__class__.mro()
@@ -742,8 +737,7 @@ def _mktyperef(obj):
 
 
 def _wrap_string_slot(string):
-    """Converts __slots__ = 'a' into __slots__ = ('a',)
-    """
+    """Converts __slots__ = 'a' into __slots__ = ('a',)"""
     if isinstance(string, string_types):
         return (string,)
     return string

@@ -63,8 +63,7 @@ class NumpyGenericHandler(NumpyBaseHandler):
 
 
 class NumpyNDArrayHandler(NumpyBaseHandler):
-    """Stores arrays as text representation, without regard for views
-    """
+    """Stores arrays as text representation, without regard for views"""
 
     def flatten_flags(self, obj, data):
         if obj.flags.writeable is False:

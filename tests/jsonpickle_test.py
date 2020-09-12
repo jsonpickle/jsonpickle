@@ -282,8 +282,7 @@ class PicklingTestCase(unittest.TestCase):
         self.assertEqual(3, inflated['k3'])
 
     def test_recursive(self):
-        """create a recursive structure and test that we can handle it
-        """
+        """create a recursive structure and test that we can handle it"""
         parent = Thing('parent')
         child = Thing('child')
         child.sibling = Thing('sibling')
@@ -346,8 +345,7 @@ class PicklingTestCase(unittest.TestCase):
         self.assertEqual(inflated.submodule, sysconfig)
 
     def test_type_reference(self):
-        """This test ensures that users can store references to types.
-        """
+        """This test ensures that users can store references to types."""
         obj = Thing('object-with-type-reference')
 
         # reference the built-in 'object' type
@@ -360,8 +358,7 @@ class PicklingTestCase(unittest.TestCase):
         self.assertEqual(inflated.typeref, object)
 
     def test_class_reference(self):
-        """This test ensures that users can store references to classes.
-        """
+        """This test ensures that users can store references to classes."""
         obj = Thing('object-with-class-reference')
 
         # reference the 'Thing' class (not an instance of the class)
@@ -550,9 +547,7 @@ class JSONPickleTestCase(SkippableTest):
         self.assertEqual(expect, actual)
 
     def test_object_dict_keys(self):
-        """Test that we handle random objects as keys.
-
-        """
+        """Test that we handle random objects as keys."""
         thing = Thing('random')
         pickle = jsonpickle.encode({thing: True})
         actual = jsonpickle.decode(pickle)
@@ -618,8 +613,7 @@ class JSONPickleTestCase(SkippableTest):
         self.assertEqual(actual[2].name, 'b')
 
     def test_refs_keys_values(self):
-        """Test that objects in dict keys are referenced correctly
-        """
+        """Test that objects in dict keys are referenced correctly"""
         j = Thing('random')
         object_dict = {j: j}
         pickle = jsonpickle.encode(object_dict, keys=True)
@@ -627,8 +621,7 @@ class JSONPickleTestCase(SkippableTest):
         self.assertEqual(list(actual.keys()), list(actual.values()))
 
     def test_object_keys_to_list(self):
-        """Test that objects in dict values are referenced correctly
-        """
+        """Test that objects in dict values are referenced correctly"""
         j = Thing('random')
         object_dict = {j: [j, j]}
         pickle = jsonpickle.encode(object_dict, keys=True)
@@ -666,15 +659,12 @@ class JSONPickleTestCase(SkippableTest):
         self.assertEqual(b.morestuff[b.self_list[1]][b.first], item)
 
     def test_load_backend(self):
-        """Test that we can call jsonpickle.load_backend()
-
-        """
+        """Test that we can call jsonpickle.load_backend()"""
         jsonpickle.load_backend('simplejson', 'dumps', 'loads', ValueError)
         self.assertTrue(True)
 
     def test_set_preferred_backend_allows_magic(self):
-        """Tests that we can use the pluggable backends magically
-        """
+        """Tests that we can use the pluggable backends magically"""
         backend = 'os.path'
         jsonpickle.load_backend(backend, 'split', 'join', AttributeError)
         jsonpickle.set_preferred_backend(backend)
@@ -686,9 +676,7 @@ class JSONPickleTestCase(SkippableTest):
         self.assertEqual(world, 'world')
 
     def test_load_backend_submodule(self):
-        """Test that we can load a submodule as a backend
-
-        """
+        """Test that we can load a submodule as a backend"""
         jsonpickle.load_backend('os.path', 'split', 'join', AttributeError)
         self.assertTrue(
             'os.path' in jsonpickle.json._backend_names

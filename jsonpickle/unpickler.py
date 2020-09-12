@@ -121,8 +121,7 @@ class Unpickler(object):
         self.reset()
 
     def reset(self):
-        """Resets the object's internal state.
-        """
+        """Resets the object's internal state."""
         # Map reference names to object instances
         self._namedict = {}
 
