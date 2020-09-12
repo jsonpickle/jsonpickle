@@ -1,4 +1,9 @@
 # -- General configuration -----------------------------------------------------
+import os
+import sys
+
+# Use the source tree.
+sys.path.insert(1, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
@@ -22,7 +27,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-copyright = u'2008-2011, John Paulett; 2009-2013, David Aguilar'
+copyright = u'2008-2011, John Paulett; 2009-2020, David Aguilar'
 
 # List of directories, relative to source directory, that shouldn't be searched
 # for source files.
@@ -51,7 +56,7 @@ latex_documents = [
 
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'http://docs.python.org/': None}
+intersphinx_mapping = {'https://docs.python.org/3': None}
 
 
 link_files = {
