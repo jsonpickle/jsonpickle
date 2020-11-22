@@ -33,7 +33,8 @@ if PY2:
     import __builtin__
 
 SEQUENCES = (list, set, tuple)
-PRIMITIVES = (compat.ustr, bool, type(None)) + numeric_types
+SEQUENCES_SET = {list, set, tuple}
+PRIMITIVES = {compat.ustr, bool, type(None)} | set(numeric_types)
 
 
 def is_type(obj):
@@ -148,7 +149,7 @@ def is_sequence(obj):
     True
 
     """
-    return type(obj) in SEQUENCES
+    return type(obj) in SEQUENCES_SET
 
 
 def is_list(obj):
