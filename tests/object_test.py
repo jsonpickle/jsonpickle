@@ -287,109 +287,6 @@ class AdvancedObjectsTestCase(SkippableTest):
         self.pickler.reset()
         self.unpickler.reset()
 
-    def test_defaultdict_roundtrip(self):
-        """Make sure we can handle collections.defaultdict(list)"""
-        # setup
-        defaultdict = collections.defaultdict
-        defdict = defaultdict(list)
-        defdict['a'] = 1
-        defdict['b'].append(2)
-        defdict['c'] = defaultdict(dict)
-        # jsonpickle work your magic
-        encoded = jsonpickle.encode(defdict)
-        newdefdict = jsonpickle.decode(encoded)
-        # jsonpickle never fails
-        self.assertEqual(newdefdict['a'], 1)
-        self.assertEqual(newdefdict['b'], [2])
-        self.assertEqual(type(newdefdict['c']), defaultdict)
-        self.assertEqual(defdict.default_factory, list)
-        self.assertEqual(newdefdict.default_factory, list)
-
-    def test_defaultdict_roundtrip_simple_lambda(self):
-        """Make sure we can handle defaultdict(lambda: defaultdict(int))"""
-        # setup a sparse collections.defaultdict with simple lambdas
-        defaultdict = collections.defaultdict
-        defdict = defaultdict(lambda: defaultdict(int))
-        defdict[0] = 'zero'
-        defdict[1] = defaultdict(lambda: defaultdict(dict))
-        defdict[1][0] = 'zero'
-        # roundtrip
-        encoded = jsonpickle.encode(defdict, keys=True)
-        newdefdict = jsonpickle.decode(encoded, keys=True)
-        self.assertEqual(newdefdict[0], 'zero')
-        self.assertEqual(type(newdefdict[1]), defaultdict)
-        self.assertEqual(newdefdict[1][0], 'zero')
-        self.assertEqual(newdefdict[1][1], {})  # inner defaultdict
-        self.assertEqual(newdefdict[2][0], 0)  # outer defaultdict
-        self.assertEqual(type(newdefdict[3]), defaultdict)
-        # outer-most defaultdict
-        self.assertEqual(newdefdict[3].default_factory, int)
-
-    def test_defaultdict_roundtrip_simple_lambda2(self):
-        defaultdict = collections.defaultdict
-        payload = {'a': defaultdict(lambda: 0)}
-        defdict = defaultdict(lambda: 0, payload)
-        # roundtrip
-        encoded = jsonpickle.encode(defdict, keys=True)
-        decoded = jsonpickle.decode(encoded, keys=True)
-        self.assertEqual(type(decoded), defaultdict)
-        self.assertEqual(type(decoded['a']), defaultdict)
-
-    def test_defaultdict_and_things_roundtrip_simple_lambda(self):
-        thing = Thing('a')
-        defaultdict = collections.defaultdict
-        defdict = defaultdict(lambda: 0)
-        obj = [defdict, thing, thing]
-        # roundtrip
-        encoded = jsonpickle.encode(obj, keys=True)
-        decoded = jsonpickle.decode(encoded, keys=True)
-        self.assertEqual(decoded[0].default_factory(), 0)
-        self.assertIs(decoded[1], decoded[2])
-
-    def test_defaultdict_subclass_with_self_as_default_factory(self):
-        cls = ThingWithSelfAsDefaultFactory
-        tree = cls()
-        newtree = self._test_defaultdict_tree(tree, cls)
-        self.assertEqual(type(newtree['A'].default_factory), cls)
-        self.assertTrue(newtree.default_factory is newtree)
-        self.assertTrue(newtree['A'].default_factory is newtree['A'])
-        self.assertTrue(newtree['Z'].default_factory is newtree['Z'])
-
-    def test_defaultdict_subclass_with_class_as_default_factory(self):
-        cls = ThingWithClassAsDefaultFactory
-        tree = cls()
-        newtree = self._test_defaultdict_tree(tree, cls)
-        self.assertTrue(newtree.default_factory is cls)
-        self.assertTrue(newtree['A'].default_factory is cls)
-        self.assertTrue(newtree['Z'].default_factory is cls)
-
-    def _test_defaultdict_tree(self, tree, cls):
-        tree['A']['B'] = 1
-        tree['A']['C'] = 2
-        # roundtrip
-        encoded = jsonpickle.encode(tree)
-        newtree = jsonpickle.decode(encoded)
-        # make sure we didn't lose anything
-        self.assertEqual(type(newtree), cls)
-        self.assertEqual(type(newtree['A']), cls)
-        self.assertEqual(newtree['A']['B'], 1)
-        self.assertEqual(newtree['A']['C'], 2)
-        # ensure that the resulting default_factory is callable and creates
-        # a new instance of cls.
-        self.assertEqual(type(newtree['A'].default_factory()), cls)
-        # we've never seen 'D' before so the reconstructed defaultdict tree
-        # should create an instance of cls.
-        self.assertEqual(type(newtree['A']['D']), cls)
-        # ensure that proxies do not escape into user code
-        self.assertNotEqual(type(newtree.default_factory), jsonpickle.unpickler._Proxy)
-        self.assertNotEqual(
-            type(newtree['A'].default_factory), jsonpickle.unpickler._Proxy
-        )
-        self.assertNotEqual(
-            type(newtree['A']['Z'].default_factory), jsonpickle.unpickler._Proxy
-        )
-        return newtree
-
     def test_list_subclass(self):
         obj = ListSubclass()
         obj.extend([1, 2, 3])
@@ -562,11 +459,6 @@ class AdvancedObjectsTestCase(SkippableTest):
         restored = self.unpickler.restore(flat)
         self.assertEqual(expect, restored)
 
-    def test_getstate_does_not_recurse_infinitely(self):
-        obj = GetstateRecursesInfintely()
-        pickler = jsonpickle.pickler.Pickler(max_depth=5)
-        pickler.flatten(obj)
-
     def test_thing_with_queue(self):
         obj = ThingWithQueue()
         flattened = self.pickler.flatten(obj)
@@ -727,6 +619,125 @@ class AdvancedObjectsTestCase(SkippableTest):
         clone = self.unpickler.restore(json)
         self.assertEqual(obj.value, clone.value)
         self.assertEqual(obj.args, clone.args)
+
+
+def test_getstate_does_not_recurse_infinitely():
+    """Serialize an object with a __getstate__ that recurses forever"""
+    obj = GetstateRecursesInfintely()
+    pickler = jsonpickle.pickler.Pickler(max_depth=5)
+    actual = pickler.flatten(obj)
+    assert isinstance(actual, dict)
+    assert tags.OBJECT in actual
+
+
+def test_defaultdict_roundtrip():
+    """Make sure we can handle collections.defaultdict(list)"""
+    # setup
+    defaultdict = collections.defaultdict
+    defdict = defaultdict(list)
+    defdict['a'] = 1
+    defdict['b'].append(2)
+    defdict['c'] = defaultdict(dict)
+    # jsonpickle work your magic
+    encoded = jsonpickle.encode(defdict)
+    newdefdict = jsonpickle.decode(encoded)
+    # jsonpickle never fails
+    assert newdefdict['a'] == 1
+    assert newdefdict['b'] == [2]
+    assert type(newdefdict['c']) == defaultdict
+    assert defdict.default_factory == list
+    assert newdefdict.default_factory == list
+
+
+def test_defaultdict_roundtrip_simple_lambda():
+    """Make sure we can handle defaultdict(lambda: defaultdict(int))"""
+    # setup a sparse collections.defaultdict with simple lambdas
+    defaultdict = collections.defaultdict
+    defdict = defaultdict(lambda: defaultdict(int))
+    defdict[0] = 'zero'
+    defdict[1] = defaultdict(lambda: defaultdict(dict))
+    defdict[1][0] = 'zero'
+    # roundtrip
+    encoded = jsonpickle.encode(defdict, keys=True)
+    newdefdict = jsonpickle.decode(encoded, keys=True)
+    assert newdefdict[0] == 'zero'
+    assert type(newdefdict[1]) == defaultdict
+    assert newdefdict[1][0] == 'zero'
+    assert newdefdict[1][1] == {}  # inner defaultdict
+    assert newdefdict[2][0] == 0  # outer defaultdict
+    assert type(newdefdict[3]) == defaultdict
+    # outer-most defaultdict
+    assert newdefdict[3].default_factory == int
+
+
+def test_defaultdict_roundtrip_simple_lambda2():
+    """Serialize a defaultdict that contains a lambda"""
+    defaultdict = collections.defaultdict
+    payload = {'a': defaultdict(lambda: 0)}
+    defdict = defaultdict(lambda: 0, payload)
+    # roundtrip
+    encoded = jsonpickle.encode(defdict, keys=True)
+    decoded = jsonpickle.decode(encoded, keys=True)
+    assert type(decoded) == defaultdict
+    assert type(decoded['a']) == defaultdict
+
+
+def test_defaultdict_and_things_roundtrip_simple_lambda():
+    """Serialize a default dict that contains a lambda and objects"""
+    thing = Thing('a')
+    defaultdict = collections.defaultdict
+    defdict = defaultdict(lambda: 0)
+    obj = [defdict, thing, thing]
+    # roundtrip
+    encoded = jsonpickle.encode(obj, keys=True)
+    decoded = jsonpickle.decode(encoded, keys=True)
+    assert decoded[0].default_factory() == 0
+    assert decoded[1] is decoded[2]
+
+
+def test_defaultdict_subclass_with_self_as_default_factory():
+    """Serialize a defaultdict subclass with self as its default factory"""
+    cls = ThingWithSelfAsDefaultFactory
+    tree = cls()
+    newtree = _test_defaultdict_tree(tree, cls)
+    assert type(newtree['A'].default_factory) == cls
+    assert newtree.default_factory is newtree
+    assert newtree['A'].default_factory is newtree['A']
+    assert newtree['Z'].default_factory is newtree['Z']
+
+
+def test_defaultdict_subclass_with_class_as_default_factory():
+    """Serialize a defaultdict with a class as its default factory"""
+    cls = ThingWithClassAsDefaultFactory
+    tree = cls()
+    newtree = _test_defaultdict_tree(tree, cls)
+    assert newtree.default_factory is cls
+    assert newtree['A'].default_factory is cls
+    assert newtree['Z'].default_factory is cls
+
+
+def _test_defaultdict_tree(tree, cls):
+    tree['A']['B'] = 1
+    tree['A']['C'] = 2
+    # roundtrip
+    encoded = jsonpickle.encode(tree)
+    newtree = jsonpickle.decode(encoded)
+    # make sure we didn't lose anything
+    assert type(newtree) == cls
+    assert type(newtree['A']) == cls
+    assert newtree['A']['B'] == 1
+    assert newtree['A']['C'] == 2
+    # ensure that the resulting default_factory is callable and creates
+    # a new instance of cls.
+    assert type(newtree['A'].default_factory()) == cls
+    # we've never seen 'D' before so the reconstructed defaultdict tree
+    # should create an instance of cls.
+    assert type(newtree['A']['D']) == cls
+    # ensure that proxies do not escape into user code
+    assert type(newtree.default_factory) != jsonpickle.unpickler._Proxy
+    assert type(newtree['A'].default_factory) != jsonpickle.unpickler._Proxy
+    assert type(newtree['A']['Z'].default_factory) != jsonpickle.unpickler._Proxy
+    return newtree
 
 
 def test_posix_stat_result():
