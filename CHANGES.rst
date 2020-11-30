@@ -1,6 +1,8 @@
-v1.5
-====
+v1.4.2
+======
     * Use importlib.metadata from the stdlib on Python 3.8.  (+305) (#303)
+    * Micro-optimize type checks to use a `set` for lookups. (+327)
+    * Documentation improvements.
 
 v1.4.1
 ======
