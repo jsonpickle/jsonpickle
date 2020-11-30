@@ -6,7 +6,6 @@ import datetime
 import decimal
 import re
 import threading
-import unittest
 
 import jsonpickle
 from jsonpickle import compat
@@ -1039,34 +1038,25 @@ class UnicodeMixinHandler(handlers.BaseHandler):
         return UnicodeMixin(obj['value'])
 
 
-handlers.register(UnicodeMixin, UnicodeMixinHandler)
+def test_unicode_mixin():
+    obj = UnicodeMixin('test')
+    assert isinstance(obj, UnicodeMixin)
+    assert obj == 'test'
 
+    # Encode into JSON
+    handlers.register(UnicodeMixin, UnicodeMixinHandler)
+    content = jsonpickle.encode(obj)
 
-class ExternalHandlerTestCase(unittest.TestCase):
-    def test_unicode_mixin(self):
-        obj = UnicodeMixin('test')
-        self.assertTrue(isinstance(obj, UnicodeMixin))
-        self.assertEqual(obj, 'test')
+    # Resurrect from JSON
+    new_obj = jsonpickle.decode(content)
+    handlers.unregister(UnicodeMixin)
 
-        # Encode into JSON
-        content = jsonpickle.encode(obj)
+    new_obj += ' passed'
 
-        # Resurrect from JSON
-        new_obj = jsonpickle.decode(content)
-        new_obj += ' passed'
-
-        self.assertEqual(new_obj, 'test passed')
-        self.assertTrue(isinstance(new_obj, UnicodeMixin))
-        self.assertTrue(new_obj.ok())
-
-
-def suite():
-    suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(FailSafeTestCase))
-    suite.addTest(unittest.makeSuite(AdvancedObjectsTestCase))
-    suite.addTest(unittest.makeSuite(ExternalHandlerTestCase))
-    return suite
+    assert new_obj == 'test passed'
+    assert isinstance(new_obj, UnicodeMixin)
+    assert new_obj.ok()
 
 
 if __name__ == '__main__':
-    unittest.main(defaultTest='suite')
+    pytest.main([__file__])
