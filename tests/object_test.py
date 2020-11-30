@@ -390,139 +390,6 @@ class AdvancedObjectsTestCase(SkippableTest):
         )
         return newtree
 
-    def test_deque_roundtrip(self):
-        """Make sure we can handle collections.deque"""
-        old_deque = collections.deque([0, 1, 2], maxlen=5)
-        encoded = jsonpickle.encode(old_deque)
-        new_deque = jsonpickle.decode(encoded)
-        self.assertNotEqual(encoded, 'nil')
-        self.assertEqual(old_deque[0], 0)
-        self.assertEqual(new_deque[0], 0)
-        self.assertEqual(old_deque[1], 1)
-        self.assertEqual(new_deque[1], 1)
-        self.assertEqual(old_deque[2], 2)
-        self.assertEqual(new_deque[2], 2)
-        self.assertEqual(old_deque.maxlen, 5)
-        self.assertEqual(new_deque.maxlen, 5)
-
-    def test_namedtuple_roundtrip(self):
-        old_nt = NamedTuple(0, 1, 2)
-        encoded = jsonpickle.encode(old_nt)
-        new_nt = jsonpickle.decode(encoded)
-        self.assertEqual(type(old_nt), type(new_nt))
-        self.assertTrue(old_nt is not new_nt)
-        self.assertEqual(old_nt.a, new_nt.a)
-        self.assertEqual(old_nt.b, new_nt.b)
-        self.assertEqual(old_nt.c, new_nt.c)
-        self.assertEqual(old_nt[0], new_nt[0])
-        self.assertEqual(old_nt[1], new_nt[1])
-        self.assertEqual(old_nt[2], new_nt[2])
-
-    def test_counter_roundtrip(self):
-        counter = collections.Counter({1: 2})
-        encoded = jsonpickle.encode(counter)
-        decoded = jsonpickle.decode(encoded)
-        self.assertTrue(type(decoded) is collections.Counter)
-        # the integer key becomes a string when keys=False
-        self.assertEqual(decoded.get('1'), 2)
-
-    def test_counter_roundtrip_with_keys(self):
-        counter = collections.Counter({1: 2})
-        encoded = jsonpickle.encode(counter, keys=True)
-        decoded = jsonpickle.decode(encoded, keys=True)
-        self.assertTrue(type(decoded) is collections.Counter)
-        self.assertEqual(decoded.get(1), 2)
-
-    issue281 = pytest.mark.xfail(
-        'sys.version_info >= (3, 8)',
-        reason='https://github.com/jsonpickle/jsonpickle/issues/281',
-    )
-
-    @issue281
-    def test_list_with_fd(self):
-        fd = open(__file__, 'r')
-        fd.close()
-        obj = [fd]
-        jsonstr = jsonpickle.encode(obj)
-        newobj = jsonpickle.decode(jsonstr)
-        self.assertEqual([None], newobj)
-
-    @issue281
-    def test_thing_with_fd(self):
-        fd = open(__file__, 'r')
-        fd.close()
-        obj = Thing(fd)
-        jsonstr = jsonpickle.encode(obj)
-        newobj = jsonpickle.decode(jsonstr)
-        self.assertEqual(None, newobj.name)
-
-    @issue281
-    def test_dict_with_fd(self):
-        fd = open(__file__, 'r')
-        fd.close()
-        obj = {'fd': fd}
-        jsonstr = jsonpickle.encode(obj)
-        newobj = jsonpickle.decode(jsonstr)
-        self.assertEqual(None, newobj['fd'])
-
-    def test_thing_with_lamda(self):
-        obj = Thing(lambda: True)
-        jsonstr = jsonpickle.encode(obj)
-        newobj = jsonpickle.decode(jsonstr)
-        self.assertFalse(hasattr(newobj, 'name'))
-
-    def test_newstyleslots(self):
-        obj = ThingWithSlots(True, False)
-        jsonstr = jsonpickle.encode(obj)
-        newobj = jsonpickle.decode(jsonstr)
-        self.assertTrue(newobj.a)
-        self.assertFalse(newobj.b)
-
-    def test_newstyleslots_inherited(self):
-        obj = ThingWithInheritedSlots(True, False, None)
-        jsonstr = jsonpickle.encode(obj)
-        newobj = jsonpickle.decode(jsonstr)
-        self.assertTrue(newobj.a)
-        self.assertFalse(newobj.b)
-        self.assertEqual(newobj.c, None)
-
-    def test_newstyleslots_inherited_deleted_attr(self):
-        obj = ThingWithInheritedSlots(True, False, None)
-        del obj.c
-        jsonstr = jsonpickle.encode(obj)
-        newobj = jsonpickle.decode(jsonstr)
-        self.assertTrue(newobj.a)
-        self.assertFalse(newobj.b)
-        self.assertFalse(hasattr(newobj, 'c'))
-
-    def test_newstyleslots_with_children(self):
-        obj = ThingWithSlots(Thing('a'), Thing('b'))
-        jsonstr = jsonpickle.encode(obj)
-        newobj = jsonpickle.decode(jsonstr)
-        self.assertEqual(newobj.a.name, 'a')
-        self.assertEqual(newobj.b.name, 'b')
-
-    def test_newstyleslots_with_children_inherited(self):
-        obj = ThingWithInheritedSlots(Thing('a'), Thing('b'), Thing('c'))
-        jsonstr = jsonpickle.encode(obj)
-        newobj = jsonpickle.decode(jsonstr)
-        self.assertEqual(newobj.a.name, 'a')
-        self.assertEqual(newobj.b.name, 'b')
-        self.assertEqual(newobj.c.name, 'c')
-
-    def test_newstyleslots_iterable(self):
-        obj = ThingWithIterableSlots('alpha', 'bravo')
-        jsonstr = jsonpickle.encode(obj)
-        newobj = jsonpickle.decode(jsonstr)
-        self.assertEqual(newobj.a, 'alpha')
-        self.assertEqual(newobj.b, 'bravo')
-
-    def test_newstyleslots_string_slot(self):
-        obj = ThingWithStringSlots('a', 'b')
-        jsonstr = jsonpickle.encode(obj)
-        newobj = jsonpickle.decode(jsonstr)
-        self.assertEqual(newobj.ab, 'ab')
-
     def test_list_subclass(self):
         obj = ListSubclass()
         obj.extend([1, 2, 3])
@@ -581,102 +448,6 @@ class AdvancedObjectsTestCase(SkippableTest):
         flattened = self.pickler.flatten(obj)
         inflated = self.unpickler.restore(flattened)
         self.assertTrue(isinstance(inflated, decimal.Decimal))
-
-    def test_repr_using_jsonpickle(self):
-        thing = ObjWithJsonPickleRepr()
-        thing.child = ObjWithJsonPickleRepr()
-        thing.child.parent = thing
-
-        encoded = jsonpickle.encode(thing)
-        decoded = jsonpickle.decode(encoded)
-
-        self.assertEqual(id(decoded), id(decoded.child.parent))
-
-    def test_broken_repr_dict_key(self):
-        """Tests that we can pickle dictionaries with keys that have
-        broken __repr__ implementations.
-        """
-        br = BrokenReprThing('test')
-        obj = {br: True}
-        pickler = jsonpickle.pickler.Pickler()
-        flattened = pickler.flatten(obj)
-        self.assertTrue('<BrokenReprThing "test">' in flattened)
-        self.assertTrue(flattened['<BrokenReprThing "test">'])
-
-    def test_ordered_dict_python3(self):
-        """Ensure that we preserve dict order on python3"""
-        if not PY3_ORDERED_DICT:
-            return
-        # Python3.6+ preserves dict order.
-        obj = {'z': 'Z', 'x': 'X', 'y': 'Y'}
-        clone = jsonpickle.decode(jsonpickle.encode(obj))
-        expect = ['z', 'x', 'y']
-        actual = list(clone.keys())
-        self.assertEqual(expect, actual)
-
-    def test_ordered_dict(self):
-        d = collections.OrderedDict([('c', 3), ('a', 1), ('b', 2)])
-        encoded = jsonpickle.encode(d)
-        decoded = jsonpickle.decode(encoded)
-        self.assertEqual(d, decoded)
-
-    def test_ordered_dict_unpicklable(self):
-        d = collections.OrderedDict([('c', 3), ('a', 1), ('b', 2)])
-        encoded = jsonpickle.encode(d, unpicklable=False)
-        decoded = jsonpickle.decode(encoded)
-        self.assertEqual(d, decoded)
-
-    def test_ordered_dict_reduces(self):
-        d = collections.OrderedDict([('c', 3), ('a', 1), ('b', 2)])
-        has_reduce, has_reduce_ex = util.has_reduce(d)
-        self.assertTrue(util.is_reducible(d))
-        self.assertTrue(has_reduce or has_reduce_ex)
-
-    def test_int_keys_in_object_with_getstate_only(self):
-        obj = IntKeysObject()
-        encoded = jsonpickle.encode(obj, keys=True)
-        decoded = jsonpickle.decode(encoded, keys=True)
-        self.assertEqual(obj.data, decoded.data)
-
-    def test_ordered_dict_int_keys(self):
-        d = {
-            1: collections.OrderedDict([(2, -2), (3, -3)]),
-            4: collections.OrderedDict([(5, -5), (6, -6)]),
-        }
-        encoded = jsonpickle.encode(d, keys=True)
-        decoded = jsonpickle.decode(encoded, keys=True)
-
-        self.assertEqual(collections.OrderedDict, type(decoded[1]))
-        self.assertEqual(collections.OrderedDict, type(decoded[4]))
-        self.assertEqual(-2, decoded[1][2])
-        self.assertEqual(-3, decoded[1][3])
-        self.assertEqual(-5, decoded[4][5])
-        self.assertEqual(-6, decoded[4][6])
-        self.assertEqual(d, decoded)
-
-    def test_ordered_dict_nested(self):
-        bottom = collections.OrderedDict([('z', 1), ('a', 2)])
-        middle = collections.OrderedDict([('c', bottom)])
-        top = collections.OrderedDict([('b', middle)])
-
-        encoded = jsonpickle.encode(top)
-        decoded = jsonpickle.decode(encoded)
-        self.assertEqual(top, decoded)
-
-        # test unpicklable=False
-        encoded = jsonpickle.encode(top, unpicklable=False)
-        decoded = jsonpickle.decode(encoded)
-        self.assertEqual(top, decoded)
-
-    def test_posix_stat_result(self):
-        try:
-            import posix
-        except ImportError:
-            return
-        expect = posix.stat(__file__)
-        encoded = jsonpickle.encode(expect)
-        actual = jsonpickle.decode(encoded)
-        self.assertEqual(expect, actual)
 
     def test_oldstyleclass(self):
         obj = OldStyleClass()
@@ -845,65 +616,6 @@ class AdvancedObjectsTestCase(SkippableTest):
         self.assertTrue(roundtrip(StringEnumTest.A) is StringEnumTest.A)
         self.assertTrue(roundtrip(StringEnumTest) is StringEnumTest)
 
-    def test_enum34_nested(self):
-        ec = EnumClass()
-        encoded = jsonpickle.encode(ec)
-        decoded = jsonpickle.decode(encoded)
-
-        self.assertEqual(ec.enum_a, decoded.enum_a)
-        self.assertEqual(ec.enum_b, decoded.enum_b)
-
-    def test_enum_references(self):
-        a = IntEnumTest.X
-        b = IntEnumTest.X
-
-        enums_list = [a, b]
-        encoded = jsonpickle.encode(enums_list)
-        decoded = jsonpickle.decode(encoded)
-        self.assertEqual(enums_list, decoded)
-
-    def test_enum_unpicklable(self):
-        obj = Message(MessageTypes.STATUS, MessageCommands.STATUS_ALL)
-        encoded = jsonpickle.encode(obj, unpicklable=False)
-        decoded = jsonpickle.decode(encoded)
-        self.assertTrue('message_type' in decoded)
-        self.assertTrue('command' in decoded)
-
-    def test_enum_int_key_and_value(self):
-        thing = Thing('test')
-        value = IntEnumTest.X
-        value2 = IntEnumTest.Y
-        expect = {
-            '__first__': thing,
-            'thing': thing,
-            value: value,
-            value2: value2,
-        }
-        string = jsonpickle.encode(expect, keys=True)
-        actual = jsonpickle.decode(string, keys=True)
-        self.assertEqual('test', actual['__first__'].name)
-        self.assertEqual(value, actual[value])
-        self.assertEqual(value2, actual[value2])
-
-        actual_first = actual['__first__']
-        actual_thing = actual['thing']
-        self.assertTrue(actual_first is actual_thing)
-
-    def test_enum_string_key_and_value(self):
-        thing = Thing('test')
-        value = StringEnumTest.A
-        value2 = StringEnumTest.B
-        expect = {
-            value: value,
-            '__first__': thing,
-            value2: value2,
-        }
-        string = jsonpickle.encode(expect, keys=True)
-        actual = jsonpickle.decode(string, keys=True)
-        self.assertEqual('test', actual['__first__'].name)
-        self.assertEqual(value, actual[value])
-        self.assertEqual(value2, actual[value2])
-
     def test_bytes_unicode(self):
         b1 = b'foo'
         b2 = b'foo\xff'
@@ -1015,6 +727,343 @@ class AdvancedObjectsTestCase(SkippableTest):
         clone = self.unpickler.restore(json)
         self.assertEqual(obj.value, clone.value)
         self.assertEqual(obj.args, clone.args)
+
+
+def test_posix_stat_result():
+    """Serialize a posix.stat() result"""
+    try:
+        import posix
+    except ImportError:
+        return
+    expect = posix.stat(__file__)
+    encoded = jsonpickle.encode(expect)
+    actual = jsonpickle.decode(encoded)
+    assert expect == actual
+
+
+def test_repr_using_jsonpickle():
+    """Serialize an object that uses jsonpickle in its __repr__ definition"""
+    thing = ObjWithJsonPickleRepr()
+    thing.child = ObjWithJsonPickleRepr()
+    thing.child.parent = thing
+    encoded = jsonpickle.encode(thing)
+    decoded = jsonpickle.decode(encoded)
+    assert id(decoded) == id(decoded.child.parent)
+
+
+def test_broken_repr_dict_key():
+    """Tests that we can pickle dictionaries with keys that have
+    broken __repr__ implementations.
+    """
+    br = BrokenReprThing('test')
+    obj = {br: True}
+    pickler = jsonpickle.pickler.Pickler()
+    flattened = pickler.flatten(obj)
+    assert '<BrokenReprThing "test">' in flattened
+    assert flattened['<BrokenReprThing "test">']
+
+
+def test_ordered_dict_python3():
+    """Ensure that we preserve dict order on python3"""
+    if not PY3_ORDERED_DICT:
+        return
+    # Python3.6+ preserves dict order.
+    obj = {'z': 'Z', 'x': 'X', 'y': 'Y'}
+    clone = jsonpickle.decode(jsonpickle.encode(obj))
+    expect = ['z', 'x', 'y']
+    actual = list(clone.keys())
+    assert expect == actual
+
+
+def test_ordered_dict():
+    """Serialize an OrderedDict"""
+    d = collections.OrderedDict([('c', 3), ('a', 1), ('b', 2)])
+    encoded = jsonpickle.encode(d)
+    decoded = jsonpickle.decode(encoded)
+    assert d == decoded
+
+
+def test_ordered_dict_unpicklable():
+    """Serialize an OrderedDict with unpicklable=False"""
+    d = collections.OrderedDict([('c', 3), ('a', 1), ('b', 2)])
+    encoded = jsonpickle.encode(d, unpicklable=False)
+    decoded = jsonpickle.decode(encoded)
+    assert d == decoded
+
+
+def test_ordered_dict_reduces():
+    """Ensure that OrderedDict is reduce()-able"""
+    d = collections.OrderedDict([('c', 3), ('a', 1), ('b', 2)])
+    has_reduce, has_reduce_ex = util.has_reduce(d)
+    assert util.is_reducible(d)
+    assert has_reduce or has_reduce_ex
+
+
+def test_int_keys_in_object_with_getstate_only():
+    """Serialize objects with dict keys that implement __getstate__ only"""
+    obj = IntKeysObject()
+    encoded = jsonpickle.encode(obj, keys=True)
+    decoded = jsonpickle.decode(encoded, keys=True)
+    assert obj.data == decoded.data
+
+
+def test_ordered_dict_int_keys():
+    """Serialize dicts with int keys and OrderedDict values"""
+    d = {
+        1: collections.OrderedDict([(2, -2), (3, -3)]),
+        4: collections.OrderedDict([(5, -5), (6, -6)]),
+    }
+    encoded = jsonpickle.encode(d, keys=True)
+    decoded = jsonpickle.decode(encoded, keys=True)
+    assert isinstance(decoded[1], collections.OrderedDict)
+    assert isinstance(decoded[4], collections.OrderedDict)
+    assert -2 == decoded[1][2]
+    assert -3 == decoded[1][3]
+    assert -5 == decoded[4][5]
+    assert -6 == decoded[4][6]
+    assert d == decoded
+
+
+def test_ordered_dict_nested():
+    """Serialize nested dicts with OrderedDict values"""
+    bottom = collections.OrderedDict([('z', 1), ('a', 2)])
+    middle = collections.OrderedDict([('c', bottom)])
+    top = collections.OrderedDict([('b', middle)])
+    encoded = jsonpickle.encode(top)
+    decoded = jsonpickle.decode(encoded)
+    assert top == decoded
+    # test unpicklable=False
+    encoded = jsonpickle.encode(top, unpicklable=False)
+    decoded = jsonpickle.decode(encoded)
+    assert top == decoded
+
+
+def test_deque_roundtrip():
+    """Make sure we can handle collections.deque"""
+    old_deque = collections.deque([0, 1, 2], maxlen=5)
+    encoded = jsonpickle.encode(old_deque)
+    new_deque = jsonpickle.decode(encoded)
+    assert encoded != 'nil'
+    assert old_deque[0] == 0
+    assert new_deque[0] == 0
+    assert old_deque[1] == 1
+    assert new_deque[1] == 1
+    assert old_deque[2] == 2
+    assert new_deque[2] == 2
+    assert old_deque.maxlen == 5
+    assert new_deque.maxlen == 5
+
+
+def test_namedtuple_roundtrip():
+    """Serialize a NamedTuple"""
+    old_nt = NamedTuple(0, 1, 2)
+    encoded = jsonpickle.encode(old_nt)
+    new_nt = jsonpickle.decode(encoded)
+    assert type(old_nt) == type(new_nt)
+    assert old_nt is not new_nt
+    assert old_nt.a == new_nt.a
+    assert old_nt.b == new_nt.b
+    assert old_nt.c == new_nt.c
+    assert old_nt[0] == new_nt[0]
+    assert old_nt[1] == new_nt[1]
+    assert old_nt[2] == new_nt[2]
+
+
+def test_counter_roundtrip():
+    counter = collections.Counter({1: 2})
+    encoded = jsonpickle.encode(counter)
+    decoded = jsonpickle.decode(encoded)
+    assert type(decoded) is collections.Counter
+    # the integer key becomes a string when keys=False
+    assert decoded.get('1') == 2
+
+
+def test_counter_roundtrip_with_keys():
+    counter = collections.Counter({1: 2})
+    encoded = jsonpickle.encode(counter, keys=True)
+    decoded = jsonpickle.decode(encoded, keys=True)
+    assert type(decoded) is collections.Counter
+    assert decoded.get(1) == 2
+
+
+issue281 = pytest.mark.xfail(
+    'sys.version_info >= (3, 8)',
+    reason='https://github.com/jsonpickle/jsonpickle/issues/281',
+)
+
+
+@issue281
+def test_list_with_fd():
+    """Serialize a list with an file descriptor"""
+    fd = open(__file__, 'r')
+    fd.close()
+    obj = [fd]
+    jsonstr = jsonpickle.encode(obj)
+    newobj = jsonpickle.decode(jsonstr)
+    assert [None] == newobj
+
+
+@issue281
+def test_thing_with_fd():
+    """Serialize an object with a file descriptor"""
+    fd = open(__file__, 'r')
+    fd.close()
+    obj = Thing(fd)
+    jsonstr = jsonpickle.encode(obj)
+    newobj = jsonpickle.decode(jsonstr)
+    assert newobj.name is None
+
+
+@issue281
+def test_dict_with_fd():
+    """Serialize a dict with a file descriptor"""
+    fd = open(__file__, 'r')
+    fd.close()
+    obj = {'fd': fd}
+    jsonstr = jsonpickle.encode(obj)
+    newobj = jsonpickle.decode(jsonstr)
+    assert newobj['fd'] is None
+
+
+def test_thing_with_lamda():
+    """Serialize an object with a lambda"""
+    obj = Thing(lambda: True)
+    jsonstr = jsonpickle.encode(obj)
+    newobj = jsonpickle.decode(jsonstr)
+    assert not hasattr(newobj, 'name')
+
+
+def test_newstyleslots():
+    """Serialize an object with new-style slots"""
+    obj = ThingWithSlots(True, False)
+    jsonstr = jsonpickle.encode(obj)
+    newobj = jsonpickle.decode(jsonstr)
+    assert newobj.a
+    assert not newobj.b
+
+
+def test_newstyleslots_inherited():
+    """Serialize an object with inherited new-style slots"""
+    obj = ThingWithInheritedSlots(True, False, None)
+    jsonstr = jsonpickle.encode(obj)
+    newobj = jsonpickle.decode(jsonstr)
+    assert newobj.a
+    assert not newobj.b
+    assert newobj.c is None
+
+
+def test_newstyleslots_inherited_deleted_attr():
+    """Serialize an object with inherited and deleted new-style slots"""
+    obj = ThingWithInheritedSlots(True, False, None)
+    del obj.c
+    jsonstr = jsonpickle.encode(obj)
+    newobj = jsonpickle.decode(jsonstr)
+    assert newobj.a
+    assert not newobj.b
+    assert not hasattr(newobj, 'c')
+
+
+def test_newstyleslots_with_children():
+    """Serialize an object with slots containing objects"""
+    obj = ThingWithSlots(Thing('a'), Thing('b'))
+    jsonstr = jsonpickle.encode(obj)
+    newobj = jsonpickle.decode(jsonstr)
+    assert newobj.a.name == 'a'
+    assert newobj.b.name == 'b'
+
+
+def test_newstyleslots_with_children_inherited():
+    """Serialize an object with inherited slots containing objects"""
+    obj = ThingWithInheritedSlots(Thing('a'), Thing('b'), Thing('c'))
+    jsonstr = jsonpickle.encode(obj)
+    newobj = jsonpickle.decode(jsonstr)
+    assert newobj.a.name == 'a'
+    assert newobj.b.name == 'b'
+    assert newobj.c.name == 'c'
+
+
+def test_newstyleslots_iterable():
+    """Seriazlie an object with iterable slots"""
+    obj = ThingWithIterableSlots('alpha', 'bravo')
+    jsonstr = jsonpickle.encode(obj)
+    newobj = jsonpickle.decode(jsonstr)
+    assert newobj.a == 'alpha'
+    assert newobj.b == 'bravo'
+
+
+def test_newstyleslots_string_slot():
+    """Serialize an object with string slots"""
+    obj = ThingWithStringSlots('a', 'b')
+    jsonstr = jsonpickle.encode(obj)
+    newobj = jsonpickle.decode(jsonstr)
+    assert newobj.ab == 'ab'
+
+
+def test_enum34_nested():
+    """Serialize enums as nested member variables in an object"""
+    ec = EnumClass()
+    encoded = jsonpickle.encode(ec)
+    decoded = jsonpickle.decode(encoded)
+    assert ec.enum_a == decoded.enum_a
+    assert ec.enum_b == decoded.enum_b
+
+
+def test_enum_references():
+    """Serialize duplicate enums so that reference IDs are used"""
+    a = IntEnumTest.X
+    b = IntEnumTest.X
+    enums_list = [a, b]
+    encoded = jsonpickle.encode(enums_list)
+    decoded = jsonpickle.decode(encoded)
+    assert enums_list == decoded
+
+
+def test_enum_unpicklable():
+    """Serialize enums when unpicklable=False is specified"""
+    obj = Message(MessageTypes.STATUS, MessageCommands.STATUS_ALL)
+    encoded = jsonpickle.encode(obj, unpicklable=False)
+    decoded = jsonpickle.decode(encoded)
+    assert 'message_type' in decoded
+    assert 'command' in decoded
+
+
+def test_enum_int_key_and_value():
+    """Serialize Integer enums as dict keys and values"""
+    thing = Thing('test')
+    value = IntEnumTest.X
+    value2 = IntEnumTest.Y
+    expect = {
+        '__first__': thing,
+        'thing': thing,
+        value: value,
+        value2: value2,
+    }
+    string = jsonpickle.encode(expect, keys=True)
+    actual = jsonpickle.decode(string, keys=True)
+    assert 'test' == actual['__first__'].name
+    assert value == actual[value]
+    assert value2 == actual[value2]
+
+    actual_first = actual['__first__']
+    actual_thing = actual['thing']
+    assert actual_first is actual_thing
+
+
+def test_enum_string_key_and_value():
+    """Encode enums dict keys and values"""
+    thing = Thing('test')
+    value = StringEnumTest.A
+    value2 = StringEnumTest.B
+    expect = {
+        value: value,
+        '__first__': thing,
+        value2: value2,
+    }
+    string = jsonpickle.encode(expect, keys=True)
+    actual = jsonpickle.decode(string, keys=True)
+    assert 'test' == actual['__first__'].name
+    assert value == actual[value]
+    assert value2 == actual[value2]
 
 
 def test_multiple_string_enums_when_make_refs_is_false():
