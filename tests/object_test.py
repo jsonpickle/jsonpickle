@@ -1017,6 +1017,22 @@ class AdvancedObjectsTestCase(SkippableTest):
         self.assertEqual(obj.args, clone.args)
 
 
+def test_multiple_string_enums_when_make_refs_is_false():
+    """Enums do not create cycles when make_refs=False"""
+    # The make_refs=False code path will fallback to repr() when encoding
+    # objects that it believes introduce a cycle.  It does this to break
+    # out of what would be infinite recursion during traversal.
+    # This test ensures that enums do not trigger cycles and are properly
+    # encoded under make_refs=False.
+    expect = {
+        'a': StringEnumTest.A,
+        'aa': StringEnumTest.A,
+    }
+    string = jsonpickle.encode(expect, make_refs=False)
+    actual = jsonpickle.decode(string)
+    assert expect == actual
+
+
 # Test classes for ExternalHandlerTestCase
 class Mixin(object):
     def ok(self):

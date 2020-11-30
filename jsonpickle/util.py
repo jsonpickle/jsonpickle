@@ -13,6 +13,7 @@ import base64
 import collections
 import io
 import operator
+import sys
 import time
 import types
 import inspect
@@ -130,6 +131,11 @@ def is_primitive(obj):
     False
     """
     return type(obj) in PRIMITIVES
+
+
+def is_enum(obj):
+    """Is the object an enum?"""
+    return 'enum' in sys.modules and isinstance(obj, sys.modules['enum'].Enum)
 
 
 def is_dictionary(obj):

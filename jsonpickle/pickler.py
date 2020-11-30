@@ -721,9 +721,12 @@ class Pickler(object):
 
 
 def _in_cycle(obj, objs, max_reached, make_refs):
+    """Detect cyclic structures that would lead to infinite recursion"""
     return (
-        max_reached or (not make_refs and id(obj) in objs)
-    ) and not util.is_primitive(obj)
+        (max_reached or (not make_refs and id(obj) in objs))
+        and not util.is_primitive(obj)
+        and not util.is_enum(obj)
+    )
 
 
 def _mktyperef(obj):

@@ -1,3 +1,7 @@
+v1.4.3
+======
+    * Multiple enums are now serialized correctly with `make_refs=False`.  (#235)
+
 v1.4.2
 ======
     * Use importlib.metadata from the stdlib on Python 3.8.  (+305) (#303)
