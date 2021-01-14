@@ -1530,6 +1530,31 @@ class PicklingProtocol2TestCase(SkippableTest):
         self.test_cyclical_objects_unpickleable_false(use_tuple=False)
 
 
+def test_repeat_objects_are_expanded():
+    """Ensure that all objects are present in the json output"""
+    # When references are disabled we should create expanded copies
+    # of any object that appears more than once in the object stream.
+    alice = Thing('alice')
+    bob = Thing('bob')
+    alice.child = bob
+
+    car = Thing('car')
+    car.driver = alice
+    car.owner = alice
+    car.passengers = [alice, bob]
+
+    pickler = jsonpickle.Pickler(make_refs=False)
+    flattened = pickler.flatten(car)
+
+    assert flattened['name'] == 'car'
+    assert flattened['driver']['name'] == 'alice'
+    assert flattened['owner']['name'] == 'alice'
+    assert flattened['passengers'][0]['name'] == 'alice'
+    assert flattened['passengers'][1]['name'] == 'bob'
+    assert flattened['driver']['child']['name'] == 'bob'
+    assert flattened['passengers'][0]['child']['name'] == 'bob'
+
+
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(JSONPickleTestCase))
