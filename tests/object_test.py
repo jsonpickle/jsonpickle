@@ -6,6 +6,7 @@ import datetime
 import decimal
 import re
 import threading
+import pytz
 
 import jsonpickle
 from jsonpickle import compat
@@ -1132,6 +1133,18 @@ def test_unicode_mixin():
     assert new_obj == 'test passed'
     assert isinstance(new_obj, UnicodeMixin)
     assert new_obj.ok()
+
+
+def test_datetime_with_tz_copies_refs():
+    """Ensure that we create copies of referenced objects"""
+    d0 = datetime.datetime(2020, 5, 5, 5, 5, 5, 5, tzinfo=pytz.UTC)
+    d1 = datetime.datetime(2020, 5, 5, 5, 5, 5, 5, tzinfo=pytz.UTC)
+    obj = [d0, d1]
+    encoded = jsonpickle.encode(obj, make_refs=False)
+    decoded = jsonpickle.decode(encoded)
+    assert len(decoded) == 2
+    assert decoded[0] == d0
+    assert decoded[1] == d1
 
 
 if __name__ == '__main__':
