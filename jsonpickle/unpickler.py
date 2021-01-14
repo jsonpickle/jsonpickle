@@ -180,24 +180,24 @@ class Unpickler(object):
             restore = self._restore_base64
         elif has_tag(obj, tags.B85):
             restore = self._restore_base85
-        elif has_tag(obj, tags.BYTES):  # Backwards compatibility
-            restore = self._restore_quopri
         elif has_tag(obj, tags.ID):
             restore = self._restore_id
-        elif has_tag(obj, tags.REF):  # Backwards compatibility
-            restore = self._restore_ref
         elif has_tag(obj, tags.ITERATOR):
             restore = self._restore_iterator
         elif has_tag(obj, tags.TYPE):
             restore = self._restore_type
-        elif has_tag(obj, tags.REPR):  # Backwards compatibility
-            restore = self._restore_repr
         elif has_tag(obj, tags.REDUCE):
             restore = self._restore_reduce
         elif has_tag(obj, tags.OBJECT):
             restore = self._restore_object
         elif has_tag(obj, tags.FUNCTION):
             restore = self._restore_function
+        elif has_tag(obj, tags.BYTES):  # Backwards compatibility
+            restore = self._restore_quopri
+        elif has_tag(obj, tags.REF):  # Backwards compatibility
+            restore = self._restore_ref
+        elif has_tag(obj, tags.REPR):  # Backwards compatibility
+            restore = self._restore_repr
         elif util.is_list(obj):
             restore = self._restore_list
         elif has_tag(obj, tags.TUPLE):
