@@ -175,7 +175,7 @@ class Unpickler(object):
         self._proxies = []
 
     def _restore(self, obj):
-        try::
+        try:
             if not tags.RESERVED <= set(obj) and not type(obj) in (list, dict):
                 def restore(x):
                     return x
