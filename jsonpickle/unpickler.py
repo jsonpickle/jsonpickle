@@ -15,7 +15,6 @@ from . import handlers
 from .compat import numeric_types
 from .backend import json
 
-
 def decode(
     string, backend=None, context=None, keys=False, reset=True, safe=False, classes=None
 ):
@@ -176,6 +175,13 @@ class Unpickler(object):
         self._proxies = []
 
     def _restore(self, obj):
+        try::
+            if not tags.RESERVED <= set(obj) and not type(obj) in (list, dict):
+                def restore(x):
+                    return x
+                return restore(obj)
+        except TypeError:
+            pass
         if has_tag(obj, tags.B64):
             restore = self._restore_base64
         elif has_tag(obj, tags.B85):
