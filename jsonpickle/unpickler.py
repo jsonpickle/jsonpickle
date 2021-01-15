@@ -178,10 +178,10 @@ class Unpickler(object):
     def _restore(self, obj):
         try:
             if not tags.RESERVED <= set(obj) and not type(obj) in (list, dict):
-            
+
                 def restore(x):
                     return x
-                    
+
                 return restore(obj)
         except TypeError:
             pass
