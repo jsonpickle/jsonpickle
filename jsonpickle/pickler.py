@@ -164,6 +164,8 @@ class Pickler(object):
         self._max_iter = max_iter
         # Whether to allow decimals to pass-through
         self._use_decimal = use_decimal
+        # A cache of objects that have already been flattened.
+        self._flattened = {}
 
         if self.use_base85:
             self._bytes_tag = tags.B85
@@ -179,6 +181,7 @@ class Pickler(object):
         self._objs = {}
         self._depth = -1
         self._seen = []
+        self._flattened = {}
 
     def _push(self):
         """Steps down one level in the namespace."""
@@ -252,7 +255,16 @@ class Pickler(object):
         return self._flatten(obj)
 
     def _flatten(self, obj):
+        if self.unpicklable and self.make_refs:
+            result = self._flatten_impl(obj)
+        else:
+            try:
+                result = self._flattened[id(obj)]
+            except KeyError:
+                result = self._flattened[id(obj)] = self._flatten_impl(obj)
+        return result
 
+    def _flatten_impl(self, obj):
         #########################################
         # if obj is nonrecursive return immediately
         # for performance reasons we don't want to do recursive checks

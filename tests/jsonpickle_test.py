@@ -764,10 +764,10 @@ class JSONPickleTestCase(SkippableTest):
         encoded = jsonpickle.encode(thing, make_refs=False)
         decoded = jsonpickle.decode(encoded)
 
-        self.assertEqual(decoded.a[0], 1)
-        self.assertEqual(decoded.b[0:3], '[1,')
-        self.assertEqual(decoded.a[1][0:3], '[1,')
-        self.assertEqual(decoded.a[2][0][0:3], '[1,')
+        assert decoded.a[0] == 1
+        assert decoded.b[0] == 1
+        assert decoded.a[1][0:3] == '[1,'
+        assert decoded.a[2][0][0:3] == '[1,'
 
     def test_can_serialize_inner_classes(self):
         class InnerScope(object):
@@ -1522,12 +1522,37 @@ class PicklingProtocol2TestCase(SkippableTest):
         self.assertEqual(len(args), 2)
         decoded_child0 = args[0]
         decoded_child1 = args[1]
-        self.assertTrue(isinstance(decoded_child0, dict))
         # Circular references become None
-        self.assertEqual(decoded_child1, None)
+        assert decoded_child0 == {'args': [None], 'kwargs': {}}
+        assert decoded_child1 == {'args': [None], 'kwargs': {}}
 
     def test_cyclical_objects_unpickleable_false_list(self):
         self.test_cyclical_objects_unpickleable_false(use_tuple=False)
+
+
+def test_repeat_objects_are_expanded():
+    """Ensure that all objects are present in the json output"""
+    # When references are disabled we should create expanded copies
+    # of any object that appears more than once in the object stream.
+    alice = Thing('alice')
+    bob = Thing('bob')
+    alice.child = bob
+
+    car = Thing('car')
+    car.driver = alice
+    car.owner = alice
+    car.passengers = [alice, bob]
+
+    pickler = jsonpickle.Pickler(make_refs=False)
+    flattened = pickler.flatten(car)
+
+    assert flattened['name'] == 'car'
+    assert flattened['driver']['name'] == 'alice'
+    assert flattened['owner']['name'] == 'alice'
+    assert flattened['passengers'][0]['name'] == 'alice'
+    assert flattened['passengers'][1]['name'] == 'bob'
+    assert flattened['driver']['child']['name'] == 'bob'
+    assert flattened['passengers'][0]['child']['name'] == 'bob'
 
 
 def suite():
