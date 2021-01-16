@@ -771,3 +771,4 @@ def has_tag(obj, tag):
 
     """
     return type(obj) is dict and tag in obj
+    
