@@ -1,5 +1,11 @@
-v1.4.3
+v1.5.0
 ======
+    * Previous versions of jsonpickle with `make_refs=False` would emit
+      ``null`` when encountering an object it had already seen when
+      traversing objects.  All instances of the object are now serialized.
+      While this is arguably an improvement in the vast majority of
+      scenarios, it is a change in behavior and is thus considered a
+      minor-level change.  (#333) (#334) (#337) (+338)
     * Multiple enums are now serialized correctly with `make_refs=False`.  (#235)
 
 v1.4.2
