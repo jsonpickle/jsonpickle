@@ -3,6 +3,8 @@ v1.5.1
     * The performance of the unpickler was drastically improved by
       avoiding tag checks for basic Python types.  (+340)
     * ``decode()`` documentation improvements.  (+341)
+    * Serialization of Pandas DataFrame objects that contain
+      timedelta64[ns] dtypes are now supported.  (+330) (#331)
 
 v1.5.0
 ======
