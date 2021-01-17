@@ -342,7 +342,11 @@ class Pickler(object):
             return lambda obj: {tags.SET: [self._flatten(v) for v in obj]}
 
         if util.is_dictionary(obj):
-            return self._flatten_dict_obj
+            if self._mkref(obj):
+                return self._flatten_dict_obj
+            else:
+                self._push()
+                return self._getref
 
         if util.is_type(obj):
             return _mktyperef
