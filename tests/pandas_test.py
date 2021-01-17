@@ -1,8 +1,8 @@
 from __future__ import absolute_import, division, unicode_literals
-import unittest
+
+import pytest
 
 import jsonpickle
-
 from helper import SkippableTest
 
 try:
@@ -291,11 +291,5 @@ class PandasTestCase(SkippableTest):
         self.assertEqual(('C', '3'), actual.index[8])
 
 
-def suite():
-    suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(PandasTestCase, 'test'))
-    return suite
-
-
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])
