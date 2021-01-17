@@ -1,3 +1,8 @@
+v1.5.1
+======
+    * The performance of the unpickler was drastically improved by
+      avoiding tag checks for basic Python types.  (+340)
+
 v1.5.0
 ======
     * Previous versions of jsonpickle with `make_refs=False` would emit
