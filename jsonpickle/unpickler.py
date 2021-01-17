@@ -30,6 +30,14 @@ def decode(
     then the classes will be made available when constructing objects.  This
     can be used to give jsonpickle access to local classes that are not
     available through the global module import scope.
+    
+    The keyword argument 'safe' defaults to False.
+    If set to True, eval() is avoided, but backwards-compatible
+    (pre-0.7.0) deserialization of repr-serialized objects is disabled.
+    
+    The keyword argument 'backend' defaults to None.
+    If set to an instance of jsonpickle.backend.JSONBackend, jsonpickle
+    will use that backend for deserialization.
 
     >>> decode('"my string"') == 'my string'
     True
