@@ -1,4 +1,5 @@
 from __future__ import absolute_import, division, unicode_literals
+import datetime
 
 import pytest
 
@@ -289,6 +290,42 @@ class PandasTestCase(SkippableTest):
         self.assertEqual(('C', '1'), actual.index[6])
         self.assertEqual(('C', '2'), actual.index[7])
         self.assertEqual(('C', '3'), actual.index[8])
+
+    def test_dataframe_with_timedelta64_dtype(self):
+        data_frame = pd.DataFrame(
+            {
+                'Start': [
+                    '2020/12/14 00:00:01',
+                    '2020/12/14 00:00:04',
+                    '2020/12/14 00:00:06',
+                ],
+                'End': [
+                    '2020/12/14 00:00:04',
+                    '2020/12/14 00:00:06',
+                    '2020/12/14 00:00:09',
+                ],
+            }
+        )
+        data_frame['Start'] = pd.to_datetime(data_frame['Start'])
+        data_frame['End'] = pd.to_datetime(data_frame['End'])
+        data_frame['Duration'] = data_frame['End'] - data_frame['Start']
+
+        encoded = jsonpickle.encode(data_frame)
+        actual = jsonpickle.decode(encoded)
+
+        assert isinstance(actual, pd.DataFrame)
+        assert data_frame['Start'][0] == actual['Start'][0]
+        assert data_frame['Start'][1] == actual['Start'][1]
+        assert data_frame['Start'][2] == actual['Start'][2]
+        assert data_frame['End'][0] == actual['End'][0]
+        assert data_frame['End'][1] == actual['End'][1]
+        assert data_frame['End'][2] == actual['End'][2]
+        assert isinstance(actual['Duration'][0], datetime.timedelta)
+        assert isinstance(actual['Duration'][1], datetime.timedelta)
+        assert isinstance(actual['Duration'][2], datetime.timedelta)
+        assert data_frame['Duration'][0] == actual['Duration'][0]
+        assert data_frame['Duration'][1] == actual['Duration'][1]
+        assert data_frame['Duration'][2] == actual['Duration'][2]
 
 
 if __name__ == '__main__':
