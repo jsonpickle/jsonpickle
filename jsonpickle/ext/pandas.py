@@ -59,15 +59,19 @@ def make_read_csv_params(meta):
     parse_dates = []
     converters = {}
     dtype = {}
+    timedeltas = []
     for k, v in meta_dtypes.items():
         if v.startswith('datetime'):
             parse_dates.append(k)
         elif v.startswith('complex'):
             converters[k] = complex
+        elif v.startswith('timedelta'):
+            timedeltas.append(k)
+            dtype[k] = 'object'
         else:
             dtype[k] = v
 
-    return dict(dtype=dtype, parse_dates=parse_dates, converters=converters)
+    return dict(dtype=dtype, parse_dates=parse_dates, converters=converters), timedeltas
 
 
 class PandasDfHandler(BaseHandler):
@@ -85,12 +89,15 @@ class PandasDfHandler(BaseHandler):
 
     def restore(self, data):
         csv, meta = self.pp.restore_pandas(data)
-        params = make_read_csv_params(meta)
+        params, timedeltas = make_read_csv_params(meta)
         df = (
             pd.read_csv(StringIO(csv), **params)
             if data['values'].strip()
             else pd.DataFrame()
         )
+        for col in timedeltas:
+            df[col] = pd.to_timedelta(df[col])
+
         df.set_index(decode(meta['index']), inplace=True)
         return df
 
