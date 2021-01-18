@@ -1,22 +1,21 @@
 # Copyright (C) 2008 John Paulett (john -at- paulett.org)
-# Copyright (C) 2009-2018 David Aguilar (davvid -at- gmail.com)
+# Copyright (C) 2009-2021 David Aguilar (davvid -at- gmail.com)
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 from __future__ import absolute_import, division, unicode_literals
-import doctest
 import os
 import unittest
 import collections
 
+import pytest
+
 import jsonpickle
 import jsonpickle.backend
 import jsonpickle.handlers
-
 from jsonpickle import compat, tags, util
 from jsonpickle.compat import PY2, PY3
-
 from helper import SkippableTest
 
 
@@ -1530,6 +1529,15 @@ class PicklingProtocol2TestCase(SkippableTest):
         self.test_cyclical_objects_unpickleable_false(use_tuple=False)
 
 
+def test_dict_references_are_preserved():
+    data = {}
+    actual = jsonpickle.decode(jsonpickle.encode([data, data]))
+    assert isinstance(actual, list)
+    assert isinstance(actual[0], dict)
+    assert isinstance(actual[1], dict)
+    assert actual[0] is actual[1]
+
+
 def test_repeat_objects_are_expanded():
     """Ensure that all objects are present in the json output"""
     # When references are disabled we should create expanded copies
@@ -1555,17 +1563,5 @@ def test_repeat_objects_are_expanded():
     assert flattened['passengers'][0]['child']['name'] == 'bob'
 
 
-def suite():
-    suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(JSONPickleTestCase))
-    suite.addTest(unittest.makeSuite(PicklingTestCase))
-    suite.addTest(unittest.makeSuite(PicklingProtocol2TestCase))
-    suite.addTest(unittest.makeSuite(PicklingProtocol4TestCase))
-    suite.addTest(doctest.DocTestSuite(jsonpickle))
-    suite.addTest(doctest.DocTestSuite(jsonpickle.pickler))
-    suite.addTest(doctest.DocTestSuite(jsonpickle.unpickler))
-    return suite
-
-
 if __name__ == '__main__':
-    unittest.main(defaultTest='suite')
+    pytest.main([__file__])
