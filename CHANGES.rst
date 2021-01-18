@@ -8,6 +8,8 @@ v1.5.1
     * Dictionary identity is now preserved.  For example, if the same
       dictionary appears twice in a list, the reconstituted list
       will now contain two references to the same dictionary.  (#255) (+332)
+    * Unit tests were added to ensure that sklearn.tree.DecisionTreeClassifier
+      objects are properly serialized.  (#155) (+344)
 
 v1.5.0
 ======
