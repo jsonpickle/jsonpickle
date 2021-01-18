@@ -271,15 +271,14 @@ class Pickler(object):
         if PY2 and isinstance(obj, types.FileType):
             return self._flatten_file(obj)
 
-        if util.is_bytes(obj):
-            return self._flatten_bytestring(obj)
-
-        if util.is_primitive(obj):
-            return obj
-
         # Decimal is a primitive when use_decimal is True
-        if self._use_decimal and isinstance(obj, decimal.Decimal):
+        if type(obj) in util.PRIMITIVES or (
+            self._use_decimal and isinstance(obj, decimal.Decimal)
+        ):
             return obj
+
+        if type(obj) is bytes:
+            return self._flatten_bytestring(obj)
         #########################################
 
         self._push()
@@ -320,41 +319,38 @@ class Pickler(object):
         return [self._flatten(v) for v in obj]
 
     def _get_flattener(self, obj):
-
-        list_recurse = self._list_recurse
-
-        if util.is_list(obj):
+        if type(obj) is list:
             if self._mkref(obj):
-                return list_recurse
+                return self._list_recurse
             else:
                 self._push()
                 return self._getref
 
-        # We handle tuples and sets by encoding them in a "(tuple|set)dict"
-        if util.is_tuple(obj):
-            if not self.unpicklable:
-                return list_recurse
-            return lambda obj: {tags.TUPLE: [self._flatten(v) for v in obj]}
-
-        if util.is_set(obj):
-            if not self.unpicklable:
-                return list_recurse
-            return lambda obj: {tags.SET: [self._flatten(v) for v in obj]}
-
-        if util.is_dictionary(obj):
+        elif type(obj) is dict:
             if self._mkref(obj):
                 return self._flatten_dict_obj
             else:
                 self._push()
                 return self._getref
 
-        if util.is_type(obj):
-            return _mktyperef
+        # We handle tuples and sets by encoding them in a "(tuple|set)dict"
+        elif type(obj) is tuple:
+            if not self.unpicklable:
+                return self._list_recurse
+            return lambda obj: {tags.TUPLE: [self._flatten(v) for v in obj]}
 
-        if util.is_object(obj):
+        elif type(obj) is set:
+            if not self.unpicklable:
+                return self._list_recurse
+            return lambda obj: {tags.SET: [self._flatten(v) for v in obj]}
+
+        elif util.is_object(obj):
             return self._ref_obj_instance
 
-        if util.is_module_function(obj):
+        elif util.is_type(obj):
+            return _mktyperef
+
+        elif util.is_module_function(obj):
             return self._flatten_function
 
         # instance methods, lambdas, old style classes...
