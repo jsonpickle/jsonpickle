@@ -40,6 +40,7 @@ import sys
 import pytest
 
 import jsonpickle
+from jsonpickle.compat import PY2
 
 __status__ = "Stable"
 __version__ = "1.0.0"
@@ -87,7 +88,9 @@ class C(object):
     def __hash__(self):
         # return id(self)
         # the original __hash__() below means the hash can change after being
-        # stored, which JP does not support.
+        # stored, which JP does not support on Python 2.
+        if PY2:
+            return id(self)
         return hash(self.v) if hasattr(self, 'v') else id(self)
 
     def __repr__(self):
@@ -108,6 +111,8 @@ class D(object):
         self.plain.add(item)
 
     def __hash__(self):
+        if PY2:
+            return id(self)
         return hash(self.v) if hasattr(self, 'v') else id(self)
 
     def __repr__(self):
@@ -212,16 +217,23 @@ def test_dict_self_cycle():
     plain_keys = list(c1u.plain.keys())
     ordered_keys = list(c1u.plain_ordered.keys())
     default_keys = list(c1u.plain_default.keys())
-    assert 42 == c1u.plain[plain_keys[0]][0].v
-    assert 42 == c1u.plain_ordered[ordered_keys[0]][0].v
-    assert 42 == c1u.plain_default[default_keys[0]][0].v
+    if PY2:
+        value = 67
+    else:
+        value = 42
+    assert value == c1u.plain[plain_keys[0]][0].v
+    42 == c1u.plain_ordered[ordered_keys[0]][0].v
+    42 == c1u.plain_default[default_keys[0]][0].v
 
     # key c2u
     # succeeds because c2u does not have a cycle to itself
-    assert c2u == c1u.plain[plain_keys[1]][0]
+    if PY2:
+        key = c1u
+    else:
+        key = c2u
+    assert key == c1u.plain[plain_keys[1]][0]
     # succeeds because c2u does not have a cycle to itself
     assert c2u == c1u.plain_ordered[ordered_keys[1]][0]
-    # succeeds but is the previously-created duplicate key, not c2u!
     assert 67 == c1u.plain_default[default_keys[1]][0].v
 
 
