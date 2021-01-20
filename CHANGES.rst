@@ -11,7 +11,7 @@ v1.5.1
     * Unit tests were added to ensure that sklearn.tree.DecisionTreeClassifier
       objects are properly serialized.  (#155) (+344)
     * The ``is_reducible()`` utility function used by ``encode()`` was made
-      4x faster!  Objects that ``__getstate__`` and ``__setstate__``
+      4x faster!  Objects that provide ``__getstate__`` and ``__setstate__``
       implementations will benefit the most from these improvements.  (+343)
 
 v1.5.0
