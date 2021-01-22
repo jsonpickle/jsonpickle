@@ -52,26 +52,24 @@ class PandasProcessor(object):
         meta = data.get('meta', {})
         return (buf, meta)
 
-
 def make_read_csv_params(meta):
     meta_dtypes = meta.get('dtypes', {})
-
+    # The header is used to select the rows of the csv from which
+    # the columns names are retrived
+    header = meta.get('header', [0])
     parse_dates = []
     converters = {}
     dtype = {}
-    timedeltas = []
     for k, v in meta_dtypes.items():
         if v.startswith('datetime'):
             parse_dates.append(k)
         elif v.startswith('complex'):
             converters[k] = complex
-        elif v.startswith('timedelta'):
-            timedeltas.append(k)
-            dtype[k] = 'object'
         else:
             dtype[k] = v
 
-    return dict(dtype=dtype, parse_dates=parse_dates, converters=converters), timedeltas
+    return dict(dtype=dtype, header=header,
+                parse_dates=parse_dates, converters=converters)
 
 
 class PandasDfHandler(BaseHandler):
@@ -79,8 +77,11 @@ class PandasDfHandler(BaseHandler):
 
     def flatten(self, obj, data):
         dtype = obj.dtypes.to_dict()
-
-        meta = {'dtypes': {k: str(dtype[k]) for k in dtype}, 'index': encode(obj.index)}
+        
+        meta = {'dtypes': {k: str(dtype[k]) for k in dtype}, 
+                'index': encode(obj.index),
+                'column_level_names': obj.columns.names,
+                'header': list(range(len(obj.columns.names)))}
 
         data = self.pp.flatten_pandas(
             obj.reset_index(drop=True).to_csv(index=False), data, meta
@@ -89,16 +90,16 @@ class PandasDfHandler(BaseHandler):
 
     def restore(self, data):
         csv, meta = self.pp.restore_pandas(data)
-        params, timedeltas = make_read_csv_params(meta)
+        params = make_read_csv_params(meta)
+        column_levels_names = meta.get('column_level_names', None)
         df = (
             pd.read_csv(StringIO(csv), **params)
             if data['values'].strip()
             else pd.DataFrame()
         )
-        for col in timedeltas:
-            df[col] = pd.to_timedelta(df[col])
-
         df.set_index(decode(meta['index']), inplace=True)
+        # restore the column level(s) name(s)
+        df.columns.names = column_levels_names        
         return df
 
 
