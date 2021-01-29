@@ -271,14 +271,14 @@ class Pickler(object):
         if PY2 and isinstance(obj, types.FileType):
             return self._flatten_file(obj)
 
+        if type(obj) is bytes:
+            return self._flatten_bytestring(obj)
+
         # Decimal is a primitive when use_decimal is True
         if type(obj) in util.PRIMITIVES or (
             self._use_decimal and isinstance(obj, decimal.Decimal)
         ):
             return obj
-
-        if type(obj) is bytes:
-            return self._flatten_bytestring(obj)
         #########################################
 
         self._push()
