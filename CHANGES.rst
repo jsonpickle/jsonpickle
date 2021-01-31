@@ -13,6 +13,7 @@ v1.5.1
     * The ``is_reducible()`` utility function used by ``encode()`` is now
       4x faster!  Objects that provide ``__getstate__()``, ``__setstate__()``,
       and ``__slots__`` benefit most from these improvements.  (+343)
+    * Improved pickler ``flatten()/encode()`` performance.  (+345)
 
 v1.5.0
 ======
