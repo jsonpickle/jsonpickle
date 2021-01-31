@@ -59,17 +59,25 @@ def make_read_csv_params(meta):
     header = meta.get('header', [0])
     parse_dates = []
     converters = {}
+    timedeltas = []
     dtype = {}
     for k, v in meta_dtypes.items():
         if v.startswith('datetime'):
             parse_dates.append(k)
         elif v.startswith('complex'):
             converters[k] = complex
+        elif v.startswith('timedelta'):
+            timedeltas.append(k)
+            dtype[k] = 'object'
         else:
             dtype[k] = v
 
-    return dict(dtype=dtype, header=header,
-                parse_dates=parse_dates, converters=converters)
+    return (
+        dict(
+            dtype=dtype, header=header, parse_dates=parse_dates, converters=converters
+        ),
+        timedeltas,
+    )
 
 
 class PandasDfHandler(BaseHandler):
@@ -90,13 +98,16 @@ class PandasDfHandler(BaseHandler):
 
     def restore(self, data):
         csv, meta = self.pp.restore_pandas(data)
-        params = make_read_csv_params(meta)
+        params, timedeltas = make_read_csv_params(meta)
         column_levels_names = meta.get('column_level_names', None)
         df = (
             pd.read_csv(StringIO(csv), **params)
             if data['values'].strip()
             else pd.DataFrame()
         )
+        for col in timedeltas:
+            df[col] = pd.to_timedelta(df[col])
+
         df.set_index(decode(meta['index']), inplace=True)
         # restore the column level(s) name(s)
         df.columns.names = column_levels_names        
