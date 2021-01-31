@@ -53,8 +53,8 @@ class PandasProcessor(object):
         return (buf, meta)
 
 
-def make_read_csv_params(meta):
-    meta_dtypes = meta.get('dtypes', {})
+def make_read_csv_params(meta, context):
+    meta_dtypes = context.restore(meta.get('dtypes', {}), reset=False)
     # The header is used to select the rows of the csv from which
     # the columns names are retrieved
     header = meta.get('header', [0])
@@ -88,7 +88,9 @@ class PandasDfHandler(BaseHandler):
         dtype = obj.dtypes.to_dict()
 
         meta = {
-            'dtypes': {k: str(dtype[k]) for k in dtype},
+            'dtypes': self.context.flatten(
+                {k: str(dtype[k]) for k in dtype}, reset=False
+            ),
             'index': encode(obj.index),
             'column_level_names': obj.columns.names,
             'header': list(range(len(obj.columns.names))),
@@ -101,7 +103,7 @@ class PandasDfHandler(BaseHandler):
 
     def restore(self, data):
         csv, meta = self.pp.restore_pandas(data)
-        params, timedeltas = make_read_csv_params(meta)
+        params, timedeltas = make_read_csv_params(meta, self.context)
         # None makes it compatible with objects serialized before
         # column_levels_names has been introduced.
         column_level_names = meta.get('column_level_names', None)
