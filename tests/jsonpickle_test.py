@@ -684,6 +684,7 @@ class JSONPickleTestCase(SkippableTest):
             and 'os.path' in jsonpickle.json._encoder_options
             and 'os.path' in jsonpickle.json._decoder_exceptions
         )
+        jsonpickle.remove_backend('os.path')
 
     def _backend_is_partially_loaded(self, backend):
         """Return True if the specified backend is incomplete"""
