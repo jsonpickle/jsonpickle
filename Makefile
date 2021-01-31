@@ -39,7 +39,7 @@ TOXCMD += --parallel $(NUM_JOBS)
 TOXCMD += --develop --skip-missing-interpreters
 ifdef multi
     TOXCMD += -e
-    TOXCMD += 'clean,py{27,36,37,38,39},py{27,38}-sa{10,11,12,13},py{27,38}-libs'
+    TOXCMD += 'clean,py{27,36,37,38,39},py{27,38,39}-sa{10,11,12,13},py{27,38,39}-libs'
 endif
 ifdef V
     TESTCMD += --verbose
