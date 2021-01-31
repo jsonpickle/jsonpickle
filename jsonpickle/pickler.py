@@ -319,16 +319,11 @@ class Pickler(object):
         return [self._flatten(v) for v in obj]
 
     def _get_flattener(self, obj):
-        if type(obj) is list:
+        if type(obj) in (list, dict):
             if self._mkref(obj):
-                return self._list_recurse
-            else:
-                self._push()
-                return self._getref
-
-        elif type(obj) is dict:
-            if self._mkref(obj):
-                return self._flatten_dict_obj
+                return (
+                    self._list_recurse if type(obj) is list else self._flatten_dict_obj
+                )
             else:
                 self._push()
                 return self._getref
