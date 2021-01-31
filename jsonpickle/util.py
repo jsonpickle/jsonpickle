@@ -36,21 +36,27 @@ if PY2:
 SEQUENCES = (list, set, tuple)
 SEQUENCES_SET = {list, set, tuple}
 PRIMITIVES = {compat.ustr, bool, type(None)} | set(numeric_types)
-NON_REDUCIBLE_TYPES = {
-    int,
-    float,
-    list,
-    dict,
-    set,
-    tuple,
-    object,
-    bytes,
+FUNCTION_TYPES = {
     types.FunctionType,
     types.MethodType,
     types.LambdaType,
     types.BuiltinFunctionType,
     types.BuiltinMethodType,
-} | PRIMITIVES
+}
+NON_REDUCIBLE_TYPES = (
+    {
+        int,
+        float,
+        list,
+        dict,
+        set,
+        tuple,
+        object,
+        bytes,
+    }
+    | PRIMITIVES
+    | FUNCTION_TYPES
+)
 
 
 def is_type(obj):
@@ -274,14 +280,7 @@ def is_function(obj):
     >>> is_function(1)
     False
     """
-    function_types = {
-        types.FunctionType,
-        types.MethodType,
-        types.LambdaType,
-        types.BuiltinFunctionType,
-        types.BuiltinMethodType,
-    }
-    return type(obj) in function_types
+    return type(obj) in FUNCTION_TYPES
 
 
 def is_module_function(obj):
