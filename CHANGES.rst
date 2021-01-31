@@ -1,3 +1,8 @@
+v1.5.2
+======
+    * Pandas DataFrame objects with multilevel columns are now supported.
+      Note: this feature requires that "ujson" module.  (#346) (+347)
+
 v1.5.1
 ======
     * The performance of the unpickler was drastically improved by
