@@ -334,15 +334,14 @@ class Pickler(object):
                 return self._getref
 
         # We handle tuples and sets by encoding them in a "(tuple|set)dict"
-        elif type(obj) is tuple:
+        elif type(obj) in (tuple, set):
             if not self.unpicklable:
                 return self._list_recurse
-            return lambda obj: {tags.TUPLE: [self._flatten(v) for v in obj]}
-
-        elif type(obj) is set:
-            if not self.unpicklable:
-                return self._list_recurse
-            return lambda obj: {tags.SET: [self._flatten(v) for v in obj]}
+            return lambda obj: {
+                tags.TUPLE
+                if type(obj) is tuple
+                else tags.SET: [self._flatten(v) for v in obj]
+            }
 
         elif util.is_object(obj):
             return self._ref_obj_instance
