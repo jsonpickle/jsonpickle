@@ -2,6 +2,8 @@ v1.5.2
 ======
     * Pandas DataFrame objects with multilevel columns are now supported.
       (#346) (+347)
+    * Numpy 1.20 is now officially supported.  (#336)
+    * Python 3.9 is now officially supported.  (+348)
 
 v1.5.1
 ======
