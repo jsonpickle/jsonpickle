@@ -15,7 +15,6 @@ except ImportError:
 
 import jsonpickle
 import jsonpickle.ext.pandas
-from jsonpickle.compat import PY2
 
 
 @pytest.fixture(scope='module', autouse=True)
@@ -291,9 +290,6 @@ def test_dataframe_with_timedelta64_dtype():
 
 
 def test_multilevel_columns():
-    if not PY2:
-        pytest.skip('This test does not yet pass on Python 3')
-
     iterables = [['inj', 'prod'], ['hourly', 'cumulative']]
     names = ['first', 'second']
     # transform it to tuples
