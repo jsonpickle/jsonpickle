@@ -51,36 +51,32 @@ def test_dtype_roundtrip():
             },
             align=True,
         ),
-    ]
-
-    if not PY2:
-        dtypes.extend(
+        np.dtype([('f0', 'i4'), ('f2', 'i1')]),
+        np.dtype(
             [
-                np.dtype([('f0', 'i4'), ('f2', 'i1')]),
-                np.dtype(
+                (
+                    'top',
                     [
-                        (
-                            'top',
-                            [
-                                ('tiles', ('>f4', (64, 64)), (1,)),
-                                ('rtile', '>f4', (64, 36)),
-                            ],
-                            (3,),
-                        ),
-                        (
-                            'bottom',
-                            [
-                                ('bleft', ('>f4', (8, 64)), (1,)),
-                                ('bright', '>f4', (8, 36)),
-                            ],
-                        ),
-                    ]
+                        ('tiles', ('>f4', (64, 64)), (1,)),
+                        ('rtile', '>f4', (64, 36)),
+                    ],
+                    (3,),
+                ),
+                (
+                    'bottom',
+                    [
+                        ('bleft', ('>f4', (8, 64)), (1,)),
+                        ('bright', '>f4', (8, 36)),
+                    ],
                 ),
             ]
-        )
+        ),
+    ]
 
     for dtype in dtypes:
-        assert roundtrip(dtype) == dtype
+        encoded = jsonpickle.encode(dtype)
+        decoded = jsonpickle.decode(encoded)
+        assert dtype == decoded
 
 
 def test_generic_roundtrip():
