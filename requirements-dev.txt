@@ -15,5 +15,5 @@ pytest-flake8
 simplejson
 sklearn
 sqlalchemy
-ujson; python_version < '3.8'
+ujson
 yajl; sys_platform != 'win32' and python_version < '3.8'
