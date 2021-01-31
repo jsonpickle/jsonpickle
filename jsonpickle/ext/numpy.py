@@ -329,9 +329,19 @@ def register_handlers():
     register(np.dtype, NumpyDTypeHandler, base=True)
     register(np.generic, NumpyGenericHandler, base=True)
     register(np.ndarray, NumpyNDArrayHandlerView(), base=True)
+    # Numpy 1.20 has custom dtypes that must be registered separately.
+    register(np.dtype(np.void).__class__, NumpyDTypeHandler, base=True)
+    register(np.dtype(np.float32).__class__, NumpyDTypeHandler, base=True)
+    register(np.dtype(np.int32).__class__, NumpyDTypeHandler, base=True)
+    register(np.dtype(np.datetime64).__class__, NumpyDTypeHandler, base=True)
 
 
 def unregister_handlers():
     unregister(np.dtype)
     unregister(np.generic)
     unregister(np.ndarray)
+    # Numpy 1.20 dtypes
+    unregister(np.dtype(np.void).__class__)
+    unregister(np.dtype(np.float32).__class__)
+    unregister(np.dtype(np.int32).__class__)
+    unregister(np.dtype(np.datetime64).__class__)
