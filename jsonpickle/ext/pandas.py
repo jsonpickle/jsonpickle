@@ -52,6 +52,7 @@ class PandasProcessor(object):
         meta = data.get('meta', {})
         return (buf, meta)
 
+
 def make_read_csv_params(meta):
     meta_dtypes = meta.get('dtypes', {})
     # The header is used to select the rows of the csv from which
@@ -85,11 +86,13 @@ class PandasDfHandler(BaseHandler):
 
     def flatten(self, obj, data):
         dtype = obj.dtypes.to_dict()
-        
-        meta = {'dtypes': {k: str(dtype[k]) for k in dtype}, 
-                'index': encode(obj.index),
-                'column_level_names': obj.columns.names,
-                'header': list(range(len(obj.columns.names)))}
+
+        meta = {
+            'dtypes': {k: str(dtype[k]) for k in dtype},
+            'index': encode(obj.index),
+            'column_level_names': obj.columns.names,
+            'header': list(range(len(obj.columns.names))),
+        }
 
         data = self.pp.flatten_pandas(
             obj.reset_index(drop=True).to_csv(index=False), data, meta
@@ -110,7 +113,7 @@ class PandasDfHandler(BaseHandler):
 
         df.set_index(decode(meta['index']), inplace=True)
         # restore the column level(s) name(s)
-        df.columns.names = column_levels_names        
+        df.columns.names = column_levels_names
         return df
 
 
