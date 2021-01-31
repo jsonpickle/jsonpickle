@@ -15,6 +15,7 @@ except ImportError:
 
 import jsonpickle
 import jsonpickle.ext.pandas
+from jsonpickle.compat import PY2
 
 
 @pytest.fixture(scope='module', autouse=True)
@@ -287,6 +288,25 @@ def test_dataframe_with_timedelta64_dtype():
     assert data_frame['Duration'][0] == actual['Duration'][0]
     assert data_frame['Duration'][1] == actual['Duration'][1]
     assert data_frame['Duration'][2] == actual['Duration'][2]
+
+
+def test_multilevel_columns():
+    if not PY2:
+        pytest.skip('This test does not yet pass on Python 3')
+
+    iterables = [['inj', 'prod'], ['hourly', 'cumulative']]
+    names = ['first', 'second']
+    # transform it to tuples
+    columns = pd.MultiIndex.from_product(iterables, names=names)
+    # build a multi-index from it
+    data_frame = pd.DataFrame(
+        np.random.randn(3, 4), index=['A', 'B', 'C'], columns=columns
+    )
+    encoded = jsonpickle.encode(data_frame)
+    cloned_data_frame = jsonpickle.decode(encoded)
+    assert isinstance(cloned_data_frame, pd.DataFrame)
+    assert data_frame.columns.names == cloned_data_frame.columns.names
+    assert_frame_equal(data_frame, cloned_data_frame)
 
 
 if __name__ == '__main__':

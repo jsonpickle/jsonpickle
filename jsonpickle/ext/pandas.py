@@ -56,7 +56,7 @@ class PandasProcessor(object):
 def make_read_csv_params(meta):
     meta_dtypes = meta.get('dtypes', {})
     # The header is used to select the rows of the csv from which
-    # the columns names are retrived
+    # the columns names are retrieved
     header = meta.get('header', [0])
     parse_dates = []
     converters = {}
@@ -102,7 +102,9 @@ class PandasDfHandler(BaseHandler):
     def restore(self, data):
         csv, meta = self.pp.restore_pandas(data)
         params, timedeltas = make_read_csv_params(meta)
-        column_levels_names = meta.get('column_level_names', None)
+        # None makes it compatible with objects serialized before
+        # column_levels_names has been introduced.
+        column_level_names = meta.get('column_level_names', None)
         df = (
             pd.read_csv(StringIO(csv), **params)
             if data['values'].strip()
@@ -113,7 +115,8 @@ class PandasDfHandler(BaseHandler):
 
         df.set_index(decode(meta['index']), inplace=True)
         # restore the column level(s) name(s)
-        df.columns.names = column_levels_names
+        if column_level_names:
+            df.columns.names = column_level_names
         return df
 
 
