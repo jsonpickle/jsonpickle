@@ -4,6 +4,7 @@ v1.5.2
       (#346) (+347)
     * Numpy 1.20 is now officially supported.  (#336)
     * Python 3.9 is now officially supported.  (+348)
+    * Achieved a small speedup for _get_flattener by merging type checks. (+349)
 
 v1.5.1
 ======
