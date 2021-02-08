@@ -6,7 +6,7 @@ v2.0.0
       dictionary appears twice in a list, the reconstituted list
       will now contain two references to the same dictionary.  (#255) (+332)
 
-v1.5.3
+v1.5.2
 ======
     * Patch release to avoid the change in behavior from the preservation
       of dict identity.  The next release will be v2.0.0.  (#351)
