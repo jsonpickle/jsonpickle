@@ -1,4 +1,5 @@
 # Run "py.test jsonpickle_benchmarks.py" in the directory that this file is in.
+# You can also run "make benchmark" if you'd rather.
 # MAKE SURE you have pytest_benchmark pip installed.
 import jsonpickle
 import itertools
@@ -15,7 +16,7 @@ import itertools
 ###################################################################################
 
 
-class SlotPickleMixin:
+class SlotPickleMixin(object):
     def __getstate__(self):
         all_slots = itertools.chain.from_iterable(
             getattr(cls, '__slots__', []) for cls in self.__class__.__mro__
@@ -29,7 +30,7 @@ class SlotPickleMixin:
             setattr(self, slot, value)
 
 
-class MyClass:
+class MyClass(object):
     __slots__ = ['idk', 'idk2']
 
     def __init__(self):
@@ -83,7 +84,7 @@ class MyClassGetState(SlotPickleMixin):
         SlotPickleMixin.__setstate__(self, object_state)
 
 
-class MyClassBasic:
+class MyClassBasic(object):
     def __init__(self):
         self.idk = {'a': 0}
         self.idk2 = ['a', 0]
