@@ -6,6 +6,7 @@ CTAGS ?= ctags
 FIND ?= find
 PYTHON ?= python
 PYTEST ?= $(PYTHON) -m pytest
+BENCHMARK ?= py.test
 RM_R ?= rm -fr
 SH ?= sh
 TOX ?= tox
@@ -34,22 +35,19 @@ DASH_J := $(shell echo -- $(JOB_FLAGS) -j$(nproc) | grep -o -e '-j[0-9]\+' | hea
 NUM_JOBS := $(shell printf %s "$(DASH_J)" | sed -e 's/-j//')
 
 TESTCMD ?= $(PYTEST)
+BENCHMARKCMD ?= $(BENCHMARK)
 TOXCMD ?= $(TOX)
+TOXCMD += --parallel $(NUM_JOBS)
 TOXCMD += --develop --skip-missing-interpreters
 ifdef multi
-    TOXCMD += --parallel $(NUM_JOBS)
     TOXCMD += -e
     TOXCMD += 'clean,py{27,36,37,38,39},py{27,38,39}-sa{10,11,12,13},py{27,38,39}-libs'
-    # Disable coverage when running in parallel
-    TOXCMD += -- --no-cov
 endif
 ifdef V
     TESTCMD += --verbose
     TOXCMD += -v
+    BENCHMARKCMD += --benchmark-verbose
 endif
-
-# Coverage
-COVERAGE_ENV ?= py39
 
 # Data
 ARTIFACTS := build
@@ -71,6 +69,7 @@ help:
 	@echo "make tox		        - run unit tests using tox"
 	@echo "make tox multi=1     - run unit tests on multiple pythons using tox"
 	@echo "make clean           - remove cruft"
+	@echo "make benchmark      - run pytest benchmarking"
 .PHONY: help
 
 test:
@@ -81,6 +80,10 @@ tox:
 	$(TOXCMD) $(flags)
 .PHONY: tox
 
+benchmark:
+	$(BENCHMARKCMD) ./jsonpickle_benchmarks.py $(flags)
+.PHONY: benchmark
+    
 tags:
 	$(FIND) $(PYTHON_DIRS) -name '*.py' -print0 | xargs -0 $(CTAGS) -f tags
 
