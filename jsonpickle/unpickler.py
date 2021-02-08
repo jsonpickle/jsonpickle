@@ -541,7 +541,6 @@ class Unpickler(object):
 
     def _restore_dict(self, obj):
         data = {}
-        self._mkref(data)
 
         # If we are decoding dicts that can have non-string keys then we
         # need to do a two-phase decode where the non-string keys are

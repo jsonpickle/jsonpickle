@@ -2,6 +2,8 @@ v1.5.3
 ======
     * Patch release to avoid the change in behavior from the preservation
       of dict identity.  The next release will be v2.0.0.  (#351)
+    * This relese does *not* include the performance improvements
+      from v1.5.1 and v1.5.2.
 
 v1.5.2
 ======
