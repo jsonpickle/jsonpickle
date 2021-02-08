@@ -1,3 +1,8 @@
+v1.5.3
+======
+    * Patch release to avoid the change in behavior from the preservation
+      of dict identity.  The next release will be v2.0.0.  (#351)
+
 v1.5.2
 ======
     * Pandas DataFrame objects with multilevel columns are now supported.
