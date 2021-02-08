@@ -1530,6 +1530,15 @@ class PicklingProtocol2TestCase(SkippableTest):
         self.test_cyclical_objects_unpickleable_false(use_tuple=False)
 
 
+def test_dict_references_are_preserved():
+    data = {}
+    actual = jsonpickle.decode(jsonpickle.encode([data, data]))
+    assert isinstance(actual, list)
+    assert isinstance(actual[0], dict)
+    assert isinstance(actual[1], dict)
+    assert actual[0] is actual[1]
+
+
 def test_repeat_objects_are_expanded():
     """Ensure that all objects are present in the json output"""
     # When references are disabled we should create expanded copies

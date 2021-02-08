@@ -1,3 +1,11 @@
+v2.0.0
+======
+    * Major release: the serialized JSON format now preserves dictionary
+      identity, which is a subtle change in the serialized format.  (#351)
+    * Dictionary identity is now preserved.  For example, if the same
+      dictionary appears twice in a list, the reconstituted list
+      will now contain two references to the same dictionary.  (#255) (+332)
+
 v1.5.3
 ======
     * Patch release to avoid the change in behavior from the preservation
