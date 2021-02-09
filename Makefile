@@ -1,5 +1,7 @@
 #!/usr/bin/env make
 
+DATEANDTIME=$(shell date --iso=seconds)
+
 # External commands
 BLACK ?= black
 CTAGS ?= ctags
@@ -70,12 +72,12 @@ all:: help
 
 help:
 	@echo "---- Makefile Targets ----"
-	@echo "make help            - print this message"
-	@echo "make test            - run unit tests"
-	@echo "make tox		        - run unit tests using tox"
-	@echo "make tox multi=1     - run unit tests on multiple pythons using tox"
-	@echo "make clean           - remove cruft"
-	@echo "make benchmark       - run pytest benchmarking"
+	@echo "make help           - print this message"
+	@echo "make test           - run unit tests"
+	@echo "make tox            - run unit tests using tox"
+	@echo "make tox multi=1    - run unit tests on multiple pythons using tox"
+	@echo "make clean          - remove cruft"
+	@echo "make benchmark      - run pytest benchmarking"
 .PHONY: help
 
 test:
@@ -87,7 +89,7 @@ tox:
 .PHONY: tox
 
 benchmark:
-	$(BENCHMARKCMD) ./jsonpickle_benchmarks.py $(flags)
+	$(BENCHMARKCMD) --benchmark-only --benchmark-histogram=./images/$(DATEANDTIME) ./jsonpickle_benchmarks.py
 .PHONY: benchmark
     
 tags:
