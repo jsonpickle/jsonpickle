@@ -4,10 +4,23 @@
 
 jsonpickle 2.0.0 shows significant improvement in encoding/decoding speeds for virtually every test, the main benefits come in class encoding/decoding, but there are more minor speedups for other common use cases also. Onto the raw data!
 
-jsonpickle 2.0.0 and Python 3.9.1, on a 3 vCPU (3.8GHz Ryzen 3900X) VPS running Ubuntu 20.04
+Environment:
+- Python 3.9.1
+- 3 vCPU (3.8GHz Ryzen 3900X) VPS
+- Ubuntu 20.04
 
-<figure><img src="images/jsonpickle-2.0.0.svg"><figcaption>Jsonpickle 2.0.0 Graph</figcaption></figure>
+jsonpickle 2.0.0
 
-jsonpickle 1.5.2 and Python 3.9.1, on a 3 vCPU (3.8GHz Ryzen 3900X) VPS running Ubuntu 20.04
+<figure><img src="images/jsonpickle-2.0.0.svg"></figure>
 
-<figure><img src="images/jsonpickle-1.5.2.svg"><figcaption>Jsonpickle 1.5.2 Graph</figcaption></figure>
+jsonpickle 1.5.2
+
+<figure><img src="images/jsonpickle-1.5.2.svg"></figure>
+
+jsonpickle 1.4.2
+
+<figure><img src="images/jsonpickle-1.4.2.svg"></figure>
+
+jsonpickle 0.9.6
+
+<figure><img src="images/jsonpickle-0.9.6.svg"></figure>
