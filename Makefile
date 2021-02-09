@@ -75,7 +75,7 @@ help:
 	@echo "make tox		        - run unit tests using tox"
 	@echo "make tox multi=1     - run unit tests on multiple pythons using tox"
 	@echo "make clean           - remove cruft"
-	@echo "make benchmark      - run pytest benchmarking"
+	@echo "make benchmark       - run pytest benchmarking"
 .PHONY: help
 
 test:
