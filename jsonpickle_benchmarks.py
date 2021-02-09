@@ -1,5 +1,6 @@
-# Run "py.test jsonpickle_benchmarks.py" in the directory that this file is in.
-# You can also run "make benchmark" if you'd rather.
+# Run "make benchmark" in the directory that this file is in.
+# This will test the version of jsonpickle inside the local directory,
+# NOT the pip installed version.
 # MAKE SURE you have pytest_benchmark pip installed.
 import jsonpickle
 import itertools
