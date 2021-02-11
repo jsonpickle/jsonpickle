@@ -381,18 +381,13 @@ def is_reducible(obj):
     # defaultdicts may contain functions which we cannot serialise
     if is_collections(obj) and not isinstance(obj, collections.defaultdict):
         return True
-    # sets are slightly slower in this case
-    if type(obj) in NON_REDUCIBLE_TYPES:
+    # combining all this into a single long if statement with many ORs
+    # would be significantly faster but it'd be over the 88 char line limit :(
+    if type(obj) in NON_REDUCIBLE_TYPES or obj is object:
         return False
-    elif obj is object:
+    elif is_dictionary_subclass(obj) or isinstance(obj, types.ModuleType):
         return False
-    elif is_list_like(obj):
-        return False
-    elif isinstance(obj, types.ModuleType):
-        return False
-    elif is_dictionary_subclass(obj):
-        return False
-    elif is_reducible_sequence_subclass(obj):
+    elif is_reducible_sequence_subclass(obj) or is_list_like(obj):
         return False
     elif isinstance(getattr(obj, '__slots__', None), iterator_types):
         return False
