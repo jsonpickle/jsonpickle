@@ -1,6 +1,6 @@
 #!/usr/bin/env make
 
-DATEANDTIME=$(shell date --iso=seconds)
+DATEANDTIME=$(shell date +%Y-%m-%dT%T%z)
 
 # External commands
 BLACK ?= black
