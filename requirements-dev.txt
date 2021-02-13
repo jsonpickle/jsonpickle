@@ -12,6 +12,8 @@ pytest
 pytest-black-multipy
 pytest-cov
 pytest-flake8
+pytest-benchmark
+pytest-benchmark[histogram]
 simplejson
 sklearn
 sqlalchemy

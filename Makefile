@@ -1,11 +1,14 @@
 #!/usr/bin/env make
 
+DATEANDTIME=$(shell date --iso=seconds)
+
 # External commands
 BLACK ?= black
 CTAGS ?= ctags
 FIND ?= find
 PYTHON ?= python
 PYTEST ?= $(PYTHON) -m pytest
+BENCHMARK ?= py.test
 RM_R ?= rm -fr
 SH ?= sh
 TOX ?= tox
@@ -34,7 +37,9 @@ DASH_J := $(shell echo -- $(JOB_FLAGS) -j$(nproc) | grep -o -e '-j[0-9]\+' | hea
 NUM_JOBS := $(shell printf %s "$(DASH_J)" | sed -e 's/-j//')
 
 TESTCMD ?= $(PYTEST)
+BENCHMARKCMD ?= $(BENCHMARK)
 TOXCMD ?= $(TOX)
+TOXCMD += --parallel $(NUM_JOBS)
 TOXCMD += --develop --skip-missing-interpreters
 ifdef multi
     TOXCMD += --parallel $(NUM_JOBS)
@@ -46,6 +51,7 @@ endif
 ifdef V
     TESTCMD += --verbose
     TOXCMD += -v
+    BENCHMARKCMD += --benchmark-verbose
 endif
 
 # Coverage
@@ -66,11 +72,12 @@ all:: help
 
 help:
 	@echo "---- Makefile Targets ----"
-	@echo "make help            - print this message"
-	@echo "make test            - run unit tests"
-	@echo "make tox		        - run unit tests using tox"
-	@echo "make tox multi=1     - run unit tests on multiple pythons using tox"
-	@echo "make clean           - remove cruft"
+	@echo "make help           - print this message"
+	@echo "make test           - run unit tests"
+	@echo "make tox            - run unit tests using tox"
+	@echo "make tox multi=1    - run unit tests on multiple pythons using tox"
+	@echo "make clean          - remove cruft"
+	@echo "make benchmark      - run pytest benchmarking"
 .PHONY: help
 
 test:
@@ -81,6 +88,10 @@ tox:
 	$(TOXCMD) $(flags)
 .PHONY: tox
 
+benchmark:
+	$(BENCHMARKCMD) --benchmark-only --benchmark-histogram=./images/$(DATEANDTIME) ./jsonpickle_benchmarks.py
+.PHONY: benchmark
+    
 tags:
 	$(FIND) $(PYTHON_DIRS) -name '*.py' -print0 | xargs -0 $(CTAGS) -f tags
 
