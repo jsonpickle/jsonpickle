@@ -1,6 +1,6 @@
 v2.0.1
 ======
-    * Benchmarks were added to aid in optmization efforts.  (#351) (+352)
+    * Benchmarks were added to aid in optmization efforts.  (#350) (+352)
     * ``is_reducible()`` was sped up by 30%.  (+353)
 
 v2.0.0
