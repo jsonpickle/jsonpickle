@@ -1,3 +1,7 @@
+v2.0.1
+======
+    * Benchmarks were added to aid in optmization efforts.  (#351) (+352)
+
 v2.0.0
 ======
     * Major release: the serialized JSON format now preserves dictionary
