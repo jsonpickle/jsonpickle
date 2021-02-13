@@ -39,7 +39,6 @@ NUM_JOBS := $(shell printf %s "$(DASH_J)" | sed -e 's/-j//')
 TESTCMD ?= $(PYTEST)
 BENCHMARKCMD ?= $(BENCHMARK)
 TOXCMD ?= $(TOX)
-TOXCMD += --parallel $(NUM_JOBS)
 TOXCMD += --develop --skip-missing-interpreters
 ifdef multi
     TOXCMD += --parallel $(NUM_JOBS)
