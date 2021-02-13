@@ -2,6 +2,7 @@
 /build
 /dist
 /docs/build
+/images/benchmark-*.svg
 /.eggs
 /env*
 /tags

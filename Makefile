@@ -88,9 +88,9 @@ tox:
 .PHONY: tox
 
 benchmark:
-	$(BENCHMARKCMD) --benchmark-only --benchmark-histogram=./images/$(DATEANDTIME) ./jsonpickle_benchmarks.py
+	$(BENCHMARKCMD) --benchmark-only --benchmark-histogram=./images/benchmark-$(DATEANDTIME) ./jsonpickle_benchmarks.py
 .PHONY: benchmark
-    
+
 tags:
 	$(FIND) $(PYTHON_DIRS) -name '*.py' -print0 | xargs -0 $(CTAGS) -f tags
 
