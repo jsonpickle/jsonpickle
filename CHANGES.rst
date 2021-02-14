@@ -7,6 +7,8 @@ v2.0.1
       and users deserializing pickles from jsonpickle <= 0.9.6 may see
       a slight performance decrease if using a lot of bytes, ref,
       and/or repr objects. (+354)
+    * ``is_iterator()`` was sped up by ~20% by removing an unneccesary
+      variable assignment. (+354)
 
 v2.0.0
 ======
