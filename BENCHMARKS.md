@@ -9,6 +9,10 @@ Environment:
 - 3 vCPU (3.8GHz Ryzen 3900X) VPS
 - Ubuntu 20.04
 
+jsonpickle 2.0.1-dev
+
+<figure><img src="images/jsonpickle-2.0.1-dev.svg"></figure>
+
 jsonpickle 2.0.0
 
 <figure><img src="images/jsonpickle-2.0.0.svg"></figure>

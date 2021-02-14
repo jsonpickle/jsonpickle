@@ -136,13 +136,13 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
             data = super(NumpyNDArrayHandlerBinary, self).flatten(obj, data)
         else:
             # encode as binary
-            if obj.dtype == np.object:
+            if obj.dtype == object:
                 # There's a bug deep in the bowels of numpy that causes a
                 # segfault when round-tripping an ndarray of dtype object.
                 # E.g., the following will result in a segfault:
                 #     import numpy as np
                 #     arr = np.array([str(i) for i in range(3)],
-                #                    dtype=np.object)
+                #                    dtype=object)
                 #     dtype = arr.dtype
                 #     shape = arr.shape
                 #     buf = arr.tobytes()
@@ -188,7 +188,7 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
                 buf = self.compression.decompress(buf)
             # See note above about segfault bug for numpy dtype object. Those
             # are saved as a list to work around that.
-            if dtype == np.object:
+            if dtype == object:
                 values = json.loads(buf.decode())
                 arr = np.array(values, dtype=dtype, order=data.get('order', 'C'))
                 shape = data.get('shape', None)
