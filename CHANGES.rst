@@ -1,7 +1,14 @@
 v2.0.1
 ======
     * Benchmarks were added to aid in optmization efforts.  (#350) (+352)
-    * ``is_reducible()`` was sped up by 30%.  (+353)
+    * ``is_reducible()`` was sped up by ~80%.  (+353) (+354)
+    * ``_restore_tags()`` was sped up by ~100%. Unpickling items 
+      with a lot of tuples and sets will benefit most. Python 2 users
+      and users deserializing pickles from jsonpickle <= 0.9.6 may see
+      a slight performance decrease if using a lot of bytes, ref,
+      and/or repr objects. (+354)
+    * ``is_iterator()`` was sped up by ~20% by removing an unneccesary
+      variable assignment. (+354)
 
 v2.0.0
 ======

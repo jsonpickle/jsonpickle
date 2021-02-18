@@ -205,36 +205,37 @@ class Unpickler(object):
                 return restore
         except TypeError:
             pass
-        if has_tag(obj, tags.B64):
-            restore = self._restore_base64
-        elif has_tag(obj, tags.B85):
-            restore = self._restore_base85
-        elif has_tag(obj, tags.ID):
-            restore = self._restore_id
-        elif has_tag(obj, tags.ITERATOR):
-            restore = self._restore_iterator
-        elif has_tag(obj, tags.TYPE):
-            restore = self._restore_type
-        elif has_tag(obj, tags.REDUCE):
-            restore = self._restore_reduce
-        elif has_tag(obj, tags.OBJECT):
-            restore = self._restore_object
-        elif has_tag(obj, tags.FUNCTION):
-            restore = self._restore_function
-        elif has_tag(obj, tags.BYTES):  # Backwards compatibility
-            restore = self._restore_quopri
-        elif has_tag(obj, tags.REF):  # Backwards compatibility
-            restore = self._restore_ref
-        elif has_tag(obj, tags.REPR):  # Backwards compatibility
-            restore = self._restore_repr
+        if type(obj) is dict:
+            if has_tag_dict(obj, tags.TUPLE):
+                restore = self._restore_tuple
+            elif has_tag_dict(obj, tags.SET):
+                restore = self._restore_set
+            elif has_tag_dict(obj, tags.B64):
+                restore = self._restore_base64
+            elif has_tag_dict(obj, tags.B85):
+                restore = self._restore_base85
+            elif has_tag_dict(obj, tags.ID):
+                restore = self._restore_id
+            elif has_tag_dict(obj, tags.ITERATOR):
+                restore = self._restore_iterator
+            elif has_tag_dict(obj, tags.OBJECT):
+                restore = self._restore_object
+            elif has_tag_dict(obj, tags.TYPE):
+                restore = self._restore_type
+            elif has_tag_dict(obj, tags.REDUCE):
+                restore = self._restore_reduce
+            elif has_tag_dict(obj, tags.FUNCTION):
+                restore = self._restore_function
+            elif has_tag_dict(obj, tags.BYTES):  # Backwards compatibility
+                restore = self._restore_quopri
+            elif has_tag_dict(obj, tags.REF):  # Backwards compatibility
+                restore = self._restore_ref
+            elif has_tag_dict(obj, tags.REPR):  # Backwards compatibility
+                restore = self._restore_repr
+            else:
+                restore = self._restore_dict
         elif util.is_list(obj):
             restore = self._restore_list
-        elif has_tag(obj, tags.TUPLE):
-            restore = self._restore_tuple
-        elif has_tag(obj, tags.SET):
-            restore = self._restore_set
-        elif util.is_dictionary(obj):
-            restore = self._restore_dict
         else:
 
             def restore(x):
@@ -780,3 +781,20 @@ def has_tag(obj, tag):
 
     """
     return type(obj) is dict and tag in obj
+
+
+def has_tag_dict(obj, tag):
+    """Helper class that tests to see if the obj is a dictionary
+    and contains a particular key/tag.
+
+    >>> obj = {'test': 1}
+    >>> has_tag(obj, 'test')
+    True
+    >>> has_tag(obj, 'fail')
+    False
+
+    >>> has_tag(42, 'fail')
+    False
+
+    """
+    return tag in obj
