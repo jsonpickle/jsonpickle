@@ -22,7 +22,7 @@ class PandasProcessor(object):
             dataframes are always stored as csv strings
         :param compression: a compression module or None
             valid values for 'compression' are {zlib, bz2, None}
-            if compresion is None, no compression is applied
+            if compression is None, no compression is applied
         """
         self.size_threshold = size_threshold
         self.compression = compression

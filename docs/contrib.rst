@@ -43,7 +43,7 @@ To test against these libs on Python 3.7::
 
     tox -e py37-libs
 
-To create the enivornment without running tests::
+To create the environment without running tests::
 
     tox -e libs --notest
 

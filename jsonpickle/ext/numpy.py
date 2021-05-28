@@ -114,7 +114,7 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
             if size_threshold is None, values are always stored as nested lists
         :param compression: a compression module or None
             valid values for 'compression' are {zlib, bz2, None}
-            if compresion is None, no compression is applied
+            if compression is None, no compression is applied
         """
         self.size_threshold = size_threshold
         self.compression = compression
@@ -240,7 +240,7 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
             if size_threshold is None, values are always stored as nested lists
         :param compression: a compression module or None
             valid values for 'compression' are {zlib, bz2, None}
-            if compresion is None, no compression is applied
+            if compression is None, no compression is applied
         """
         super(NumpyNDArrayHandlerView, self).__init__(size_threshold, compression)
         self.mode = mode

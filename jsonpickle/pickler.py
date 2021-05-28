@@ -595,7 +595,7 @@ class Pickler(object):
                 if self._mkref(factory):
                     # We've never seen this object before so pickle it in-place.
                     # Create an instance from the factory and assume that the
-                    # resulting instance is a suitable examplar.
+                    # resulting instance is a suitable exemplar.
                     value = self._flatten_obj_instance(handlers.CloneFactory(factory()))
                 else:
                     # We've seen this object before.

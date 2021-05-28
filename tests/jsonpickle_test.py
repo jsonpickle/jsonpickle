@@ -1133,7 +1133,7 @@ class PicklingProtocol4TestCase(unittest.TestCase):
     def test_pickle_newargs_ex(self):
         """
         Ensure we can pickle and unpickle an object whose class needs arguments
-        to __new__ and get back the same typle
+        to __new__ and get back the same type
         """
         instance = PicklableNamedTupleEx(**{'a': 'b', 'n': 2})
         encoded = jsonpickle.encode(instance)
@@ -1349,7 +1349,7 @@ class PicklingProtocol2TestCase(SkippableTest):
     def test_pickle_newargs(self):
         """
         Ensure we can pickle and unpickle an object whose class needs arguments
-        to __new__ and get back the same typle
+        to __new__ and get back the same type
         """
         instance = PicklableNamedTuple(('a', 'b'), (1, 2))
         encoded = jsonpickle.encode(instance)
