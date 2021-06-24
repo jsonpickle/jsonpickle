@@ -14,8 +14,8 @@ pytest-cov
 pytest-flake8
 pytest-benchmark
 pytest-benchmark[histogram]
+scikit-learn
 simplejson
-sklearn
 sqlalchemy
 ujson
 yajl; sys_platform != 'win32' and python_version < '3.0'
