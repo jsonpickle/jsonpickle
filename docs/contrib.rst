@@ -17,7 +17,7 @@ Get the Code
 Run the Test Suite
 ==================
 
-Before code is pulled into the master jsonpickle branch, all tests should pass.
+All tests should pass before before code is merged into the main repository.
 If you are contributing an addition or a change in behavior, we ask that you
 document the change in the form of test cases.
 
