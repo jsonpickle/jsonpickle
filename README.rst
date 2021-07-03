@@ -24,6 +24,13 @@ jsonpickle is a library for the two-way conversion of complex Python objects
 and `JSON <http://json.org/>`_.  jsonpickle builds upon the existing JSON
 encoders, such as simplejson, json, and demjson.
 
+.. warning::
+
+   jsonpickle can execute arbitrary Python code.
+
+   Please see the Security section for more details.
+
+
 For complete documentation, please visit the
 `jsonpickle documentation <http://jsonpickle.readthedocs.io/>`_.
 
@@ -32,12 +39,31 @@ Bug reports and merge requests are encouraged at the
 
 jsonpickle supports Python 2.7 and Python 3.4 or greater.
 
-    **WARNING**:
-    jsonpickle can execute arbitrary Python code. Do not load jsonpickles from untrusted / unauthenticated sources.
-
 Why jsonpickle?
 ===============
 Data serialized with python's pickle (or cPickle or dill) is not easily readable outside of python. Using the json format, jsonpickle allows simple data types to be stored in a human-readable format, and more complex data types such as numpy arrays and pandas dataframes, to be machine-readable on any platform that supports json. E.g., unlike pickled data, jsonpickled data stored in an Amazon S3 bucket is indexible by Amazon's Athena.
+
+Security
+========
+
+jsonpickle should be treated the same as the
+`Python stdlib pickle module <https://docs.python.org/3/library/pickle.html>`_
+from a security perspective.
+
+.. warning::
+
+   The jsonpickle module **is not secure**.  Only unpickle data you trust.
+
+   It is possible to construct malicious pickle data which will **execute
+   arbitrary code during unpickling**.  Never unpickle data that could have come
+   from an untrusted source, or that could have been tampered with.
+
+   Consider signing data with :mod:`hmac` if you need to ensure that it has not
+   been tampered with.
+
+   Safer deserialization approaches, such as reading :mod:`json` directly,
+   may be more appropriate if you are processing untrusted data.
+
 
 Install
 =======

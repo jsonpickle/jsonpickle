@@ -17,11 +17,6 @@ and add additional backends.
 jsonpickle Usage
 ================
 
-.. note::
-
-   Please see the note in the :ref:`api-docs` when serializing dictionaries
-   that contain non-string dictionary keys.
-
 .. automodule:: jsonpickle
 
 Download & Install
