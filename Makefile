@@ -8,6 +8,7 @@ CTAGS ?= ctags
 FIND ?= find
 PYTHON ?= python
 PYTEST ?= $(PYTHON) -m pytest
+SPHINX ?= $(PYTHON) -m sphinx
 BENCHMARK ?= py.test
 RM_R ?= rm -fr
 SH ?= sh
@@ -69,7 +70,7 @@ PYTHON_DIRS += jsonpickle
 # The default target of this makefile is....
 all:: help
 
-help:
+help::
 	@echo "---- Makefile Targets ----"
 	@echo "make help           - print this message"
 	@echo "make test           - run unit tests"
@@ -77,24 +78,28 @@ help:
 	@echo "make tox multi=1    - run unit tests on multiple pythons using tox"
 	@echo "make clean          - remove cruft"
 	@echo "make benchmark      - run pytest benchmarking"
+	@echo "make doc            - generate documentation using sphinx"
 .PHONY: help
 
-test:
+test::
 	$(TESTCMD) $(flags)
 .PHONY: test
 
-tox:
+tox::
 	$(TOXCMD) $(flags)
 .PHONY: tox
 
-benchmark:
+benchmark::
 	$(BENCHMARKCMD) --benchmark-only --benchmark-histogram=./images/benchmark-$(DATEANDTIME) ./jsonpickle_benchmarks.py
 .PHONY: benchmark
 
-tags:
+doc::
+	$(SPHINX) docs build/html
+
+tags::
 	$(FIND) $(PYTHON_DIRS) -name '*.py' -print0 | xargs -0 $(CTAGS) -f tags
 
-clean:
+clean::
 	$(FIND) $(PYTHON_DIRS) -name '*.py[cod]' -print0 | xargs -0 rm -f
 	$(FIND) $(PYTHON_DIRS) -name '__pycache__' -print0 | xargs -0 rm -fr
 	$(RM_R) $(ARTIFACTS)
