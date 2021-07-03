@@ -6,18 +6,15 @@
 
 .. _PyPI link: https://pypi.org/project/jsonpickle
 
-.. image:: https://dev.azure.com/jaraco/jsonpickle/_apis/build/status/jaraco.jsonpickle?branchName=master
-   :target: https://dev.azure.com/jaraco/jsonpickle/_build/latest?definitionId=1&branchName=master
-
 .. image:: https://readthedocs.org/projects/jsonpickle/badge/?version=latest
    :target: https://jsonpickle.readthedocs.io/en/latest/?badge=latest
 
-.. image:: https://travis-ci.org/jsonpickle/jsonpickle.svg?branch=master
-   :target: https://travis-ci.org/jsonpickle/jsonpickle
-   :alt: travis
+.. image:: https://github.com/jsonpickle/jsonpickle/actions/workflows/test.yml/badge.svg
+   :target: https://github.com/jsonpickle/jsonpickle/actions
+   :alt: Github Actions
 
 .. image:: https://img.shields.io/badge/License-BSD%203--Clause-blue.svg
-   :target: https://github.com/jsonpickle/jsonpickle/blob/master/COPYING
+   :target: https://github.com/jsonpickle/jsonpickle/blob/main/COPYING
    :alt: BSD
 
 
