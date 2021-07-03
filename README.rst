@@ -58,10 +58,10 @@ from a security perspective.
    arbitrary code during unpickling**.  Never unpickle data that could have come
    from an untrusted source, or that could have been tampered with.
 
-   Consider signing data with :mod:`hmac` if you need to ensure that it has not
+   Consider signing data with an HMAC if you need to ensure that it has not
    been tampered with.
 
-   Safer deserialization approaches, such as reading :mod:`json` directly,
+   Safer deserialization approaches, such as reading JSON directly,
    may be more appropriate if you are processing untrusted data.
 
 
