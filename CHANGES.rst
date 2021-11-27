@@ -1,13 +1,13 @@
 v2.0.1
 ======
-    * Benchmarks were added to aid in optmization efforts.  (#350) (+352)
+    * Benchmarks were added to aid in optimization efforts.  (#350) (+352)
     * ``is_reducible()`` was sped up by ~80%.  (+353) (+354)
     * ``_restore_tags()`` was sped up by ~100%. Unpickling items 
       with a lot of tuples and sets will benefit most. Python 2 users
       and users deserializing pickles from jsonpickle <= 0.9.6 may see
       a slight performance decrease if using a lot of bytes, ref,
       and/or repr objects. (+354)
-    * ``is_iterator()`` was sped up by ~20% by removing an unneccesary
+    * ``is_iterator()`` was sped up by ~20% by removing an unnecessary
       variable assignment. (+354)
 
 v2.0.0
@@ -22,7 +22,7 @@ v1.5.2
 ======
     * Patch release to avoid the change in behavior from the preservation
       of dict identity.  The next release will be v2.0.0.  (#351)
-    * This relese does *not* include the performance improvements
+    * This release does *not* include the performance improvements
       from v1.5.1.
     * Pandas DataFrame objects with multilevel columns are now supported.
       (#346) (+347)
@@ -309,7 +309,7 @@ v0.5.0
       (#16).
     * Experimental support for  `jsonlib <http://pypi.python.org/pypi/jsonlib/>`_
       and `py-yajl <http://github.com/rtyler/py-yajl/>`_ backends.
-    * New contributers David K. Hess and Alec Thomas
+    * New contributors David K. Hess and Alec Thomas
 
     .. warning::
 

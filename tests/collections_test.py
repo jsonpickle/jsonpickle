@@ -56,7 +56,7 @@ can be pickled.
 
 Tests restorable collections by creating pickled structures featuring
 no cycles, self cycles, and mutual cycles, for all supported dictionary and
-set wrappers. Python bult-in dictionaries and sets are also tested with
+set wrappers. Python built-in dictionaries and sets are also tested with
 expectation of failure via raising exceptions.
 
 """

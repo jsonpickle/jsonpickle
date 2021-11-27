@@ -232,7 +232,7 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
     def __init__(self, mode='warn', size_threshold=16, compression=zlib):
         """
         :param mode: {'warn', 'raise', 'ignore'}
-            How to react when encountering array-like objects whos
+            How to react when encountering array-like objects whose
             references we cannot safely serialize
         :param size_threshold: nonnegative int or None
             valid values for 'size_threshold' are all nonnegative
