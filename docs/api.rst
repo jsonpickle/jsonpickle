@@ -73,7 +73,7 @@ Customizing JSON output
 -----------------------
 
 jsonpickle supports the standard :mod:`pickle` `__getstate__` and `__setstate__`
-protocol for representating object instances.
+protocol for representing object instances.
 
 .. method:: object.__getstate__()
 

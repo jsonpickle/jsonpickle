@@ -72,7 +72,7 @@ class ThingWithProps(object):
         self.name = state_dict.get('nom', '')
         ident = state_dict.get('__identity__')
         if ident != self.identity:
-            raise ValueError('expanded object does not match originial state!')
+            raise ValueError('expanded object does not match original state!')
 
     def __eq__(self, other):
         return self.identity == other.identity
