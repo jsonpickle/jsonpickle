@@ -831,6 +831,10 @@ class JSONPickleTestCase(SkippableTest):
         self.assertEqual(decoded_middle_obj.attribute, middle_obj.attribute)
         self.assertEqual(decoded_inner_obj.attribute, inner_obj.attribute)
 
+    def test_v1_decode(self):
+        # TODO: Find a simple example that reproduces #364
+        self.assertTrue(True)
+
 
 class PicklableNamedTuple(object):
     """

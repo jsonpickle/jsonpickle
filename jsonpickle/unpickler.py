@@ -17,7 +17,14 @@ from .backend import json
 
 
 def decode(
-    string, backend=None, context=None, keys=False, reset=True, safe=False, classes=None
+    string,
+    backend=None,
+    context=None,
+    keys=False,
+    reset=True,
+    safe=False,
+    classes=None,
+    v1_decode=False,
 ):
     """Convert a JSON string into a Python object.
 
@@ -39,13 +46,20 @@ def decode(
     If set to an instance of jsonpickle.backend.JSONBackend, jsonpickle
     will use that backend for deserialization.
 
+    The keyword argument 'v1_decode' defaults to False.
+    If set to True it enables you to decode objects serialized in jsonpickle v1.
+    Please do not attempt to re-encode the objects in the v1 format! Version 2's format
+    fixes issue #255, and allows dictionary identity to be preserved through an en/decode.
+
     >>> decode('"my string"') == 'my string'
     True
     >>> decode('36')
     36
     """
     backend = backend or json
-    context = context or Unpickler(keys=keys, backend=backend, safe=safe)
+    context = context or Unpickler(
+        keys=keys, backend=backend, safe=safe, v1_decode=v1_decode
+    )
     data = backend.decode(string)
     return context.restore(data, reset=reset, classes=classes)
 
@@ -121,10 +135,11 @@ def _obj_setvalue(obj, idx, proxy):
 
 
 class Unpickler(object):
-    def __init__(self, backend=None, keys=False, safe=False):
+    def __init__(self, backend=None, keys=False, safe=False, v1_decode=False):
         self.backend = backend or json
         self.keys = keys
         self.safe = safe
+        self.v1_decode = v1_decode
 
         self.reset()
 
@@ -542,7 +557,8 @@ class Unpickler(object):
 
     def _restore_dict(self, obj):
         data = {}
-        self._mkref(data)
+        if not self.v1_decode:
+            self._mkref(data)
 
         # If we are decoding dicts that can have non-string keys then we
         # need to do a two-phase decode where the non-string keys are
