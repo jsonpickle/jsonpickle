@@ -9,6 +9,8 @@ v2.0.1
       and/or repr objects. (+354)
     * ``is_iterator()`` was sped up by ~20% by removing an unnecessary
       variable assignment. (+354)
+    * ``jsonpickle.decode`` has a new option, ``v1_decode`` to assist in
+      decoding objects created in jsonpickle version 1.(#364)
 
 v2.0.0
 ======
