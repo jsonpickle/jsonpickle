@@ -1,5 +1,6 @@
 from __future__ import absolute_import, division, unicode_literals
 import decimal
+import sys
 import unittest
 from warnings import warn
 
@@ -30,6 +31,8 @@ class BackendBase(SkippableTest):
 
         self._is_installed(backend)
 
+        self.backend = backend
+
         jsonpickle.load_backend(*args)
         jsonpickle.set_preferred_backend(backend)
 
@@ -52,6 +55,8 @@ class BackendBase(SkippableTest):
         self.assertEqual(expect['things'][0].name, actual['things'][0].name)
         self.assertEqual(expect['things'][0].child, actual['things'][0].child)
 
+    @unittest.skipIf(self.backend=='demjson' and sys.version_info >= (3, 9),
+                     "DemJSON doesn't support Python 3.9+")
     def test_None_dict_key(self):
         """Ensure that backends produce the same result for None dict keys"""
         data = {None: None}
