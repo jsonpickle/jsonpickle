@@ -58,7 +58,11 @@ class BackendBase(SkippableTest):
     def test_None_dict_key(self):
         """Ensure that backends produce the same result for None dict keys"""
 
-        if self.backend == 'demjson' and sys.version_info >= (3, 9):
+        if (
+            hasattr(self, 'backend')
+            and self.backend == 'demjson'
+            and sys.version_info >= (3, 9)
+        ):
             self.skipTest("DemJSOB doesn't support CPython 3.9+")
 
         data = {None: None}
