@@ -39,9 +39,14 @@ def encode(
 ):
     """Return a JSON formatted representation of value, a Python object.
 
-    :param unpicklable: If set to False then the output will not contain the
+    :param unpicklable: If set to ``False`` then the output will not contain the
         information necessary to turn the JSON data back into Python objects,
-        but a simpler JSON stream is produced.
+        but a simpler JSON stream is produced. It's recommended to set this
+        parameter to ``False`` when your code does not rely on two objects
+        having the same ``id()`` value, and when it is sufficient for those two
+        objects to be equal by ``==``, such as when serializing sklearn
+        instances. If you experience (de)serialization being incorrect when you
+        use numpy, pandas, or sklearn handlers, this should be set to ``False``.
     :param max_depth: If set to a non-negative integer then jsonpickle will
         not recurse deeper than 'max_depth' steps into the object.  Anything
         deeper than 'max_depth' is represented using a Python repr() of the
