@@ -27,11 +27,11 @@ class BackendBase(SkippableTest):
             return self.skip('%s not available; please install' % backend)
 
     def set_backend(self, *args):
-        global backend
-
         backend = args[0]
 
         self._is_installed(backend)
+
+        self.backend = backend
 
         jsonpickle.load_backend(*args)
         jsonpickle.set_preferred_backend(backend)
@@ -55,10 +55,12 @@ class BackendBase(SkippableTest):
         self.assertEqual(expect['things'][0].name, actual['things'][0].name)
         self.assertEqual(expect['things'][0].child, actual['things'][0].child)
 
-    @unittest.skipIf(backend=='demjson' and sys.version_info >= (3, 9),
-                     "DemJSON doesn't support Python 3.9+")
     def test_None_dict_key(self):
         """Ensure that backends produce the same result for None dict keys"""
+
+        if self.backend == 'demjson' and sys.version_info >= (3, 9):
+            self.skipTest("DemJSOB doesn't support CPython 3.9+")
+
         data = {None: None}
         expect = {'null': None}
         pickle = jsonpickle.encode(data)
