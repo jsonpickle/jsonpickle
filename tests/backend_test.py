@@ -1,11 +1,9 @@
 from __future__ import absolute_import, division, unicode_literals
 import decimal
-import sys
 import unittest
 from warnings import warn
 
 import jsonpickle
-from jsonpickle import compat
 from jsonpickle.compat import PY2
 from jsonpickle.compat import PY3
 
@@ -187,8 +185,6 @@ def suite():
     suite.addTest(unittest.makeSuite(JsonTestCase))
     suite.addTest(unittest.makeSuite(UJsonTestCase))
     suite.addTest(unittest.makeSuite(SimpleJsonTestCase))
-    if has_module('demjson'):
-        suite.addTest(unittest.makeSuite(DemjsonTestCase))
     if has_module('yajl'):
         suite.addTest(unittest.makeSuite(YajlTestCase))
     if PY2:
