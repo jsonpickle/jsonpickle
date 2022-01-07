@@ -31,16 +31,11 @@ class BackendBase(SkippableTest):
 
         self._is_installed(backend)
 
-        self.backend = backend
-
         jsonpickle.load_backend(*args)
         jsonpickle.set_preferred_backend(backend)
 
     def set_preferred_backend(self, backend):
         self._is_installed(backend)
-
-        self.backend = backend
-
         jsonpickle.set_preferred_backend(backend)
 
     def tearDown(self):
@@ -60,14 +55,6 @@ class BackendBase(SkippableTest):
 
     def test_None_dict_key(self):
         """Ensure that backends produce the same result for None dict keys"""
-
-        if (
-            hasattr(self, 'backend')
-            and self.backend == 'demjson'
-            and sys.version_info >= (3, 9)
-        ):
-            self.skipTest("DemJSOB doesn't support CPython 3.9+")
-
         data = {None: None}
         expect = {'null': None}
         pickle = jsonpickle.encode(data)
@@ -148,28 +135,6 @@ def has_module(module):
         warn(module + ' module not available for testing, ' 'consider installing')
         return False
     return True
-
-
-class DemjsonTestCase(BackendBase):
-    def setUp(self):
-        self.set_preferred_backend('demjson')
-
-    def test_backend(self):
-        expected_pickled = compat.ustr(
-            '{"things":[{'
-            '"child":null,'
-            '"name":"data",'
-            '"py/object":"backend_test.Thing"}'
-            ']}'
-        )
-        self.assertEncodeDecode(expected_pickled)
-
-    def test_int_dict_keys_with_numeric_keys(self):
-        jsonpickle.set_encoder_options('demjson', strict=False)
-        int_dict = {1000: [1, 2]}
-        pickle = jsonpickle.encode(int_dict, numeric_keys=True)
-        actual = jsonpickle.decode(pickle)
-        self.assertEqual(actual[1000], [1, 2])
 
 
 class JsonlibTestCase(BackendBase):
