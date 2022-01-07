@@ -38,6 +38,9 @@ class BackendBase(SkippableTest):
 
     def set_preferred_backend(self, backend):
         self._is_installed(backend)
+
+        self.backend = backend
+
         jsonpickle.set_preferred_backend(backend)
 
     def tearDown(self):
