@@ -74,7 +74,7 @@ Authors
 
  * John Paulett - john -at- paulett.org - https://github.com/johnpaulett
  * David Aguilar - davvid -at- gmail.com - https://github.com/davvid
- * Theelx - theelx - https://github.com/Theelx
+ * Theelx - https://github.com/Theelx
  * Dan Buch - https://github.com/meatballhat
  * Ian Schenck - https://github.com/ianschenck
  * David K. Hess - https://github.com/davidkhess
