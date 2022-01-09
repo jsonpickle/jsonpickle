@@ -1,8 +1,17 @@
-v2.0.1
+.. warning::
+    The next major release of jsonpickle (v3.0.0) will drop support for
+    Python 3.5 and earlier (including Python 2.7).
+
+.. note::
+   Users on older Python versions should pin requirements to ``jsonpickle<3.0.0``.
+
+v2.1.0
 ======
+
+    * Python 3.10 is now officially supported. (+376)
     * Benchmarks were added to aid in optimization efforts.  (#350) (+352)
     * ``is_reducible()`` was sped up by ~80%.  (+353) (+354)
-    * ``_restore_tags()`` was sped up by ~100%. Unpickling items 
+    * ``_restore_tags()`` was sped up by ~100%. Unpickling items
       with a lot of tuples and sets will benefit most. Python 2 users
       and users deserializing pickles from jsonpickle <= 0.9.6 may see
       a slight performance decrease if using a lot of bytes, ref,
@@ -10,7 +19,13 @@ v2.0.1
     * ``is_iterator()`` was sped up by ~20% by removing an unnecessary
       variable assignment. (+354)
     * ``jsonpickle.decode`` has a new option, ``v1_decode`` to assist in
-      decoding objects created in jsonpickle version 1.(#364)
+      decoding objects created in jsonpickle version 1. (#364)
+    * The ``encode()`` documentation has been updated to help sklearn users.
+    * ``demjson`` has been removed from the test suite. (+374)
+    * ``SQLALchemy<1.2`` is no longer being tested by jsonpickle.
+      Users of sqlalchemy + jsonpickle can always use 1.2 or 1.3.
+      When jsonpickle v3 is released we will add SQLAlchemy 1.4 to
+      the test suite alongside removal of support for Python 3.5 and earlier.
 
 v2.0.0
 ======
