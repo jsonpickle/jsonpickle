@@ -15,8 +15,6 @@ jobs:
         os: [ubuntu-20.04]
         env:
           - TOXENV: libs
-          - TOXENV: sa10
-          - TOXENV: sa11
           - TOXENV: sa12
           - TOXENV: sa13
 
