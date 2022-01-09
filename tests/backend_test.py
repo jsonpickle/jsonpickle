@@ -4,7 +4,6 @@ import unittest
 from warnings import warn
 
 import jsonpickle
-from jsonpickle import compat
 from jsonpickle.compat import PY2
 from jsonpickle.compat import PY3
 
@@ -136,28 +135,6 @@ def has_module(module):
     return True
 
 
-class DemjsonTestCase(BackendBase):
-    def setUp(self):
-        self.set_preferred_backend('demjson')
-
-    def test_backend(self):
-        expected_pickled = compat.ustr(
-            '{"things":[{'
-            '"child":null,'
-            '"name":"data",'
-            '"py/object":"backend_test.Thing"}'
-            ']}'
-        )
-        self.assertEncodeDecode(expected_pickled)
-
-    def test_int_dict_keys_with_numeric_keys(self):
-        jsonpickle.set_encoder_options('demjson', strict=False)
-        int_dict = {1000: [1, 2]}
-        pickle = jsonpickle.encode(int_dict, numeric_keys=True)
-        actual = jsonpickle.decode(pickle)
-        self.assertEqual(actual[1000], [1, 2])
-
-
 class JsonlibTestCase(BackendBase):
     def setUp(self):
         if PY2:
@@ -208,8 +185,6 @@ def suite():
     suite.addTest(unittest.makeSuite(JsonTestCase))
     suite.addTest(unittest.makeSuite(UJsonTestCase))
     suite.addTest(unittest.makeSuite(SimpleJsonTestCase))
-    if has_module('demjson'):
-        suite.addTest(unittest.makeSuite(DemjsonTestCase))
     if has_module('yajl'):
         suite.addTest(unittest.makeSuite(YajlTestCase))
     if PY2:
