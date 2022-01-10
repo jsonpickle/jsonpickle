@@ -32,9 +32,14 @@ def roundtrip(obj):
 
 def test_dtype_roundtrip():
     dtypes = [
+        np.int_,
         np.int32,
+        np.float_,
         np.float64,
+        np.complex_,
         np.complex128,
+        np.str_,
+        np.object_,
         np.compat.unicode,
         np.dtype(np.void),
         np.dtype(np.int32),
