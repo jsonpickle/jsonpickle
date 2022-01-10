@@ -32,19 +32,21 @@ def roundtrip(obj):
 
 def test_dtype_roundtrip():
     dtypes = [
-        np.int,
-        np.float,
-        np.complex,
+        np.int_,
         np.int32,
-        np.str,
-        np.object,
-        np.unicode,
+        np.float_,
+        np.float64,
+        np.complex_,
+        np.complex128,
+        np.str_,
+        np.object_,
+        np.compat.unicode,
         np.dtype(np.void),
         np.dtype(np.int32),
         np.dtype(np.float32),
         np.dtype('f4,i4,f2,i1'),
         np.dtype(('f4', 'i4'), ('f2', 'i1')),
-        np.dtype('1i4', align=True),
+        np.dtype('i4', align=True),
         np.dtype('M8[7D]'),
         np.dtype(
             {
@@ -363,12 +365,12 @@ def test_size_threshold_None():
 
 
 def test_ndarray_dtype_object():
-    a = np.array(['F' + str(i) for i in range(30)], dtype=np.object)
+    a = np.array(['F' + str(i) for i in range(30)], dtype=object)
     buf = jsonpickle.encode(a)
     # This is critical for reproducing the numpy segfault issue when
     # restoring ndarray of dtype object.
     del a
-    expect = np.array(['F' + str(i) for i in range(30)], dtype=np.object)
+    expect = np.array(['F' + str(i) for i in range(30)], dtype=object)
     actual = jsonpickle.decode(buf)
     npt.assert_array_equal(expect, actual)
 
