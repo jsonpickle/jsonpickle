@@ -248,7 +248,7 @@ def is_sequence_subclass(obj):
     """
     return (
         hasattr(obj, '__class__')
-        and (issubclass(obj.__class__, SEQUENCES) or is_list_like(obj))
+        and issubclass(obj.__class__, SEQUENCES)
         and not is_sequence(obj)
     )
 

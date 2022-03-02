@@ -75,7 +75,7 @@ class UtilTestCase(unittest.TestCase):
         self.assertTrue(util.is_primitive(float(3)))
 
     def test_is_primitive_long(self):
-        self.assertTrue(util.is_primitive(2 ** 64))
+        self.assertTrue(util.is_primitive(2**64))
 
     def test_is_primitive_bool(self):
         self.assertTrue(util.is_primitive(True))
