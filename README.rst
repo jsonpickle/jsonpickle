@@ -22,7 +22,7 @@ jsonpickle
 ==========
 jsonpickle is a library for the two-way conversion of complex Python objects
 and `JSON <http://json.org/>`_.  jsonpickle builds upon the existing JSON
-encoders, such as simplejson, json, and demjson.
+encoders, such as simplejson, json.
 
 .. warning::
 

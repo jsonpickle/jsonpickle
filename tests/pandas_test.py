@@ -129,19 +129,19 @@ def test_period_index_roundtrip():
 
 
 def test_int64_index_roundtrip():
-    idx = pd.Int64Index([-1, 0, 3, 4])
+    idx = pd.Index([-1, 0, 3, 4], dtype=np.int64)
     decoded_idx = roundtrip(idx)
     assert_index_equal(decoded_idx, idx)
 
 
 def test_uint64_index_roundtrip():
-    idx = pd.UInt64Index([0, 3, 4])
+    idx = pd.Index([0, 3, 4], dtype=np.uint64)
     decoded_idx = roundtrip(idx)
     assert_index_equal(decoded_idx, idx)
 
 
 def test_float64_index_roundtrip():
-    idx = pd.Float64Index([0.1, 3.7, 4.2])
+    idx = pd.Index([0.1, 3.7, 4.2], dtype=np.float64)
     decoded_idx = roundtrip(idx)
     assert_index_equal(decoded_idx, idx)
 

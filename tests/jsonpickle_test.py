@@ -19,6 +19,17 @@ from jsonpickle.compat import PY2, PY3
 from helper import SkippableTest
 
 
+class ListLike:
+    def __init__(self):
+        self.internal_list = []
+
+    def append(self, item):
+        self.internal_list.append(item)
+
+    def __getitem__(self, i):
+        return self.internal_list[i]
+
+
 class Thing(object):
     def __init__(self, name):
         self.name = name
@@ -830,6 +841,15 @@ class JSONPickleTestCase(SkippableTest):
         self.assertTrue(isinstance(decoded_inner_obj, Outer.Middle.Inner))
         self.assertEqual(decoded_middle_obj.attribute, middle_obj.attribute)
         self.assertEqual(decoded_inner_obj.attribute, inner_obj.attribute)
+
+    def test_listlike(self):
+        """
+        https://github.com/jsonpickle/jsonpickle/issues/362
+        """
+        ll = ListLike()
+        ll.internal_list.append(1)
+        roundtrip_ll = jsonpickle.decode(jsonpickle.encode(ll))
+        self.assertEqual(len(ll.internal_list), len(roundtrip_ll.internal_list))
 
     def test_v1_decode(self):
         # TODO: Find a simple example that reproduces #364
