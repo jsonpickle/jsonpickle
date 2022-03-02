@@ -5,7 +5,7 @@ jsonpickle Documentation
 ``jsonpickle`` is a Python library for
 serialization and deserialization of complex Python objects to and from
 JSON.  The standard Python libraries for encoding Python into JSON, such as
-the stdlib's json, simplejson, and demjson, can only handle Python
+the stdlib's json and simplejson can only handle Python
 primitives that have a direct JSON equivalent (e.g. dicts, lists, strings,
 ints, etc.).  jsonpickle builds on top of these libraries and allows more
 complex data structures to be serialized to JSON. jsonpickle is highly

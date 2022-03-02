@@ -5,6 +5,14 @@
 .. note::
    Users on older Python versions should pin requirements to ``jsonpickle<3.0.0``.
 
+v2.2.0
+======
+
+    * Classes with a custom ``__getitem__()`` and ``append()``
+      now pickle properly. (#362) (+379)
+    * Remove the demjson backend, as demjson hasn't been maintained
+      for 5 years. (+379)
+
 v2.1.0
 ======
 

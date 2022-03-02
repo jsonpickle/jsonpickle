@@ -8,11 +8,10 @@ class JSONBackend(object):
     """Manages encoding and decoding using various backends.
 
     It tries these modules in this order:
-        simplejson, json, demjson
+        simplejson, json, jsonlib, yajl, ujson
 
     simplejson is a fast and popular backend and is tried first.
     json comes with Python and is tried second.
-    demjson is the most permissive backend and is tried last.
 
     """
 
@@ -40,7 +39,6 @@ class JSONBackend(object):
 
         self.load_backend('simplejson')
         self.load_backend('json')
-        self.load_backend('demjson', 'encode', 'decode', 'JSONDecodeError')
         self.load_backend('jsonlib', 'write', 'read', 'ReadError')
         self.load_backend('yajl')
         self.load_backend('ujson')
@@ -62,7 +60,7 @@ class JSONBackend(object):
         raise AssertionError(
             'jsonpickle requires at least one of the '
             'following:\n'
-            '    python2.6, simplejson, or demjson'
+            '    python2.6, simplejson'
         )
 
     def enable_fallthrough(self, enable):
@@ -209,7 +207,7 @@ class JSONBackend(object):
                 if idx == len(self._backend_names) - 1:
                     raise e
                 else:
-                    pass  # and try a more forgiving encoder, e.g. demjson
+                    pass  # and try a more forgiving encoder
 
     # def loads
     loads = decode
@@ -231,7 +229,7 @@ class JSONBackend(object):
             set_preferred_backend('simplejson')
 
         If the backend is not one of the built-in jsonpickle backends
-        (json/simplejson, or demjson) then you must load the backend
+        (json/simplejson) then you must load the backend
         prior to calling set_preferred_backend.
 
         AssertionError is raised if the backend has not been loaded.
@@ -255,7 +253,6 @@ class JSONBackend(object):
         For example::
 
             set_encoder_options('simplejson', sort_keys=True, indent=4)
-            set_encoder_options('demjson', compactly=False)
 
         See the appropriate encoder's documentation for details about
         the supported arguments and keyword arguments.
@@ -274,7 +271,6 @@ class JSONBackend(object):
         For example::
 
             set_decoder_options('simplejson', encoding='utf8', cls=JSONDecoder)
-            set_decoder_options('demjson', strict=True)
 
         See the appropriate decoder's documentation for details about
         the supported arguments and keyword arguments.
