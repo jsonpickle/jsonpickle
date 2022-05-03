@@ -62,6 +62,22 @@ class NumpyGenericHandler(NumpyBaseHandler):
         return self.restore_dtype(data).type(value)
 
 
+class UnpickleableNumpyGenericHandler(NumpyGenericHandler):
+    """
+    From issue #381, this is used for simplifying the output of numpy arrays
+    when unpicklable=False (the default is True).
+    """
+
+    def flatten(self, obj, data):
+        if not self.context.unpicklable:
+            return self.context.flatten(obj.tolist(), reset=False)
+        else:
+            return super(NumpyGenericHandler, self).flatten(obj, data)
+
+    def restore(self, data):
+        raise NotImplementedError
+
+
 class NumpyNDArrayHandler(NumpyBaseHandler):
     """Stores arrays as text representation, without regard for views"""
 
