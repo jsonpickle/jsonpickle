@@ -49,8 +49,8 @@ def decode(
     The keyword argument 'v1_decode' defaults to False.
     If set to True it enables you to decode objects serialized in jsonpickle v1.
     Please do not attempt to re-encode the objects in the v1 format! Version 2's
-    format fixes issue #255, and allows dictionary identity to be preserve through
-    an encode/decode cycle.
+    format fixes issue #255, and allows dictionary identity to be preserved
+    through an encode/decode cycle.
 
     >>> decode('"my string"') == 'my string'
     True
