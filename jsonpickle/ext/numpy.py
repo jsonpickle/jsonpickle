@@ -62,7 +62,7 @@ class NumpyGenericHandler(NumpyBaseHandler):
         return self.restore_dtype(data).type(value)
 
 
-class UnpickleableNumpyGenericHandler(jsonpickle_numpy.NumpyGenericHandler):
+class UnpickleableNumpyGenericHandler(NumpyGenericHandler):
     """
     From issue #381, this is used for simplifying the output of numpy arrays
     when unpicklable=False (the default is True).
