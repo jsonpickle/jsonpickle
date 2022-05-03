@@ -67,6 +67,7 @@ class UnpickleableNumpyGenericHandler(jsonpickle_numpy.NumpyGenericHandler):
     From issue #381, this is used for simplifying the output of numpy arrays
     when unpicklable=False (the default is True).
     """
+
     def flatten(self, obj, data):
         if not self.context.unpicklable:
             return self.context.flatten(obj.tolist(), reset=False)

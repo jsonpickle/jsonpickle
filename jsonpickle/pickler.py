@@ -49,7 +49,7 @@ def encode(
         use numpy, pandas, or sklearn handlers, this should be set to ``False``.
         If you want the output to not include the dtype for numpy arrays, add
         ``jsonpickle.register(numpyp.generic,
-        UnpicklableNumpyGenericHandler, base=True)`` before your pickling code.
+         UnpicklableNumpyGenericHandler, base=True)`` before your pickling code.
     :param max_depth: If set to a non-negative integer then jsonpickle will
         not recurse deeper than 'max_depth' steps into the object.  Anything
         deeper than 'max_depth' is represented using a Python repr() of the
