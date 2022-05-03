@@ -715,7 +715,10 @@ def loadclass(module_and_name, classes=None):
             __import__(module)
             obj = sys.modules[module]
             for class_name in names[up_to:]:
-                obj = getattr(obj, class_name)
+                try:
+                    obj = getattr(obj, class_name)
+                except AttributeError:
+                    continue
             return obj
         except (AttributeError, ImportError, ValueError):
             continue
