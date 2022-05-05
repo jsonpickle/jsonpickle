@@ -471,14 +471,11 @@ class PicklingTestCase(unittest.TestCase):
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
             jsonpickle.decode(frozen, on_missing='warn')
-            print(w[-1].category, str(w[-1].message))
             assert issubclass(w[-1].category, UserWarning)
-            print(str(w[-1].message))
             assert "Unpickler._restore_object could not find" in str(w[-1].message)
 
             jsonpickle.decode(frozen, on_missing=on_missing_callback)
             assert issubclass(w[-1].category, RuntimeWarning)
-            print(str(w[-1].message))
             assert "The unpickler couldn't find" in str(w[-1].message)
 
         assert jsonpickle.decode(frozen, on_missing='ignore') == {
