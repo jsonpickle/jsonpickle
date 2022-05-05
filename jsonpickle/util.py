@@ -20,8 +20,15 @@ import time
 import types
 
 from . import compat, tags
-from .compat import (PY2, PY3, PY3_ORDERED_DICT, abc_iterator, class_types,
-                     iterator_types, numeric_types)
+from .compat import (
+    PY2,
+    PY3,
+    PY3_ORDERED_DICT,
+    abc_iterator,
+    class_types,
+    iterator_types,
+    numeric_types,
+)
 
 if PY2:
     import __builtin__
@@ -473,6 +480,14 @@ def translate_module_name(module):
     return lookup.get(module, module)
 
 
+def _0_9_6_compat_untranslate(module):
+    """Provide compatibility for pickles created with jsonpickle 0.9.6 and
+    earlier, remapping `exceptions` and `__builtin__` to `builtins`.
+    """
+    lookup = dict(__builtin__='builtins', exceptions='builtins')
+    return lookup.get(module, module)
+
+
 def untranslate_module_name(module):
     """Rename module names mention in JSON to names that we can import
 
@@ -482,14 +497,6 @@ def untranslate_module_name(module):
     """
     module = _0_9_6_compat_untranslate(module)
     lookup = dict(builtins='__builtin__') if PY2 else {}
-    return lookup.get(module, module)
-
-
-def _0_9_6_compat_untranslate(module):
-    """Provide compatibility for pickles created with jsonpickle 0.9.6 and
-    earlier, remapping `exceptions` and `__builtin__` to `builtins`.
-    """
-    lookup = dict(__builtin__='builtins', exceptions='builtins')
     return lookup.get(module, module)
 
 

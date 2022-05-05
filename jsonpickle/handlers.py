@@ -100,15 +100,6 @@ class BaseHandler(object):
         """
         self.context = context
 
-    def __call__(self, context):
-        """This permits registering either Handler instances or classes
-
-        :Parameters:
-          - `context`: reference to pickler/unpickler
-        """
-        self.context = context
-        return self
-
     def flatten(self, obj, data):
         """
         Flatten `obj` into a json-friendly form and write result to `data`.
@@ -140,6 +131,15 @@ class BaseHandler(object):
         """
         registry.register(cls, self)
         return cls
+
+    def __call__(self, context):
+        """This permits registering either Handler instances or classes
+
+        :Parameters:
+          - `context`: reference to pickler/unpickler
+        """
+        self.context = context
+        return self
 
 
 class ArrayHandler(BaseHandler):

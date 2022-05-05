@@ -29,6 +29,9 @@ class ListSubclass(list):
 
 
 class MethodTestClass(object):
+
+    variable = None
+
     @staticmethod
     def static_method():
         pass
@@ -39,8 +42,6 @@ class MethodTestClass(object):
 
     def bound_method(self):
         pass
-
-    variable = None
 
 
 class MethodTestSubclass(MethodTestClass):

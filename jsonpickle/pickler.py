@@ -136,6 +136,32 @@ def encode(
     )
 
 
+def _in_cycle(obj, objs, max_reached, make_refs):
+    """Detect cyclic structures that would lead to infinite recursion"""
+    return (
+        (max_reached or (not make_refs and id(obj) in objs))
+        and not util.is_primitive(obj)
+        and not util.is_enum(obj)
+    )
+
+
+def _mktyperef(obj):
+    """Return a typeref dictionary
+
+    >>> _mktyperef(AssertionError) == {'py/type': 'builtins.AssertionError'}
+    True
+
+    """
+    return {tags.TYPE: util.importable_name(obj)}
+
+
+def _wrap_string_slot(string):
+    """Converts __slots__ = 'a' into __slots__ = ('a',)"""
+    if isinstance(string, string_types):
+        return (string,)
+    return string
+
+
 class Pickler(object):
     def __init__(
         self,
@@ -228,6 +254,16 @@ class Pickler(object):
     def _getref(self, obj):
         return {tags.ID: self._objs.get(id(obj))}
 
+    def _flatten(self, obj):
+        if self.unpicklable and self.make_refs:
+            result = self._flatten_impl(obj)
+        else:
+            try:
+                result = self._flattened[id(obj)]
+            except KeyError:
+                result = self._flattened[id(obj)] = self._flatten_impl(obj)
+        return result
+
     def flatten(self, obj, reset=True):
         """Takes an object and returns a JSON-safe representation of it.
 
@@ -260,15 +296,20 @@ class Pickler(object):
             self.reset()
         return self._flatten(obj)
 
-    def _flatten(self, obj):
-        if self.unpicklable and self.make_refs:
-            result = self._flatten_impl(obj)
-        else:
+    def _flatten_file(self, obj):
+        """
+        Special case file objects
+        """
+        assert not PY3 and isinstance(obj, types.FileType)
+        return None
+
+    def _flatten_bytestring(self, obj):
+        if PY2:
             try:
-                result = self._flattened[id(obj)]
-            except KeyError:
-                result = self._flattened[id(obj)] = self._flatten_impl(obj)
-        return result
+                return obj.decode('utf-8')
+            except UnicodeDecodeError:
+                pass
+        return {self._bytes_tag: self._bytes_encoder(obj)}
 
     def _flatten_impl(self, obj):
         #########################################
@@ -292,6 +333,11 @@ class Pickler(object):
 
     def _max_reached(self):
         return self._depth == self._max_depth
+
+    def _pickle_warning(self, obj):
+        if self.warn:
+            msg = 'jsonpickle cannot pickle %r: replaced with None' % obj
+            warnings.warn(msg)
 
     def _flatten_obj(self, obj):
         self._seen.append(obj)
@@ -323,6 +369,14 @@ class Pickler(object):
 
     def _list_recurse(self, obj):
         return [self._flatten(v) for v in obj]
+
+    def _flatten_function(self, obj):
+        if self.unpicklable:
+            data = {tags.FUNCTION: util.importable_name(obj)}
+        else:
+            data = None
+
+        return data
 
     def _get_flattener(self, obj):
         if type(obj) in (list, dict):
@@ -378,20 +432,13 @@ class Pickler(object):
             self._mkref(obj)
             return self._flatten_obj_instance(obj)
 
-    def _flatten_file(self, obj):
-        """
-        Special case file objects
-        """
-        assert not PY3 and isinstance(obj, types.FileType)
-        return None
-
-    def _flatten_bytestring(self, obj):
-        if PY2:
-            try:
-                return obj.decode('utf-8')
-            except UnicodeDecodeError:
-                pass
-        return {self._bytes_tag: self._bytes_encoder(obj)}
+    def _getstate(self, obj, data):
+        state = self._flatten(obj)
+        if self.unpicklable:
+            data[tags.STATE] = state
+        else:
+            data = state
+        return data
 
     def _flatten_obj_instance(self, obj):
         """Recursively flatten an instance and return a json-friendly dict"""
@@ -558,12 +605,47 @@ class Pickler(object):
         self._pickle_warning(obj)
         return None
 
-    def _flatten_function(self, obj):
-        if self.unpicklable:
-            data = {tags.FUNCTION: util.importable_name(obj)}
-        else:
-            data = None
+    def _escape_key(self, k):
+        return tags.JSON_KEY + encode(
+            k,
+            reset=False,
+            keys=True,
+            context=self,
+            backend=self.backend,
+            make_refs=self.make_refs,
+        )
 
+    def _flatten_non_string_key_value_pair(self, k, v, data):
+        """Flatten only non-string key/value pairs"""
+        if not util.is_picklable(k, v):
+            return data
+        if self.keys and not isinstance(k, string_types):
+            k = self._escape_key(k)
+            data[k] = self._flatten(v)
+        return data
+
+    def _flatten_string_key_value_pair(self, k, v, data):
+        """Flatten string key/value pairs only."""
+        if not util.is_picklable(k, v):
+            return data
+        if self.keys:
+            if not isinstance(k, string_types):
+                return data
+            elif k.startswith(tags.JSON_KEY):
+                k = self._escape_key(k)
+        else:
+            if k is None:
+                k = 'null'  # for compatibility with common json encoders
+
+            if self.numeric_keys and isinstance(k, numeric_types):
+                pass
+            elif not isinstance(k, string_types):
+                try:
+                    k = repr(k)
+                except Exception:
+                    k = compat.ustr(k)
+
+        data[k] = self._flatten(v)
         return data
 
     def _flatten_dict_obj(self, obj, data=None):
@@ -664,39 +746,6 @@ class Pickler(object):
         data[k] = self._flatten(v)
         return data
 
-    def _flatten_non_string_key_value_pair(self, k, v, data):
-        """Flatten only non-string key/value pairs"""
-        if not util.is_picklable(k, v):
-            return data
-        if self.keys and not isinstance(k, string_types):
-            k = self._escape_key(k)
-            data[k] = self._flatten(v)
-        return data
-
-    def _flatten_string_key_value_pair(self, k, v, data):
-        """Flatten string key/value pairs only."""
-        if not util.is_picklable(k, v):
-            return data
-        if self.keys:
-            if not isinstance(k, string_types):
-                return data
-            elif k.startswith(tags.JSON_KEY):
-                k = self._escape_key(k)
-        else:
-            if k is None:
-                k = 'null'  # for compatibility with common json encoders
-
-            if self.numeric_keys and isinstance(k, numeric_types):
-                pass
-            elif not isinstance(k, string_types):
-                try:
-                    k = repr(k)
-                except Exception:
-                    k = compat.ustr(k)
-
-        data[k] = self._flatten(v)
-        return data
-
     def _flatten_sequence_obj(self, obj, data):
         """Return a json-friendly dict for a sequence subclass."""
         if hasattr(obj, '__dict__'):
@@ -707,52 +756,3 @@ class Pickler(object):
         else:
             return value
         return data
-
-    def _escape_key(self, k):
-        return tags.JSON_KEY + encode(
-            k,
-            reset=False,
-            keys=True,
-            context=self,
-            backend=self.backend,
-            make_refs=self.make_refs,
-        )
-
-    def _getstate(self, obj, data):
-        state = self._flatten(obj)
-        if self.unpicklable:
-            data[tags.STATE] = state
-        else:
-            data = state
-        return data
-
-    def _pickle_warning(self, obj):
-        if self.warn:
-            msg = 'jsonpickle cannot pickle %r: replaced with None' % obj
-            warnings.warn(msg)
-
-
-def _in_cycle(obj, objs, max_reached, make_refs):
-    """Detect cyclic structures that would lead to infinite recursion"""
-    return (
-        (max_reached or (not make_refs and id(obj) in objs))
-        and not util.is_primitive(obj)
-        and not util.is_enum(obj)
-    )
-
-
-def _mktyperef(obj):
-    """Return a typeref dictionary
-
-    >>> _mktyperef(AssertionError) == {'py/type': 'builtins.AssertionError'}
-    True
-
-    """
-    return {tags.TYPE: util.importable_name(obj)}
-
-
-def _wrap_string_slot(string):
-    """Converts __slots__ = 'a' into __slots__ = ('a',)"""
-    if isinstance(string, string_types):
-        return (string,)
-    return string

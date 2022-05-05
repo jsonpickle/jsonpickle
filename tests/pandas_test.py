@@ -7,8 +7,11 @@ import pytest
 try:
     import numpy as np
     import pandas as pd
-    from pandas.testing import (assert_frame_equal, assert_index_equal,
-                                assert_series_equal)
+    from pandas.testing import (
+        assert_frame_equal,
+        assert_index_equal,
+        assert_series_equal,
+    )
 except ImportError:
     pytest.skip('numpy is not available', allow_module_level=True)
 

@@ -105,13 +105,13 @@ class SetSubclass(set):
     pass
 
 
+def func(x):
+    return x
+
+
 class ThingWithFunctionRefs(object):
     def __init__(self):
         self.fn = func
-
-
-def func(x):
-    return x
 
 
 class ThingWithQueue(object):
@@ -693,27 +693,6 @@ def test_defaultdict_and_things_roundtrip_simple_lambda():
     assert decoded[1] is decoded[2]
 
 
-def test_defaultdict_subclass_with_self_as_default_factory():
-    """Serialize a defaultdict subclass with self as its default factory"""
-    cls = ThingWithSelfAsDefaultFactory
-    tree = cls()
-    newtree = _test_defaultdict_tree(tree, cls)
-    assert type(newtree['A'].default_factory) == cls
-    assert newtree.default_factory is newtree
-    assert newtree['A'].default_factory is newtree['A']
-    assert newtree['Z'].default_factory is newtree['Z']
-
-
-def test_defaultdict_subclass_with_class_as_default_factory():
-    """Serialize a defaultdict with a class as its default factory"""
-    cls = ThingWithClassAsDefaultFactory
-    tree = cls()
-    newtree = _test_defaultdict_tree(tree, cls)
-    assert newtree.default_factory is cls
-    assert newtree['A'].default_factory is cls
-    assert newtree['Z'].default_factory is cls
-
-
 def _test_defaultdict_tree(tree, cls):
     tree['A']['B'] = 1
     tree['A']['C'] = 2
@@ -736,6 +715,27 @@ def _test_defaultdict_tree(tree, cls):
     assert type(newtree['A'].default_factory) != jsonpickle.unpickler._Proxy
     assert type(newtree['A']['Z'].default_factory) != jsonpickle.unpickler._Proxy
     return newtree
+
+
+def test_defaultdict_subclass_with_self_as_default_factory():
+    """Serialize a defaultdict subclass with self as its default factory"""
+    cls = ThingWithSelfAsDefaultFactory
+    tree = cls()
+    newtree = _test_defaultdict_tree(tree, cls)
+    assert type(newtree['A'].default_factory) == cls
+    assert newtree.default_factory is newtree
+    assert newtree['A'].default_factory is newtree['A']
+    assert newtree['Z'].default_factory is newtree['Z']
+
+
+def test_defaultdict_subclass_with_class_as_default_factory():
+    """Serialize a defaultdict with a class as its default factory"""
+    cls = ThingWithClassAsDefaultFactory
+    tree = cls()
+    newtree = _test_defaultdict_tree(tree, cls)
+    assert newtree.default_factory is cls
+    assert newtree['A'].default_factory is cls
+    assert newtree['Z'].default_factory is cls
 
 
 def test_posix_stat_result():

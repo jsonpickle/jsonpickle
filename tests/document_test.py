@@ -22,14 +22,14 @@ class Document(Node):
     def __init__(self, name):
         Node.__init__(self, name)
 
+    def __repr__(self):
+        return str(self)
+
     def __str__(self):
         ret_str = 'Document "%s"\n' % self._name
         for c in self._children:
             ret_str += repr(c)
         return ret_str
-
-    def __repr__(self):
-        return str(self)
 
 
 class Question(Node):
