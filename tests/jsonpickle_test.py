@@ -459,7 +459,7 @@ class PicklingTestCase(unittest.TestCase):
         assert cls is int
 
     def test_unpickler_on_missing(self):
-        class SimpleClass:
+        class SimpleClass(object):
             def __init__(self, i):
                 self.i = i
 
