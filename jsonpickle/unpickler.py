@@ -7,11 +7,13 @@
 from __future__ import absolute_import, division, unicode_literals
 import quopri
 import sys
+import warnings
 
 from . import compat
 from . import util
 from . import tags
 from . import handlers
+from . import errors
 from .compat import numeric_types
 from .backend import json
 
@@ -25,6 +27,7 @@ def decode(
     safe=False,
     classes=None,
     v1_decode=False,
+    on_missing="ignore",
 ):
     """Convert a JSON string into a Python object.
 
@@ -52,14 +55,34 @@ def decode(
     format fixes issue #255, and allows dictionary identity to be preserved
     through an encode/decode cycle.
 
+    The keyword argument 'on_missing' defaults to 'ignore'.
+    If set to 'error', it will raise an error if the class it's decoding is not
+    found. If set to 'warn', it will warn you in said case. If set to a
+    non-awaitable function, it will call said callback function with the class
+    name (a string) as the only parameter. Strings passed to on_missing are
+    lowercased automatically.
+
+
     >>> decode('"my string"') == 'my string'
     True
     >>> decode('36')
     36
     """
+
+    if isinstance(on_missing, str):
+        on_missing = on_missing.lower()
+    elif not util.is_function(on_missing):
+        warnings.warn(
+            "Unpickler.on_missing must be a string or a function! It will be ignored!"
+        )
+
     backend = backend or json
     context = context or Unpickler(
-        keys=keys, backend=backend, safe=safe, v1_decode=v1_decode
+        keys=keys,
+        backend=backend,
+        safe=safe,
+        v1_decode=v1_decode,
+        on_missing=on_missing,
     )
     data = backend.decode(string)
     return context.restore(data, reset=reset, classes=classes)
@@ -136,11 +159,14 @@ def _obj_setvalue(obj, idx, proxy):
 
 
 class Unpickler(object):
-    def __init__(self, backend=None, keys=False, safe=False, v1_decode=False):
+    def __init__(
+        self, backend=None, keys=False, safe=False, v1_decode=False, on_missing="ignore"
+    ):
         self.backend = backend or json
         self.keys = keys
         self.safe = safe
         self.v1_decode = v1_decode
+        self.on_missing = on_missing
 
         self.reset()
 
@@ -373,7 +399,7 @@ class Unpickler(object):
         if cls is None:
             return self._mkref(obj)
 
-        return self._restore_object_instance(obj, cls)
+        return self._restore_object_instance(obj, cls, class_name)
 
     def _restore_function(self, obj):
         return loadclass(obj[tags.FUNCTION], classes=self._classes)
@@ -386,7 +412,20 @@ class Unpickler(object):
         del obj['default_factory']
         return self._restore(default_factory)
 
-    def _restore_object_instance(self, obj, cls):
+    def _process_missing(self, class_name):
+        # most common case comes first
+        if self.on_missing == 'ignore':
+            pass
+        elif self.on_missing == 'warn':
+            warnings.warn("Unpickler._restore_object could not find %s!" % class_name)
+        elif self.on_missing == 'error':
+            raise errors.ClassNotFoundError(
+                "Unpickler.restore_object could not find %s!" % class_name
+            )
+        elif util.is_function(self.on_missing):
+            self.on_missing(class_name)
+
+    def _restore_object_instance(self, obj, cls, class_name=""):
         # This is a placeholder proxy object which allows child objects to
         # reference the parent object before it has been instantiated.
         proxy = _Proxy()
@@ -427,6 +466,7 @@ class Unpickler(object):
                 try:
                     instance = make_blank_classic(cls)
                 except Exception:  # fail gracefully
+                    self._process_missing(class_name)
                     return self._mkref(obj)
 
         proxy.reset(instance)

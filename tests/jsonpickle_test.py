@@ -8,6 +8,7 @@ from __future__ import absolute_import, division, unicode_literals
 import os
 import unittest
 import collections
+import warnings
 
 import pytest
 
@@ -101,6 +102,11 @@ class Outer(object):
     class Middle(object):
         class Inner(object):
             pass
+
+
+def on_missing_callback(class_name):
+    # not actually a runtime problem but it doesn't matter
+    warnings.warn("The unpickler couldn't find %s" % class_name, RuntimeWarning)
 
 
 class PicklingTestCase(unittest.TestCase):
@@ -450,6 +456,41 @@ class PicklingTestCase(unittest.TestCase):
         assert ae is AssertionError
         cls = jsonpickle.decode('{"py/type": "__builtin__.int"}')
         assert cls is int
+
+    def test_unpickler_on_missing(self):
+        class SimpleClass:
+            def __init__(self, i):
+                self.i = i
+
+        frozen = jsonpickle.encode(SimpleClass(4))
+        del SimpleClass
+
+        # https://docs.python.org/3/library/warnings.html#testing-warnings
+
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            jsonpickle.decode(frozen, on_missing='warn')
+            print(w[-1].category, str(w[-1].message))
+            assert issubclass(w[-1].category, UserWarning)
+            print(str(w[-1].message))
+            assert "Unpickler._restore_object could not find" in str(w[-1].message)
+
+            jsonpickle.decode(frozen, on_missing=on_missing_callback)
+            assert issubclass(w[-1].category, RuntimeWarning)
+            print(str(w[-1].message))
+            assert "The unpickler couldn't find" in str(w[-1].message)
+
+        assert jsonpickle.decode(frozen, on_missing='ignore') == {
+            'py/object': 'jsonpickle_test.PicklingTestCase.test_unpickler_on_missing.<locals>.SimpleClass',
+            'i': 4,
+        }
+        try:
+            jsonpickle.decode(frozen, on_missing='error')
+        except jsonpickle.errors.ClassNotFoundError:
+            # it's supposed to error
+            assert True
+        else:
+            assert False
 
 
 class JSONPickleTestCase(SkippableTest):
