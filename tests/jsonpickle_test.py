@@ -478,10 +478,16 @@ class PicklingTestCase(unittest.TestCase):
             assert issubclass(w[-1].category, RuntimeWarning)
             assert "The unpickler couldn't find" in str(w[-1].message)
 
-        assert jsonpickle.decode(frozen, on_missing='ignore') == {
-            'py/object': 'jsonpickle_test.PicklingTestCase.test_unpickler_on_missing.<locals>.SimpleClass',
-            'i': 4,
-        }
+        if PY3:
+            assert jsonpickle.decode(frozen, on_missing='ignore') == {
+                'py/object': 'jsonpickle_test.PicklingTestCase.test_unpickler_on_missing.<locals>.SimpleClass',
+                'i': 4,
+            }
+        else:
+            assert jsonpickle.decode(frozen, on_missing='ignore') == {
+                'py/object': 'jsonpickle_test.SimpleClass'
+            }
+
         try:
             jsonpickle.decode(frozen, on_missing='error')
         except jsonpickle.errors.ClassNotFoundError:
