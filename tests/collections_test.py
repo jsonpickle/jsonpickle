@@ -34,8 +34,9 @@
 Unit tests for collections
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
-from collections import OrderedDict, defaultdict
+
 import sys
+from collections import OrderedDict, defaultdict
 
 import pytest
 

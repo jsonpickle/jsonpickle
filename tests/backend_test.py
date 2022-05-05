@@ -1,13 +1,13 @@
 from __future__ import absolute_import, division, unicode_literals
+
 import decimal
 import unittest
 from warnings import warn
 
-import jsonpickle
-from jsonpickle.compat import PY2
-from jsonpickle.compat import PY3
-
 from helper import SkippableTest
+
+import jsonpickle
+from jsonpickle.compat import PY2, PY3
 
 
 class Thing(object):

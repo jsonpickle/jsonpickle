@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """Test miscellaneous objects from the standard library"""
 
-import uuid
 import unittest
+import uuid
 
 import jsonpickle
 

@@ -1,7 +1,8 @@
 from __future__ import absolute_import, division, unicode_literals
+
+import base64
 import sys
 import types
-import base64
 
 PY_MAJOR = sys.version_info[0]
 PY2 = PY_MAJOR == 2
@@ -14,7 +15,7 @@ iterator_types = (type(iter('')),)
 if PY3:
     import builtins
     import queue
-    from base64 import encodebytes, decodebytes
+    from base64 import decodebytes, encodebytes
     from collections.abc import Iterator as abc_iterator
 
     string_types = (str,)

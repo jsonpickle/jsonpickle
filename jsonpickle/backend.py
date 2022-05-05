@@ -1,7 +1,6 @@
 from __future__ import absolute_import, division, unicode_literals
 
-from .compat import string_types
-from .compat import PY3_ORDERED_DICT
+from .compat import PY3_ORDERED_DICT, string_types
 
 
 class JSONBackend(object):
@@ -14,6 +13,68 @@ class JSONBackend(object):
     json comes with Python and is tried second.
 
     """
+
+    def _verify(self):
+        """Ensures that we've loaded at least one JSON backend."""
+        if self._verified:
+            return
+        raise AssertionError(
+            'jsonpickle requires at least one of the '
+            'following:\n'
+            '    python2.6, simplejson'
+        )
+
+    def encode(self, obj, indent=None, separators=None):
+        """
+        Attempt to encode an object into JSON.
+
+        This tries the loaded backends in order and passes along the last
+        exception if no backend is able to encode the object.
+
+        """
+        self._verify()
+
+        if not self._fallthrough:
+            name = self._backend_names[0]
+            return self.backend_encode(name, obj, indent=indent, separators=separators)
+
+        for idx, name in enumerate(self._backend_names):
+            try:
+                return self.backend_encode(
+                    name, obj, indent=indent, separators=separators
+                )
+            except Exception as e:
+                if idx == len(self._backend_names) - 1:
+                    raise e
+
+    # def dumps
+    dumps = encode
+
+    def decode(self, string):
+        """
+        Attempt to decode an object from a JSON string.
+
+        This tries the loaded backends in order and passes along the last
+        exception if no backends are able to decode the string.
+
+        """
+        self._verify()
+
+        if not self._fallthrough:
+            name = self._backend_names[0]
+            return self.backend_decode(name, string)
+
+        for idx, name in enumerate(self._backend_names):
+            try:
+                return self.backend_decode(name, string)
+            except self._decoder_exceptions[name] as e:
+                if idx == len(self._backend_names) - 1:
+                    raise e
+                else:
+                    pass  # and try a more forgiving encoder
+
+    # def loads
+    loads = decode
 
     def __init__(self, fallthrough=True):
         # Whether we should fallthrough to the next backend
@@ -53,16 +114,6 @@ class JSONBackend(object):
             'django.util.simplejson': json_opts,
         }
 
-    def _verify(self):
-        """Ensures that we've loaded at least one JSON backend."""
-        if self._verified:
-            return
-        raise AssertionError(
-            'jsonpickle requires at least one of the '
-            'following:\n'
-            '    python2.6, simplejson'
-        )
-
     def enable_fallthrough(self, enable):
         """
         Disable jsonpickle's fallthrough-on-error behavior
@@ -79,6 +130,14 @@ class JSONBackend(object):
 
         """
         self._fallthrough = enable
+
+    def _store(self, dct, backend, obj, name):
+        try:
+            dct[backend] = getattr(obj, name)
+        except AttributeError:
+            self.remove_backend(backend)
+            return False
+        return True
 
     def load_backend(self, name, dumps='dumps', loads='loads', loads_exc=ValueError):
 
@@ -150,32 +209,6 @@ class JSONBackend(object):
             self._backend_names.remove(name)
         self._verified = bool(self._backend_names)
 
-    def encode(self, obj, indent=None, separators=None):
-        """
-        Attempt to encode an object into JSON.
-
-        This tries the loaded backends in order and passes along the last
-        exception if no backend is able to encode the object.
-
-        """
-        self._verify()
-
-        if not self._fallthrough:
-            name = self._backend_names[0]
-            return self.backend_encode(name, obj, indent=indent, separators=separators)
-
-        for idx, name in enumerate(self._backend_names):
-            try:
-                return self.backend_encode(
-                    name, obj, indent=indent, separators=separators
-                )
-            except Exception as e:
-                if idx == len(self._backend_names) - 1:
-                    raise e
-
-    # def dumps
-    dumps = encode
-
     def backend_encode(self, name, obj, indent=None, separators=None):
         optargs, optkwargs = self._encoder_options.get(name, ([], {}))
         encoder_kwargs = optkwargs.copy()
@@ -185,32 +218,6 @@ class JSONBackend(object):
             encoder_kwargs['separators'] = separators
         encoder_args = (obj,) + tuple(optargs)
         return self._encoders[name](*encoder_args, **encoder_kwargs)
-
-    def decode(self, string):
-        """
-        Attempt to decode an object from a JSON string.
-
-        This tries the loaded backends in order and passes along the last
-        exception if no backends are able to decode the string.
-
-        """
-        self._verify()
-
-        if not self._fallthrough:
-            name = self._backend_names[0]
-            return self.backend_decode(name, string)
-
-        for idx, name in enumerate(self._backend_names):
-            try:
-                return self.backend_decode(name, string)
-            except self._decoder_exceptions[name] as e:
-                if idx == len(self._backend_names) - 1:
-                    raise e
-                else:
-                    pass  # and try a more forgiving encoder
-
-    # def loads
-    loads = decode
 
     def backend_decode(self, name, string):
         optargs, optkwargs = self._decoder_options.get(name, ((), {}))
@@ -277,14 +284,6 @@ class JSONBackend(object):
 
         """
         self._decoder_options[name] = (args, kwargs)
-
-    def _store(self, dct, backend, obj, name):
-        try:
-            dct[backend] = getattr(obj, name)
-        except AttributeError:
-            self.remove_backend(backend)
-            return False
-        return True
 
 
 json = JSONBackend()

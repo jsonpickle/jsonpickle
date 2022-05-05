@@ -6,12 +6,12 @@
 # you should have received as part of this distribution.
 
 from __future__ import absolute_import, division, unicode_literals
-import unittest
+
 import doctest
 import time
+import unittest
 
-from jsonpickle import compat
-from jsonpickle import util
+from jsonpickle import compat, util
 
 
 class Thing(object):
@@ -29,6 +29,9 @@ class ListSubclass(list):
 
 
 class MethodTestClass(object):
+
+    variable = None
+
     @staticmethod
     def static_method():
         pass
@@ -39,8 +42,6 @@ class MethodTestClass(object):
 
     def bound_method(self):
         pass
-
-    variable = None
 
 
 class MethodTestSubclass(MethodTestClass):

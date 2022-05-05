@@ -1,14 +1,17 @@
 from __future__ import absolute_import, division, unicode_literals
+
 import datetime
 
 import pytest
 
 try:
-    import pandas as pd
     import numpy as np
-    from pandas.testing import assert_series_equal
-    from pandas.testing import assert_frame_equal
-    from pandas.testing import assert_index_equal
+    import pandas as pd
+    from pandas.testing import (
+        assert_frame_equal,
+        assert_index_equal,
+        assert_series_equal,
+    )
 except ImportError:
     pytest.skip('numpy is not available', allow_module_level=True)
 

@@ -6,9 +6,9 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 
-import unittest
 import datetime
 import time
+import unittest
 
 import jsonpickle
 from jsonpickle import tags
@@ -58,6 +58,12 @@ class TimestampedVariable(object):
         self._dt_write = datetime.datetime.utcnow()
         self._value = new_value
 
+    def erasable(self, td=datetime.timedelta(seconds=1)):
+        dt_now = datetime.datetime.utcnow()
+        td_read = dt_now - self._dt_read
+        td_write = dt_now - self._dt_write
+        return td_read > td and td_write > td
+
     def __repr__(self):
         dt_now = datetime.datetime.utcnow()
         td_read = dt_now - self._dt_read
@@ -67,12 +73,6 @@ class TimestampedVariable(object):
         s += ' dt_read: ' + str(self._dt_read) + ' (%s ago)' % td_read + '\n'
         s += ' dt_write: ' + str(self._dt_write) + ' (%s ago)' % td_write + '\n'
         return s
-
-    def erasable(self, td=datetime.timedelta(seconds=1)):
-        dt_now = datetime.datetime.utcnow()
-        td_read = dt_now - self._dt_read
-        td_write = dt_now - self._dt_write
-        return td_read > td and td_write > td
 
 
 class PersistantVariables(object):

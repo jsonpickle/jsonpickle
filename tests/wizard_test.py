@@ -6,10 +6,11 @@ Includes functionality to assist with adding compatibility to jsonpickle.
 
 """
 from __future__ import absolute_import, division, unicode_literals
-import unittest
-import collections
 
-from jsonpickle import encode, decode
+import collections
+import unittest
+
+from jsonpickle import decode, encode
 
 
 class World(object):
@@ -22,20 +23,6 @@ class Wizard(object):
         self.name = name
         self.spells = collections.OrderedDict()
         world.wizards.append(self)
-
-    def __hash__(self):
-        return hash('Wizard %s' % self.name)
-
-    def __eq__(self, other):
-        for (ka, va), (kb, vb) in zip(self.spells.items(), other.spells.items()):
-            if ka.name != kb.name:
-                print('Wizards differ: %s != %s' % (ka.name, kb.name))
-                return False
-            for sa, sb in zip(va, vb):
-                if sa != sb:
-                    print('Spells differ: %s != %s' % (sa.name, sb.name))
-                    return False
-        return self.name == other.name
 
     def __cmp__(self, other):
         for (ka, va), (kb, vb) in zip(self.spells.items(), other.spells.items()):
@@ -50,6 +37,20 @@ class Wizard(object):
                     return cmp_spell
         return cmp(self.name, other.name)  # noqa: F821
 
+    def __eq__(self, other):
+        for (ka, va), (kb, vb) in zip(self.spells.items(), other.spells.items()):
+            if ka.name != kb.name:
+                print('Wizards differ: %s != %s' % (ka.name, kb.name))
+                return False
+            for sa, sb in zip(va, vb):
+                if sa != sb:
+                    print('Spells differ: %s != %s' % (sa.name, sb.name))
+                    return False
+        return self.name == other.name
+
+    def __hash__(self):
+        return hash('Wizard %s' % self.name)
+
 
 class Spell(object):
     def __init__(self, caster, target, name):
@@ -62,10 +63,12 @@ class Spell(object):
             spells = caster.spells[target] = []
         spells.append(self)
 
-    def __hash__(self):
-        return hash(
-            'Spell %s by %s on %s' % (self.name, self.caster.name, self.target.name)
-        )
+    def __cmp__(self, other):
+        return (
+            cmp(self.name, other.name)  # noqa: F821
+            or cmp(self.caster.name, other.caster.name)  # noqa: F821
+            or cmp(self.target.name, other.target.name)  # noqa: F821
+        )  # noqa: F821
 
     def __eq__(self, other):
         return (
@@ -74,12 +77,10 @@ class Spell(object):
             and self.target.name == other.target.name
         )
 
-    def __cmp__(self, other):
-        return (
-            cmp(self.name, other.name)  # noqa: F821
-            or cmp(self.caster.name, other.caster.name)  # noqa: F821
-            or cmp(self.target.name, other.target.name)  # noqa: F821
-        )  # noqa: F821
+    def __hash__(self):
+        return hash(
+            'Spell %s by %s on %s' % (self.name, self.caster.name, self.target.name)
+        )
 
 
 def hashsum(items):

@@ -2,9 +2,9 @@
 
 import unittest
 
-import jsonpickle
-
 from helper import SkippableTest
+
+import jsonpickle
 
 try:
     import sqlalchemy as sqa

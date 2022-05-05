@@ -69,17 +69,16 @@ added to JSON::
 """
 from __future__ import absolute_import, division, unicode_literals
 
-from .backend import json
-from .pickler import encode
-from .unpickler import decode
-
 # Export other names not in __all__
 from .backend import JSONBackend  # noqa: F401
-from .version import __version__  # noqa: F401
+from .backend import json
 from .handlers import register  # noqa: F401
 from .handlers import unregister  # noqa: F401
 from .pickler import Pickler  # noqa: F401
+from .pickler import encode
 from .unpickler import Unpickler  # noqa: F401
+from .unpickler import decode
+from .version import __version__  # noqa: F401
 
 __all__ = ('encode', 'decode')
 

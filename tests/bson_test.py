@@ -5,9 +5,9 @@ import json
 import pickle
 import unittest
 
-import jsonpickle
-
 from helper import SkippableTest
+
+import jsonpickle
 
 bson = None
 

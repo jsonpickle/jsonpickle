@@ -44,7 +44,7 @@ TOXCMD += --develop --skip-missing-interpreters
 ifdef multi
     TOXCMD += --parallel $(NUM_JOBS)
     TOXCMD += -e
-    TOXCMD += 'clean,py{27,36,37,38,39},py{27,38,39}-sa{10,11,12,13},py{27,38,39}-libs'
+    TOXCMD += 'clean,py{27,36,37,38,39},py{27,38,39}-sa{12,13},py{27,38,39}-libs'
     # Disable coverage when running in parallel
     TOXCMD += -- --no-cov
 endif

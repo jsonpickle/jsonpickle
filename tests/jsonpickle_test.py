@@ -5,18 +5,20 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 from __future__ import absolute_import, division, unicode_literals
+
+import collections
 import os
 import unittest
-import collections
+import warnings
 
 import pytest
+from helper import SkippableTest
 
 import jsonpickle
 import jsonpickle.backend
 import jsonpickle.handlers
 from jsonpickle import compat, tags, util
 from jsonpickle.compat import PY2, PY3
-from helper import SkippableTest
 
 
 class ListLike:
@@ -46,10 +48,6 @@ class Capture(object):
 
 
 class ThingWithProps(object):
-    def __init__(self, name='', dogs='reliable', monkies='tricksy'):
-        self.name = name
-        self._critters = (('dogs', dogs), ('monkies', monkies))
-
     def _get_identity(self):
         keys = [self.dogs, self.monkies, self.name]
         return hash('-'.join([str(key) for key in keys]))
@@ -65,6 +63,13 @@ class ThingWithProps(object):
         return self._critters[1][1]
 
     monkies = property(_get_monkies)
+
+    def __init__(self, name='', dogs='reliable', monkies='tricksy'):
+        self.name = name
+        self._critters = (('dogs', dogs), ('monkies', monkies))
+
+    def __eq__(self, other):
+        return self.identity == other.identity
 
     def __getstate__(self):
         out = dict(
@@ -85,9 +90,6 @@ class ThingWithProps(object):
         if ident != self.identity:
             raise ValueError('expanded object does not match original state!')
 
-    def __eq__(self, other):
-        return self.identity == other.identity
-
 
 class UserDict(dict):
     """A user class that inherits from :class:`dict`"""
@@ -101,6 +103,11 @@ class Outer(object):
     class Middle(object):
         class Inner(object):
             pass
+
+
+def on_missing_callback(class_name):
+    # not actually a runtime problem but it doesn't matter
+    warnings.warn("The unpickler couldn't find %s" % class_name, RuntimeWarning)
 
 
 class PicklingTestCase(unittest.TestCase):
@@ -451,6 +458,45 @@ class PicklingTestCase(unittest.TestCase):
         cls = jsonpickle.decode('{"py/type": "__builtin__.int"}')
         assert cls is int
 
+    def test_unpickler_on_missing(self):
+        class SimpleClass(object):
+            def __init__(self, i):
+                self.i = i
+
+        frozen = jsonpickle.encode(SimpleClass(4))
+        del SimpleClass
+
+        # https://docs.python.org/3/library/warnings.html#testing-warnings
+
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            jsonpickle.decode(frozen, on_missing='warn')
+            assert issubclass(w[-1].category, UserWarning)
+            assert "Unpickler._restore_object could not find" in str(w[-1].message)
+
+            jsonpickle.decode(frozen, on_missing=on_missing_callback)
+            assert issubclass(w[-1].category, RuntimeWarning)
+            assert "The unpickler couldn't find" in str(w[-1].message)
+
+        if PY3:
+            assert jsonpickle.decode(frozen, on_missing='ignore') == {
+                'py/object': 'jsonpickle_test.PicklingTestCase.test_unpickler_on_missing.<locals>.SimpleClass',
+                'i': 4,
+            }
+        else:
+            assert jsonpickle.decode(frozen, on_missing='ignore') == {
+                u'i': 4,
+                u'py/object': u'jsonpickle_test.SimpleClass',
+            }
+
+        try:
+            jsonpickle.decode(frozen, on_missing='error')
+        except jsonpickle.errors.ClassNotFoundError:
+            # it's supposed to error
+            assert True
+        else:
+            assert False
+
 
 class JSONPickleTestCase(SkippableTest):
     def setUp(self):
@@ -780,6 +826,10 @@ class JSONPickleTestCase(SkippableTest):
         assert decoded.a[1][0:3] == '[1,'
         assert decoded.a[2][0][0:3] == '[1,'
 
+    def _test_inner_class(self, InnerScope, obj, decoded):
+        self.assertTrue(isinstance(obj, InnerScope))
+        self.assertEqual(decoded.name, obj.name)
+
     def test_can_serialize_inner_classes(self):
         class InnerScope(object):
             """Private class visible to this method only"""
@@ -801,10 +851,6 @@ class JSONPickleTestCase(SkippableTest):
         # Set of classes
         decoded = jsonpickle.decode(encoded, classes={InnerScope})
         self._test_inner_class(InnerScope, obj, decoded)
-
-    def _test_inner_class(self, InnerScope, obj, decoded):
-        self.assertTrue(isinstance(obj, InnerScope))
-        self.assertEqual(decoded.name, obj.name)
 
     def test_can_serialize_nested_classes(self):
         if PY2:
@@ -970,11 +1016,11 @@ class PickleProtocol2ReduceString(object):
 
 
 class PickleProtocol2ReduceExString(object):
-    def __reduce__(self):
-        assert False, "Should not be here"
-
     def __reduce_ex__(self, n):
         return __name__ + '.slotmagic'
+
+    def __reduce__(self):
+        assert False, "Should not be here"
 
 
 class PickleProtocol2ReduceTuple(object):
@@ -994,11 +1040,11 @@ class PickleProtocol2ReduceTuple(object):
 
 @compat.iterator
 class ReducibleIterator(object):
-    def __iter__(self):
-        return self
-
     def __next__(self):
         raise StopIteration()
+
+    def __iter__(self):
+        return self
 
     def __reduce__(self):
         return ReducibleIterator, ()
@@ -1057,9 +1103,6 @@ class PickleProtocol2ReduceTupleState(PickleProtocol2ReduceTuple):
 
 
 class PickleProtocol2ReduceTupleSetState(PickleProtocol2ReduceTuple):
-    def __setstate__(self, state):
-        self.bar = state['foo']
-
     def __reduce__(self):
         return (
             type(self),  # callable
@@ -1068,6 +1111,9 @@ class PickleProtocol2ReduceTupleSetState(PickleProtocol2ReduceTuple):
             iter([]),  # listitems
             iter([]),  # dictitems
         )
+
+    def __setstate__(self, state):
+        self.bar = state['foo']
 
 
 class PickleProtocol2ReduceTupleStateSlots(object):
@@ -1091,6 +1137,9 @@ class PickleProtocol2ReduceListitemsAppend(object):
     def __init__(self):
         self.inner = []
 
+    def append(self, item):
+        self.inner.append(item)
+
     def __reduce__(self):
         return (
             PickleProtocol2ReduceListitemsAppend,  # callable
@@ -1099,15 +1148,15 @@ class PickleProtocol2ReduceListitemsAppend(object):
             iter(['foo', 'bar']),  # listitems
             iter([]),  # dictitems
         )
-
-    def append(self, item):
-        self.inner.append(item)
 
 
 class PickleProtocol2ReduceListitemsExtend(object):
     def __init__(self):
         self.inner = []
 
+    def extend(self, items):
+        self.inner.exend(items)
+
     def __reduce__(self):
         return (
             PickleProtocol2ReduceListitemsAppend,  # callable
@@ -1117,13 +1166,13 @@ class PickleProtocol2ReduceListitemsExtend(object):
             iter([]),  # dictitems
         )
 
-    def extend(self, items):
-        self.inner.exend(items)
-
 
 class PickleProtocol2ReduceDictitems(object):
     def __init__(self):
         self.inner = {}
+
+    def __setitem__(self, k, v):
+        return self.inner.__setitem__(k, v)
 
     def __reduce__(self):
         return (
@@ -1133,9 +1182,6 @@ class PickleProtocol2ReduceDictitems(object):
             [],  # listitems
             iter(zip(['foo', 'bar'], ['foo', 'bar'])),  # dictitems
         )
-
-    def __setitem__(self, k, v):
-        return self.inner.__setitem__(k, v)
 
 
 class PickleProtocol2Classic:
