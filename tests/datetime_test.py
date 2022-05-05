@@ -6,9 +6,9 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 
-import unittest
 import datetime
 import time
+import unittest
 
 import jsonpickle
 from jsonpickle import tags

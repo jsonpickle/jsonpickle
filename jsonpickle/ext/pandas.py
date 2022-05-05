@@ -1,10 +1,11 @@
 from __future__ import absolute_import
 
-import pandas as pd
-from io import StringIO
 import zlib
+from io import StringIO
 
-from .. import encode, decode
+import pandas as pd
+
+from .. import decode, encode
 from ..handlers import BaseHandler, register, unregister
 from ..util import b64decode, b64encode
 from .numpy import register_handlers as register_numpy_handlers

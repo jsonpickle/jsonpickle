@@ -1,17 +1,17 @@
 from __future__ import absolute_import
+
 import ast
-import sys
-import zlib
-import warnings
 import json
+import sys
+import warnings
+import zlib
 
 import numpy as np
 
-from ..handlers import BaseHandler, register, unregister
-from ..compat import numeric_types
-from ..util import b64decode, b64encode
 from .. import compat
-
+from ..compat import numeric_types
+from ..handlers import BaseHandler, register, unregister
+from ..util import b64decode, b64encode
 
 __all__ = ['register_handlers', 'unregister_handlers']
 

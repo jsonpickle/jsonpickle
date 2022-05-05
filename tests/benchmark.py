@@ -12,7 +12,6 @@ import os
 import sys
 import timeit
 
-
 json = """\
 import feedparser
 import jsonpickle

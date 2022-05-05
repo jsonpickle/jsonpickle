@@ -6,10 +6,11 @@ Includes functionality to assist with adding compatibility to jsonpickle.
 
 """
 from __future__ import absolute_import, division, unicode_literals
-import unittest
-import collections
 
-from jsonpickle import encode, decode
+import collections
+import unittest
+
+from jsonpickle import decode, encode
 
 
 class World(object):

@@ -8,6 +8,7 @@ A handler can be bound to other types by calling
 
 """
 from __future__ import absolute_import, division, unicode_literals
+
 import array
 import copy
 import datetime
@@ -17,8 +18,7 @@ import sys
 import threading
 import uuid
 
-from . import compat
-from . import util
+from . import compat, util
 
 
 class Registry(object):

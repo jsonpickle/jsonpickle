@@ -5,18 +5,16 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 from __future__ import absolute_import, division, unicode_literals
+
 import decimal
-import warnings
 import sys
 import types
+import warnings
 from itertools import chain, islice
 
-from . import compat
-from . import util
-from . import tags
-from . import handlers
+from . import compat, handlers, tags, util
 from .backend import json
-from .compat import numeric_types, string_types, PY3, PY2
+from .compat import PY2, PY3, numeric_types, string_types
 
 
 def encode(

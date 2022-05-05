@@ -1,7 +1,6 @@
 from __future__ import absolute_import, division, unicode_literals
 
-from .compat import string_types
-from .compat import PY3_ORDERED_DICT
+from .compat import PY3_ORDERED_DICT, string_types
 
 
 class JSONBackend(object):

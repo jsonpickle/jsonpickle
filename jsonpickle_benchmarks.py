@@ -4,8 +4,9 @@
 # To test the pip installed version, run this outside the jsonpickle directory:
 # py.test --benchmark-only ./jsonpickle_benchmarks.py --benchmark-histogram
 # MAKE SURE you have pytest-benchmark pip installed.
-import jsonpickle
 import itertools
+
+import jsonpickle
 
 # DEFINTIIONS:
 # HOMOGENOUS - Except for sets, each container may only have integers, floats, strings,

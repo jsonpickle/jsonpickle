@@ -5,19 +5,20 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 from __future__ import absolute_import, division, unicode_literals
+
+import collections
 import os
 import unittest
-import collections
 import warnings
 
 import pytest
+from helper import SkippableTest
 
 import jsonpickle
 import jsonpickle.backend
 import jsonpickle.handlers
 from jsonpickle import compat, tags, util
 from jsonpickle.compat import PY2, PY3
-from helper import SkippableTest
 
 
 class ListLike:

@@ -1,23 +1,20 @@
 from __future__ import absolute_import, division, unicode_literals
+
 import array
-import enum
 import collections
 import datetime
 import decimal
+import enum
 import re
 import threading
-import pytz
-
-import jsonpickle
-from jsonpickle import compat
-from jsonpickle import handlers
-from jsonpickle import tags
-from jsonpickle import util
-from jsonpickle.compat import queue, PY2, PY3_ORDERED_DICT
 
 import pytest
-
+import pytz
 from helper import SkippableTest
+
+import jsonpickle
+from jsonpickle import compat, handlers, tags, util
+from jsonpickle.compat import PY2, PY3_ORDERED_DICT, queue
 
 
 class Thing(object):

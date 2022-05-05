@@ -9,26 +9,19 @@
 determining the type of an object.
 """
 from __future__ import absolute_import, division, unicode_literals
+
 import base64
 import collections
+import inspect
 import io
 import operator
 import sys
 import time
 import types
-import inspect
 
-from . import tags
-from . import compat
-from .compat import (
-    abc_iterator,
-    class_types,
-    iterator_types,
-    numeric_types,
-    PY2,
-    PY3,
-    PY3_ORDERED_DICT,
-)
+from . import compat, tags
+from .compat import (PY2, PY3, PY3_ORDERED_DICT, abc_iterator, class_types,
+                     iterator_types, numeric_types)
 
 if PY2:
     import __builtin__

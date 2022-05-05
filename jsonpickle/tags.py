@@ -8,7 +8,6 @@ that need to be specially handled.
 """
 from __future__ import absolute_import, division, unicode_literals
 
-
 BYTES = 'py/bytes'
 B64 = 'py/b64'
 B85 = 'py/b85'
