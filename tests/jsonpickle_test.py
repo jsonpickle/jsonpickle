@@ -485,7 +485,8 @@ class PicklingTestCase(unittest.TestCase):
             }
         else:
             assert jsonpickle.decode(frozen, on_missing='ignore') == {
-                'py/object': 'jsonpickle_test.SimpleClass'
+                u'i': 4,
+                u'py/object': u'jsonpickle_test.SimpleClass',
             }
 
         try:
