@@ -10,7 +10,8 @@ pymongo
 pytest
 pytest-black-multipy
 pytest-cov
-pytest-flake8
+pytest-flake8 < 1.1.0; python_version <= '3.6'
+pytest-flake8 >= 1.1.1; python_version > '3.7'
 pytest-benchmark
 pytest-benchmark[histogram]
 scikit-learn
