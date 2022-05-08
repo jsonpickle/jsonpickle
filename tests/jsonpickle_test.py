@@ -105,6 +105,14 @@ class Outer(object):
             pass
 
 
+class MySlots:
+    __slots__ = ("alpha", "__beta")
+
+    def __init__(self):
+        self.alpha = 1
+        self.__beta = 1
+
+
 def on_missing_callback(class_name):
     # not actually a runtime problem but it doesn't matter
     warnings.warn("The unpickler couldn't find %s" % class_name, RuntimeWarning)
@@ -452,11 +460,11 @@ class PicklingTestCase(unittest.TestCase):
         no longer supported.
         """
         ae = jsonpickle.decode('{"py/type": "__builtin__.AssertionError"}')
-        assert ae is AssertionError
+        self.assertTrue(ae is AssertionError)
         ae = jsonpickle.decode('{"py/type": "exceptions.AssertionError"}')
-        assert ae is AssertionError
+        self.assertTrue(ae is AssertionError)
         cls = jsonpickle.decode('{"py/type": "__builtin__.int"}')
-        assert cls is int
+        self.assertTrue(cls is int)
 
     def test_unpickler_on_missing(self):
         class SimpleClass(object):
@@ -471,31 +479,45 @@ class PicklingTestCase(unittest.TestCase):
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
             jsonpickle.decode(frozen, on_missing='warn')
-            assert issubclass(w[-1].category, UserWarning)
-            assert "Unpickler._restore_object could not find" in str(w[-1].message)
+            self.assertTrue(issubclass(w[-1].category, UserWarning))
+            self.assertTrue(
+                "Unpickler._restore_object could not find" in str(w[-1].message)
+            )
 
             jsonpickle.decode(frozen, on_missing=on_missing_callback)
-            assert issubclass(w[-1].category, RuntimeWarning)
-            assert "The unpickler couldn't find" in str(w[-1].message)
+            self.assertTrue(issubclass(w[-1].category, RuntimeWarning))
+            self.assertTrue("The unpickler couldn't find" in str(w[-1].message))
 
         if PY3:
-            assert jsonpickle.decode(frozen, on_missing='ignore') == {
-                'py/object': 'jsonpickle_test.PicklingTestCase.test_unpickler_on_missing.<locals>.SimpleClass',
-                'i': 4,
-            }
+            self.assertTrue(
+                jsonpickle.decode(frozen, on_missing='ignore')
+                == {
+                    'py/object': 'jsonpickle_test.PicklingTestCase.test_unpickler_on_missing.<locals>.SimpleClass',
+                    'i': 4,
+                }
+            )
         else:
-            assert jsonpickle.decode(frozen, on_missing='ignore') == {
-                u'i': 4,
-                u'py/object': u'jsonpickle_test.SimpleClass',
-            }
+            self.assertTrue(
+                jsonpickle.decode(frozen, on_missing='ignore')
+                == {
+                    u'i': 4,
+                    u'py/object': u'jsonpickle_test.SimpleClass',
+                }
+            )
 
         try:
             jsonpickle.decode(frozen, on_missing='error')
         except jsonpickle.errors.ClassNotFoundError:
             # it's supposed to error
-            assert True
+            self.assertTrue(True)
         else:
-            assert False
+            self.assertTrue(False)
+
+    def test_private_slot_members(self):
+        obj = jsonpickle.loads(jsonpickle.dumps(MySlots()))
+        alpha = getattr(obj, "alpha", "(missing alpha)")
+        beta = getattr(obj, "_" + obj.__class__.__name__ + "__beta", "(missing beta)")
+        self.assertEqual(alpha, beta)
 
 
 class JSONPickleTestCase(SkippableTest):

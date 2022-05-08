@@ -6,7 +6,7 @@
    Users on older Python versions should pin requirements to ``jsonpickle<3.0.0``.
 
 v2.2.0
-======
+=======
 
     * Classes with a custom ``__getitem__()`` and ``append()``
       now pickle properly. (#362) (+379)
@@ -19,6 +19,9 @@ v2.2.0
     * Added a long-requested on_missing attribute to the Unpickler class.
       This lets you choose behavior for when jsonpickle can't find a class
       to deserialize to. (#190) (#193) (+384)
+    * Private members of ``__slots__`` are no longer skipped when encoding.
+      Any objects encoded with versions prior to 2.2.0 should still decode
+      properly. (#318) (+385)
 
 v2.1.0
 ======
