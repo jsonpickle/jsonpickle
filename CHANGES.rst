@@ -1,6 +1,6 @@
 .. warning::
     The next major release of jsonpickle (v3.0.0) will drop support for
-    Python 3.5 and earlier (including Python 2.7).
+    Python 3.6 and earlier (including Python 2.7).
 
 .. note::
    Users on older Python versions should pin requirements to ``jsonpickle<3.0.0``.
@@ -12,6 +12,13 @@ v2.2.0
       now pickle properly. (#362) (+379)
     * Remove the demjson backend, as demjson hasn't been maintained
       for 5 years. (+379)
+    * Added new handler for numpy objects when using unpickleable=False.
+      (#381) (+382)
+    * Added exception handling for class attributes that can't be accessed.
+      (#301) (+383)
+    * Added a long-requested on_missing attribute to the Unpickler class.
+      This lets you choose behavior for when jsonpickle can't find a class
+      to deserialize to. (#190) (#193) (+384)
 
 v2.1.0
 ======
