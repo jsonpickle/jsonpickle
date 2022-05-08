@@ -704,7 +704,11 @@ class Pickler(object):
         ok = False
         for k in attrs:
             try:
-                value = getattr(obj, k)
+                if not k.startswith('__'):
+                    value = getattr(obj, k)
+                else:
+                    # we can use f-strings once we drop < 3.7 in jsonpickle 3.0
+                    value = getattr(obj, "_" + obj.__class__.__name__ + k)
                 flatten(k, value, data)
             except AttributeError:
                 # The attribute may have been deleted
