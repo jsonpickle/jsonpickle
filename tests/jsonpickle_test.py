@@ -105,6 +105,14 @@ class Outer(object):
             pass
 
 
+class MySlots:
+    __slots__ = ("alpha", "__beta")
+    
+    def __init__(self):
+        self.alpha = 1
+        self.__beta = 1
+
+
 def on_missing_callback(class_name):
     # not actually a runtime problem but it doesn't matter
     warnings.warn("The unpickler couldn't find %s" % class_name, RuntimeWarning)
@@ -496,6 +504,12 @@ class PicklingTestCase(unittest.TestCase):
             assert True
         else:
             assert False
+    
+    def test_private_slot_members(self):
+        slots = jsonpickle.loads(jsonpickle.dumps(MySlots()))
+        alpha = getattr(obj, "alpha", "(missing alpha)")
+        beta = getattr(obj, "_" + obj.__class__.__name__ + "__beta", "(missing beta)")
+        self.assertEqual(alpha, beta)
 
 
 class JSONPickleTestCase(SkippableTest):
