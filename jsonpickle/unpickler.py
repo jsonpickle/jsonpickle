@@ -617,7 +617,7 @@ class Unpickler(object):
                     setattr(instance, k, value)
                 else:
                     # we can use f-strings once we drop < 3.7 in jsonpickle 3.0
-                    setattr(instance, "_" + instance.__class__.__name__ + k, value)   
+                    setattr(instance, "_" + instance.__class__.__name__ + k, value)
 
             # This instance has an instance variable named `k` that is
             # currently a proxy and must be replaced
