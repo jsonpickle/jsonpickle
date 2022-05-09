@@ -22,7 +22,7 @@ jsonpickle
 ==========
 jsonpickle is a library for the two-way conversion of complex Python objects
 and `JSON <http://json.org/>`_.  jsonpickle builds upon the existing JSON
-encoders, such as simplejson, json.
+encoders, such as simplejson, json, and ujson.
 
 .. warning::
 
@@ -37,7 +37,7 @@ For complete documentation, please visit the
 Bug reports and merge requests are encouraged at the
 `jsonpickle repository on github <https://github.com/jsonpickle/jsonpickle>`_.
 
-jsonpickle supports Python 2.7 and Python 3.4 or greater.
+jsonpickle officially supports CPython 2.7 and CPython 3.6 or greater. Version support below CPython 3.7 will be dropped upon release of jsonpickle 3.0.
 
 Why jsonpickle?
 ===============
