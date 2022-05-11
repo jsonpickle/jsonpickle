@@ -16,7 +16,6 @@ except ImportError:
 import jsonpickle
 import jsonpickle.ext.numpy
 from jsonpickle import handlers
-from jsonpickle.compat import PY2
 
 
 @pytest.fixture(scope='module', autouse=True)
@@ -129,15 +128,14 @@ def test_ndarray_roundtrip():
         np.array([0, 1, -1, np.inf, -np.inf, np.nan], dtype='f2'),
     ]
 
-    if not PY2:
-        arrays.extend(
-            [
-                np.rec.array(
-                    [('NGC1001', 11), ('NGC1002', 1.0), ('NGC1003', 1.0)],
-                    dtype=[('target', 'S20'), ('V_mag', 'f4')],
-                )
-            ]
-        )
+    arrays.extend(
+        [
+            np.rec.array(
+                [('NGC1001', 11), ('NGC1002', 1.0), ('NGC1003', 1.0)],
+                dtype=[('target', 'S20'), ('V_mag', 'f4')],
+            )
+        ]
+    )
     for array in arrays:
         decoded = roundtrip(array)
         assert_equal(decoded, array)
@@ -200,10 +198,7 @@ def test_weird_arrays():
     a.strides = 1
 
     # this is kinda fishy; a has overlapping memory, _a does not
-    if PY2:
-        warn_count = 0
-    else:
-        warn_count = 1
+    warn_count = 1
     with warnings.catch_warnings(record=True) as w:
         _a = roundtrip(a)
         assert len(w) == warn_count
@@ -254,10 +249,7 @@ def test_transpose():
     b = a[1:, 1:]
     assert b.base is a
 
-    if PY2:
-        warn_count = 0
-    else:
-        warn_count = 1
+    warn_count = 1
     with warnings.catch_warnings(record=True) as w:
         _a, _b = roundtrip([a, b])
         assert len(w) == warn_count
@@ -276,10 +268,7 @@ def test_buffer():
     """test behavior with memoryviews which are not ndarrays"""
     bstring = 'abcdefgh'.encode('utf-8')
     a = np.frombuffer(bstring, dtype=np.byte)
-    if PY2:
-        warn_count = 0
-    else:
-        warn_count = 1
+    warn_count = 1
     with warnings.catch_warnings(record=True) as w:
         _a = roundtrip(a)
         npt.assert_array_equal(a, _a)
@@ -293,10 +282,7 @@ def test_as_strided():
     is not an ndarray.
 
     """
-    if PY2:
-        warn_count = 0
-    else:
-        warn_count = 1
+    warn_count = 1
     a = np.arange(10)
     b = np.lib.stride_tricks.as_strided(a, shape=(5,), strides=(a.dtype.itemsize * 2,))
     data = [a, b]

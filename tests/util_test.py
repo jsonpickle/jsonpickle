@@ -54,16 +54,6 @@ class MethodTestOldStyle:
 
 
 class UtilTestCase(unittest.TestCase):
-    @unittest.skipIf(not compat.PY2, 'Python 2-specific Base85 test')
-    def test_b85encode_crashes_on_python2(self):
-        with self.assertRaises(NotImplementedError):
-            util.b85encode(b'')
-
-    @unittest.skipIf(not compat.PY2, 'Python 2-specific Base85 test')
-    def test_b85decode_crashes_on_python2(self):
-        with self.assertRaises(NotImplementedError):
-            util.b85decode(u'RC2?pb0AN3baKO~')
-
     def test_is_primitive_int(self):
         self.assertTrue(util.is_primitive(0))
         self.assertTrue(util.is_primitive(3))

@@ -18,7 +18,6 @@ import jsonpickle
 import jsonpickle.backend
 import jsonpickle.handlers
 from jsonpickle import compat, tags, util
-from jsonpickle.compat import PY2, PY3
 
 
 class ListLike:
@@ -128,49 +127,30 @@ class PicklingTestCase(unittest.TestCase):
         self.pickler.reset()
         self.unpickler.reset()
 
-    @unittest.skipIf(not PY2, 'Python 2-specific base85 test')
-    def test_base85_always_false_on_py2(self):
-        self.assertFalse(self.b85_pickler.use_base85)
 
-    @unittest.skipIf(PY2, 'Base85 not supported on Python 2')
     def test_base85_override_py3(self):
         """Ensure the Python 2 check still lets us set use_base85 on Python 3"""
         self.assertTrue(self.b85_pickler.use_base85)
 
-    @unittest.skipIf(PY2, 'Base85 not supported on Python 2')
     def test_bytes_default_base85(self):
         data = os.urandom(16)
         encoded = util.b85encode(data)
         self.assertEqual({tags.B85: encoded}, self.b85_pickler.flatten(data))
 
-    @unittest.skipIf(PY2, 'Base85 not supported on Python 2')
     def test_py3_bytes_base64_default(self):
         data = os.urandom(16)
         encoded = util.b64encode(data)
         self.assertEqual({tags.B64: encoded}, self.pickler.flatten(data))
 
-    @unittest.skipIf(not PY2, 'Python 2-specific base64 test')
-    def test_py2_default_base64(self):
-        data = os.urandom(16)
-        encoded = util.b64encode(data)
-        self.assertEqual({tags.B64: encoded}, self.pickler.flatten(data))
-
-    @unittest.skipIf(PY2, 'Base85 not supported on Python 2')
     def test_decode_base85(self):
         pickled = {tags.B85: 'P{Y4;Xv4O{u^=-c'}
         expected = u'P\u00ffth\u00f6\u00f1 3!'.encode('utf-8')
         self.assertEqual(expected, self.unpickler.restore(pickled))
 
-    @unittest.skipIf(PY2, 'Base85 not supported on Python 2')
     def test_base85_still_handles_base64(self):
         pickled = {tags.B64: 'UMO/dGjDtsOxIDMh'}
         expected = u'P\u00ffth\u00f6\u00f1 3!'.encode('utf-8')
         self.assertEqual(expected, self.unpickler.restore(pickled))
-
-    @unittest.skipIf(not PY2, 'Python 2-specific base85 test')
-    def test_base85_crashes_py2(self):
-        with self.assertRaises(NotImplementedError):
-            self.unpickler.restore({tags.B85: 'P{Y4;Xv4O{u^=-c'})
 
     def test_string(self):
         self.assertEqual('a string', self.pickler.flatten('a string'))
@@ -488,22 +468,13 @@ class PicklingTestCase(unittest.TestCase):
             self.assertTrue(issubclass(w[-1].category, RuntimeWarning))
             self.assertTrue("The unpickler couldn't find" in str(w[-1].message))
 
-        if PY3:
-            self.assertTrue(
-                jsonpickle.decode(frozen, on_missing='ignore')
-                == {
-                    'py/object': 'jsonpickle_test.PicklingTestCase.test_unpickler_on_missing.<locals>.SimpleClass',
-                    'i': 4,
-                }
-            )
-        else:
-            self.assertTrue(
-                jsonpickle.decode(frozen, on_missing='ignore')
-                == {
-                    u'i': 4,
-                    u'py/object': u'jsonpickle_test.SimpleClass',
-                }
-            )
+        self.assertTrue(
+            jsonpickle.decode(frozen, on_missing='ignore')
+            == {
+                'py/object': 'jsonpickle_test.PicklingTestCase.test_unpickler_on_missing.<locals>.SimpleClass',
+                'i': 4,
+            }
+        )
 
         try:
             jsonpickle.decode(frozen, on_missing='error')
@@ -574,10 +545,7 @@ class JSONPickleTestCase(SkippableTest):
         self.assertEqual(type(self.obj), type(actual))
 
     def test_unicode_dict_keys(self):
-        if PY2:
-            uni = unichr(0x1234)  # noqa
-        else:
-            uni = chr(0x1234)
+        uni = chr(0x1234)
         pickle = jsonpickle.encode({uni: uni})
         actual = jsonpickle.decode(pickle)
         self.assertTrue(uni in actual)
@@ -875,9 +843,6 @@ class JSONPickleTestCase(SkippableTest):
         self._test_inner_class(InnerScope, obj, decoded)
 
     def test_can_serialize_nested_classes(self):
-        if PY2:
-            return self.skip('Serialization of nested classes requires ' 'Python >= 3')
-
         middle = Outer.Middle
         inner = Outer.Middle.Inner
         encoded_middle = jsonpickle.encode(middle)
@@ -892,9 +857,6 @@ class JSONPickleTestCase(SkippableTest):
         self.assertEqual(decoded_inner, inner)
 
     def test_can_serialize_nested_class_objects(self):
-        if PY2:
-            return self.skip('Serialization of nested classes requires ' 'Python >= 3')
-
         middle_obj = Outer.Middle()
         middle_obj.attribute = 5
         inner_obj = Outer.Middle.Inner()
@@ -1271,32 +1233,6 @@ class PicklingProtocol4TestCase(unittest.TestCase):
 
 
 class PicklingProtocol2TestCase(SkippableTest):
-    def test_classic_init_has_args(self):
-        """
-        Test unpickling a classic instance whose init takes args,
-        has no __getinitargs__
-        Because classic only exists under 2, skipped if PY3
-        """
-        if PY3:
-            return self.skip('No classic classes in PY3')
-        instance = PickleProtocol2Classic(3)
-        encoded = jsonpickle.encode(instance)
-        decoded = jsonpickle.decode(encoded)
-        self.assertEqual(decoded.foo, 3)
-
-    def test_getinitargs(self):
-        """
-        Test __getinitargs__ with classic instance
-
-        Because classic only exists under 2, skipped if PY3
-        """
-        if PY3:
-            return self.skip('No classic classes in PY3')
-        instance = PickleProtocol2ClassicInitargs(3)
-        encoded = jsonpickle.encode(instance)
-        decoded = jsonpickle.decode(encoded)
-        self.assertEqual(decoded.bar, 'choo')
-
     def test_reduce_complex_num(self):
         instance = 5j
         encoded = jsonpickle.encode(instance)
