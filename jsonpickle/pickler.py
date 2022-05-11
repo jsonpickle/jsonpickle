@@ -193,7 +193,7 @@ class Pickler(object):
         self.keys = keys
         self.warn = warn
         self.numeric_keys = numeric_keys
-        self.use_base85 = use_base85 and (not PY2)
+        self.use_base85 = use_base85
         # The current recursion depth
         self._depth = -1
         # The maximal recursion depth
@@ -315,20 +315,12 @@ class Pickler(object):
         return None
 
     def _flatten_bytestring(self, obj):
-        if PY2:
-            try:
-                return obj.decode('utf-8')
-            except UnicodeDecodeError:
-                pass
         return {self._bytes_tag: self._bytes_encoder(obj)}
 
     def _flatten_impl(self, obj):
         #########################################
         # if obj is nonrecursive return immediately
         # for performance reasons we don't want to do recursive checks
-        if PY2 and isinstance(obj, types.FileType):
-            return self._flatten_file(obj)
-
         if type(obj) is bytes:
             return self._flatten_bytestring(obj)
 

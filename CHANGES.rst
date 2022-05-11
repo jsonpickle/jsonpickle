@@ -9,6 +9,7 @@ v3.0.0
 ======
     * Drop support for CPython<3.7. CPython 3.6 and below have reached EOL
       and no longer receieve security updates. (#375)
+    * Remove jsonlib and yajl backends (py2 only)
 
 v2.2.0
 ======

@@ -1,20 +1,16 @@
 bson
 coverage<5
 ecdsa
-enum34; python_version < '3.4'
 feedparser
-jsonlib; python_version < '3.0'
 numpy
 pandas
 pymongo
 pytest
 pytest-cov
-pytest-flake8 < 1.1.0; python_version <= '3.6'
-pytest-flake8 >= 1.1.1; python_version >= '3.7'
+pytest-flake8 >= 1.1.1
 pytest-benchmark
 pytest-benchmark[histogram]
 scikit-learn
 simplejson
 sqlalchemy>=1.2.19
 ujson
-yajl; sys_platform != 'win32' and python_version < '3.0'

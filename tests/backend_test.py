@@ -7,7 +7,6 @@ from warnings import warn
 from helper import SkippableTest
 
 import jsonpickle
-from jsonpickle.compat import PY2, PY3
 
 
 class Thing(object):
@@ -135,23 +134,6 @@ def has_module(module):
     return True
 
 
-class JsonlibTestCase(BackendBase):
-    def setUp(self):
-        if PY2:
-            self.set_preferred_backend('jsonlib')
-
-    def test_backend(self):
-        if PY3:
-            return self.skip('no jsonlib for python3')
-        expected_pickled = (
-            '{"things":[{'
-            r'"py\/object":"backend_test.Thing",'
-            '"name":"data","child":null}'
-            ']}'
-        )
-        self.assertEncodeDecode(expected_pickled)
-
-
 class YajlTestCase(BackendBase):
     def setUp(self):
         self.set_preferred_backend('yajl')
@@ -187,9 +169,6 @@ def suite():
     suite.addTest(unittest.makeSuite(SimpleJsonTestCase))
     if has_module('yajl'):
         suite.addTest(unittest.makeSuite(YajlTestCase))
-    if PY2:
-        if has_module('jsonlib'):
-            suite.addTest(unittest.makeSuite(JsonlibTestCase))
     return suite
 
 

@@ -7,7 +7,7 @@ class JSONBackend(object):
     """Manages encoding and decoding using various backends.
 
     It tries these modules in this order:
-        simplejson, json, jsonlib, yajl, ujson
+        simplejson, json, ujson
 
     simplejson is a fast and popular backend and is tried first.
     json comes with Python and is tried second.
@@ -100,8 +100,6 @@ class JSONBackend(object):
 
         self.load_backend('simplejson')
         self.load_backend('json')
-        self.load_backend('jsonlib', 'write', 'read', 'ReadError')
-        self.load_backend('yajl')
         self.load_backend('ujson')
 
         # Defaults for various encoders
