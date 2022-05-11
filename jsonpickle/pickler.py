@@ -722,25 +722,27 @@ class Pickler(object):
         if allslots is None:
             # setting a list as a default argument can lead to some weird errors
             allslots = []
-        
+
         properties = []
 
         # convert to set in case there are a lot of slots
         allslots_set = set(itertools.chain.from_iterable(allslots))
-        
+
         for cls in obj.__class__.mro():
 
             # i don't like lambdas
             def valid_property(x):
-                return (not x[0].startswith("__") and x[0] not in allslots_set)
-            
+                return not x[0].startswith("__") and x[0] not in allslots_set
+
             # this could be a list comprehension but split it for readability
             for cls in obj.__class__.mro():
-                properties += [x[0] for x in inspect.getmembers(cls) if valid_property(x)]
-    
+                properties += [
+                    x[0] for x in inspect.getmembers(cls) if valid_property(x)
+                ]
+
         # deduplicate strings
         data[tags.PROPERTY] = list(dict.fromkeys(properties))
-        
+
         return data
 
     def _flatten_newstyle_with_slots(self, obj, data):
@@ -753,7 +755,7 @@ class Pickler(object):
         # add properties to the attribute list
         if self.include_properties:
             data = self._flatten_properties(obj, data, allslots)
-        
+
         if not self._flatten_obj_attrs(obj, chain(*allslots), data):
             attrs = [
                 x for x in dir(obj) if not x.startswith('__') and not x.endswith('__')

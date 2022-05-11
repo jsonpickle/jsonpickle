@@ -350,10 +350,7 @@ def is_list_like(obj):
 
 
 def is_iterator(obj):
-    return (
-        isinstance(obj, abc_iterator)
-        and not isinstance(obj, io.IOBase)
-    )
+    return isinstance(obj, abc_iterator) and not isinstance(obj, io.IOBase)
 
 
 def is_collections(obj):

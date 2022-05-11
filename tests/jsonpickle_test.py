@@ -127,7 +127,6 @@ class PicklingTestCase(unittest.TestCase):
         self.pickler.reset()
         self.unpickler.reset()
 
-
     def test_base85_override_py3(self):
         """Ensure the Python 2 check still lets us set use_base85 on Python 3"""
         self.assertTrue(self.b85_pickler.use_base85)
