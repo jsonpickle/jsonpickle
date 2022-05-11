@@ -20,6 +20,7 @@ NEWARGS = 'py/newargs'
 NEWARGSEX = 'py/newargsex'
 NEWOBJ = 'py/newobj'
 OBJECT = 'py/object'
+PROPERTY = 'py/property'
 REDUCE = 'py/reduce'
 REF = 'py/ref'
 REPR = 'py/repr'
@@ -40,6 +41,7 @@ RESERVED = {
     NEWARGSEX,
     NEWOBJ,
     OBJECT,
+    PROPERTY,
     REDUCE,
     REF,
     REPR,

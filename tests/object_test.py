@@ -14,7 +14,7 @@ from helper import SkippableTest
 
 import jsonpickle
 from jsonpickle import compat, handlers, tags, util
-from jsonpickle.compat import PY2, PY3_ORDERED_DICT, queue
+from jsonpickle.compat import queue
 
 
 class Thing(object):
@@ -519,22 +519,15 @@ class AdvancedObjectsTestCase(SkippableTest):
         self.assertTrue(decoded == u1)
         self.assertTrue(isinstance(decoded, compat.ustr))
 
-        # bytestrings are wrapped in PY3 but in PY2 we try to decode first
+        # bytestrings are wrapped in py 3
         encoded = self.pickler.flatten(b1)
-        if PY2:
-            self.assertEqual(encoded, u1)
-            self.assertTrue(isinstance(encoded, compat.ustr))
-        else:
-            self.assertNotEqual(encoded, u1)
-            encoded_ustr = util.b64encode(b'foo')
-            self.assertEqual({tags.B64: encoded_ustr}, encoded)
-            self.assertTrue(isinstance(encoded[tags.B64], compat.ustr))
+        self.assertNotEqual(encoded, u1)
+        encoded_ustr = util.b64encode(b'foo')
+        self.assertEqual({tags.B64: encoded_ustr}, encoded)
+        self.assertTrue(isinstance(encoded[tags.B64], compat.ustr))
         decoded = self.unpickler.restore(encoded)
         self.assertTrue(decoded == b1)
-        if PY2:
-            self.assertTrue(isinstance(decoded, compat.ustr))
-        else:
-            self.assertTrue(isinstance(decoded, bytes))
+        self.assertTrue(isinstance(decoded, bytes))
 
         # bytestrings that we can't decode to UTF-8 will always be wrapped
         encoded = self.pickler.flatten(b2)
@@ -602,12 +595,6 @@ class AdvancedObjectsTestCase(SkippableTest):
         typecodes = ('b', 'B', 'h', 'H', 'i', 'I', 'l', 'L', 'f', 'd')
         for typecode in typecodes:
             obj = array.array(typecode, (1, 2, 3))
-            self._test_array_roundtrip(obj)
-
-    def test_array_handler_python2(self):
-        """Python2 allows the "c" byte/char typecode"""
-        if PY2:
-            obj = array.array('c', bytes('abcd'))
             self._test_array_roundtrip(obj)
 
     def test_exceptions_with_arguments(self):
@@ -774,8 +761,6 @@ def test_broken_repr_dict_key():
 
 def test_ordered_dict_python3():
     """Ensure that we preserve dict order on python3"""
-    if not PY3_ORDERED_DICT:
-        return
     # Python3.6+ preserves dict order.
     obj = {'z': 'Z', 'x': 'X', 'y': 'Y'}
     clone = jsonpickle.decode(jsonpickle.encode(obj))

@@ -21,17 +21,12 @@ import types
 
 from . import compat, tags
 from .compat import (
-    PY2,
-    PY3,
-    PY3_ORDERED_DICT,
     abc_iterator,
     class_types,
     iterator_types,
     numeric_types,
 )
 
-if PY2:
-    import __builtin__
 
 SEQUENCES = (list, set, tuple)
 SEQUENCES_SET = {list, set, tuple}
@@ -111,10 +106,9 @@ def has_method(obj, name):
         return True
 
     # at this point, the method has to be an instancemthod or a classmethod
-    self_attr = '__self__' if PY3 else 'im_self'
-    if not hasattr(func, self_attr):
+    if not hasattr(func, '__self__'):
         return False
-    bound_to = getattr(func, self_attr)
+    bound_to = getattr(func, '__self__')
 
     # class methods
     if isinstance(original, classmethod):
@@ -359,7 +353,6 @@ def is_iterator(obj):
     return (
         isinstance(obj, abc_iterator)
         and not isinstance(obj, io.IOBase)
-        and not (PY2 and isinstance(obj, __builtin__.file))
     )
 
 
@@ -495,9 +488,7 @@ def untranslate_module_name(module):
     a module name available to the current version of Python.
 
     """
-    module = _0_9_6_compat_untranslate(module)
-    lookup = dict(builtins='__builtin__') if PY2 else {}
-    return lookup.get(module, module)
+    return _0_9_6_compat_untranslate(module)
 
 
 def importable_name(cls):
@@ -542,8 +533,6 @@ def b85encode(data):
     """
     Encode binary data to ascii text in base85. Data must be bytes.
     """
-    if PY2:
-        raise NotImplementedError("Python 2 can't encode data in base85.")
     return base64.b85encode(data).decode('ascii')
 
 
@@ -551,8 +540,6 @@ def b85decode(payload):
     """
     Decode payload - must be ascii text.
     """
-    if PY2:
-        raise NotImplementedError("Python 2 can't decode base85-encoded data.")
     return base64.b85decode(payload)
 
 
@@ -561,16 +548,8 @@ def itemgetter(obj, getter=operator.itemgetter(0)):
 
 
 def items(obj):
-    """Iterate over dicts in a deterministic order
-
-    Python2 does not guarantee dict ordering, so this function
-    papers over the difference in behavior.  Python3 does guarantee
-    dict order, without use of OrderedDict, so no sorting is needed there.
-
     """
-    if PY3_ORDERED_DICT:
-        for k, v in obj.items():
-            yield k, v
-    else:
-        for k, v in sorted(obj.items(), key=itemgetter):
-            yield k, v
+    TODO: Replace all calls to this with plain dict.items()
+    """
+    for k, v in obj.items():
+        yield k, v

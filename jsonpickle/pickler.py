@@ -7,6 +7,8 @@
 from __future__ import absolute_import, division, unicode_literals
 
 import decimal
+import inspect
+import itertools
 import sys
 import types
 import warnings
@@ -14,7 +16,7 @@ from itertools import chain, islice
 
 from . import compat, handlers, tags, util
 from .backend import json
-from .compat import PY2, PY3, numeric_types, string_types
+from .compat import numeric_types, string_types
 
 
 def encode(
@@ -34,6 +36,7 @@ def encode(
     fail_safe=None,
     indent=None,
     separators=None,
+    include_properties=False,
 ):
     """Return a JSON formatted representation of value, a Python object.
 
@@ -106,6 +109,11 @@ def encode(
         separators.  ``(',', ':')`` is the most compact JSON representation.
         This value is passed directly to the active JSON backend library and
         not used by jsonpickle directly.
+    :param include_properties:
+        Include the names and values of class properties in the generated json.
+        Properties are unpickled properly regardless of this setting, this is
+        meant to be used if processing the json outside of Python. Defaults to
+        ``False``.
 
     >>> encode('my string') == '"my string"'
     True
@@ -130,6 +138,7 @@ def encode(
         use_decimal=use_decimal,
         use_base85=use_base85,
         fail_safe=fail_safe,
+        include_properties=include_properties,
     )
     return backend.encode(
         context.flatten(value, reset=reset), indent=indent, separators=separators
@@ -176,6 +185,7 @@ class Pickler(object):
         use_decimal=False,
         use_base85=False,
         fail_safe=None,
+        include_properties=False,
     ):
         self.unpicklable = unpicklable
         self.make_refs = make_refs
@@ -208,6 +218,7 @@ class Pickler(object):
 
         # ignore exceptions
         self.fail_safe = fail_safe
+        self.include_properties = include_properties
 
     def reset(self):
         self._objs = {}
@@ -707,14 +718,38 @@ class Pickler(object):
                 if not k.startswith('__'):
                     value = getattr(obj, k)
                 else:
-                    # we can use f-strings once we drop < 3.7 in jsonpickle 3.0
-                    value = getattr(obj, "_" + obj.__class__.__name__ + k)
+                    value = getattr(obj, f"_{obj.__class__.__name__}{k}")
                 flatten(k, value, data)
             except AttributeError:
                 # The attribute may have been deleted
                 continue
             ok = True
         return ok
+
+    def _flatten_properties(self, obj, data, allslots=None):
+        if allslots is None:
+            # setting a list as a default argument can lead to some weird errors
+            allslots = []
+        
+        properties = []
+
+        # convert to set in case there are a lot of slots
+        allslots_set = set(itertools.chain.from_iterable(allslots))
+        
+        for cls in obj.__class__.mro():
+
+            # i don't like lambdas
+            def valid_property(x):
+                return (not x[0].startswith("__") and x[0] not in allslots_set)
+            
+            # this could be a list comprehension but split it for readability
+            for cls in obj.__class__.mro():
+                properties += [x[0] for x in inspect.getmembers(cls) if valid_property(x)]
+    
+        # deduplicate strings
+        data[tags.PROPERTY] = list(dict.fromkeys(properties))
+        
+        return data
 
     def _flatten_newstyle_with_slots(self, obj, data):
         """Return a json-friendly dict for new-style objects with __slots__."""
@@ -723,6 +758,10 @@ class Pickler(object):
             for cls in obj.__class__.mro()
         ]
 
+        # add properties to the attribute list
+        if self.include_properties:
+            data = self._flatten_properties(obj, data, allslots)
+        
         if not self._flatten_obj_attrs(obj, chain(*allslots), data):
             attrs = [
                 x for x in dir(obj) if not x.startswith('__') and not x.endswith('__')

@@ -5,8 +5,13 @@
 .. note::
    Users on older Python versions should pin requirements to ``jsonpickle<3.0.0``.
 
+v3.0.0
+======
+    * Drop support for CPython<3.7. CPython 3.6 and below have reached EOL
+      and no longer receieve security updates. (#375)
+
 v2.2.0
-=======
+======
 
     * Classes with a custom ``__getitem__()`` and ``append()``
       now pickle properly. (#362) (+379)
