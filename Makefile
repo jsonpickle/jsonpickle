@@ -44,7 +44,7 @@ TOXCMD += --develop --skip-missing-interpreters
 ifdef multi
     TOXCMD += --parallel $(NUM_JOBS)
     TOXCMD += -e
-    TOXCMD += 'clean,py{27,36,37,38,39},py{27,38,39}-sa{12,13},py{27,38,39}-libs'
+    TOXCMD += 'clean,py{37,38,39,310},py{38,39,310}-sa{12,13},py{38,39,310}-libs'
     # Disable coverage when running in parallel
     TOXCMD += -- --no-cov
 endif
@@ -55,7 +55,7 @@ ifdef V
 endif
 
 # Coverage
-COVERAGE_ENV ?= py39
+COVERAGE_ENV ?= py310
 
 # Data
 ARTIFACTS := build
@@ -106,5 +106,5 @@ clean::
 .PHONY: clean
 
 format::
-	$(BLACK) --skip-string-normalization --target-version py27 $(PYTHON_DIRS)
+	$(BLACK) --skip-string-normalization --target-version py310 $(PYTHON_DIRS)
 .PHONY: format

@@ -808,6 +808,9 @@ class Unpickler(object):
                 self._namestack.pop()
         return data
 
+    def _restore_tuple(self, obj):
+        return tuple([self._restore(v) for v in obj[tags.TUPLE]])
+
     def _restore_tags(self, obj):
         try:
             if not tags.RESERVED <= set(obj) and not type(obj) in (list, dict):
@@ -855,6 +858,3 @@ class Unpickler(object):
                 return x
 
         return restore
-
-    def _restore_tuple(self, obj):
-        return tuple([self._restore(v) for v in obj[tags.TUPLE]])

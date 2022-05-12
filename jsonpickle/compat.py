@@ -1,18 +1,13 @@
 from __future__ import absolute_import, division, unicode_literals
 
-import base64
+import queue  # noqa
 import sys
-import types
+from collections.abc import Iterator as abc_iterator  # noqa
 
 PY_MAJOR = sys.version_info[0]
 
 class_types = (type,)
 iterator_types = (type(iter('')),)
-
-import builtins
-import queue
-from base64 import decodebytes, encodebytes
-from collections.abc import Iterator as abc_iterator
 
 string_types = (str,)
 numeric_types = (int, float)

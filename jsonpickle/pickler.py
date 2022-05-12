@@ -10,7 +10,6 @@ import decimal
 import inspect
 import itertools
 import sys
-import types
 import warnings
 from itertools import chain, islice
 
@@ -307,13 +306,6 @@ class Pickler(object):
             self.reset()
         return self._flatten(obj)
 
-    def _flatten_file(self, obj):
-        """
-        Special case file objects
-        """
-        assert not PY3 and isinstance(obj, types.FileType)
-        return None
-
     def _flatten_bytestring(self, obj):
         return {self._bytes_tag: self._bytes_encoder(obj)}
 
@@ -381,66 +373,94 @@ class Pickler(object):
 
         return data
 
-    def _get_flattener(self, obj):
-        if type(obj) in (list, dict):
-            if self._mkref(obj):
-                return (
-                    self._list_recurse if type(obj) is list else self._flatten_dict_obj
-                )
-            else:
-                self._push()
-                return self._getref
-
-        # We handle tuples and sets by encoding them in a "(tuple|set)dict"
-        elif type(obj) in (tuple, set):
-            if not self.unpicklable:
-                return self._list_recurse
-            return lambda obj: {
-                tags.TUPLE
-                if type(obj) is tuple
-                else tags.SET: [self._flatten(v) for v in obj]
-            }
-
-        elif util.is_object(obj):
-            return self._ref_obj_instance
-
-        elif util.is_type(obj):
-            return _mktyperef
-
-        elif util.is_module_function(obj):
-            return self._flatten_function
-
-        # instance methods, lambdas, old style classes...
-        self._pickle_warning(obj)
-        return None
-
-    def _ref_obj_instance(self, obj):
-        """Reference an existing object or flatten if new"""
-        if self.unpicklable:
-            if self._mkref(obj):
-                # We've never seen this object so return its
-                # json representation.
-                return self._flatten_obj_instance(obj)
-            # We've seen this object before so place an object
-            # reference tag in the data. This avoids infinite recursion
-            # when processing cyclical objects.
-            return self._getref(obj)
-        else:
-            max_reached = self._max_reached()
-            in_cycle = _in_cycle(obj, self._objs, max_reached, False)
-            if in_cycle:
-                # A circular becomes None.
-                return None
-
-            self._mkref(obj)
-            return self._flatten_obj_instance(obj)
-
     def _getstate(self, obj, data):
         state = self._flatten(obj)
         if self.unpicklable:
             data[tags.STATE] = state
         else:
             data = state
+        return data
+
+    def _flatten_key_value_pair(self, k, v, data):
+        """Flatten a key/value pair into the passed-in dictionary."""
+        if not util.is_picklable(k, v):
+            return data
+
+        if k is None:
+            k = 'null'  # for compatibility with common json encoders
+
+        if self.numeric_keys and isinstance(k, numeric_types):
+            pass
+        elif not isinstance(k, string_types):
+            try:
+                k = repr(k)
+            except Exception:
+                k = compat.ustr(k)
+
+        data[k] = self._flatten(v)
+        return data
+
+    def _flatten_obj_attrs(self, obj, attrs, data):
+        flatten = self._flatten_key_value_pair
+        ok = False
+        for k in attrs:
+            try:
+                if not k.startswith('__'):
+                    value = getattr(obj, k)
+                else:
+                    value = getattr(obj, f"_{obj.__class__.__name__}{k}")
+                flatten(k, value, data)
+            except AttributeError:
+                # The attribute may have been deleted
+                continue
+            ok = True
+        return ok
+
+    def _flatten_properties(self, obj, data, allslots=None):
+        if allslots is None:
+            # setting a list as a default argument can lead to some weird errors
+            allslots = []
+
+        # convert to set in case there are a lot of slots
+        allslots_set = set(itertools.chain.from_iterable(allslots))
+
+        # i don't like lambdas
+        def valid_property(x):
+            return not x[0].startswith("__") and x[0] not in allslots_set
+
+        properties = [
+            x[0] for x in inspect.getmembers(obj.__class__) if valid_property(x)
+        ]
+
+        properties_dict = {}
+        for p_name in properties:
+            p_val = getattr(obj, p_name)
+            if util.is_not_class(p_val):
+                properties_dict[p_name] = p_val
+            else:
+                properties_dict[p_name] = self._flatten(p_val)
+
+        data[tags.PROPERTY] = properties_dict
+
+        return data
+
+    def _flatten_newstyle_with_slots(self, obj, data):
+        """Return a json-friendly dict for new-style objects with __slots__."""
+        allslots = [
+            _wrap_string_slot(getattr(cls, '__slots__', tuple()))
+            for cls in obj.__class__.mro()
+        ]
+
+        # add properties to the attribute list
+        if self.include_properties:
+            data = self._flatten_properties(obj, data, allslots)
+
+        if not self._flatten_obj_attrs(obj, chain(*allslots), data):
+            attrs = [
+                x for x in dir(obj) if not x.startswith('__') and not x.endswith('__')
+            ]
+            self._flatten_obj_attrs(obj, attrs, data)
+
         return data
 
     def _flatten_obj_instance(self, obj):
@@ -473,6 +493,9 @@ class Pickler(object):
             return handler(self).flatten(obj, data)
 
         reduce_val = None
+
+        if self.include_properties:
+            data = self._flatten_properties(obj, data)
 
         if self.unpicklable:
             if has_reduce and not has_reduce_ex:
@@ -608,6 +631,27 @@ class Pickler(object):
         self._pickle_warning(obj)
         return None
 
+    def _ref_obj_instance(self, obj):
+        """Reference an existing object or flatten if new"""
+        if self.unpicklable:
+            if self._mkref(obj):
+                # We've never seen this object so return its
+                # json representation.
+                return self._flatten_obj_instance(obj)
+            # We've seen this object before so place an object
+            # reference tag in the data. This avoids infinite recursion
+            # when processing cyclical objects.
+            return self._getref(obj)
+        else:
+            max_reached = self._max_reached()
+            in_cycle = _in_cycle(obj, self._objs, max_reached, False)
+            if in_cycle:
+                # A circular becomes None.
+                return None
+
+            self._mkref(obj)
+            return self._flatten_obj_instance(obj)
+
     def _escape_key(self, k):
         return tags.JSON_KEY + encode(
             k,
@@ -702,86 +746,38 @@ class Pickler(object):
 
         return data
 
-    def _flatten_obj_attrs(self, obj, attrs, data):
-        flatten = self._flatten_key_value_pair
-        ok = False
-        for k in attrs:
-            try:
-                if not k.startswith('__'):
-                    value = getattr(obj, k)
-                else:
-                    value = getattr(obj, f"_{obj.__class__.__name__}{k}")
-                flatten(k, value, data)
-            except AttributeError:
-                # The attribute may have been deleted
-                continue
-            ok = True
-        return ok
+    def _get_flattener(self, obj):
+        if type(obj) in (list, dict):
+            if self._mkref(obj):
+                return (
+                    self._list_recurse if type(obj) is list else self._flatten_dict_obj
+                )
+            else:
+                self._push()
+                return self._getref
 
-    def _flatten_properties(self, obj, data, allslots=None):
-        if allslots is None:
-            # setting a list as a default argument can lead to some weird errors
-            allslots = []
+        # We handle tuples and sets by encoding them in a "(tuple|set)dict"
+        elif type(obj) in (tuple, set):
+            if not self.unpicklable:
+                return self._list_recurse
+            return lambda obj: {
+                tags.TUPLE
+                if type(obj) is tuple
+                else tags.SET: [self._flatten(v) for v in obj]
+            }
 
-        properties = []
+        elif util.is_object(obj):
+            return self._ref_obj_instance
 
-        # convert to set in case there are a lot of slots
-        allslots_set = set(itertools.chain.from_iterable(allslots))
+        elif util.is_type(obj):
+            return _mktyperef
 
-        for cls in obj.__class__.mro():
+        elif util.is_module_function(obj):
+            return self._flatten_function
 
-            # i don't like lambdas
-            def valid_property(x):
-                return not x[0].startswith("__") and x[0] not in allslots_set
-
-            # this could be a list comprehension but split it for readability
-            for cls in obj.__class__.mro():
-                properties += [
-                    x[0] for x in inspect.getmembers(cls) if valid_property(x)
-                ]
-
-        # deduplicate strings
-        data[tags.PROPERTY] = list(dict.fromkeys(properties))
-
-        return data
-
-    def _flatten_newstyle_with_slots(self, obj, data):
-        """Return a json-friendly dict for new-style objects with __slots__."""
-        allslots = [
-            _wrap_string_slot(getattr(cls, '__slots__', tuple()))
-            for cls in obj.__class__.mro()
-        ]
-
-        # add properties to the attribute list
-        if self.include_properties:
-            data = self._flatten_properties(obj, data, allslots)
-
-        if not self._flatten_obj_attrs(obj, chain(*allslots), data):
-            attrs = [
-                x for x in dir(obj) if not x.startswith('__') and not x.endswith('__')
-            ]
-            self._flatten_obj_attrs(obj, attrs, data)
-
-        return data
-
-    def _flatten_key_value_pair(self, k, v, data):
-        """Flatten a key/value pair into the passed-in dictionary."""
-        if not util.is_picklable(k, v):
-            return data
-
-        if k is None:
-            k = 'null'  # for compatibility with common json encoders
-
-        if self.numeric_keys and isinstance(k, numeric_types):
-            pass
-        elif not isinstance(k, string_types):
-            try:
-                k = repr(k)
-            except Exception:
-                k = compat.ustr(k)
-
-        data[k] = self._flatten(v)
-        return data
+        # instance methods, lambdas, old style classes...
+        self._pickle_warning(obj)
+        return None
 
     def _flatten_sequence_obj(self, obj, data):
         """Return a json-friendly dict for a sequence subclass."""

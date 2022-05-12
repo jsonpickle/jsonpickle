@@ -20,13 +20,7 @@ import time
 import types
 
 from . import compat, tags
-from .compat import (
-    abc_iterator,
-    class_types,
-    iterator_types,
-    numeric_types,
-)
-
+from .compat import abc_iterator, class_types, iterator_types, numeric_types
 
 SEQUENCES = (list, set, tuple)
 SEQUENCES_SET = {list, set, tuple}
@@ -40,8 +34,6 @@ FUNCTION_TYPES = {
 }
 NON_REDUCIBLE_TYPES = (
     {
-        int,
-        float,
         list,
         dict,
         set,
@@ -52,6 +44,13 @@ NON_REDUCIBLE_TYPES = (
     | PRIMITIVES
     | FUNCTION_TYPES
 )
+NON_CLASS_TYPES = {
+    list,
+    dict,
+    set,
+    tuple,
+    bytes,
+} | PRIMITIVES
 
 
 def is_type(obj):
@@ -133,6 +132,13 @@ def is_object(obj):
     return isinstance(obj, object) and not isinstance(
         obj, (type, types.FunctionType, types.BuiltinFunctionType)
     )
+
+
+def is_not_class(obj):
+    """Determines if the object is not a class or a class instance.
+    Used for serializing properties.
+    """
+    return type(obj) in NON_CLASS_TYPES
 
 
 def is_primitive(obj):
