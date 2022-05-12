@@ -10,6 +10,8 @@ v3.0.0
     * Drop support for CPython<3.7. CPython 3.6 and below have reached EOL
       and no longer receieve security updates. (#375)
     * Remove jsonlib and yajl backends (py2 only)
+    * Add ``include_properties`` option to the pickler. This should only
+      be used if analyzing generated json outside of Python. (#297) (+387)
 
 v2.2.0
 ======
