@@ -20,13 +20,7 @@ import time
 import types
 
 from . import compat, tags
-from .compat import (
-    abc_iterator,
-    class_types,
-    iterator_types,
-    numeric_types,
-)
-
+from .compat import abc_iterator, class_types, iterator_types, numeric_types
 
 SEQUENCES = (list, set, tuple)
 SEQUENCES_SET = {list, set, tuple}
@@ -50,16 +44,13 @@ NON_REDUCIBLE_TYPES = (
     | PRIMITIVES
     | FUNCTION_TYPES
 )
-NON_CLASS_TYPES = (
-    {
-        list,
-        dict,
-        set,
-        tuple,
-        bytes,
-    }
-    | PRIMITIVES
-)
+NON_CLASS_TYPES = {
+    list,
+    dict,
+    set,
+    tuple,
+    bytes,
+} | PRIMITIVES
 
 
 def is_type(obj):

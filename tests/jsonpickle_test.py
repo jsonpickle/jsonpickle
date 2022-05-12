@@ -39,6 +39,12 @@ class Thing:
     def __repr__(self):
         return 'Thing("%s")' % self.name
 
+    def __iter__(self):
+        for attr in [
+            x for x in getattr(self.__class__, "__dict__") if not x.startswith("__")
+        ]:
+            yield attr, getattr(self, attr)
+
 
 class Capture:
     def __init__(self, *args, **kwargs):
@@ -110,6 +116,52 @@ class MySlots:
     def __init__(self):
         self.alpha = 1
         self.__beta = 1
+
+
+class MyPropertiesSlots:
+    __slots__ = ("alpha", "arr")
+
+    def __init__(self):
+        self.alpha = 1
+        self.arr = [1, 2, 3]
+
+    @property
+    def arr_len(self):
+        return len(self.arr)
+
+    @property
+    def other_object(self):
+        return Thing("Test")
+
+    def __eq__(self, other):
+        return (
+            self.alpha == other.alpha
+            and self.arr == other.arr
+            and self.arr_len == other.arr_len
+            and list(self.other_object) == list(other.other_object)
+        )
+
+
+class MyPropertiesDict:
+    def __init__(self):
+        self.alpha = 1
+        self.arr = [1, 2, 3]
+
+    @property
+    def arr_len(self):
+        return len(self.arr)
+
+    @property
+    def other_object(self):
+        return Thing("Test")
+
+    def __eq__(self, other):
+        return (
+            self.alpha == other.alpha
+            and self.arr == other.arr
+            and self.arr_len == other.arr_len
+            and list(self.other_object) == list(other.other_object)
+        )
 
 
 def on_missing_callback(class_name):
@@ -488,6 +540,18 @@ class PicklingTestCase(unittest.TestCase):
         alpha = getattr(obj, "alpha", "(missing alpha)")
         beta = getattr(obj, "_" + obj.__class__.__name__ + "__beta", "(missing beta)")
         self.assertEqual(alpha, beta)
+
+    def test_include_properties_slots(self):
+        obj = MyPropertiesSlots()
+        dumped = jsonpickle.dumps(obj, include_properties=True)
+        self.assertTrue("py/property" in dumped)
+        self.assertEqual(obj, jsonpickle.loads(dumped))
+
+    def test_include_properties_dict(self):
+        obj = MyPropertiesDict()
+        dumped = jsonpickle.dumps(obj, include_properties=True)
+        self.assertTrue("py/property" in dumped)
+        self.assertEqual(obj, jsonpickle.loads(dumped))
 
 
 class JSONPickleTestCase(SkippableTest):
