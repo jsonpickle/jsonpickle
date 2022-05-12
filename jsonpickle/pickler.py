@@ -726,11 +726,21 @@ class Pickler(object):
         def valid_property(x):
             return not x[0].startswith("__") and x[0] not in allslots_set
 
-        data[tags.PROPERTY] = {
-            x[0]: getattr(obj, x[0])
+        properties = [
+            x[0]
             for x in inspect.getmembers(obj.__class__)
             if valid_property(x)
-        }
+        ]
+        
+        properties_dict = {}
+        for p_name in properties:
+            p_val = getattr(obj, p_name)
+            if util.is_not_class(p_val):
+                properties_dict[p_name] = p_val
+            else:
+                properties_dict[p_name] = self._flatten(p_val)
+        
+        data[tags.PROPERTY] = properties_dict
 
         return data
 
