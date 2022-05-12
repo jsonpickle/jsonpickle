@@ -31,7 +31,7 @@ class ListLike:
         return self.internal_list[i]
 
 
-class Thing(object):
+class Thing:
     def __init__(self, name):
         self.name = name
         self.child = None
@@ -40,13 +40,13 @@ class Thing(object):
         return 'Thing("%s")' % self.name
 
 
-class Capture(object):
+class Capture:
     def __init__(self, *args, **kwargs):
         self.args = args
         self.kwargs = kwargs
 
 
-class ThingWithProps(object):
+class ThingWithProps:
     def _get_identity(self):
         keys = [self.dogs, self.monkies, self.name]
         return hash('-'.join([str(key) for key in keys]))
@@ -98,9 +98,9 @@ class UserDict(dict):
         self.valid = False
 
 
-class Outer(object):
-    class Middle(object):
-        class Inner(object):
+class Outer:
+    class Middle:
+        class Inner:
             pass
 
 
