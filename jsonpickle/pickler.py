@@ -307,13 +307,6 @@ class Pickler(object):
             self.reset()
         return self._flatten(obj)
 
-    def _flatten_file(self, obj):
-        """
-        Special case file objects
-        """
-        assert not PY3 and isinstance(obj, types.FileType)
-        return None
-
     def _flatten_bytestring(self, obj):
         return {self._bytes_tag: self._bytes_encoder(obj)}
 
@@ -473,6 +466,9 @@ class Pickler(object):
             return handler(self).flatten(obj, data)
 
         reduce_val = None
+        
+        if self.include_properties:
+            data = self._flatten_properties(obj, data)
 
         if self.unpicklable:
             if has_reduce and not has_reduce_ex:
@@ -723,25 +719,18 @@ class Pickler(object):
             # setting a list as a default argument can lead to some weird errors
             allslots = []
 
-        properties = []
-
         # convert to set in case there are a lot of slots
         allslots_set = set(itertools.chain.from_iterable(allslots))
 
-        for cls in obj.__class__.mro():
+        # i don't like lambdas
+        def valid_property(x):
+            return not x[0].startswith("__") and x[0] not in allslots_set
 
-            # i don't like lambdas
-            def valid_property(x):
-                return not x[0].startswith("__") and x[0] not in allslots_set
-
-            # this could be a list comprehension but split it for readability
-            for cls in obj.__class__.mro():
-                properties += [
-                    x[0] for x in inspect.getmembers(cls) if valid_property(x)
-                ]
-
-        # deduplicate strings
-        data[tags.PROPERTY] = list(dict.fromkeys(properties))
+        data[tags.PROPERTY] = {
+            x[0]: getattr(obj, x[0])
+            for x in inspect.getmembers(obj.__class__)
+            if valid_property(x)
+        }
 
         return data
 
