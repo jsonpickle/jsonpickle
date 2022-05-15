@@ -41,7 +41,7 @@ jobs:
         with:
           options: ""
 
-      - name: Commit black format
+      - name: Commit isort+black format
         if: failure()
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
