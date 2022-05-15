@@ -3,9 +3,18 @@ from __future__ import absolute_import, division, unicode_literals
 
 import unittest
 
+import pytest
 from helper import SkippableTest
 
 import jsonpickle
+
+
+@pytest.fixture(scope='module', autouse=True)
+def gmpy_extension():
+    """Initialize the gmpy extension for this test module"""
+    jsonpickle.ext.gmpy.register_handlers()
+    yield  # control to the test function.
+    jsonpickle.ext.gmpy.unregister_handlers()
 
 
 class EcdsaTestCase(SkippableTest):
