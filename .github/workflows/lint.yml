@@ -21,14 +21,11 @@ jobs:
 
       - name: Run isort check
         uses: isort/isort-action@master
-        with:
-            requirementsFiles: "requirements-dev.txt"
 
       - name: Run isort
         if: failure()
         uses: isort/isort-action@master
         with:
-            requirementsFiles: "requirements-dev.txt"
             configuration: "--profile black"
 
       - name: Run black check
