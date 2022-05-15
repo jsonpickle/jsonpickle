@@ -2,6 +2,7 @@ bson
 coverage<5
 ecdsa
 feedparser
+gmpy2
 numpy
 pandas
 pymongo
