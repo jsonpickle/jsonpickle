@@ -36,14 +36,14 @@ class Thing:
         self.name = name
         self.child = None
 
-    def __repr__(self):
-        return 'Thing("%s")' % self.name
-
     def __iter__(self):
         for attr in [
             x for x in getattr(self.__class__, "__dict__") if not x.startswith("__")
         ]:
             yield attr, getattr(self, attr)
+
+    def __repr__(self):
+        return 'Thing("%s")' % self.name
 
 
 class Capture:
