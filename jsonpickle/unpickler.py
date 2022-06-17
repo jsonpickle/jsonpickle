@@ -34,9 +34,12 @@ def decode(
 
     The keyword argument 'classes' defaults to None.
     If set to a single class, or a sequence (list, set, tuple) of classes,
-    then the classes will be made available when constructing objects.  This
-    can be used to give jsonpickle access to local classes that are not
-    available through the global module import scope.
+    then the classes will be made available when constructing objects.
+    If set to a dictionary of class names to class objects, the class object
+    will be provided to jsonpickle to deserialize the class name into.
+    This can be used to give jsonpickle access to local classes that are not
+    available through the global module import scope, and the dict method can
+    be used to deserialize encoded objects into a new class.
 
     The keyword argument 'safe' defaults to False.
     If set to True, eval() is avoided, but backwards-compatible
