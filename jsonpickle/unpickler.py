@@ -175,7 +175,7 @@ def loadclass(module_and_name, classes=None):
         except KeyError:
             # maybe they didn't provide a fully qualified path
             try:
-                return classes[module_and_name.rsplit('.', 1)]
+                return classes[module_and_name.rsplit('.', 1)[-1]]
             except KeyError:
                 pass
     # Otherwise, load classes from globally-accessible imports
@@ -369,6 +369,9 @@ class Unpickler(object):
         """
         if isinstance(classes, (list, tuple, set)):
             for cls in classes:
+                self.register_classes(cls)
+        elif isinstance(classes, dict):
+            for cls in classes.values():
                 self.register_classes(cls)
         else:
             self._classes[util.importable_name(classes)] = classes
