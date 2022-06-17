@@ -553,6 +553,16 @@ class PicklingTestCase(unittest.TestCase):
         self.assertTrue("py/property" in dumped)
         self.assertEqual(obj, jsonpickle.loads(dumped))
 
+    def test_load_non_fully_qualified_classes(self):
+        # reuse MyPropertiesSlots because it has a nice eq method
+        obj = MyPropertiesSlots()
+        encoded = jsonpickle.encode(obj)
+        # MyPropertiesSlots and MyPropertiesDict have compatible eq methods
+        self.assertEqual(
+            obj,
+            jsonpickle.decode(encoded, classes={"MyPropertiesSlots": MyPropertiesDict}),
+        )
+
 
 class JSONPickleTestCase(SkippableTest):
     def setUp(self):

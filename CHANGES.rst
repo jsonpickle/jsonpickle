@@ -12,6 +12,9 @@ v3.0.0
     * Remove jsonlib and yajl backends (py2 only)
     * Add ``include_properties`` option to the pickler. This should only
       be used if analyzing generated json outside of Python. (#297) (+387)
+    * Allow the ``classes`` argument to ``jsonpickle.decode`` to be a dict
+      of class name to class object. This lets you decode arbitrary dumps
+      into different classes. (#148) (+392)
 
 v2.2.0
 ======

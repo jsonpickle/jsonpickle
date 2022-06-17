@@ -34,9 +34,12 @@ def decode(
 
     The keyword argument 'classes' defaults to None.
     If set to a single class, or a sequence (list, set, tuple) of classes,
-    then the classes will be made available when constructing objects.  This
-    can be used to give jsonpickle access to local classes that are not
-    available through the global module import scope.
+    then the classes will be made available when constructing objects.
+    If set to a dictionary of class names to class objects, the class object
+    will be provided to jsonpickle to deserialize the class name into.
+    This can be used to give jsonpickle access to local classes that are not
+    available through the global module import scope, and the dict method can
+    be used to deserialize encoded objects into a new class.
 
     The keyword argument 'safe' defaults to False.
     If set to True, eval() is avoided, but backwards-compatible
@@ -173,7 +176,11 @@ def loadclass(module_and_name, classes=None):
         try:
             return classes[module_and_name]
         except KeyError:
-            pass
+            # maybe they didn't provide a fully qualified path
+            try:
+                return classes[module_and_name.rsplit('.', 1)[-1]]
+            except KeyError:
+                pass
     # Otherwise, load classes from globally-accessible imports
     names = module_and_name.split('.')
     # First assume that everything up to the last dot is the module name,
@@ -365,6 +372,9 @@ class Unpickler(object):
         """
         if isinstance(classes, (list, tuple, set)):
             for cls in classes:
+                self.register_classes(cls)
+        elif isinstance(classes, dict):
+            for cls in classes.values():
                 self.register_classes(cls)
         else:
             self._classes[util.importable_name(classes)] = classes
