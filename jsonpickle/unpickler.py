@@ -173,7 +173,11 @@ def loadclass(module_and_name, classes=None):
         try:
             return classes[module_and_name]
         except KeyError:
-            pass
+            # maybe they didn't provide a fully qualified path
+            try:
+                return classes[module_and_name.rsplit('.', 1)]
+            except KeyError:
+                pass
     # Otherwise, load classes from globally-accessible imports
     names = module_and_name.split('.')
     # First assume that everything up to the last dot is the module name,
