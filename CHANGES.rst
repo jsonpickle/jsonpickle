@@ -15,6 +15,7 @@ v3.0.0
     * Allow the ``classes`` argument to ``jsonpickle.decode`` to be a dict
       of class name to class object. This lets you decode arbitrary dumps
       into different classes. (#148) (+392)
+    * Fix bug with deserializing `numpy.poly1d`. (#391)
 
 v2.2.0
 ======
