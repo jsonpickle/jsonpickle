@@ -624,7 +624,13 @@ class Unpickler(object):
                     continue
             else:
                 if not k.startswith('__'):
-                    setattr(instance, k, value)
+                    try:
+                        setattr(instance, k, value)
+                    except KeyError:
+                        # certain numpy objects require us to prepend a _ to the var
+                        # this should go in the np handler but I think this could be
+                        # useful for other code
+                        setattr(instance, f"_{k}", value)
                 else:
                     setattr(instance, f"_{instance.__class__.__name__}{k}", value)
 
