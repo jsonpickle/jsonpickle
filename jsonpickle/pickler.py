@@ -476,10 +476,9 @@ class Pickler(object):
 
         # Support objects with __getstate__(); this ensures that
         # both __setstate__() and __getstate__() are implemented
-        has_own_getstate = (
-            hasattr(type(obj), '__getstate__')
-            and type(obj).__getstate__ is not getattr(object, '__getstate__', None)
-        )
+        has_own_getstate = hasattr(type(obj), '__getstate__') and type(
+            obj
+        ).__getstate__ is not getattr(object, '__getstate__', None)
         # not using has_method since __getstate__() is handled separately below
         # Note: on Python 3.11+, all objects have __getstate__.
 
