@@ -476,8 +476,12 @@ class Pickler(object):
 
         # Support objects with __getstate__(); this ensures that
         # both __setstate__() and __getstate__() are implemented
-        has_getstate = hasattr(obj, '__getstate__')
+        has_own_getstate = (
+            hasattr(type(obj), '__getstate__')
+            and type(obj).__getstate__ is not getattr(object, '__getstate__', None)
+        )
         # not using has_method since __getstate__() is handled separately below
+        # Note: on Python 3.11+, all objects have __getstate__.
 
         if has_class:
             cls = obj.__class__
@@ -549,7 +553,7 @@ class Pickler(object):
                 # check that getstate/setstate is sane
                 if not (
                     state
-                    and hasattr(obj, '__getstate__')
+                    and has_own_getstate
                     and not hasattr(obj, '__setstate__')
                     and not isinstance(obj, dict)
                 ):
@@ -581,7 +585,7 @@ class Pickler(object):
             if has_getinitargs:
                 data[tags.INITARGS] = self._flatten(obj.__getinitargs__())
 
-        if has_getstate:
+        if has_own_getstate:
             try:
                 state = obj.__getstate__()
             except TypeError:
@@ -590,7 +594,8 @@ class Pickler(object):
                 self._pickle_warning(obj)
                 return None
             else:
-                return self._getstate(state, data)
+                if state:
+                    return self._getstate(state, data)
 
         if util.is_module(obj):
             if self.unpicklable:
