@@ -203,124 +203,124 @@ state_class_encoded = jsonpickle.encode(MyClassGetState())
 # SIMPLE PRIMITIVE ENCODE/DECODE
 
 
-def simple_dict_e(benchmark):
+def simple_dict_encode(benchmark):
     benchmark(jsonpickle.encode, {'a': 0})
 
 
-def simple_dict_d(benchmark):
+def simple_dict_decode(benchmark):
     benchmark(jsonpickle.decode, simple_dict_encoded)
 
 
-def simple_list_e(benchmark):
+def simple_list_encode(benchmark):
     benchmark(jsonpickle.encode, ['a', 0])
 
 
-def simple_list_d(benchmark):
+def simple_list_decode(benchmark):
     benchmark(jsonpickle.decode, simple_list_encoded)
 
 
-def simple_tuple_e(benchmark):
+def simple_tuple_encode(benchmark):
     benchmark(jsonpickle.encode, ('a', 0))
 
 
-def simple_tuple_d(benchmark):
+def simple_tuple_decode(benchmark):
     benchmark(jsonpickle.decode, simple_tuple_encoded)
 
 
-def simple_set_e(benchmark):
+def simple_set_encode(benchmark):
     benchmark(jsonpickle.encode, {'a', 0})
 
 
-def simple_set_d(benchmark):
+def simple_set_decode(benchmark):
     benchmark(jsonpickle.decode, simple_set_encoded)
 
 
 # COMPLEX HOMOGENOUS PRIMITIVE ENCODE/DECODE
-def complex_homog_dict_e(benchmark):
+def complex_homogenous_dict_encode(benchmark):
     benchmark(jsonpickle.encode, HOMOGENOUS_COMPLEX_DICT)
 
 
-def complex_homog_dict_d(benchmark):
+def complex_homogenous_dict_decode(benchmark):
     benchmark(jsonpickle.decode, homogenous_dict_encoded)
 
 
-def complex_homog_list_e(benchmark):
+def complex_homogenous_list_encode(benchmark):
     benchmark(jsonpickle.encode, HOMOGENOUS_COMPLEX_LIST)
 
 
-def complex_homog_list_d(benchmark):
+def complex_homogenous_list_decode(benchmark):
     benchmark(jsonpickle.decode, homogenous_list_encoded)
 
 
-def complex_homog_tuple_e(benchmark):
+def complex_homogenous_tuple_encode(benchmark):
     benchmark(jsonpickle.encode, HOMOGENOUS_COMPLEX_TUPLE)
 
 
-def complex_homog_tuple_d(benchmark):
+def complex_homogenous_tuple_decode(benchmark):
     benchmark(jsonpickle.decode, homogenous_tuple_encoded)
 
 
-def complex_homog_set_e(benchmark):
+def complex_homogenous_set_encode(benchmark):
     benchmark(jsonpickle.encode, HOMOGENOUS_COMPLEX_SET)
 
 
-def complex_homog_set_d(benchmark):
+def complex_homogenous_set_decode(benchmark):
     benchmark(jsonpickle.decode, homogenous_set_encoded)
 
 
 # COMPLEX HETEROGENOUS PRIMITIVE ENCODE/DECODE
-def complex_heterog_dict_e(benchmark):
+def complex_heterogenous_dict_encode(benchmark):
     benchmark(jsonpickle.encode, HETEROGENOUS_COMPLEX_DICT)
 
 
-def complex_heterog_dict_d(benchmark):
+def complex_heterogenous_dict_decode(benchmark):
     benchmark(jsonpickle.decode, heterogenous_dict_encoded)
 
 
-def complex_heterog_list_e(benchmark):
+def complex_heterogenous_list_encode(benchmark):
     benchmark(jsonpickle.encode, HETEROGENOUS_COMPLEX_LIST)
 
 
-def complex_heterog_list_d(benchmark):
+def complex_heterogenous_list_decode(benchmark):
     benchmark(jsonpickle.decode, heterogenous_list_encoded)
 
 
-def complex_heterog_tuple_e(benchmark):
+def complex_heterogenous_tuple_encode(benchmark):
     benchmark(jsonpickle.encode, HETEROGENOUS_COMPLEX_TUPLE)
 
 
-def complex_heterog_tuple_d(benchmark):
+def complex_heterogenous_tuple_decode(benchmark):
     benchmark(jsonpickle.decode, heterogenous_tuple_encoded)
 
 
-def complex_heterog_set_e(benchmark):
+def complex_heterogenous_set_encode(benchmark):
     benchmark(jsonpickle.encode, HETEROGENOUS_COMPLEX_SET)
 
 
-def complex_heterog_set_d(benchmark):
+def complex_heterogenous_set_decode(benchmark):
     benchmark(jsonpickle.decode, heterogenous_set_encoded)
 
 
 # CUSTOM CLASS ENCODE/DECODE
-def simple_cls_e(benchmark):
+def simple_class_encode(benchmark):
     benchmark(jsonpickle.encode, MyClassSimple())
 
 
-def simple_cls_d(benchmark):
+def simple_class_decode(benchmark):
     benchmark(jsonpickle.decode, simple_class_encoded)
 
 
-def complex_cls_e(benchmark):
+def complex_class_encode(benchmark):
     benchmark(jsonpickle.encode, MyClass())
 
 
-def complex_cls_d(benchmark):
+def complex_class_decode(benchmark):
     benchmark(jsonpickle.decode, class_encoded)
 
 
-def state_cls_e(benchmark):
+def state_class_encode(benchmark):
     benchmark(jsonpickle.encode, MyClassGetState())
 
 
-def state_cls_d(benchmark):
+def state_class_decode(benchmark):
     benchmark(jsonpickle.decode, state_class_encoded)

@@ -17,6 +17,7 @@ v3.0.0
       of class name to class object. This lets you decode arbitrary dumps
       into different classes. (#148) (+392)
     * Fix bug with deserializing `numpy.poly1d`. (#391)
+    * Allow frozen dataclasses to be deserialized. (#240)
 
 v2.2.0
 ======
