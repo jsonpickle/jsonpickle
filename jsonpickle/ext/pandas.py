@@ -160,12 +160,11 @@ class PandasIndexHandler(BaseHandler):
     def restore(self, data):
         buf, meta = self.pp.restore_pandas(data)
         dtype = meta.get('dtype', None)
-        name_bundle = {k: v for k, v in meta.items() if k in {'name', 'names'}}
-        if 'names' in name_bundle:
-            # pandas won't accept the names arg in a future version
-            names = name_bundle.pop('names')
-            # name arg must be hashable so cast to tuple first
-            name_bundle['name'] = tuple(names)
+        name_bundle = {
+            'name': (tuple if v is not None else lambda x: x)(v)
+            for k, v in meta.items()
+            if k in {'name', 'names'}
+        }
         idx = self.index_constructor(decode(buf), dtype=dtype, **name_bundle)
         return idx
 
