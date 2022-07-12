@@ -6,6 +6,7 @@
 # you should have received as part of this distribution.
 from __future__ import absolute_import, division, unicode_literals
 
+import dataclasses
 import quopri
 import sys
 import warnings
@@ -631,6 +632,10 @@ class Unpickler(object):
                         # this should go in the np handler but I think this could be
                         # useful for other code
                         setattr(instance, f"_{k}", value)
+                    except dataclasses.FrozenInstanceError:
+                        # issue #240
+                        # i think this is the only way to set frozen dataclass attrs
+                        object.__setattr__(instance, k, value)
                 else:
                     setattr(instance, f"_{instance.__class__.__name__}{k}", value)
 
