@@ -515,6 +515,9 @@ def importable_name(cls):
     # Use the fully-qualified name if available (Python >= 3.3)
     name = getattr(cls, '__qualname__', cls.__name__)
     module = translate_module_name(cls.__module__)
+    if not module:
+        if hasattr(cls, '__self__'):
+            module = cls.__self__.__class__.__module__
     return '{}.{}'.format(module, name)
 
 
