@@ -18,6 +18,7 @@ v3.0.0
       into different classes. (#148) (+392)
     * Fix bug with deserializing `numpy.poly1d`. (#391)
     * Allow frozen dataclasses to be deserialized. (#240)
+    * Fixed a bug where pickling a function could return a ``None`` module. (#399)
 
 v2.2.0
 ======
