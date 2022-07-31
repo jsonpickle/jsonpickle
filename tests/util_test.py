@@ -231,7 +231,10 @@ class UtilTestCase(unittest.TestCase):
     def test_importable_name(self):
         func_being_tested_obj = util.importable_name
         io_method_obj = io.BytesIO(b'bytes').readline
-        self.assertEqual(util.importable_name(func_being_tested_obj), 'jsonpickle.util.importable_name')
+        self.assertEqual(
+            util.importable_name(func_being_tested_obj),
+            'jsonpickle.util.importable_name',
+        )
         self.assertEqual(util.importable_name(io_method_obj), '_io.BytesIO.readline')
         self.assertEqual(util.importable_name(dict), 'builtins.dict')
 
