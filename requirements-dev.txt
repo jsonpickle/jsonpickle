@@ -2,6 +2,7 @@ bson
 coverage<5
 ecdsa
 feedparser
+flake8<5
 gmpy2
 numpy
 pandas
