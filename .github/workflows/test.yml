@@ -42,6 +42,11 @@ jobs:
             ${{ matrix.os }}-${{ matrix.python-version }}-v1-
 
       - name: Install dependencies
+        if: matrix.python-version == '3.11-dev'
+        run: |
+          sudo apt-get install -y libopenblas-dev
+
+      - name: Install dependencies
         run: |
           python -m pip install -U pip
           python -m pip install -U tox tox-venv
