@@ -41,8 +41,8 @@ jobs:
           restore-keys: |
             ${{ matrix.os }}-${{ matrix.python-version }}-v1-
 
-      - name: Install dependencies
-        if: matrix.python-version == '3.11-dev'
+      - name: Install 3.11 dependencies
+        if: matrix.python-version == '3.11.0-beta.5'
         run: |
           sudo apt-get install -y libopenblas-dev
 
