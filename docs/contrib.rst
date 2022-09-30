@@ -12,7 +12,7 @@ Get the Code
 
 ::
 
-    git clone git://github.com/jsonpickle/jsonpickle.git
+    git clone https://github.com/jsonpickle/jsonpickle.git
 
 Run the Test Suite
 ==================
