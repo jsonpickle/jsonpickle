@@ -1,5 +1,6 @@
 [build-system]
-requires = ["setuptools>=42", "setuptools<60", "wheel", "setuptools_scm[toml]>=3.4.1"]
+# setuptools >= 59 seems to break something with distutils on 3.11
+requires = ["setuptools>=42,<59", "wheel", "setuptools_scm[toml]>=3.4.1"]
 build-backend = "setuptools.build_meta"
 
 [tool.black]
