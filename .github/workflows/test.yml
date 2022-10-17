@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11.0-rc.1"]
+        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11.0-rc.2"]
         os: [ubuntu-22.04]
         env:
           - TOXENV: libs
@@ -40,11 +40,6 @@ jobs:
             hashFiles('**/setup.py') }}
           restore-keys: |
             ${{ matrix.os }}-${{ matrix.python-version }}-v1-
-
-      - name: Install 3.11 dependencies
-        if: matrix.python-version == '3.11.0-rc.1'
-        run: |
-          sudo apt-get install -y libopenblas-dev
 
       - name: Install dependencies
         run: |
