@@ -320,7 +320,7 @@ class Unpickler(object):
 
         # Map of objects to their index in the _objs list
         self._obj_to_idx = {}
-        self._objs = []
+        self._objs = {}
         self._proxies = []
 
         # Extra local classes not accessible globally
@@ -414,13 +414,16 @@ class Unpickler(object):
         """
         return '/' + '/'.join(self._namestack)
 
-    def _mkref(self, obj):
+    def _mkref(self, obj, pyId = None):
         obj_id = id(obj)
         try:
             self._obj_to_idx[obj_id]
         except KeyError:
-            self._obj_to_idx[obj_id] = len(self._objs)
-            self._objs.append(obj)
+            if pyId is None:
+                pyId = len(self._objs)
+                
+            self._obj_to_idx[obj_id] = pyId 
+            self._objs[pyId] = obj
             # Backwards compatibility: old versions of jsonpickle
             # produced "py/ref" references.
             self._namedict[self._refname()] = obj
@@ -517,9 +520,9 @@ class Unpickler(object):
         self._swapref(proxy, stage1)
         return stage1
 
-    def _restore_id(self, obj):
+    def _restore_id(self, obj, tag=tags.ID):
         try:
-            idx = obj[tags.ID]
+            idx = obj[tag]
             return self._objs[idx]
         except IndexError:
             return _IDProxy(self._objs, idx)
@@ -703,7 +706,12 @@ class Unpickler(object):
         # This is a placeholder proxy object which allows child objects to
         # reference the parent object before it has been instantiated.
         proxy = _Proxy()
-        self._mkref(proxy)
+        try:
+            pyId = obj[tags.REFERENCEDID]
+        except KeyError:
+            pyId = None
+            
+        self._mkref(proxy,pyId)
 
         # An object can install itself as its own factory, so load the factory
         # after the instance is available for referencing.
@@ -758,8 +766,8 @@ class Unpickler(object):
 
         return instance
 
-    def _restore_object(self, obj):
-        class_name = obj[tags.OBJECT]
+    def _restore_object(self, obj, tag=tags.OBJECT):
+        class_name = obj[tag]
         cls = loadclass(class_name, classes=self._classes)
         handler = handlers.get(cls, handlers.get(class_name))
         if handler is not None:  # custom handler
@@ -857,6 +865,16 @@ class Unpickler(object):
                 restore = self._restore_iterator
             elif has_tag_dict(obj, tags.OBJECT):
                 restore = self._restore_object
+            elif has_tag_dict(obj, tags.REFERENCEDCLASS):
+                
+                def restore(x):
+                    return self._restore_object(x,tag=tags.REFERENCEDCLASS)
+                    
+            elif has_tag_dict(obj, tags.REFERENCEDID) and not has_tag_dict(obj, tags.REFERENCEDCLASS):
+                
+                def restore(x):
+                    return self._restore_id(x,tag=tags.REFERENCEDID)
+                                                               
             elif has_tag_dict(obj, tags.TYPE):
                 restore = self._restore_type
             elif has_tag_dict(obj, tags.REDUCE):
