@@ -26,6 +26,7 @@ def decode(
     classes=None,
     v1_decode=False,
     on_missing="ignore",
+    decode_token=None,
 ):
     """Convert a JSON string into a Python object.
 
@@ -62,7 +63,16 @@ def decode(
     non-awaitable function, it will call said callback function with the class
     name (a string) as the only parameter. Strings passed to on_missing are
     lowercased automatically.
-
+    
+    The keyword 'decode_token' defaults to None
+    This keyword is used to identify reference to objects in the json string.
+    The nominal functioning of jsonpickle to identify objects is the following: 
+    	{"port": {"py/id":1}}
+    With the proposed implementation, using the token 'refObj#':
+    	{"port": "refObj#1}
+    The latter makes jsonpickle compatible with Java library Jackson, improving 
+    the library capabilities to be used in generic APIs
+    
 
     >>> decode('"my string"') == 'my string'
     True
@@ -84,6 +94,7 @@ def decode(
         safe=safe,
         v1_decode=v1_decode,
         on_missing=on_missing,
+        decode_token=decode_token,
     )
     data = backend.decode(string)
     return context.restore(data, reset=reset, classes=classes)
@@ -300,13 +311,15 @@ def has_tag_dict(obj, tag):
 
 class Unpickler(object):
     def __init__(
-        self, backend=None, keys=False, safe=False, v1_decode=False, on_missing="ignore"
+        self, backend=None, keys=False, safe=False, v1_decode=False, on_missing="ignore", \
+        decode_token=None,
     ):
         self.backend = backend or json
         self.keys = keys
         self.safe = safe
         self.v1_decode = v1_decode
         self.on_missing = on_missing
+        self.decode_token = decode_token
 
         self.reset()
 
@@ -332,7 +345,7 @@ class Unpickler(object):
             method(obj, attr, proxy)
         self._proxies = []
 
-    def _restore(self, obj):
+    def _restore(self, obj, key=None):
         # if obj isn't in these types, neither it nor nothing in it can have a tag
         # don't change the tuple of types to a set, it won't work with isinstance
         if not isinstance(obj, (str, list, dict, set, tuple)):
@@ -341,7 +354,7 @@ class Unpickler(object):
                 return x
 
         else:
-            restore = self._restore_tags(obj)
+            restore = self._restore_tags(obj, key)
         return restore(obj)
 
     def restore(self, obj, reset=True, classes=None):
@@ -613,7 +626,7 @@ class Unpickler(object):
             self._namestack.append(str_k)
             k = restore_key(k)
             # step into the namespace
-            value = self._restore(v)
+            value = self._restore(v,k)
             if util.is_noncomplex(instance) or util.is_dictionary_subclass(instance):
                 try:
                     if k == '__dict__':
@@ -840,12 +853,23 @@ class Unpickler(object):
     def _restore_tuple(self, obj):
         return tuple([self._restore(v) for v in obj[tags.TUPLE]])
 
-    def _restore_tags(self, obj):
+    def _restore_tags(self, obj, key=None):
         try:
             if not tags.RESERVED <= set(obj) and not type(obj) in (list, dict):
-
-                def restore(x):
-                    return x
+                
+                if (type(obj) is str) and \
+                ((key is not None) and (key is not tags.RESERVED)) and \
+                ((self.decode_token is not None) and (self.decode_token in obj)):
+                    
+                    def restore(x):
+                        
+                        obj = {tags.REFERENCEDID: x};
+                        return self._restore_id(obj,tag=tags.REFERENCEDID);
+                
+                else:
+                    
+                    def restore(x):
+                        return x
 
                 return restore
         except TypeError:
