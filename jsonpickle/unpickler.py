@@ -519,7 +519,6 @@ class Unpickler(object):
         except IndexError:
             return _IDProxy(self._objs, idx)
 
-
     def _restore_type(self, obj):
         typeref = loadclass(obj[tags.TYPE], classes=self._classes)
         if typeref is None:
