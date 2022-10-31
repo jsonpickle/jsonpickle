@@ -2,16 +2,19 @@ bson
 coverage<5
 ecdsa
 feedparser
+flake8<5
 gmpy2
 numpy
 pandas
 pymongo
 pytest
 pytest-cov
-pytest-flake8 >= 1.1.1
+pytest-flake8>=1.1.1
 pytest-benchmark
 pytest-benchmark[histogram]
 scikit-learn
+scipy>=1.9.3; python_version>"3.10"
+scipy; python_version<="3.10"
 simplejson
 sqlalchemy>=1.2.19
 ujson

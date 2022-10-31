@@ -539,21 +539,6 @@ class AdvancedObjectsTestCase(SkippableTest):
         self.assertEqual(decoded, b2)
         self.assertTrue(isinstance(decoded, bytes))
 
-    def test_backcompat_bytes_quoted_printable(self):
-        """Test decoding bytes objects from older jsonpickle versions"""
-
-        b1 = b'foo'
-        b2 = b'foo\xff'
-
-        # older versions of jsonpickle used a quoted-printable encoding
-        expect = b1
-        actual = self.unpickler.restore({tags.BYTES: 'foo'})
-        self.assertEqual(expect, actual)
-
-        expect = b2
-        actual = self.unpickler.restore({tags.BYTES: 'foo=FF'})
-        self.assertEqual(expect, actual)
-
     def test_nested_objects(self):
         obj = ThingWithTimedeltaAttribute(99)
         flattened = self.pickler.flatten(obj)

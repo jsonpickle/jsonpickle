@@ -16,3 +16,7 @@ __pycache__
 *#*
 *~
 *.tar.gz
+
+# Local benchmarking files for Theelx
+kern*.py
+*.lprof

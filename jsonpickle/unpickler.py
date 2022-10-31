@@ -7,7 +7,6 @@
 from __future__ import absolute_import, division, unicode_literals
 
 import dataclasses
-import quopri
 import sys
 import warnings
 
@@ -386,10 +385,6 @@ class Unpickler(object):
     def _restore_base85(self, obj):
         return util.b85decode(obj[tags.B85].encode('utf-8'))
 
-    #: For backwards compatibility with bytes data produced by older versions
-    def _restore_quopri(self, obj):
-        return quopri.decodestring(obj[tags.BYTES].encode('utf-8'))
-
     def _refname(self):
         """Calculates the name of the current location in the JSON stack.
 
@@ -524,8 +519,6 @@ class Unpickler(object):
         except IndexError:
             return _IDProxy(self._objs, idx)
 
-    def _restore_ref(self, obj):
-        return self._namedict.get(obj[tags.REF])
 
     def _restore_type(self, obj):
         typeref = loadclass(obj[tags.TYPE], classes=self._classes)
@@ -863,10 +856,6 @@ class Unpickler(object):
                 restore = self._restore_reduce
             elif has_tag_dict(obj, tags.FUNCTION):
                 restore = self._restore_function
-            elif has_tag_dict(obj, tags.BYTES):  # Backwards compatibility
-                restore = self._restore_quopri
-            elif has_tag_dict(obj, tags.REF):  # Backwards compatibility
-                restore = self._restore_ref
             elif has_tag_dict(obj, tags.REPR):  # Backwards compatibility
                 restore = self._restore_repr
             else:
