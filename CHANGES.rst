@@ -22,6 +22,7 @@ v3.0.0
     * Removed old bytes/quopri and ref decoding abaility from the unpickler.
       These were last used in jsonpickle<1. Removing them causes a slight speedup
       in unpickling lists (~5%). (+403)
+    * Fixed a bug with namedtuples encoding on CPython 3.11. (#411)
 
 v2.2.0
 ======
