@@ -29,7 +29,8 @@ SET = 'py/set'
 STATE = 'py/state'
 TUPLE = 'py/tuple'
 TYPE = 'py/type'
-
+REFERENCEDID = 'referencedId'
+REFERENCEDCLASS = 'referencedClass'
 # All reserved tag names
 RESERVED = {
     BYTES,
@@ -50,4 +51,6 @@ RESERVED = {
     STATE,
     TUPLE,
     TYPE,
+    REFERENCEDID,
+    REFERENCEDCLASS,             
 }
