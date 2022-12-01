@@ -10,7 +10,6 @@ import collections
 import os
 import unittest
 import warnings
-from hashlib import md5
 
 import pytest
 from helper import SkippableTest
@@ -163,20 +162,6 @@ class MyPropertiesDict:
             and self.arr_len == other.arr_len
             and list(self.other_object) == list(other.other_object)
         )
-
-
-class A(object):
-    def __init__(self):
-        self.id = md5(str(id(self)).encode()).hexdigest()[:5]  # unique enough hash
-
-
-class BSlots(object):
-    __slots__ = ["a2", "a1", "a3"]
-
-    def __init__(self):
-        self.a2 = A()  # set attribs not in alphabetical order
-        self.a1 = A()
-        self.a3 = self.a1  # create a reference
 
 
 def on_missing_callback(class_name):
@@ -577,14 +562,6 @@ class PicklingTestCase(unittest.TestCase):
             obj,
             jsonpickle.decode(encoded, classes={"MyPropertiesSlots": MyPropertiesDict}),
         )
-
-    def test_sort_keys(self):
-        jsonpickle.set_preferred_backend('simplejson')
-        jsonpickle.set_encoder_options('simplejson', sort_keys=True)
-        b = BSlots()
-        self.assertRaises(TypeError, jsonpickle.encode, b, keys=True, warn=True)
-        # return encoder options to default
-        jsonpickle.set_encoder_options('simplejson', sort_keys=False)
 
 
 class JSONPickleTestCase(SkippableTest):
