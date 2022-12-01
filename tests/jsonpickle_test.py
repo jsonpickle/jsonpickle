@@ -579,6 +579,7 @@ class PicklingTestCase(unittest.TestCase):
         )
 
     def test_sort_keys(self):
+        jsonpickle.load_backend('simplejson')
         jsonpickle.set_preferred_backend('simplejson')
         jsonpickle.set_encoder_options('simplejson', sort_keys=True)
         b = BSlots()

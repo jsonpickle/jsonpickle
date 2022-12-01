@@ -49,7 +49,7 @@ jobs:
       - name: Install gmpy2 dependencies
         if: matrix.python-version == '3.11'
         run: |
-          sudo apt-get install -y libmpfr-dev
+          sudo apt-get install -y libmpfr-dev libmpc-dev
 
       - name: Tox tests
         run: |
