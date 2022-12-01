@@ -2,6 +2,7 @@ from __future__ import absolute_import, division, unicode_literals
 
 import decimal
 import unittest
+from hashlib import md5
 from warnings import warn
 
 from helper import SkippableTest
@@ -13,6 +14,20 @@ class Thing(object):
     def __init__(self, name):
         self.name = name
         self.child = None
+
+
+class A(object):
+    def __init__(self):
+        self.id = md5(str(id(self)).encode()).hexdigest()[:5]  # unique enough hash
+
+
+class BSlots(object):
+    __slots__ = ["a2", "a1", "a3"]
+
+    def __init__(self):
+        self.a2 = A()  # set attribs not in alphabetical order
+        self.a1 = A()
+        self.a3 = self.a1  # create a reference
 
 
 SAMPLE_DATA = {'things': [Thing('data')]}
@@ -126,6 +141,13 @@ class SimpleJsonTestCase(BackendBase):
         # options are persisted unless we disable them
         jsonpickle.set_encoder_options('simplejson', use_decimal=False)
         jsonpickle.set_decoder_options('simplejson', use_decimal=False)
+
+    def test_sort_keys(self):
+        jsonpickle.set_encoder_options('simplejson', sort_keys=True)
+        b = BSlots()
+        self.assertRaises(TypeError, jsonpickle.encode, b, keys=True, warn=True)
+        # return encoder options to default
+        jsonpickle.set_encoder_options('simplejson', sort_keys=False)
 
 
 def has_module(module):
