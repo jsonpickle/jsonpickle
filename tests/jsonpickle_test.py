@@ -10,6 +10,7 @@ import collections
 import os
 import unittest
 import warnings
+from hashlib import md5
 
 import pytest
 from helper import SkippableTest
@@ -17,7 +18,6 @@ from helper import SkippableTest
 import jsonpickle
 import jsonpickle.backend
 import jsonpickle.handlers
-from hashlib import md5
 from jsonpickle import compat, tags, util
 
 
@@ -577,12 +577,10 @@ class PicklingTestCase(unittest.TestCase):
             obj,
             jsonpickle.decode(encoded, classes={"MyPropertiesSlots": MyPropertiesDict}),
         )
-    
+
     def test_sort_keys(self):
         jsonpickle.set_preferred_backend('simplejson')
-        jsonpickle.set_encoder_options(
-            'simplejson', sort_keys=True
-        )
+        jsonpickle.set_encoder_options('simplejson', sort_keys=True)
         b = BSlots()
         self.assertRaises(TypeError, jsonpickle.encode, b, keys=True, warn=True)
         # return encoder options to default
