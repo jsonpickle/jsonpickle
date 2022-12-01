@@ -326,8 +326,8 @@ def test_byteorder():
 
 
 def test_zero_dimensional_array():
-    expect = np.array(0.0)
-    actual = roundtrip(expect)
+    expect = np.array(float(0.0), dtype="float64")
+    actual = jsonpickle.decode(jsonpickle.encode(expect))
     npt.assert_array_equal(expect, actual)
 
 

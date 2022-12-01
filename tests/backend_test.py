@@ -123,6 +123,9 @@ class SimpleJsonTestCase(BackendBase):
         as_json = jsonpickle.dumps(obj)
         clone = jsonpickle.loads(as_json)
         self.assertTrue(isinstance(clone, decimal.Decimal))
+        # options are persisted unless we disable them
+        jsonpickle.set_encoder_options('simplejson', use_decimal=False)
+        jsonpickle.set_decoder_options('simplejson', use_decimal=False)
 
 
 def has_module(module):

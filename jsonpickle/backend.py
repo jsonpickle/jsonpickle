@@ -261,6 +261,9 @@ class JSONBackend(object):
         See the appropriate encoder's documentation for details about
         the supported arguments and keyword arguments.
 
+        WARNING: If you pass sort_keys=True, and the object to encode
+        contains ``__slots__``, and you set ``warn`` to True, 
+        a TypeError will be raised!
         """
         self._encoder_options[name] = (args, kwargs)
 
