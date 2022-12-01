@@ -25,6 +25,8 @@ v3.0.0
     * Fixed a bug with namedtuples encoding on CPython 3.11. (#411)
     * When using the ``sort_keys`` option for the ``simplejson`` backend,
       jsonpickle now produces correct object references with py/id tags. (#408)
+    * Speed up the internal method ``_restore_tags`` by ~10%. This should speed
+      up unpickling of almost every object.
 
 v2.2.0
 ======

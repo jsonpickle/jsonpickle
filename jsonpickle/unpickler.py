@@ -835,27 +835,27 @@ class Unpickler(object):
         except TypeError:
             pass
         if type(obj) is dict:
-            if has_tag_dict(obj, tags.TUPLE):
+            if tags.TUPLE in obj:
                 restore = self._restore_tuple
-            elif has_tag_dict(obj, tags.SET):
+            elif tags.SET in obj:
                 restore = self._restore_set
-            elif has_tag_dict(obj, tags.B64):
+            elif tags.B64 in obj:
                 restore = self._restore_base64
-            elif has_tag_dict(obj, tags.B85):
+            elif tags.B85 in obj:
                 restore = self._restore_base85
-            elif has_tag_dict(obj, tags.ID):
+            elif tags.ID in obj:
                 restore = self._restore_id
-            elif has_tag_dict(obj, tags.ITERATOR):
+            elif tags.ITERATOR in obj:
                 restore = self._restore_iterator
-            elif has_tag_dict(obj, tags.OBJECT):
+            elif tags.OBJECT in obj:
                 restore = self._restore_object
-            elif has_tag_dict(obj, tags.TYPE):
+            elif tags.TYPE in obj:
                 restore = self._restore_type
-            elif has_tag_dict(obj, tags.REDUCE):
+            elif tags.REDUCE in obj:
                 restore = self._restore_reduce
-            elif has_tag_dict(obj, tags.FUNCTION):
+            elif tags.FUNCTION in obj:
                 restore = self._restore_function
-            elif has_tag_dict(obj, tags.REPR):  # Backwards compatibility
+            elif tags.REPR in obj:  # Backwards compatibility
                 restore = self._restore_repr
             else:
                 restore = self._restore_dict
