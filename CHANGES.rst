@@ -23,6 +23,8 @@ v3.0.0
       These were last used in jsonpickle<1. Removing them causes a slight speedup
       in unpickling lists (~5%). (+403)
     * Fixed a bug with namedtuples encoding on CPython 3.11. (#411)
+    * When using the ``sort_keys`` option for the ``simplejson`` backend,
+      jsonpickle now produces correct object references with py/id tags. (#408)
 
 v2.2.0
 ======
