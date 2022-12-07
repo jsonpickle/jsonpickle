@@ -149,3 +149,7 @@ to activate the virtualenv without polluting the shell environment::
 `jsonpickle` supports multiple Python versions, so using a combination of
 multiple virtualenvs and `tox` is useful in order to catch compatibility
 issues when developing.
+
+GPG Signing
+===========
+Releases before v3.0.0 are signed with `davvid's key. <https://keys.openpgp.org/vks/v1/by-fingerprint/FA41BF59C1B48E8C5F3DA61C8CE26BF4A9F606B0>`. v3.0.0 and after are likely signed by `Theelx's key <https://github.com/Theelx.gpg>`. All upcoming releases should be signed by one of these two keys, usually Theelx's key.
