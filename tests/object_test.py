@@ -9,7 +9,6 @@ import re
 import threading
 
 import pytest
-import pytz
 from helper import SkippableTest
 
 import jsonpickle
@@ -1104,8 +1103,9 @@ def test_unicode_mixin():
 
 def test_datetime_with_tz_copies_refs():
     """Ensure that we create copies of referenced objects"""
-    d0 = datetime.datetime(2020, 5, 5, 5, 5, 5, 5, tzinfo=pytz.UTC)
-    d1 = datetime.datetime(2020, 5, 5, 5, 5, 5, 5, tzinfo=pytz.UTC)
+    utc = datetime.timezone.utc
+    d0 = datetime.datetime(2020, 5, 5, 5, 5, 5, 5, tzinfo=utc)
+    d1 = datetime.datetime(2020, 5, 5, 5, 5, 5, 5, tzinfo=utc)
     obj = [d0, d1]
     encoded = jsonpickle.encode(obj, make_refs=False)
     decoded = jsonpickle.decode(encoded)
