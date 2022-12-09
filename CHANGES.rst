@@ -1,14 +1,7 @@
-.. warning::
-    The next major release of jsonpickle (v3.0.0) will drop support for
-    Python 3.6 and earlier (including Python 2.7).
-
-.. note::
-   Users on older Python versions should pin requirements to ``jsonpickle<3.0.0``.
-
 v3.0.0
 ======
     * Drop support for CPython<3.7. CPython 3.6 and below have reached EOL
-      and no longer receieve security updates. (#375)
+      and no longer receive security updates. (#375)
     * Add support for CPython 3.11. (#395) (+396)
     * Remove jsonlib and yajl backends (py2 only)
     * Add ``include_properties`` option to the pickler. This should only
