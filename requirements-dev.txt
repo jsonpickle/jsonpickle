@@ -17,4 +17,5 @@ scipy>=1.9.3; python_version>"3.10"
 scipy; python_version<="3.10"
 simplejson
 sqlalchemy>=1.2.19
+tox<4
 ujson
