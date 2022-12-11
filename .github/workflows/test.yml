@@ -44,7 +44,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install -U pip
-          python -m pip install -U tox tox-venv
+          python -m pip install -U "tox<4" tox-venv
 
       - name: Install gmpy2 dependencies
         if: matrix.python-version == '3.11'
