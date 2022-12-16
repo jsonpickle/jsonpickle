@@ -1,3 +1,10 @@
+v3.0.1
+======
+    * Remove accidental pin of setuptools to versions below 59. This allows
+      jsonpickle to build with CPython 3.11 and 3.12 alphas. (#424)
+    * Remove accidental dependency on pytz in pandas tests. (+421)
+    * Fix issue with decoding bson.bson.Int64 objects (#422)
+
 v3.0.0
 ======
     * Drop support for CPython<3.7. CPython 3.6 and below have reached EOL

@@ -628,6 +628,15 @@ class Unpickler(object):
                         # issue #240
                         # i think this is the only way to set frozen dataclass attrs
                         object.__setattr__(instance, k, value)
+                    except AttributeError as e:
+                        # some objects may raise this for read-only attributes (#422)
+                        if (
+                            hasattr(instance, "__slots__")
+                            and not len(instance.__slots__)
+                            and issubclass(instance.__class__, int)
+                        ):
+                            continue
+                        raise e
                 else:
                     setattr(instance, f"_{instance.__class__.__name__}{k}", value)
 
