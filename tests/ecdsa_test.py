@@ -12,9 +12,14 @@ import jsonpickle
 @pytest.fixture(scope='module', autouse=True)
 def gmpy_extension():
     """Initialize the gmpy extension for this test module"""
-    jsonpickle.ext.gmpy.register_handlers()
-    yield  # control to the test function.
-    jsonpickle.ext.gmpy.unregister_handlers()
+    try:
+        jsonpickle.ext.gmpy.register_handlers()
+        yield  # control to the test function.
+        jsonpickle.ext.gmpy.unregister_handlers()
+    except AttributeError:
+        pytest.skip(
+            "gmpy was not detected, please try installing it for more complete tests!"
+        )
 
 
 class EcdsaTestCase(SkippableTest):
