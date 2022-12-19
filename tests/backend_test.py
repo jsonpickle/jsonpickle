@@ -159,20 +159,6 @@ def has_module(module):
     return True
 
 
-class YajlTestCase(BackendBase):
-    def setUp(self):
-        self.set_preferred_backend('yajl')
-
-    def test_backend(self):
-        expected_pickled = (
-            '{"things":[{'
-            '"py/object":"backend_test.Thing",'
-            '"name":"data","child":null}'
-            ']}'
-        )
-        self.assertEncodeDecode(expected_pickled)
-
-
 class UJsonTestCase(BackendBase):
     def setUp(self):
         self.set_preferred_backend('ujson')
@@ -192,8 +178,6 @@ def suite():
     suite.addTest(unittest.makeSuite(JsonTestCase))
     suite.addTest(unittest.makeSuite(UJsonTestCase))
     suite.addTest(unittest.makeSuite(SimpleJsonTestCase))
-    if has_module('yajl'):
-        suite.addTest(unittest.makeSuite(YajlTestCase))
     return suite
 
 
