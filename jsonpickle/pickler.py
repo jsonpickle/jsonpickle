@@ -526,7 +526,6 @@ class Pickler(object):
                 self._pickle_warning(obj)
             return result
 
-
         reduce_val = None
 
         if self.include_properties:
