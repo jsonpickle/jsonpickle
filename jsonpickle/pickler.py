@@ -521,7 +521,11 @@ class Pickler(object):
         if handler is not None:
             if self.unpicklable:
                 data[tags.OBJECT] = class_name
-            return handler(self).flatten(obj, data)
+            result = handler(self).flatten(obj, data)
+            if result is None:
+                self._pickle_warning(obj)
+            return result
+
 
         reduce_val = None
 
