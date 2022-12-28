@@ -563,6 +563,14 @@ class PicklingTestCase(unittest.TestCase):
             jsonpickle.decode(encoded, classes={"MyPropertiesSlots": MyPropertiesDict}),
         )
 
+    def test_warnings(self):
+        data = os.fdopen(os.pipe()[0])
+        with warnings.catch_warnings(record=True) as w:
+            jsonpickle.encode(data, warn=True)
+            assert len(w) == 1
+            assert issubclass(w[-1].category, UserWarning)
+            assert "replaced with None" in str(w[-1].message)
+
 
 class JSONPickleTestCase(SkippableTest):
     def setUp(self):
