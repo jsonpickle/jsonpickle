@@ -1,3 +1,9 @@
+v3.0.2
+======
+    * Properly raise warning if a custom pickling handler returns None. (#433)
+    * Fix issue with serialization of certain sklearn objects breaking when
+      the numpy handler was enabled. (#431) (+434)
+
 v3.0.1
 ======
     * Remove accidental pin of setuptools to versions below 59. This allows
