@@ -324,6 +324,9 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
         else:
             # decode array view, which references the data of another array
             base = self.context.restore(base, reset=False)
+            if not isinstance(base, np.ndarray):
+                # the object is probably a nested list
+                base = np.array(base)
             assert (
                 base.flags.forc
             ), "Current implementation assumes base is C or F contiguous"
