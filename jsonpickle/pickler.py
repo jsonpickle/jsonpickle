@@ -111,8 +111,9 @@ def encode(
     :param include_properties:
         Include the names and values of class properties in the generated json.
         Properties are unpickled properly regardless of this setting, this is
-        meant to be used if processing the json outside of Python. Defaults to
-        ``False``.
+        meant to be used if processing the json outside of Python. Certain types
+        such as sets will not pickle due to not having a native-json equivalent.
+        Defaults to ``False``.
 
     >>> encode('my string') == '"my string"'
     True
