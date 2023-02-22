@@ -327,7 +327,7 @@ class Unpickler(object):
 
     def _swap_proxies(self):
         """Replace proxies with their corresponding instances"""
-        for (obj, attr, proxy, method) in self._proxies:
+        for obj, attr, proxy, method in self._proxies:
             method(obj, attr, proxy)
         self._proxies = []
 

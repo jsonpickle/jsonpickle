@@ -122,7 +122,6 @@ class ThingWithQueue(object):
 
 
 class ThingWithSlots(object):
-
     __slots__ = ('a', 'b')
 
     def __init__(self, a, b):
@@ -131,7 +130,6 @@ class ThingWithSlots(object):
 
 
 class ThingWithInheritedSlots(ThingWithSlots):
-
     __slots__ = ('c',)
 
     def __init__(self, a, b, c):
@@ -140,7 +138,6 @@ class ThingWithInheritedSlots(ThingWithSlots):
 
 
 class ThingWithIterableSlots(object):
-
     __slots__ = iter('ab')
 
     def __init__(self, a, b):

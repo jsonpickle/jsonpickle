@@ -368,7 +368,6 @@ class Pickler(object):
         max_reached = self._max_reached()
 
         try:
-
             in_cycle = _in_cycle(obj, self._objs, max_reached, self.make_refs)
             if in_cycle:
                 # break the cycle

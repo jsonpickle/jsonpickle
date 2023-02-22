@@ -16,7 +16,6 @@ except ImportError:
     HAS_SQA = False
 
 if HAS_SQA:
-
     Base = declarative.declarative_base()
 
     class Table(Base):
