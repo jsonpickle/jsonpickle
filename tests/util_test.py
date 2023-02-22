@@ -30,7 +30,6 @@ class ListSubclass(list):
 
 
 class MethodTestClass(object):
-
     variable = None
 
     @staticmethod

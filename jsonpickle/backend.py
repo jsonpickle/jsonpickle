@@ -137,7 +137,6 @@ class JSONBackend(object):
         return True
 
     def load_backend(self, name, dumps='dumps', loads='loads', loads_exc=ValueError):
-
         """Load a JSON backend by name.
 
         This method loads a backend and sets up references to that

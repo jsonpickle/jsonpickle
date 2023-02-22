@@ -143,7 +143,6 @@ class PandasSeriesHandler(BaseHandler):
 
 
 class PandasIndexHandler(BaseHandler):
-
     pp = PandasProcessor()
     index_constructor = pd.Index
 
