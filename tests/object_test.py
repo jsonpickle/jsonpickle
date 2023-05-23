@@ -176,6 +176,24 @@ class ThingWithClassAsDefaultFactory(collections.defaultdict):
         return self.__class__()
 
 
+class ThingWithDefaultFactoryRegistry:
+    """Counts calls to ThingWithDefaultFactory.__init__()"""
+    count = 0  # Incremented by ThingWithDefaultFactory().
+
+
+class ThingWithDefaultFactory:
+    """Class that ensures that provides a default factory"""
+
+    def __init__(self):
+        self.default_factory = self.__class__
+        # Keep track of how many times this constructor has been run.
+        ThingWithDefaultFactoryRegistry.count += 1
+
+    def __new__(cls, *args, **kwargs):
+        """Ensure that jsonpickle uses our constructor during initialization"""
+        return super().__new__(cls, *args, **kwargs)
+
+
 class IntEnumTest(enum.IntEnum):
     X = 1
     Y = 2
@@ -617,6 +635,19 @@ def test_defaultdict_roundtrip():
     assert type(newdefdict['c']) == defaultdict
     assert defdict.default_factory == list
     assert newdefdict.default_factory == list
+
+
+def test_default_factory_initialization():
+    """Ensure that ThingWithDefaultFactory()'s constructor is called"""
+    thing = ThingWithDefaultFactory()
+    assert ThingWithDefaultFactoryRegistry.count == 1
+
+    thing.is_awesome = True
+    encoded = jsonpickle.encode(thing)
+    new_thing = jsonpickle.decode(encoded)
+
+    assert ThingWithDefaultFactoryRegistry.count == 2
+    assert new_thing.is_awesome
 
 
 def test_defaultdict_roundtrip_simple_lambda():
