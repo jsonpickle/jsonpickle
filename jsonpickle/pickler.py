@@ -774,7 +774,7 @@ class Pickler(object):
             data['default_factory'] = value
 
         # Sub-classes of dict
-        if hasattr(obj, '__dict__') and self.unpicklable:
+        if hasattr(obj, '__dict__') and self.unpicklable and obj != obj.__dict__:
             dict_data = {}
             self._flatten_dict_obj(obj.__dict__, dict_data)
             data['__dict__'] = dict_data
