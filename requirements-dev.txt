@@ -5,7 +5,7 @@ feedparser
 flake8<5
 gmpy2
 numpy
-pandas
+pandas<=2
 pymongo
 pytest
 pytest-cov
