@@ -174,6 +174,7 @@ class ThingWithClassAsDefaultFactory(collections.defaultdict):
 
 class ThingWithDefaultFactoryRegistry:
     """Counts calls to ThingWithDefaultFactory.__init__()"""
+
     count = 0  # Incremented by ThingWithDefaultFactory().
 
 
