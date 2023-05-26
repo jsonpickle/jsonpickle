@@ -62,7 +62,7 @@ def test_dataframe_roundtrip():
             'an_inf': np.array([np.inf] * 3),
             'a_str': np.str_('foo'),
             'a_unicode': np.unicode_('bar'),
-            'date': np.array([np.datetime64('2014-01-01')] * 3),
+            'date': np.array([np.datetime64('2014-01-01')] * 3, dtype="datetime64[s]"),
             'complex': np.complex_([1 - 2j, 2 - 1.2j, 3 - 1.3j]),
             # TODO: the following dtypes are not currently supported.
             # 'object': np.object_([{'a': 'b'}]*3),
