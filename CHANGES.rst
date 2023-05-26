@@ -3,6 +3,8 @@ v3.0.2
     * Properly raise warning if a custom pickling handler returns None. (#433)
     * Fix issue with serialization of certain sklearn objects breaking when
       the numpy handler was enabled. (#431) (+434)
+    * Allow custom backends to not implement _encoder_options (#436) (+446)
+    * Implement compatibility with pandas 2 (+446)
 
 v3.0.1
 ======

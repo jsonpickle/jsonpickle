@@ -62,10 +62,13 @@ def make_read_csv_params(meta, context):
     parse_dates = []
     converters = {}
     timedeltas = []
+    # this is only for pandas v2+ due to a backwards-incompatible change
+    parse_datetime_v2 = {}
     dtype = {}
     for k, v in meta_dtypes.items():
         if v.startswith('datetime'):
             parse_dates.append(k)
+            parse_datetime_v2[k] = v
         elif v.startswith('complex'):
             converters[k] = complex
         elif v.startswith('timedelta'):
@@ -79,6 +82,7 @@ def make_read_csv_params(meta, context):
             dtype=dtype, header=header, parse_dates=parse_dates, converters=converters
         ),
         timedeltas,
+        parse_datetime_v2,
     )
 
 
@@ -104,7 +108,7 @@ class PandasDfHandler(BaseHandler):
 
     def restore(self, data):
         csv, meta = self.pp.restore_pandas(data)
-        params, timedeltas = make_read_csv_params(meta, self.context)
+        params, timedeltas, parse_datetime_v2 = make_read_csv_params(meta, self.context)
         # None makes it compatible with objects serialized before
         # column_levels_names has been introduced.
         column_level_names = meta.get('column_level_names', None)
@@ -115,6 +119,7 @@ class PandasDfHandler(BaseHandler):
         )
         for col in timedeltas:
             df[col] = pd.to_timedelta(df[col])
+        df = df.astype(parse_datetime_v2)
 
         df.set_index(decode(meta['index']), inplace=True)
         # restore the column level(s) name(s)

@@ -221,7 +221,7 @@ class Pickler(object):
         self.include_properties = include_properties
 
     def _determine_sort_keys(self):
-        for _, options in self.backend._encoder_options.values():
+        for _, options in getattr(self.backend, '_encoder_options', {}).values():
             if options.get("sort_keys", False):
                 # the user has set one of the backends to sort keys
                 return True
