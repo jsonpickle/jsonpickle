@@ -788,7 +788,6 @@ class Pickler(object):
                     self._list_recurse if type(obj) is list else self._flatten_dict_obj
                 )
             else:
-                self._push()
                 return self._getref
 
         # We handle tuples and sets by encoding them in a "(tuple|set)dict"
