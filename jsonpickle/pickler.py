@@ -775,9 +775,12 @@ class Pickler(object):
 
         # Sub-classes of dict
         if hasattr(obj, '__dict__') and self.unpicklable and obj != obj.__dict__:
-            dict_data = {}
-            self._flatten_dict_obj(obj.__dict__, dict_data)
-            data['__dict__'] = dict_data
+            if self._mkref(obj.__dict__):
+                dict_data = {}
+                self._flatten_dict_obj(obj.__dict__, dict_data)
+                data['__dict__'] = dict_data
+            else:
+                data['__dict__'] = self._getref(obj.__dict__)
 
         return data
 
