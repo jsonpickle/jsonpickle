@@ -727,6 +727,21 @@ class JSONPickleTestCase(SkippableTest):
         self.assertEqual(obj.s, actual.s)
         self.assertEqual(obj.valid, actual.valid)
 
+    def test_dict_subclass_with_references(self):
+        d = UserDict()
+        d.s = 'string'
+        d['s'] = 'test'
+        obj = [d, d, d.__dict__]
+        pickle = jsonpickle.encode(obj)
+        actual = jsonpickle.decode(pickle)
+
+        self.assertEqual(type(actual), list)
+        self.assertEqual(type(actual[0]), UserDict)
+        self.assertEqual(actual[0].s, 'string')
+        self.assertEqual(actual[0]['s'], 'test')
+        self.assertIs(actual[0], actual[1])
+        self.assertIs(actual[0].__dict__, actual[2])
+
     def test_list_of_objects(self):
         """Test that objects in lists are referenced correctly"""
         a = Thing('a')
