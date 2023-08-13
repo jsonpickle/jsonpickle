@@ -966,6 +966,10 @@ class JSONPickleTestCase(SkippableTest):
         # TODO: Find a simple example that reproduces #364
         self.assertTrue(True)
 
+    def test_depth_tracking(self):
+        l = []
+        self.pickler.flatten([l, l, l, l, l])
+        self.assertEqual(self.pickler._depth, -1)
 
 class PicklableNamedTuple(object):
     """
