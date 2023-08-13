@@ -5,6 +5,8 @@ v3.0.2
       the numpy handler was enabled. (#431) (+434)
     * Allow custom backends to not implement _encoder_options (#436) (+446)
     * Implement compatibility with pandas 2 (+446)
+    * Fix encoding/decoding of dictionary subclasses with referencing (+455)
+    * Fix depth tracking for list/dict referencing (+456)
 
 v3.0.1
 ======
