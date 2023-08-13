@@ -181,14 +181,14 @@ class ThingWithDefaultFactoryRegistry:
 class ThingWithDefaultFactory:
     """Class that ensures that provides a default factory"""
 
+    def __new__(cls, *args, **kwargs):
+        """Ensure that jsonpickle uses our constructor during initialization"""
+        return super().__new__(cls, *args, **kwargs)
+
     def __init__(self):
         self.default_factory = self.__class__
         # Keep track of how many times this constructor has been run.
         ThingWithDefaultFactoryRegistry.count += 1
-
-    def __new__(cls, *args, **kwargs):
-        """Ensure that jsonpickle uses our constructor during initialization"""
-        return super().__new__(cls, *args, **kwargs)
 
 
 class IntEnumTest(enum.IntEnum):

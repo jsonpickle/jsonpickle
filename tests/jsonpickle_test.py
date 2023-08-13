@@ -986,6 +986,7 @@ class JSONPickleTestCase(SkippableTest):
         self.pickler.flatten([l, l, l, l, l])
         self.assertEqual(self.pickler._depth, -1)
 
+
 class PicklableNamedTuple(object):
     """
     A picklable namedtuple wrapper, to demonstrate the need
