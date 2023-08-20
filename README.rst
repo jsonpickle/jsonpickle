@@ -37,8 +37,6 @@ For complete documentation, please visit the
 Bug reports and merge requests are encouraged at the
 `jsonpickle repository on github <https://github.com/jsonpickle/jsonpickle>`_.
 
-jsonpickle officially supports CPython 2.7 and CPython 3.6 or greater. Version support below CPython 3.7 will be dropped upon release of jsonpickle 3.0.
-
 Why jsonpickle?
 ===============
 Data serialized with python's pickle (or cPickle or dill) is not easily readable outside of python. Using the json format, jsonpickle allows simple data types to be stored in a human-readable format, and more complex data types such as numpy arrays and pandas dataframes, to be machine-readable on any platform that supports json. E.g., unlike pickled data, jsonpickled data stored in an Amazon S3 bucket is indexible by Amazon's Athena.
