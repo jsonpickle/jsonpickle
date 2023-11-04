@@ -517,7 +517,10 @@ def importable_name(cls):
     module = translate_module_name(cls.__module__)
     if not module:
         if hasattr(cls, '__self__'):
-            module = cls.__self__.__class__.__module__
+            if hasattr(cls.__self__, '__module__'):
+                module = cls.__self__.__module__
+            else:
+                module = cls.__self__.__class__.__module__
     return '{}.{}'.format(module, name)
 
 
