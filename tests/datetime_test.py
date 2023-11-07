@@ -8,7 +8,7 @@
 
 import datetime
 import time
-from zoneinfo import ZoneInfo
+import sys
 import unittest
 
 import jsonpickle
@@ -168,10 +168,14 @@ class DateTimeSimpleTestCase(unittest.TestCase):
         test_obj_decoded = jsonpickle.decode(json)
         self.assertEqual(test_obj_decoded.data['ts'], test_obj_decoded.data_ref['ts'])
 
+    @unittest.skipIf(sys.version_info < (3, 9), "only tested for python >= 3.9")
     def test_datetime_with_ZoneInfo(self):
         """
         jsonpickle should pickle a datetime object with time zone info
         """
+        # if sys.version_info >= (3, 9):
+        from zoneinfo import ZoneInfo
+
         now = datetime.datetime.now()
 
         SaoPaulo = ZoneInfo('America/Sao_Paulo')
