@@ -1,3 +1,8 @@
+v3.0.3
+======
+    * Fixed a bug where pickling some built-in classes (e.g. zoneinfo) 
+      could return a ``None`` module. (#447)
+
 v3.0.2
 ======
     * Properly raise warning if a custom pickling handler returns None. (#433)

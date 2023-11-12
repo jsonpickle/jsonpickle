@@ -9,6 +9,7 @@
 /.pytest_cache
 /.tox
 /.idea
+/.vscode
 __pycache__
 *.py[cod]
 *.egg-info
