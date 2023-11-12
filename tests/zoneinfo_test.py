@@ -1,9 +1,8 @@
 import sys
 
 if sys.version_info >= (3, 9):
-    from zoneinfo import ZoneInfo
-
     import unittest
+    from zoneinfo import ZoneInfo
 
     import jsonpickle
 

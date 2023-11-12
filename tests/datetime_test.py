@@ -7,8 +7,8 @@
 # you should have received as part of this distribution.
 
 import datetime
-import time
 import sys
+import time
 import unittest
 
 import jsonpickle
