@@ -769,6 +769,7 @@ class Unpickler(object):
             return instance
 
         if cls is None:
+            self._process_missing(class_name)
             return self._mkref(obj)
 
         return self._restore_object_instance(obj, cls, class_name)
