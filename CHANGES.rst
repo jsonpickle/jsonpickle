@@ -1,13 +1,10 @@
-v3.0.4
-======
-    * Fixed a bug where unpickling a missing class would return a different object
-      instead of ``None``. (+471)
-    * Fixed the handling of missing classes when setting ``on_missing`` to ``warn`` or ``error``. (+471)
-
 v3.0.3
 ======
     * Fixed a bug where pickling some built-in classes (e.g. zoneinfo) 
       could return a ``None`` module. (#447)
+    * Fixed a bug where unpickling a missing class would return a different object
+      instead of ``None``. (+471)
+    * Fixed the handling of missing classes when setting ``on_missing`` to ``warn`` or ``error``. (+471)
 
 v3.0.2
 ======
