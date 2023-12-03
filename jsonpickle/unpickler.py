@@ -192,10 +192,7 @@ def loadclass(module_and_name, classes=None):
             __import__(module)
             obj = sys.modules[module]
             for class_name in names[up_to:]:
-                try:
-                    obj = getattr(obj, class_name)
-                except AttributeError:
-                    continue
+                obj = getattr(obj, class_name)
             return obj
         except (AttributeError, ImportError, ValueError):
             continue
@@ -772,6 +769,7 @@ class Unpickler(object):
             return instance
 
         if cls is None:
+            self._process_missing(class_name)
             return self._mkref(obj)
 
         return self._restore_object_instance(obj, cls, class_name)
