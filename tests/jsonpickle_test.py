@@ -502,7 +502,9 @@ class PicklingTestCase(unittest.TestCase):
         self.assertTrue(isinstance(jsonpickle.decode(encoded), Outer.Middle.Inner))
 
         # Alter the encoded string to create cases where the class is missing, in multiple levels
-        self.assertTrue(encoded == '{"py/object": "jsonpickle_test.Outer.Middle.Inner"}')
+        self.assertTrue(
+            encoded == '{"py/object": "jsonpickle_test.Outer.Middle.Inner"}'
+        )
         missing_cases = [
             '{"py/object": "MISSING.Outer.Middle.Inner"}',
             '{"py/object": "jsonpickle_test.MISSING.Middle.Inner"}',
