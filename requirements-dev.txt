@@ -3,7 +3,7 @@ coverage<5
 ecdsa
 feedparser
 flake8<5
-gmpy2
+gmpy2; python_version<"3.12"
 numpy
 pandas
 pymongo

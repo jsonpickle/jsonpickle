@@ -1,4 +1,7 @@
-import gmpy2 as gmpy
+try:
+    import gmpy2 as gmpy
+except ImportError:
+    gmpy = None
 
 from ..handlers import BaseHandler, register, unregister
 
@@ -15,8 +18,10 @@ class GmpyMPZHandler(BaseHandler):
 
 
 def register_handlers():
-    register(gmpy.mpz, GmpyMPZHandler, base=True)
+    if gmpy is not None:
+        register(gmpy.mpz, GmpyMPZHandler, base=True)
 
 
 def unregister_handlers():
-    unregister(gmpy.mpz)
+    if gmpy is not None:
+        unregister(gmpy.mpz)
