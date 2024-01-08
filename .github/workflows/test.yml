@@ -13,10 +13,6 @@ jobs:
       matrix:
         python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
         os: [ubuntu-22.04]
-        env:
-          - TOXENV: libs
-          - TOXENV: sa12
-          - TOXENV: sa13
 
     steps:
       - uses: actions/checkout@v3
@@ -44,7 +40,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install -U pip
-          python -m pip install -U "tox<4"
+          python -m pip install -U "tox>=4"
 
       - name: Install gmpy2 dependencies
         if: matrix.python-version == '3.11'
@@ -54,5 +50,4 @@ jobs:
 
       - name: Tox tests
         run: |
-          tox
-        env: ${{ matrix.env }}
+          tox run

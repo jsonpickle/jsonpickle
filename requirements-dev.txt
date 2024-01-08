@@ -1,5 +1,5 @@
 bson
-coverage<5
+coverage
 ecdsa
 feedparser
 flake8<5

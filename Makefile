@@ -35,17 +35,9 @@ JOB_COUNT := $(shell printf '%s' "$(JOB_FLAGS)" | sed -e 's/-j//')
 DASH_J := $(shell echo -- $(JOB_FLAGS) -j$(nproc) | grep -o -e '-j[0-9]\+' | head -n 1)
 NUM_JOBS := $(shell printf %s "$(DASH_J)" | sed -e 's/-j//')
 
-TESTCMD ?= $(PYTEST)
+TESTCMD ?= $(PYTEST) -p no:cacheprovier
 BENCHMARKCMD ?= $(BENCHMARK)
-TOXCMD ?= $(TOX)
-TOXCMD += --develop --skip-missing-interpreters
-ifdef multi
-    TOXCMD += --parallel $(NUM_JOBS)
-    TOXCMD += -e
-    TOXCMD += 'clean,py{37,38,39,310},py{38,39,310}-sa{12,13},py{38,39,310}-libs'
-    # Disable coverage when running in parallel
-    TOXCMD += -- --no-cov
-endif
+TOXCMD ?= $(TOX) run-parallel --parallel-live
 ifdef V
     TESTCMD += --verbose
     TOXCMD += -v
@@ -70,7 +62,6 @@ help::
 	@echo "make help           - print this message"
 	@echo "make test           - run unit tests"
 	@echo "make tox            - run unit tests using tox"
-	@echo "make tox multi=1    - run unit tests on multiple pythons using tox"
 	@echo "make clean          - remove cruft"
 	@echo "make benchmark      - run pytest benchmarking"
 	@echo "make doc            - generate documentation using sphinx"

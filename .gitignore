@@ -5,6 +5,7 @@
 /images/benchmark-*.svg
 /.eggs
 /env*
+/htmlcov
 /tags
 /.pytest_cache
 /.tox
