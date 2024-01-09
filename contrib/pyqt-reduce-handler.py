@@ -1,13 +1,13 @@
 """
 This example demonstrates how to add a custom handler to serialize
-Qt's QPointF class jsonpickle using PyQt4.
+Qt's QPointF class jsonpickle using qtpy.
 
 """
 
 import sys
 import unittest
 
-from PyQt4 import QtCore
+from qtpy import QtCore
 
 import jsonpickle
 from jsonpickle import handlers
