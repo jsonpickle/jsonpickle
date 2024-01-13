@@ -5,6 +5,7 @@ v3.0.3
     * Fixed a bug where unpickling a missing class would return a different object
       instead of ``None``. (+471)
     * Fixed the handling of missing classes when setting ``on_missing`` to ``warn`` or ``error``. (+471)
+    * The test suite was made compatible with Python 3.12.
 
 v3.0.2
 ======
