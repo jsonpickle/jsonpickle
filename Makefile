@@ -6,12 +6,11 @@ DATEANDTIME=$(shell date +%Y-%m-%dT%T%z)
 BLACK ?= black
 CTAGS ?= ctags
 FIND ?= find
-PYTHON ?= python
+PYTHON ?= python3
 PYTEST ?= $(PYTHON) -m pytest
 SPHINX ?= $(PYTHON) -m sphinx
 BENCHMARK ?= py.test
 RM_R ?= rm -fr
-SH ?= sh
 TOX ?= tox
 # Detect macOS to customize how we query the cpu count.
 uname_S := $(shell sh -c 'uname -s 2>/dev/null || echo unknown')
@@ -23,7 +22,6 @@ endif
 
 # Options
 flags ?=
-timeout ?= 600
 
 # Default job count -- this is used if "-j" is not present in MAKEFLAGS.
 nproc := $(shell sh -c '$(NPROC) 2>/dev/null || echo 4')
@@ -53,9 +51,6 @@ ifdef V
     TOXCMD += -v
     BENCHMARKCMD += --benchmark-verbose
 endif
-
-# Coverage
-COVERAGE_ENV ?= py310
 
 # Data
 ARTIFACTS := build
