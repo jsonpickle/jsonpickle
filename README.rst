@@ -105,18 +105,6 @@ by registering its handlers::
     >>> import jsonpickle.ext.pandas as jsonpickle_pandas
     >>> jsonpickle_pandas.register_handlers()
 
-jsonpickleJS
-============
-`jsonpickleJS <https://github.com/cuthbertLab/jsonpickleJS>`_
-is a javascript implementation of jsonpickle by Michael Scott Cuthbert.
-jsonpickleJS can be extremely useful for projects that have parallel data
-structures between Python and Javascript.
-
-License
-=======
-Licensed under the BSD License. See COPYING for details.
-See jsonpickleJS/LICENSE for details about the jsonpickleJS license.
-
 Development
 ===========
 
@@ -149,3 +137,15 @@ issues when developing.
 GPG Signing
 ===========
 Releases before v3.0.0 are signed with `davvid's key <https://keys.openpgp.org/vks/v1/by-fingerprint/FA41BF59C1B48E8C5F3DA61C8CE26BF4A9F606B0>`_. v3.0.0 and after are likely signed by `Theelx's key <https://github.com/Theelx.gpg>`_. All upcoming releases should be signed by one of these two keys, usually Theelx's key.
+
+jsonpickleJS
+============
+`jsonpickleJS <https://github.com/cuthbertLab/jsonpickleJS>`_
+is a javascript implementation of jsonpickle by Michael Scott Cuthbert.
+jsonpickleJS can be extremely useful for projects that have parallel data
+structures between Python and Javascript.
+
+License
+=======
+Licensed under the BSD License. See COPYING for details.
+See jsonpickleJS/LICENSE for details about the jsonpickleJS license.
