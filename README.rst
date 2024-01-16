@@ -126,11 +126,9 @@ Use `make` to run the unit tests::
 
 `pytest` is used to run unit tests internally.
 
-A `tox` target is provided to run tests using tox.
-Setting ``multi=1`` tests using all installed and supported Python versions::
+A `tox` target is provided to run tests using all installed and supported Python versions::
 
         make tox
-        make tox multi=1
 
 `jsonpickle` itself has no dependencies beyond the Python stdlib.
 `tox` is required for testing when using the `tox` test runner only.

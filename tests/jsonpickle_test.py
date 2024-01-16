@@ -391,14 +391,12 @@ class PicklingTestCase(unittest.TestCase):
         self.assertEqual(inflated.themodule, None)
 
     def test_thing_with_submodule(self):
-        from distutils import sysconfig
-
         obj = Thing('with-submodule')
-        obj.submodule = sysconfig
+        obj.submodule = collections
 
         flattened = self.pickler.flatten(obj)
         inflated = self.unpickler.restore(flattened)
-        self.assertEqual(inflated.submodule, sysconfig)
+        self.assertEqual(inflated.submodule, collections)
 
     def test_type_reference(self):
         """This test ensures that users can store references to types."""
