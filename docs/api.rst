@@ -37,7 +37,7 @@ Choosing and Loading Backends
 
 jsonpickle allows the user to specify what JSON backend to use
 when encoding and decoding. By default, jsonpickle will try to use, in
-the following order: :mod:`simplejson` and :mod:`json`.
+the following order: ``simplejson`` and :mod:`json`.
 The preferred backend can be set via :func:`jsonpickle.set_preferred_backend`.
 Additional JSON backends can be used via :func:`jsonpickle.load_backend`.
 
