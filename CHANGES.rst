@@ -9,6 +9,8 @@ v3.0.3
     * The test suite was made compatible with Python 3.12.
     * The tox configuration was updated to generate code coverage reports.
     * The suite now uses ``ruff`` to validate python code.
+    * The documentation can now be built offline when ``rst.linker`` and
+      ``jaraco.packaging.sphinx`` are not available.
 
 v3.0.2
 ======

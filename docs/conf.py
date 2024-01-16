@@ -1,6 +1,19 @@
 import os
 import sys
 
+try:
+    import furo
+except ImportError:
+    furo = None
+try:
+    import jaraco.packaging.sphinx as jaraco_packaging_sphinx
+except ImportError:
+    jaraco_packaging_sphinx = None
+try:
+    import rst.linker as rst_linker
+except ImportError:
+    rst_linker = None
+
 # Use the source tree.
 sys.path.insert(1, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -9,14 +22,18 @@ extensions = [
     'sphinx.ext.doctest',
     'sphinx.ext.todo',
     'sphinx.ext.coverage',
-    'jaraco.packaging.sphinx',
 ]
+if jaraco_packaging_sphinx is not None:
+    extensions += ['jaraco.packaging.sphinx']
 
 master_doc = 'index'
-html_theme = 'furo'
+
+if furo is not None:
+    html_theme = 'furo'
 
 # Link dates and other references in the changelog
-extensions += ['rst.linker']
+if rst_linker is not None:
+    extensions += ['rst.linker']
 link_files = {
     '../CHANGES.rst': dict(
         using=dict(GH='https://github.com'),
@@ -44,7 +61,9 @@ link_files = {
 # Be strict about any broken references
 nitpicky = True
 
-extensions += ['sphinx.ext.intersphinx']
+sphinx_disable = os.environ.get('JSONPICKLE_SPHINX_DISABLE', '')
+if 'intersphinx' not in sphinx_disable:
+    extensions += ['sphinx.ext.intersphinx']
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3', None),
     'sphinx': ('https://www.sphinx-doc.org/en/stable/', None),
