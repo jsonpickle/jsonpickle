@@ -499,7 +499,8 @@ class PicklingTestCase(unittest.TestCase):
         encoded = jsonpickle.encode(Outer.Middle.Inner())
         self.assertTrue(isinstance(jsonpickle.decode(encoded), Outer.Middle.Inner))
 
-        # Alter the encoded string to create cases where the class is missing, in multiple levels
+        # Alter the encoded string to create cases where the class is missing
+        # at multiple levels.
         self.assertTrue(
             encoded == '{"py/object": "jsonpickle_test.Outer.Middle.Inner"}'
         )
@@ -984,9 +985,9 @@ class JSONPickleTestCase(SkippableTest):
         self.assertTrue(True)
 
     def test_depth_tracking(self):
-        l = []
+        liszt = []
         pickler = jsonpickle.Pickler()
-        pickler.flatten([l, l, l, l, l])
+        pickler.flatten([liszt, liszt, liszt, liszt, liszt])
         self.assertEqual(pickler._depth, -1)
 
 

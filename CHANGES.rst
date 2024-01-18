@@ -6,7 +6,8 @@ v3.0.3
       instead of ``None``. (+471)
     * Fixed the handling of missing classes when setting ``on_missing`` to ``warn`` or ``error``. (+471)
     * The test suite was made compatible with Python 3.12.
-    * The tox configuration was updated to generated code coverage reports.
+    * The tox configuration was updated to generate code coverage reports.
+    * The suite now uses ``ruff`` to validate python code.
 
 v3.0.2
 ======
