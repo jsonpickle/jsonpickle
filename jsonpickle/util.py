@@ -388,6 +388,15 @@ def is_reducible(obj):
     return True
 
 
+def is_cython_function(obj):
+    """Returns true if the object is a reference to a Cython function"""
+    return (
+        callable(obj)
+        and hasattr(obj, '__repr__')
+        and repr(obj).startswith('<cyfunction ')
+    )
+
+
 def in_dict(obj, key, default=False):
     """
     Returns true if key exists in obj.__dict__; false if not in.

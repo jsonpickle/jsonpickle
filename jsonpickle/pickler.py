@@ -528,6 +528,14 @@ class Pickler(object):
 
         reduce_val = None
 
+        if util.is_cython_function(obj):
+            # Avoid "py/ref" entries for Cython functions. Emitting "py/ref" on
+            # subsequent visitations would throw off the the ref offsets in the
+            # unpickler because it does not record entries for functions.
+            obj_id = id(obj)
+            self._objs.pop(obj_id, None)
+            return self._flatten_function(obj)
+
         if self.include_properties:
             data = self._flatten_properties(obj, data)
 
