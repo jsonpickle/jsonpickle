@@ -301,7 +301,7 @@ def is_module_function(obj):
         and hasattr(obj, '__module__')
         and hasattr(obj, '__name__')
         and obj.__name__ != '<lambda>'
-    )
+    ) or is_cython_function(obj)
 
 
 def is_module(obj):

@@ -775,7 +775,7 @@ class Unpickler(object):
         return self._restore_object_instance(obj, cls, class_name)
 
     def _restore_function(self, obj):
-        return self._mkref(loadclass(obj[tags.FUNCTION], classes=self._classes))
+        return loadclass(obj[tags.FUNCTION], classes=self._classes)
 
     def _restore_set(self, obj):
         return {self._restore(v) for v in obj[tags.SET]}
