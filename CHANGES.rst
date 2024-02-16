@@ -1,5 +1,6 @@
 v3.0.3
 ======
+    * Compatibilty with Pandas and Cython 3.0 was added. (#460) (+477)
     * Fixed a bug where pickling some built-in classes (e.g. zoneinfo) 
       could return a ``None`` module. (#447)
     * Fixed a bug where unpickling a missing class would return a different object
