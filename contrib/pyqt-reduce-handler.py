@@ -3,6 +3,7 @@ This example demonstrates how to add a custom handler to serialize
 Qt's QPointF class jsonpickle using PyQt4.
 
 """
+
 import sys
 import unittest
 

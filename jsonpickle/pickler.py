@@ -798,9 +798,9 @@ class Pickler(object):
             if not self.unpicklable:
                 return self._list_recurse
             return lambda obj: {
-                tags.TUPLE
-                if type(obj) is tuple
-                else tags.SET: [self._flatten(v) for v in obj]
+                tags.TUPLE if type(obj) is tuple else tags.SET: [
+                    self._flatten(v) for v in obj
+                ]
             }
 
         elif util.is_module_function(obj):
