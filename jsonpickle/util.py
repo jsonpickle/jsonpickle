@@ -301,7 +301,7 @@ def is_module_function(obj):
         and hasattr(obj, '__module__')
         and hasattr(obj, '__name__')
         and obj.__name__ != '<lambda>'
-    )
+    ) or is_cython_function(obj)
 
 
 def is_module(obj):
@@ -386,6 +386,15 @@ def is_reducible(obj):
         return False
     # fmt: on
     return True
+
+
+def is_cython_function(obj):
+    """Returns true if the object is a reference to a Cython function"""
+    return (
+        callable(obj)
+        and hasattr(obj, '__repr__')
+        and repr(obj).startswith('<cyfunction ')
+    )
 
 
 def in_dict(obj, key, default=False):

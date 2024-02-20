@@ -803,14 +803,14 @@ class Pickler(object):
                 else tags.SET: [self._flatten(v) for v in obj]
             }
 
+        elif util.is_module_function(obj):
+            return self._flatten_function
+
         elif util.is_object(obj):
             return self._ref_obj_instance
 
         elif util.is_type(obj):
             return _mktyperef
-
-        elif util.is_module_function(obj):
-            return self._flatten_function
 
         # instance methods, lambdas, old style classes...
         self._pickle_warning(obj)
