@@ -179,10 +179,10 @@ class DateTimeSimpleTestCase(unittest.TestCase):
         now = datetime.datetime.now()
 
         SaoPaulo = ZoneInfo('America/Sao_Paulo')
-        USEastern = ZoneInfo('US/Eastern')
+        NewYork = ZoneInfo('America/New_York')
 
         now_sp = now.replace(tzinfo=SaoPaulo)
-        now_us = now.replace(tzinfo=USEastern)
+        now_us = now.replace(tzinfo=NewYork)
 
         self._roundtrip(now_sp)
         self._roundtrip(now_us)

@@ -20,7 +20,7 @@ if sys.version_info >= (3, 9):
             """
             jsonpickle should pickle a zoneinfo object
             """
-            self._roundtrip(ZoneInfo("Australia/Queensland"))
+            self._roundtrip(ZoneInfo("Australia/Brisbane"))
 
     def suite():
         suite = unittest.TestSuite()
