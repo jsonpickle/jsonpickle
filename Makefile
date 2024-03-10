@@ -6,12 +6,11 @@ DATEANDTIME=$(shell date +%Y-%m-%dT%T%z)
 BLACK ?= black
 CTAGS ?= ctags
 FIND ?= find
-PYTHON ?= python
+PYTHON ?= python3
 PYTEST ?= $(PYTHON) -m pytest
 SPHINX ?= $(PYTHON) -m sphinx
 BENCHMARK ?= py.test
 RM_R ?= rm -fr
-SH ?= sh
 TOX ?= tox
 # Detect macOS to customize how we query the cpu count.
 uname_S := $(shell sh -c 'uname -s 2>/dev/null || echo unknown')
@@ -23,7 +22,6 @@ endif
 
 # Options
 flags ?=
-timeout ?= 600
 
 # Default job count -- this is used if "-j" is not present in MAKEFLAGS.
 nproc := $(shell sh -c '$(NPROC) 2>/dev/null || echo 4')
@@ -37,25 +35,14 @@ JOB_COUNT := $(shell printf '%s' "$(JOB_FLAGS)" | sed -e 's/-j//')
 DASH_J := $(shell echo -- $(JOB_FLAGS) -j$(nproc) | grep -o -e '-j[0-9]\+' | head -n 1)
 NUM_JOBS := $(shell printf %s "$(DASH_J)" | sed -e 's/-j//')
 
-TESTCMD ?= $(PYTEST)
+TESTCMD ?= $(PYTEST) -p no:cacheprovier
 BENCHMARKCMD ?= $(BENCHMARK)
-TOXCMD ?= $(TOX)
-TOXCMD += --develop --skip-missing-interpreters
-ifdef multi
-    TOXCMD += --parallel $(NUM_JOBS)
-    TOXCMD += -e
-    TOXCMD += 'clean,py{37,38,39,310},py{38,39,310}-sa{12,13},py{38,39,310}-libs'
-    # Disable coverage when running in parallel
-    TOXCMD += -- --no-cov
-endif
+TOXCMD ?= $(TOX) run-parallel --parallel-live
 ifdef V
     TESTCMD += --verbose
     TOXCMD += -v
     BENCHMARKCMD += --benchmark-verbose
 endif
-
-# Coverage
-COVERAGE_ENV ?= py310
 
 # Data
 ARTIFACTS := build
@@ -75,7 +62,6 @@ help::
 	@echo "make help           - print this message"
 	@echo "make test           - run unit tests"
 	@echo "make tox            - run unit tests using tox"
-	@echo "make tox multi=1    - run unit tests on multiple pythons using tox"
 	@echo "make clean          - remove cruft"
 	@echo "make benchmark      - run pytest benchmarking"
 	@echo "make doc            - generate documentation using sphinx"

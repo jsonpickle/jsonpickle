@@ -5,6 +5,7 @@ http://www.petrounias.org/articles/2014/09/16/pickling-python-collections-with-n
 Includes functionality to assist with adding compatibility to jsonpickle.
 
 """
+
 from __future__ import absolute_import, division, unicode_literals
 
 import collections

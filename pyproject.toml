@@ -1,8 +1,15 @@
 [build-system]
-requires = ["setuptools>=42", "setuptools_scm[toml]>=3.4.1"]
+requires = ["setuptools>=56", "setuptools_scm[toml]>=3.4.1"]
 build-backend = "setuptools.build_meta"
 
 [tool.black]
 skip-string-normalization = true
 
 [tool.setuptools_scm]
+
+[tool.pytest-enabler.ruff]
+addopts = "--ruff"
+
+[tool.ruff.lint]
+# E721 Do not compare types -> jsonpickle compares types using "is" for performance.
+ignore = ["E721"]

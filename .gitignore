@@ -5,10 +5,12 @@
 /images/benchmark-*.svg
 /.eggs
 /env*
+/htmlcov
 /tags
 /.pytest_cache
 /.tox
 /.idea
+/.vscode
 __pycache__
 *.py[cod]
 *.egg-info

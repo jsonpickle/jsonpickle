@@ -62,7 +62,7 @@ def test_nested_array_serialization():
 
     pipe = LogisticRegression(solver="lbfgs")
     pipe.fit(X, y)
-    res = pipe.predict(X)
+    pipe.predict(X)
 
     # Try serializing/deserializing.
     # Pipe is a LogisticRegression object that contains a nested array

@@ -1,3 +1,17 @@
+v3.0.3
+======
+    * Compatibilty with Pandas and Cython 3.0 was added. (#460) (+477)
+    * Fixed a bug where pickling some built-in classes (e.g. zoneinfo) 
+      could return a ``None`` module. (#447)
+    * Fixed a bug where unpickling a missing class would return a different object
+      instead of ``None``. (+471)
+    * Fixed the handling of missing classes when setting ``on_missing`` to ``warn`` or ``error``. (+471)
+    * The test suite was made compatible with Python 3.12.
+    * The tox configuration was updated to generate code coverage reports.
+    * The suite now uses ``ruff`` to validate python code.
+    * The documentation can now be built offline when ``rst.linker`` and
+      ``jaraco.packaging.sphinx`` are not available.
+
 v3.0.2
 ======
     * Properly raise warning if a custom pickling handler returns None. (#433)
@@ -5,6 +19,8 @@ v3.0.2
       the numpy handler was enabled. (#431) (+434)
     * Allow custom backends to not implement _encoder_options (#436) (+446)
     * Implement compatibility with pandas 2 (+446)
+    * Fix encoding/decoding of dictionary subclasses with referencing (+455)
+    * Fix depth tracking for list/dict referencing (+456)
 
 v3.0.1
 ======

@@ -47,9 +47,13 @@ def encode(
         objects to be equal by ``==``, such as when serializing sklearn
         instances. If you experience (de)serialization being incorrect when you
         use numpy, pandas, or sklearn handlers, this should be set to ``False``.
-        If you want the output to not include the dtype for numpy arrays, add
-        ``jsonpickle.register(numpy.generic,
-         UnpicklableNumpyGenericHandler, base=True)`` before your pickling code.
+        If you want the output to not include the dtype for numpy arrays, add::
+
+            jsonpickle.register(
+                numpy.generic, UnpicklableNumpyGenericHandler, base=True
+            )
+
+        before your pickling code.
     :param max_depth: If set to a non-negative integer then jsonpickle will
         not recurse deeper than 'max_depth' steps into the object.  Anything
         deeper than 'max_depth' is represented using a Python repr() of the
@@ -791,7 +795,6 @@ class Pickler(object):
                     self._list_recurse if type(obj) is list else self._flatten_dict_obj
                 )
             else:
-                self._push()
                 return self._getref
 
         # We handle tuples and sets by encoding them in a "(tuple|set)dict"
@@ -799,19 +802,19 @@ class Pickler(object):
             if not self.unpicklable:
                 return self._list_recurse
             return lambda obj: {
-                tags.TUPLE
-                if type(obj) is tuple
-                else tags.SET: [self._flatten(v) for v in obj]
+                tags.TUPLE if type(obj) is tuple else tags.SET: [
+                    self._flatten(v) for v in obj
+                ]
             }
+
+        elif util.is_module_function(obj):
+            return self._flatten_function
 
         elif util.is_object(obj):
             return self._ref_obj_instance
 
         elif util.is_type(obj):
             return _mktyperef
-
-        elif util.is_module_function(obj):
-            return self._flatten_function
 
         # instance methods, lambdas, old style classes...
         self._pickle_warning(obj)

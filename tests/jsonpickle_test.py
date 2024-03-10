@@ -391,14 +391,12 @@ class PicklingTestCase(unittest.TestCase):
         self.assertEqual(inflated.themodule, None)
 
     def test_thing_with_submodule(self):
-        from distutils import sysconfig
-
         obj = Thing('with-submodule')
-        obj.submodule = sysconfig
+        obj.submodule = collections
 
         flattened = self.pickler.flatten(obj)
         inflated = self.unpickler.restore(flattened)
-        self.assertEqual(inflated.submodule, sysconfig)
+        self.assertEqual(inflated.submodule, collections)
 
     def test_type_reference(self):
         """This test ensures that users can store references to types."""
@@ -498,42 +496,47 @@ class PicklingTestCase(unittest.TestCase):
         self.assertTrue(cls is int)
 
     def test_unpickler_on_missing(self):
-        class SimpleClass(object):
-            def __init__(self, i):
-                self.i = i
+        encoded = jsonpickle.encode(Outer.Middle.Inner())
+        self.assertTrue(isinstance(jsonpickle.decode(encoded), Outer.Middle.Inner))
 
-        frozen = jsonpickle.encode(SimpleClass(4))
-        del SimpleClass
+        # Alter the encoded string to create cases where the class is missing
+        # at multiple levels.
+        self.assertTrue(
+            encoded == '{"py/object": "jsonpickle_test.Outer.Middle.Inner"}'
+        )
+        missing_cases = [
+            '{"py/object": "MISSING.Outer.Middle.Inner"}',
+            '{"py/object": "jsonpickle_test.MISSING.Middle.Inner"}',
+            '{"py/object": "jsonpickle_test.Outer.MISSING.Inner"}',
+            '{"py/object": "jsonpickle_test.Outer.Middle.MISSING"}',
+        ]
 
-        # https://docs.python.org/3/library/warnings.html#testing-warnings
+        for case in missing_cases:
+            # https://docs.python.org/3/library/warnings.html#testing-warnings
+            with warnings.catch_warnings(record=True) as w:
+                warnings.simplefilter("always")
+                jsonpickle.decode(case, on_missing='warn')
+                self.assertTrue(issubclass(w[-1].category, UserWarning))
+                self.assertTrue(
+                    "Unpickler._restore_object could not find" in str(w[-1].message)
+                )
 
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            jsonpickle.decode(frozen, on_missing='warn')
-            self.assertTrue(issubclass(w[-1].category, UserWarning))
+                jsonpickle.decode(case, on_missing=on_missing_callback)
+                self.assertTrue(issubclass(w[-1].category, RuntimeWarning))
+                self.assertTrue("The unpickler couldn't find" in str(w[-1].message))
+
             self.assertTrue(
-                "Unpickler._restore_object could not find" in str(w[-1].message)
+                jsonpickle.decode(case, on_missing='ignore')
+                == jsonpickle.backend.json.loads(case)
             )
 
-            jsonpickle.decode(frozen, on_missing=on_missing_callback)
-            self.assertTrue(issubclass(w[-1].category, RuntimeWarning))
-            self.assertTrue("The unpickler couldn't find" in str(w[-1].message))
-
-        self.assertTrue(
-            jsonpickle.decode(frozen, on_missing='ignore')
-            == {
-                'py/object': 'jsonpickle_test.PicklingTestCase.test_unpickler_on_missing.<locals>.SimpleClass',
-                'i': 4,
-            }
-        )
-
-        try:
-            jsonpickle.decode(frozen, on_missing='error')
-        except jsonpickle.errors.ClassNotFoundError:
-            # it's supposed to error
-            self.assertTrue(True)
-        else:
-            self.assertTrue(False)
+            try:
+                jsonpickle.decode(case, on_missing='error')
+            except jsonpickle.errors.ClassNotFoundError:
+                # it's supposed to error
+                self.assertTrue(True)
+            else:
+                self.assertTrue(False)
 
     def test_private_slot_members(self):
         obj = jsonpickle.loads(jsonpickle.dumps(MySlots()))
@@ -980,6 +983,12 @@ class JSONPickleTestCase(SkippableTest):
     def test_v1_decode(self):
         # TODO: Find a simple example that reproduces #364
         self.assertTrue(True)
+
+    def test_depth_tracking(self):
+        liszt = []
+        pickler = jsonpickle.Pickler()
+        pickler.flatten([liszt, liszt, liszt, liszt, liszt])
+        self.assertEqual(pickler._depth, -1)
 
 
 class PicklableNamedTuple(object):

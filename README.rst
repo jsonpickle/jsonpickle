@@ -37,8 +37,6 @@ For complete documentation, please visit the
 Bug reports and merge requests are encouraged at the
 `jsonpickle repository on github <https://github.com/jsonpickle/jsonpickle>`_.
 
-jsonpickle officially supports CPython 2.7 and CPython 3.6 or greater. Version support below CPython 3.7 will be dropped upon release of jsonpickle 3.0.
-
 Why jsonpickle?
 ===============
 Data serialized with python's pickle (or cPickle or dill) is not easily readable outside of python. Using the json format, jsonpickle allows simple data types to be stored in a human-readable format, and more complex data types such as numpy arrays and pandas dataframes, to be machine-readable on any platform that supports json. E.g., unlike pickled data, jsonpickled data stored in an Amazon S3 bucket is indexible by Amazon's Athena.
@@ -107,18 +105,6 @@ by registering its handlers::
     >>> import jsonpickle.ext.pandas as jsonpickle_pandas
     >>> jsonpickle_pandas.register_handlers()
 
-jsonpickleJS
-============
-`jsonpickleJS <https://github.com/cuthbertLab/jsonpickleJS>`_
-is a javascript implementation of jsonpickle by Michael Scott Cuthbert.
-jsonpickleJS can be extremely useful for projects that have parallel data
-structures between Python and Javascript.
-
-License
-=======
-Licensed under the BSD License. See COPYING for details.
-See jsonpickleJS/LICENSE for details about the jsonpickleJS license.
-
 Development
 ===========
 
@@ -128,11 +114,9 @@ Use `make` to run the unit tests::
 
 `pytest` is used to run unit tests internally.
 
-A `tox` target is provided to run tests using tox.
-Setting ``multi=1`` tests using all installed and supported Python versions::
+A `tox` target is provided to run tests using all installed and supported Python versions::
 
         make tox
-        make tox multi=1
 
 `jsonpickle` itself has no dependencies beyond the Python stdlib.
 `tox` is required for testing when using the `tox` test runner only.
@@ -153,3 +137,15 @@ issues when developing.
 GPG Signing
 ===========
 Releases before v3.0.0 are signed with `davvid's key <https://keys.openpgp.org/vks/v1/by-fingerprint/FA41BF59C1B48E8C5F3DA61C8CE26BF4A9F606B0>`_. v3.0.0 and after are likely signed by `Theelx's key <https://github.com/Theelx.gpg>`_. All upcoming releases should be signed by one of these two keys, usually Theelx's key.
+
+jsonpickleJS
+============
+`jsonpickleJS <https://github.com/cuthbertLab/jsonpickleJS>`_
+is a javascript implementation of jsonpickle by Michael Scott Cuthbert.
+jsonpickleJS can be extremely useful for projects that have parallel data
+structures between Python and Javascript.
+
+License
+=======
+Licensed under the BSD License. See COPYING for details.
+See jsonpickleJS/LICENSE for details about the jsonpickleJS license.

@@ -7,6 +7,7 @@ A handler can be bound to other types by calling
 :func:`jsonpickle.handlers.register`.
 
 """
+
 from __future__ import absolute_import, division, unicode_literals
 
 import array
@@ -162,7 +163,6 @@ ArrayHandler.handles(array.array)
 
 
 class DatetimeHandler(BaseHandler):
-
     """Custom handler for datetime objects
 
     Datetime objects use __reduce__, and they generate binary strings encoding

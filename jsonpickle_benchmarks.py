@@ -6,6 +6,7 @@ To test the pip installed version, run this outside the jsonpickle directory:
 py.test --benchmark-only --benchmark-histogram=./jsonpickle/images/benchmark-$(date +%Y-%m-%dT%T%z) ./jsonpickle/jsonpickle_benchmarks.py
 MAKE SURE you have pytest-benchmark pip installed.
 """
+
 import itertools
 
 import jsonpickle

@@ -12,8 +12,6 @@ complex data structures to be serialized to JSON. jsonpickle is highly
 configurable and extendable--allowing the user to choose the JSON backend
 and add additional backends.
 
-.. contents::
-
 jsonpickle Usage
 ================
 
