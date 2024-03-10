@@ -136,7 +136,7 @@ issues when developing.
 
 GPG Signing
 ===========
-Unfortunately, while versions of jsonpickle before 3.0.1 should still be signed, GPG signing support was [removed from PyPi]((https://blog.pypi.org/posts/2023-05-23-removing-pgp/)) back in May 2023.
+Unfortunately, while versions of jsonpickle before 3.0.1 should still be signed, GPG signing support was removed from PyPi (https://blog.pypi.org/posts/2023-05-23-removing-pgp/) back in May 2023.
 
 jsonpickleJS
 ============
