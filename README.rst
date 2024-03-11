@@ -136,7 +136,7 @@ issues when developing.
 
 GPG Signing
 ===========
-Releases before v3.0.0 are signed with `davvid's key <https://keys.openpgp.org/vks/v1/by-fingerprint/FA41BF59C1B48E8C5F3DA61C8CE26BF4A9F606B0>`_. v3.0.0 and after are likely signed by `Theelx's key <https://github.com/Theelx.gpg>`_. All upcoming releases should be signed by one of these two keys, usually Theelx's key.
+Unfortunately, while versions of jsonpickle before 3.0.1 should still be signed, GPG signing support was removed from PyPi (https://blog.pypi.org/posts/2023-05-23-removing-pgp/) back in May 2023.
 
 jsonpickleJS
 ============
