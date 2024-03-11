@@ -1,3 +1,8 @@
+v3.0.4
+======
+    * Fixed an issue with django.SafeString and other classes inheriting from
+      str having read-only attribute errors (#478) (+481)
+
 v3.0.3
 ======
     * Compatibilty with Pandas and Cython 3.0 was added. (#460) (+477)
@@ -5,7 +10,8 @@ v3.0.3
       could return a ``None`` module. (#447)
     * Fixed a bug where unpickling a missing class would return a different object
       instead of ``None``. (+471)
-    * Fixed the handling of missing classes when setting ``on_missing`` to ``warn`` or ``error``. (+471)
+    * Fixed the handling of missing classes when setting ``on_missing`` to ``warn``
+      or ``error``. (+471)
     * The test suite was made compatible with Python 3.12.
     * The tox configuration was updated to generate code coverage reports.
     * The suite now uses ``ruff`` to validate python code.
