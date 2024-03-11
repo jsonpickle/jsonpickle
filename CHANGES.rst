@@ -1,3 +1,8 @@
+v3.0.4
+======
+    * Fixed an issue with django.SafeString and other classes inheriting from
+      str having read-only attribute errors (#478) (+481)
+
 v3.0.3
 ======
     * Compatibilty with Pandas and Cython 3.0 was added. (#460) (+477)
@@ -12,8 +17,6 @@ v3.0.3
     * The suite now uses ``ruff`` to validate python code.
     * The documentation can now be built offline when ``rst.linker`` and
       ``jaraco.packaging.sphinx`` are not available.
-    * Fixed an issue with django.SafeString and other classes inheriting from
-      str having read-only attribute errors (#478) (+481)
 
 v3.0.2
 ======
