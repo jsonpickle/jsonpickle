@@ -35,7 +35,7 @@ JOB_COUNT := $(shell printf '%s' "$(JOB_FLAGS)" | sed -e 's/-j//')
 DASH_J := $(shell echo -- $(JOB_FLAGS) -j$(nproc) | grep -o -e '-j[0-9]\+' | head -n 1)
 NUM_JOBS := $(shell printf %s "$(DASH_J)" | sed -e 's/-j//')
 
-TESTCMD ?= $(PYTEST) -p no:cacheprovier
+TESTCMD ?= $(PYTEST)
 BENCHMARKCMD ?= $(BENCHMARK)
 TOXCMD ?= $(TOX) run-parallel --parallel-live
 ifdef V
@@ -68,7 +68,7 @@ help::
 .PHONY: help
 
 test::
-	$(TESTCMD) $(flags)
+	$(TESTCMD) jsonpickle tests $(flags)
 .PHONY: test
 
 tox::
