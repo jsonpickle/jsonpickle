@@ -431,7 +431,12 @@ class Pickler(object):
         """Flatten a key/value pair into the passed-in dictionary."""
         if not util.is_picklable(k, v):
             return data
-        if self.handle_readonly and k in {attr for attr, val in inspect.getmembers_static(self._original_object)} and util.is_readonly(self._original_object, k, v):
+        if (
+            self.handle_readonly
+            and k
+            in {attr for attr, val in inspect.getmembers_static(self._original_object)}
+            and util.is_readonly(self._original_object, k, v)
+        ):
             return data
 
         if k is None:
