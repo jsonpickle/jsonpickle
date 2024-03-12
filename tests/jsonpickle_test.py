@@ -163,6 +163,13 @@ class MyPropertiesDict:
             and list(self.other_object) == list(other.other_object)
         )
 
+# see issue #478
+class SafeData:
+    __slots__ = ()
+
+class SafeString(str, SafeData):
+    __slots__ = ()
+
 
 def on_missing_callback(class_name):
     # not actually a runtime problem but it doesn't matter
@@ -989,7 +996,16 @@ class JSONPickleTestCase(SkippableTest):
         pickler = jsonpickle.Pickler()
         pickler.flatten([liszt, liszt, liszt, liszt, liszt])
         self.assertEqual(pickler._depth, -1)
-
+    
+    def test_readonly_attrs(self):
+        s = SafeString("test")
+        pickled = jsonpickle.encode(s, handle_readonly=True)
+        pickled_json_dict = jsonpickle.backend.json.loads(pickled)
+        # make sure it's giving concise output by erroring if it includes
+        # a default method which is unnecessary
+        self.assertTrue("join" not in pickled_json_dict)
+        unpickled = jsonpickle.decode(pickled)
+        self.assertEqual(unpickled.__class__, SafeString)
 
 class PicklableNamedTuple(object):
     """
