@@ -402,10 +402,10 @@ def is_readonly(obj, attr, value):
     try:
         setattr(obj, attr, value)
         return False
-    except AttributeError as e:
+    except AttributeError:
         # this is okay, it means the attribute couldn't be set
         return True
-    except TypeError as e:
+    except TypeError:
         # this should only be happening when obj is a dict
         # as these errors happen when attr isn't a str
         return True
