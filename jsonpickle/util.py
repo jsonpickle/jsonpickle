@@ -397,6 +397,20 @@ def is_cython_function(obj):
     )
 
 
+def is_readonly(obj, attr, value):
+    # CPython 3.11+ has 0-cost try/except, please use up-to-date versions!
+    try:
+        setattr(obj, attr, value)
+        return False
+    except AttributeError as e:
+        # this is okay, it means the attribute couldn't be set
+        return True
+    except TypeError as e:
+        # this should only be happening when obj is a dict
+        # as these errors happen when attr isn't a str
+        return True
+
+
 def in_dict(obj, key, default=False):
     """
     Returns true if key exists in obj.__dict__; false if not in.

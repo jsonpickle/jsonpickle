@@ -25,6 +25,7 @@ def decode(
     classes=None,
     v1_decode=False,
     on_missing="ignore",
+    handle_readonly=False,
 ):
     """Convert a JSON string into a Python object.
 
@@ -61,6 +62,11 @@ def decode(
     non-awaitable function, it will call said callback function with the class
     name (a string) as the only parameter. Strings passed to on_missing are
     lowercased automatically.
+    
+    The keyword argument 'handle_readonly' defaults to False.
+    If set to True, the Unpickler will handle objects encoded with
+    'handle_readonly' properly. Do not set this flag for objects not encoded
+    with 'handle_readonly' set to True.
 
 
     >>> decode('"my string"') == 'my string'
@@ -83,6 +89,7 @@ def decode(
         safe=safe,
         v1_decode=v1_decode,
         on_missing=on_missing,
+        handle_readonly=handle_readonly,
     )
     data = backend.decode(string)
     return context.restore(data, reset=reset, classes=classes)
@@ -296,13 +303,14 @@ def has_tag_dict(obj, tag):
 
 class Unpickler(object):
     def __init__(
-        self, backend=None, keys=False, safe=False, v1_decode=False, on_missing="ignore"
+        self, backend=None, keys=False, safe=False, v1_decode=False, on_missing="ignore", handle_readonly=False,
     ):
         self.backend = backend or json
         self.keys = keys
         self.safe = safe
         self.v1_decode = v1_decode
         self.on_missing = on_missing
+        self.handle_readonly = handle_readonly
 
         self.reset()
 
@@ -630,7 +638,10 @@ class Unpickler(object):
                         if (
                             hasattr(instance, "__slots__")
                             and not len(instance.__slots__)
-                            and issubclass(instance.__class__, (int, str))
+                            and issubclass(instance.__class__, int)
+                            and self.handle_readonly
+                            # we have to handle this separately because of +483
+                            and issubclass(instance.__class__, str)
                         ):
                             continue
                         raise e

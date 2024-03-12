@@ -36,6 +36,7 @@ def encode(
     indent=None,
     separators=None,
     include_properties=False,
+    handle_readonly=False,
 ):
     """Return a JSON formatted representation of value, a Python object.
 
@@ -118,6 +119,11 @@ def encode(
         meant to be used if processing the json outside of Python. Certain types
         such as sets will not pickle due to not having a native-json equivalent.
         Defaults to ``False``.
+    :param handle_readonly:
+        Handle objects with readonly methods, such as Django's SafeString. This
+        basically prevents jsonpickle from raising an exception for such objects.
+        You MUST set ``handle_readonly=True`` for the decoding if you encode with
+        this flag set to ``True``.
 
     >>> encode('my string') == '"my string"'
     True
@@ -143,6 +149,8 @@ def encode(
         use_base85=use_base85,
         fail_safe=fail_safe,
         include_properties=include_properties,
+        handle_readonly=handle_readonly,
+        original_object=value,
     )
     return backend.encode(
         context.flatten(value, reset=reset), indent=indent, separators=separators
@@ -190,6 +198,8 @@ class Pickler(object):
         use_base85=False,
         fail_safe=None,
         include_properties=False,
+        handle_readonly=False,
+        original_object=None,
     ):
         self.unpicklable = unpicklable
         self.make_refs = make_refs
@@ -212,6 +222,8 @@ class Pickler(object):
         self._use_decimal = use_decimal
         # A cache of objects that have already been flattened.
         self._flattened = {}
+        # Used for util.is_readonly, see +483
+        self.handle_readonly = handle_readonly
 
         if self.use_base85:
             self._bytes_tag = tags.B85
@@ -223,6 +235,8 @@ class Pickler(object):
         # ignore exceptions
         self.fail_safe = fail_safe
         self.include_properties = include_properties
+
+        self._original_object = original_object
 
     def _determine_sort_keys(self):
         for _, options in getattr(self.backend, '_encoder_options', {}).values():
@@ -416,6 +430,8 @@ class Pickler(object):
     def _flatten_key_value_pair(self, k, v, data):
         """Flatten a key/value pair into the passed-in dictionary."""
         if not util.is_picklable(k, v):
+            return data
+        if self.handle_readonly and k in {attr for attr, val in inspect.getmembers_static(self._original_object)} and util.is_readonly(self._original_object, k, v):
             return data
 
         if k is None:
