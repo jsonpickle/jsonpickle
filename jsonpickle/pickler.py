@@ -431,7 +431,12 @@ class Pickler(object):
         """Flatten a key/value pair into the passed-in dictionary."""
         if not util.is_picklable(k, v):
             return data
-        if self.handle_readonly and k in {attr for attr, val in inspect.getmembers_static(self._original_object)} and util.is_readonly(self._original_object, k, v):
+        # TODO: use inspect.getmembers_static on 3.11+ because it avoids dynamic attribute lookups
+        if (
+            self.handle_readonly
+            and k in {attr for attr, val in inspect.getmembers(self._original_object)}
+            and util.is_readonly(self._original_object, k, v)
+        ):
             return data
 
         if k is None:
@@ -818,9 +823,9 @@ class Pickler(object):
             if not self.unpicklable:
                 return self._list_recurse
             return lambda obj: {
-                tags.TUPLE if type(obj) is tuple else tags.SET: [
-                    self._flatten(v) for v in obj
-                ]
+                tags.TUPLE
+                if type(obj) is tuple
+                else tags.SET: [self._flatten(v) for v in obj]
             }
 
         elif util.is_module_function(obj):

@@ -62,7 +62,7 @@ def decode(
     non-awaitable function, it will call said callback function with the class
     name (a string) as the only parameter. Strings passed to on_missing are
     lowercased automatically.
-    
+
     The keyword argument 'handle_readonly' defaults to False.
     If set to True, the Unpickler will handle objects encoded with
     'handle_readonly' properly. Do not set this flag for objects not encoded
@@ -303,7 +303,13 @@ def has_tag_dict(obj, tag):
 
 class Unpickler(object):
     def __init__(
-        self, backend=None, keys=False, safe=False, v1_decode=False, on_missing="ignore", handle_readonly=False,
+        self,
+        backend=None,
+        keys=False,
+        safe=False,
+        v1_decode=False,
+        on_missing="ignore",
+        handle_readonly=False,
     ):
         self.backend = backend or json
         self.keys = keys
