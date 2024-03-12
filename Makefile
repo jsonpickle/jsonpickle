@@ -68,7 +68,7 @@ help::
 .PHONY: help
 
 test::
-	$(TESTCMD) $(flags)
+	$(TESTCMD) jsonpickle tests $(flags)
 .PHONY: test
 
 tox::
