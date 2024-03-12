@@ -2,8 +2,7 @@ v3.0.4
 ======
     * Fixed an issue with django.SafeString and other classes inheriting from
       str having read-only attribute errors (#478) (+481)
-    * `pytest-ruff` was pinned to the `0.2.x` versions to defer a breaking
-      change in `ruff>=0.3.0`.
+    * The test suite was made compatible with `pytest-ruff>=0.3.0`. (+482)
 
 v3.0.3
 ======
