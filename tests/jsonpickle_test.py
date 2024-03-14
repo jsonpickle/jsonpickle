@@ -1008,6 +1008,7 @@ class JSONPickleTestCase(SkippableTest):
         self.assertTrue("join" not in pickled_json_dict)
         unpickled = jsonpickle.decode(pickled)
         self.assertEqual(unpickled.__class__, SafeString)
+        self.assertEqual(unpickled, s)
 
 
 class PicklableNamedTuple(object):
