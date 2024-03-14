@@ -203,13 +203,13 @@ class PicklingTestCase(unittest.TestCase):
         self.assertEqual({tags.B64: encoded}, self.pickler.flatten(data))
 
     def test_decode_base85(self):
-        pickled = {tags.B85: 'P{Y4;Xv4O{u^=-c'}
-        expected = u'P\u00ffth\u00f6\u00f1 3!'.encode('utf-8')
+        expected = 'Pÿthöñ 3!'.encode('utf-8')
+        pickled = {tags.B85: util.b85encode(expected)}
         self.assertEqual(expected, self.unpickler.restore(pickled))
 
     def test_base85_still_handles_base64(self):
-        pickled = {tags.B64: 'UMO/dGjDtsOxIDMh'}
-        expected = u'P\u00ffth\u00f6\u00f1 3!'.encode('utf-8')
+        expected = 'Pÿthöñ 3!'.encode('utf-8')
+        pickled = {tags.B64: util.b64encode(expected)}
         self.assertEqual(expected, self.unpickler.restore(pickled))
 
     def test_string(self):
