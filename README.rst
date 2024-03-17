@@ -21,7 +21,7 @@
 jsonpickle
 ==========
 jsonpickle is a library for the two-way conversion of complex Python objects
-and `JSON <http://json.org/>`_.  jsonpickle builds upon the existing JSON
+and `JSON <http://json.org/>`_.  jsonpickle builds upon existing JSON
 encoders, such as simplejson, json, and ujson.
 
 .. warning::
@@ -81,9 +81,9 @@ Install from github for the latest changes:
 
 Numpy/Pandas Support
 =============
-jsonpickle includes built-in numpy and pandas extensions.  If would like to
-encode sklearn models, numpy arrays, pandas DataFrames, and other
-numpy/pandas-based data then you must enable the numpy and/or pandas
+jsonpickle includes built-in numpy and pandas extensions.  If you would
+like to encode sklearn models, numpy arrays, pandas DataFrames, and other
+numpy/pandas-based data, then you must enable the numpy and/or pandas
 extensions by registering their handlers::
 
     >>> import jsonpickle.ext.numpy as jsonpickle_numpy
