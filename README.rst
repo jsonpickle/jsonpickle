@@ -87,22 +87,16 @@ If you have the files checked out for development:
     python setup.py develop
 
 
-Numpy Support
+Numpy/Pandas Support
 =============
-jsonpickle includes a built-in numpy extension.  If would like to encode
-sklearn models, numpy arrays, and other numpy-based data then you must
-enable the numpy extension by registering its handlers::
+jsonpickle includes built-in numpy and pandas extensions.  If would like to
+encode sklearn models, numpy arrays, pandas DataFrames, and other
+numpy/pandas-based data then you must enable the numpy and/or pandas
+extensions by registering their handlers::
 
     >>> import jsonpickle.ext.numpy as jsonpickle_numpy
-    >>> jsonpickle_numpy.register_handlers()
-
-Pandas Support
-==============
-jsonpickle includes a built-in pandas extension.  If would like to encode
-pandas DataFrame or Series objects then you must enable the pandas extension
-by registering its handlers::
-
     >>> import jsonpickle.ext.pandas as jsonpickle_pandas
+    >>> jsonpickle_numpy.register_handlers()
     >>> jsonpickle_pandas.register_handlers()
 
 Development
