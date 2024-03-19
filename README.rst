@@ -21,7 +21,7 @@
 jsonpickle
 ==========
 jsonpickle is a library for the two-way conversion of complex Python objects
-and `JSON <http://json.org/>`_.  jsonpickle builds upon the existing JSON
+and `JSON <http://json.org/>`_.  jsonpickle builds upon existing JSON
 encoders, such as simplejson, json, and ujson.
 
 .. warning::
@@ -78,31 +78,17 @@ Install from github for the latest changes:
 
     pip install git+https://github.com/jsonpickle/jsonpickle.git
 
-If you have the files checked out for development:
 
-::
-
-    git clone https://github.com/jsonpickle/jsonpickle.git
-    cd jsonpickle
-    python setup.py develop
-
-
-Numpy Support
+Numpy/Pandas Support
 =============
-jsonpickle includes a built-in numpy extension.  If would like to encode
-sklearn models, numpy arrays, and other numpy-based data then you must
-enable the numpy extension by registering its handlers::
+jsonpickle includes built-in numpy and pandas extensions.  If you would
+like to encode sklearn models, numpy arrays, pandas DataFrames, and other
+numpy/pandas-based data, then you must enable the numpy and/or pandas
+extensions by registering their handlers::
 
     >>> import jsonpickle.ext.numpy as jsonpickle_numpy
-    >>> jsonpickle_numpy.register_handlers()
-
-Pandas Support
-==============
-jsonpickle includes a built-in pandas extension.  If would like to encode
-pandas DataFrame or Series objects then you must enable the pandas extension
-by registering its handlers::
-
     >>> import jsonpickle.ext.pandas as jsonpickle_pandas
+    >>> jsonpickle_numpy.register_handlers()
     >>> jsonpickle_pandas.register_handlers()
 
 Development
@@ -138,14 +124,6 @@ GPG Signing
 ===========
 Unfortunately, while versions of jsonpickle before 3.0.1 should still be signed, GPG signing support was removed from PyPi (https://blog.pypi.org/posts/2023-05-23-removing-pgp/) back in May 2023.
 
-jsonpickleJS
-============
-`jsonpickleJS <https://github.com/cuthbertLab/jsonpickleJS>`_
-is a javascript implementation of jsonpickle by Michael Scott Cuthbert.
-jsonpickleJS can be extremely useful for projects that have parallel data
-structures between Python and Javascript.
-
 License
 =======
 Licensed under the BSD License. See COPYING for details.
-See jsonpickleJS/LICENSE for details about the jsonpickleJS license.
