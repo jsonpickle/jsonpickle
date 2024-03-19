@@ -29,44 +29,37 @@ def decode(
 ):
     """Convert a JSON string into a Python object.
 
-    The keyword argument 'keys' defaults to False.
-    If set to True then jsonpickle will decode non-string dictionary keys
-    into python objects via the jsonpickle protocol.
+    :param backend: If set to an instance of jsonpickle.backend.JSONBackend, jsonpickle
+        will use that backend for deserialization.
 
-    The keyword argument 'classes' defaults to None.
-    If set to a single class, or a sequence (list, set, tuple) of classes,
-    then the classes will be made available when constructing objects.
-    If set to a dictionary of class names to class objects, the class object
-    will be provided to jsonpickle to deserialize the class name into.
-    This can be used to give jsonpickle access to local classes that are not
-    available through the global module import scope, and the dict method can
-    be used to deserialize encoded objects into a new class.
+    :param keys: If set to True then jsonpickle will decode non-string dictionary keys
+        into python objects via the jsonpickle protocol.
 
-    The keyword argument 'safe' defaults to False.
-    If set to True, eval() is avoided, but backwards-compatible
-    (pre-0.7.0) deserialization of repr-serialized objects is disabled.
+    :param safe: If set to True, eval() is avoided, but backwards-compatible
+        (pre-0.7.0) deserialization of repr-serialized objects is disabled.
 
-    The keyword argument 'backend' defaults to None.
-    If set to an instance of jsonpickle.backend.JSONBackend, jsonpickle
-    will use that backend for deserialization.
+    :param classes: If set to a single class, or a sequence (list, set, tuple) of classes,
+        then the classes will be made available when constructing objects.
+        If set to a dictionary of class names to class objects, the class object
+        will be provided to jsonpickle to deserialize the class name into.
+        This can be used to give jsonpickle access to local classes that are not
+        available through the global module import scope, and the dict method can
+        be used to deserialize encoded objects into a new class.
 
-    The keyword argument 'v1_decode' defaults to False.
-    If set to True it enables you to decode objects serialized in jsonpickle v1.
-    Please do not attempt to re-encode the objects in the v1 format! Version 2's
-    format fixes issue #255, and allows dictionary identity to be preserved
-    through an encode/decode cycle.
+    :param v1_decode: If set to True it enables you to decode objects serialized in jsonpickle v1.
+        Please do not attempt to re-encode the objects in the v1 format! Version 2's
+        format fixes issue #255, and allows dictionary identity to be preserved
+        through an encode/decode cycle.
 
-    The keyword argument 'on_missing' defaults to 'ignore'.
-    If set to 'error', it will raise an error if the class it's decoding is not
-    found. If set to 'warn', it will warn you in said case. If set to a
-    non-awaitable function, it will call said callback function with the class
-    name (a string) as the only parameter. Strings passed to on_missing are
-    lowercased automatically.
+    :param on_missing: If set to 'error', it will raise an error if the class it's decoding is not
+        found. If set to 'warn', it will warn you in said case. If set to a
+        non-awaitable function, it will call said callback function with the class
+        name (a string) as the only parameter. Strings passed to on_missing are
+        lowercased automatically.
 
-    The keyword argument 'handle_readonly' defaults to False.
-    If set to True, the Unpickler will handle objects encoded with
-    'handle_readonly' properly. Do not set this flag for objects not encoded
-    with 'handle_readonly' set to True.
+    :param handle_readonly: If set to True, the Unpickler will handle objects encoded with
+        'handle_readonly' properly. Do not set this flag for objects not encoded
+        with 'handle_readonly' set to True.
 
 
     >>> decode('"my string"') == 'my string'
