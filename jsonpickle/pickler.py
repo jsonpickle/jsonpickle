@@ -55,10 +55,6 @@ def encode(
             )
 
         before your pickling code.
-    :param max_depth: If set to a non-negative integer then jsonpickle will
-        not recurse deeper than 'max_depth' steps into the object.  Anything
-        deeper than 'max_depth' is represented using a Python repr() of the
-        object.
     :param make_refs: If set to False jsonpickle's referencing support is
         disabled.  Objects that are id()-identical won't be preserved across
         encode()/decode(), but the resulting JSON stream will be conceptually
@@ -68,12 +64,12 @@ def encode(
         dictionary keys instead of coercing them into strings via `repr()`.
         This is typically what you want if you need to support Integer or
         objects as dictionary keys.
-    :param numeric_keys: Only use this option if the backend supports integer
-        dict keys natively.  This flag tells jsonpickle to leave numeric keys
-        as-is rather than conforming them to json-friendly strings.
-        Using ``keys=True`` is the typical solution for integer keys, so only
-        use this if you have a specific use case where you want to allow the
-        backend to handle serialization of numeric dict keys.
+    :param max_depth: If set to a non-negative integer then jsonpickle will
+        not recurse deeper than 'max_depth' steps into the object.  Anything
+        deeper than 'max_depth' is represented using a Python repr() of the
+        object.
+    :param backend: If set to an instance of jsonpickle.backend.JSONBackend,
+        jsonpickle will use that backend for deserialization.
     :param warn: If set to True then jsonpickle will warn when it
         returns None for an object which it cannot pickle
         (e.g. file descriptors).
@@ -92,6 +88,12 @@ def encode(
 
         NOTE: A side-effect of the above settings is that float values will be
         converted to Decimal when converting to json.
+    :param numeric_keys: Only use this option if the backend supports integer
+        dict keys natively.  This flag tells jsonpickle to leave numeric keys
+        as-is rather than conforming them to json-friendly strings.
+        Using ``keys=True`` is the typical solution for integer keys, so only
+        use this if you have a specific use case where you want to allow the
+        backend to handle serialization of numeric dict keys.
     :param use_base85:
         If possible, use base85 to encode binary data. Base85 bloats binary data
         by 1/4 as opposed to base64, which expands it by 1/3. This argument is
