@@ -1,0 +1,31 @@
+# Use "cargo install garden-tools" to install garden https://gitlab.com/garden-rs/garden
+#
+#   # Usage
+#   garden doc                  # Build the jsonpickle.github.io documentation
+trees:
+    jsonpickle:
+        description: Two-way conversion of complex Python objects into JSON.
+        path: ${GARDEN_CONFIG_DIR}
+        url: git@github.com:jsonpickle/jsonpickle.git
+        remotes:
+            Theelx: git@github.com:Theelx/jsonpickle.git
+            davvid: git@github.com:davvid/jsonpickle.git
+        commands:
+            bench: |
+                python3 -m pytest \
+                    --benchmark-verbose \
+                    --benchmark-only \
+                    --benchmark-histogram=./images/benchmark-${timestamp} \
+                    ./jsonpickle_benchmarks.py
+            doc: |
+                test -d pages || garden grow pages
+                python3 -m sphinx docs pages
+            fmt: black --skip-string-normalization --target-version py310 jsonpickle tests
+            test: python3 -m pytest ${GARDEN_CMD_VERBOSE} jsonpickle tests "$@"
+            tox: tox run-parallel --parallel-live "$@" ${GARDEN_CMD_VERBOSE}
+    pages:
+        description: The jsonpickle.github.io website.
+        url: git@github.com:jsonpickle/jsonpickle.github.io.git
+
+variables:
+    timestamp: $ date +%Y-%m-%dT%T%z

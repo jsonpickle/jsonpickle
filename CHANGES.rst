@@ -3,6 +3,8 @@ v3.0.4
     * Fixed an issue with django.SafeString and other classes inheriting from
       str having read-only attribute errors (#478) (+481)
     * The test suite was made compatible with `pytest-ruff>=0.3.0`. (+482)
+    * A `garden.yaml` file was added for use with the
+      `garden <https://crates.io/crates/garden-tools>_` command runner. (+486)
 
 v3.0.3
 ======

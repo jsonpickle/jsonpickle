@@ -7,6 +7,7 @@
 /env*
 /htmlcov
 /tags
+/pages
 /.pytest_cache
 /.tox
 /.idea
