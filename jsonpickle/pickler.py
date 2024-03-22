@@ -68,11 +68,21 @@ def encode(
         not recurse deeper than 'max_depth' steps into the object.  Anything
         deeper than 'max_depth' is represented using a Python repr() of the
         object.
+    :param reset: Custom pickle handlers that use the `Pickler.flatten` method or
+        `jsonpickle.encode` function must call `encode` with `reset=False`
+        in order to retain object references during pickling.
+        This flag is not typically used outside of a custom handler or
+        `__getstate__` implementation.
     :param backend: If set to an instance of jsonpickle.backend.JSONBackend,
         jsonpickle will use that backend for deserialization.
     :param warn: If set to True then jsonpickle will warn when it
         returns None for an object which it cannot pickle
         (e.g. file descriptors).
+    :param context: Supply a pre-built Pickler or Unpickler object to the
+        `jsonpickle.encode` and `jsonpickle.decode` machinery instead
+        of creating a new instance. The `context` represents the currently
+        active Pickler and Unpickler objects when custom handlers are
+        invoked by jsonpickle.
     :param max_iter: If set to a non-negative integer then jsonpickle will
         consume at most `max_iter` items when pickling iterators.
     :param use_decimal: If set to True jsonpickle will allow Decimal

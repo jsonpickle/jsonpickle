@@ -32,8 +32,20 @@ def decode(
     :param backend: If set to an instance of jsonpickle.backend.JSONBackend, jsonpickle
         will use that backend for deserialization.
 
+    :param context: Supply a pre-built Pickler or Unpickler object to the
+        `jsonpickle.encode` and `jsonpickle.decode` machinery instead
+        of creating a new instance. The `context` represents the currently
+        active Pickler and Unpickler objects when custom handlers are
+        invoked by jsonpickle.
+
     :param keys: If set to True then jsonpickle will decode non-string dictionary keys
         into python objects via the jsonpickle protocol.
+
+    :param reset: Custom pickle handlers that use the `Pickler.flatten` method or
+        `jsonpickle.encode` function must call `encode` with `reset=False`
+        in order to retain object references during pickling.
+        This flag is not typically used outside of a custom handler or
+        `__getstate__` implementation.
 
     :param safe: If set to True, eval() is avoided, but backwards-compatible
         (pre-0.7.0) deserialization of repr-serialized objects is disabled.
