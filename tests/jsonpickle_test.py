@@ -51,6 +51,9 @@ class Capture:
         self.args = args
         self.kwargs = kwargs
 
+    def __repr__(self):
+        return object.__repr__(self) + ('(%r, %r)' % (self.args, self.kwargs))
+
 
 class ThingWithProps:
     def _get_identity(self):
