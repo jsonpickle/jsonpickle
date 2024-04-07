@@ -162,10 +162,12 @@ class _IDProxy(_Proxy):
 
 
 def _obj_setattr(obj, attr, proxy):
+    """Use setattr to update a proxy entry"""
     setattr(obj, attr, proxy.get())
 
 
 def _obj_setvalue(obj, idx, proxy):
+    """Use obj[key] assignments to update a proxy entry"""
     obj[idx] = proxy.get()
 
 
@@ -312,7 +314,7 @@ class Unpickler(object):
         keys=False,
         safe=False,
         v1_decode=False,
-        on_missing="ignore",
+        on_missing='ignore',
         handle_readonly=False,
     ):
         self.backend = backend or json
@@ -718,7 +720,7 @@ class Unpickler(object):
 
         return instance
 
-    def _restore_object_instance(self, obj, cls, class_name=""):
+    def _restore_object_instance(self, obj, cls, class_name=''):
         # This is a placeholder proxy object which allows child objects to
         # reference the parent object before it has been instantiated.
         proxy = _Proxy()
@@ -853,6 +855,7 @@ class Unpickler(object):
         return tuple([self._restore(v) for v in obj[tags.TUPLE]])
 
     def _restore_tags(self, obj):
+        """Return the restoration function for the specified object"""
         try:
             if not tags.RESERVED <= set(obj) and type(obj) not in (list, dict):
 

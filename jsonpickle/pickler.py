@@ -318,9 +318,11 @@ class Pickler(object):
         return pretend_new or is_new
 
     def _getref(self, obj):
+        """Return a "py/id" entry for the specified object"""
         return {tags.ID: self._objs.get(id(obj))}
 
     def _flatten(self, obj):
+        """Flatten an object and its guts into a json-safe representation"""
         if self.unpicklable and self.make_refs:
             result = self._flatten_impl(obj)
         else:
@@ -490,7 +492,7 @@ class Pickler(object):
 
         # i don't like lambdas
         def valid_property(x):
-            return not x[0].startswith("__") and x[0] not in allslots_set
+            return not x[0].startswith('__') and x[0] not in allslots_set
 
         properties = [
             x[0] for x in inspect.getmembers(obj.__class__) if valid_property(x)
