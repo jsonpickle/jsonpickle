@@ -742,7 +742,7 @@ class Unpickler(object):
 
         is_oldstyle = not (isinstance(cls, type) or getattr(cls, '__meta__', None))
         try:
-            if (not is_oldstyle) and hasattr(cls, '__new__'):
+            if not is_oldstyle and hasattr(cls, '__new__'):
                 # new style classes
                 if factory:
                     instance = cls.__new__(cls, factory, *args, **kwargs)
