@@ -645,7 +645,9 @@ class Pickler(object):
                 data[tags.OBJECT] = class_name
 
             if has_getnewargs_ex:
-                data[tags.NEWARGSEX] = list(map(self._flatten, obj.__getnewargs_ex__()))
+                data[tags.NEWARGSEX] = [
+                    self._flatten(arg) for arg in obj.__getnewargs_ex__()
+                ]
 
             if has_getnewargs and not has_getnewargs_ex:
                 data[tags.NEWARGS] = self._flatten(obj.__getnewargs__())
