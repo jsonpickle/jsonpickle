@@ -5,6 +5,7 @@ v3.0.4
     * The test suite was made compatible with `pytest-ruff>=0.3.0`. (+482)
     * A `garden.yaml` file was added for use with the
       `garden <https://crates.io/crates/garden-tools>_` command runner. (+486)
+    * The test suite was updated to avoid deprecated SQLALchemy APIs.
 
 v3.0.3
 ======
