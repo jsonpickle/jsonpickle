@@ -429,7 +429,7 @@ class Unpickler(object):
     def _mkref(self, obj):
         obj_id = id(obj)
         try:
-            self._obj_to_idx[obj_id]
+            _ = self._obj_to_idx[obj_id]
         except KeyError:
             self._obj_to_idx[obj_id] = len(self._objs)
             self._objs.append(obj)
