@@ -8,6 +8,7 @@ import jsonpickle
 
 try:
     import sqlalchemy as sqa
+    from sqlalchemy import orm
     from sqlalchemy.ext import declarative
     from sqlalchemy.orm import Session
 
@@ -16,7 +17,12 @@ except ImportError:
     HAS_SQA = False
 
 if HAS_SQA:
-    Base = declarative.declarative_base()
+    # sqlalchemy.ext.declarative.declarative_base() was deprecated in SQLAlchemy 2.0
+    # and replaced by sqlalchemy.orm.declarative_base().
+    if hasattr(orm, 'declarative_base'):
+        Base = orm.declarative_base()
+    else:
+        Base = declarative.declarative_base()
 
     class Table(Base):
         __tablename__ = 'table'
