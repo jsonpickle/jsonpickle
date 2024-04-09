@@ -8,8 +8,6 @@ A handler can be bound to other types by calling
 
 """
 
-from __future__ import absolute_import, division, unicode_literals
-
 import array
 import copy
 import datetime

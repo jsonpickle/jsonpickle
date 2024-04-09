@@ -4,9 +4,6 @@
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
-
-from __future__ import absolute_import, division, unicode_literals
-
 import doctest
 import io
 import time

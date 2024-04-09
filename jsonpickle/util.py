@@ -8,8 +8,6 @@
 """Helper functions for pickling and unpickling.  Most functions assist in
 determining the type of an object.
 """
-from __future__ import absolute_import, division, unicode_literals
-
 import base64
 import collections
 import inspect

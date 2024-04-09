@@ -6,8 +6,6 @@ Includes functionality to assist with adding compatibility to jsonpickle.
 
 """
 
-from __future__ import absolute_import, division, unicode_literals
-
 import collections
 import unittest
 

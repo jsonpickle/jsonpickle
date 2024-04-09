@@ -67,8 +67,6 @@ added to JSON::
    that contain non-string dictionary keys.
 
 """
-from __future__ import absolute_import, division, unicode_literals
-
 # Export other names not in __all__
 from .backend import JSONBackend  # noqa: F401
 from .backend import json
