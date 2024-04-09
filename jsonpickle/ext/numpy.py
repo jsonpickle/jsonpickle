@@ -342,10 +342,25 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
         return arr
 
 
-def register_handlers():
+def register_handlers(
+    ndarray_mode='warn',
+    ndarray_size_threshold=16,
+    ndarray_compression=zlib,
+):
+    """Register handlers for numpy types
+
+    :param ndarray_abc_xyz: Forward constructor arguments to NumpyNDArrayHandlerView.
+        Options with an 'ndarray_' prefix correspond to the same-named
+        NumpyNDArrayHandlerView constructor options, sans the 'ndarray_' prefix.
+    """
+    ndarray_handler = NumpyNDArrayHandlerView(
+        mode=ndarray_mode,
+        size_threshold=ndarray_size_threshold,
+        compression=ndarray_compression,
+    )
+    register(np.ndarray, ndarray_handler, base=True)
     register(np.dtype, NumpyDTypeHandler, base=True)
     register(np.generic, NumpyGenericHandler, base=True)
-    register(np.ndarray, NumpyNDArrayHandlerView(), base=True)
     # Numpy 1.20 has custom dtypes that must be registered separately.
     register(np.dtype(np.void).__class__, NumpyDTypeHandler, base=True)
     register(np.dtype(np.float32).__class__, NumpyDTypeHandler, base=True)
@@ -354,6 +369,7 @@ def register_handlers():
 
 
 def unregister_handlers():
+    """Remove numpy handlers from the handler registry"""
     unregister(np.dtype)
     unregister(np.generic)
     unregister(np.ndarray)
