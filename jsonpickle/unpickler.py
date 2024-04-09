@@ -1,11 +1,10 @@
 # Copyright (C) 2008 John Paulett (john -at- paulett.org)
-# Copyright (C) 2009-2018 David Aguilar (davvid -at- gmail.com)
+# Copyright (C) 2009-2024 David Aguilar (davvid -at- gmail.com)
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 from __future__ import absolute_import, division, unicode_literals
-
 import dataclasses
 import sys
 import warnings
@@ -163,10 +162,12 @@ class _IDProxy(_Proxy):
 
 
 def _obj_setattr(obj, attr, proxy):
+    """Use setattr to update a proxy entry"""
     setattr(obj, attr, proxy.get())
 
 
 def _obj_setvalue(obj, idx, proxy):
+    """Use obj[key] assignments to update a proxy entry"""
     obj[idx] = proxy.get()
 
 
@@ -313,7 +314,7 @@ class Unpickler(object):
         keys=False,
         safe=False,
         v1_decode=False,
-        on_missing="ignore",
+        on_missing='ignore',
         handle_readonly=False,
     ):
         self.backend = backend or json
@@ -428,7 +429,7 @@ class Unpickler(object):
     def _mkref(self, obj):
         obj_id = id(obj)
         try:
-            self._obj_to_idx[obj_id]
+            _ = self._obj_to_idx[obj_id]
         except KeyError:
             self._obj_to_idx[obj_id] = len(self._objs)
             self._objs.append(obj)
@@ -719,7 +720,7 @@ class Unpickler(object):
 
         return instance
 
-    def _restore_object_instance(self, obj, cls, class_name=""):
+    def _restore_object_instance(self, obj, cls, class_name=''):
         # This is a placeholder proxy object which allows child objects to
         # reference the parent object before it has been instantiated.
         proxy = _Proxy()
@@ -741,7 +742,7 @@ class Unpickler(object):
 
         is_oldstyle = not (isinstance(cls, type) or getattr(cls, '__meta__', None))
         try:
-            if (not is_oldstyle) and hasattr(cls, '__new__'):
+            if not is_oldstyle and hasattr(cls, '__new__'):
                 # new style classes
                 if factory:
                     instance = cls.__new__(cls, factory, *args, **kwargs)
@@ -854,6 +855,7 @@ class Unpickler(object):
         return tuple([self._restore(v) for v in obj[tags.TUPLE]])
 
     def _restore_tags(self, obj):
+        """Return the restoration function for the specified object"""
         try:
             if not tags.RESERVED <= set(obj) and type(obj) not in (list, dict):
 

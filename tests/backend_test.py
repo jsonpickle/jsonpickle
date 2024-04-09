@@ -54,7 +54,7 @@ class BackendBase(SkippableTest):
         # always reset to default backend
         jsonpickle.set_preferred_backend('json')
 
-    def assertEncodeDecode(self, json_input):
+    def assert_roundtrip(self, json_input):
         expect = SAMPLE_DATA
         actual = jsonpickle.decode(json_input)
         self.assertEqual(expect['things'][0].name, actual['things'][0].name)
@@ -95,7 +95,7 @@ class JsonTestCase(BackendBase):
             '"child": null} '
             ']}'
         )
-        self.assertEncodeDecode(expected_pickled)
+        self.assert_roundtrip(expected_pickled)
 
 
 class SimpleJsonTestCase(BackendBase):
@@ -110,7 +110,7 @@ class SimpleJsonTestCase(BackendBase):
             '"child": null}'
             ']}'
         )
-        self.assertEncodeDecode(expected_pickled)
+        self.assert_roundtrip(expected_pickled)
 
     def test_decimal(self):
         # Default behavior: Decimal is preserved
@@ -170,7 +170,7 @@ class UJsonTestCase(BackendBase):
             '"name":"data","child":null}'
             ']}'
         )
-        self.assertEncodeDecode(expected_pickled)
+        self.assert_roundtrip(expected_pickled)
 
 
 def suite():

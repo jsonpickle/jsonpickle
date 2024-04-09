@@ -1,23 +1,23 @@
 # Copyright (C) 2008 John Paulett (john -at- paulett.org)
-# Copyright (C) 2009-2021 David Aguilar (davvid -at- gmail.com)
+# Copyright (C) 2009-2024 David Aguilar (davvid -at- gmail.com)
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 from __future__ import absolute_import, division, unicode_literals
-
 import collections
 import os
 import unittest
 import warnings
 
 import pytest
-from helper import SkippableTest
 
 import jsonpickle
 import jsonpickle.backend
 import jsonpickle.handlers
 from jsonpickle import compat, tags, util
+
+from helper import SkippableTest
 
 
 class ListLike:
@@ -50,6 +50,9 @@ class Capture:
     def __init__(self, *args, **kwargs):
         self.args = args
         self.kwargs = kwargs
+
+    def __repr__(self):
+        return object.__repr__(self) + ('(%r, %r)' % (self.args, self.kwargs))
 
 
 class ThingWithProps:

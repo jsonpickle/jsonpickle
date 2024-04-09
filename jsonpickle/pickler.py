@@ -1,11 +1,10 @@
 # Copyright (C) 2008 John Paulett (john -at- paulett.org)
-# Copyright (C) 2009-2018 David Aguilar (davvid -at- gmail.com)
+# Copyright (C) 2009-2024 David Aguilar (davvid -at- gmail.com)
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 from __future__ import absolute_import, division, unicode_literals
-
 import decimal
 import inspect
 import itertools
@@ -319,9 +318,11 @@ class Pickler(object):
         return pretend_new or is_new
 
     def _getref(self, obj):
+        """Return a "py/id" entry for the specified object"""
         return {tags.ID: self._objs.get(id(obj))}
 
     def _flatten(self, obj):
+        """Flatten an object and its guts into a json-safe representation"""
         if self.unpicklable and self.make_refs:
             result = self._flatten_impl(obj)
         else:
@@ -491,7 +492,7 @@ class Pickler(object):
 
         # i don't like lambdas
         def valid_property(x):
-            return not x[0].startswith("__") and x[0] not in allslots_set
+            return not x[0].startswith('__') and x[0] not in allslots_set
 
         properties = [
             x[0] for x in inspect.getmembers(obj.__class__) if valid_property(x)
@@ -644,7 +645,9 @@ class Pickler(object):
                 data[tags.OBJECT] = class_name
 
             if has_getnewargs_ex:
-                data[tags.NEWARGSEX] = list(map(self._flatten, obj.__getnewargs_ex__()))
+                data[tags.NEWARGSEX] = [
+                    self._flatten(arg) for arg in obj.__getnewargs_ex__()
+                ]
 
             if has_getnewargs and not has_getnewargs_ex:
                 data[tags.NEWARGS] = self._flatten(obj.__getnewargs__())
