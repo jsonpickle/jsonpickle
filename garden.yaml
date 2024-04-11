@@ -31,15 +31,25 @@ trees:
         find . -type d -name __pycache__ -print0 | xargs -0 rm -fr
       doc: |
         test -d pages || garden grow pages
-        python3 -m sphinx docs pages
+        ${activate} python3 -m sphinx docs pages
       fmt: |
+        ${activate}
         black --skip-string-normalization --target-version py37 "$@" jsonpickle tests
         isort --profile=black "$@" jsonpickle tests
-      test: python3 -m pytest ${GARDEN_CMD_VERBOSE} "$@" jsonpickle tests
+      setup: |
+        python3 -m venv env3
+        garden ${GARDEN_CMD_VERBOSE} setup/dev
+      setup/dev: ${activate} pip install --editable '.[dev,docs]'
+      setup/packaging: ${activate} pip install --editable '.[packaging]'
+      test: ${activate} python3 -m pytest ${GARDEN_CMD_VERBOSE} "$@" jsonpickle tests
       tox: tox run-parallel --parallel-live "$@" ${GARDEN_CMD_VERBOSE}
   pages:
     description: The jsonpickle.github.io website.
     url: git@github.com:jsonpickle/jsonpickle.github.io.git
 
 variables:
+  activate: |
+    test -n "$VIRTUAL_ENV" ||
+    test ! -d env3 ||
+    source env3/bin/activate
   timestamp: $ date +%Y-%m-%dT%T%z
