@@ -107,14 +107,14 @@ A `tox` target is provided to run tests using all installed and supported Python
 `jsonpickle` itself has no dependencies beyond the Python stdlib.
 `tox` is required for testing when using the `tox` test runner only.
 
-The testing requirements are specified in `requirements-dev.txt`.
+The testing requirements are specified in `setup.cfg`.
 It is recommended to create a virtualenv and run tests from within the
 virtualenv, or use a tool such as `vx <https://github.com/davvid/vx/>`_
 to activate the virtualenv without polluting the shell environment::
 
-        python3 -mvenv env3x
-        vx env3x pip install --requirement requirements-dev.txt
-        vx env3x make test
+        python3 -mvenv env3
+        vx env3 pip install --editable '.[dev]'
+        vx env3 make test
 
 `jsonpickle` supports multiple Python versions, so using a combination of
 multiple virtualenvs and `tox` is useful in order to catch compatibility
