@@ -346,7 +346,7 @@ v0.7.1
 ======
 
     * Added support for Python 3.4.
-    * Added support for :class:`posix.stat_result`.
+    * Added support for `posix.stat_result`.
 
 v0.7.0
 ======
@@ -375,7 +375,7 @@ v0.6.0
 
     * Python 3 support!
     * :class:`time.struct_time` is now serialized using the built-in
-      :class:`jsonpickle.handlers.SimpleReduceHandler`.
+      `jsonpickle.handlers.SimpleReduceHandler`.
 
 v0.5.0
 ======
