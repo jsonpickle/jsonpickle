@@ -43,6 +43,12 @@ trees:
       setup/packaging: ${activate} pip install --editable '.[packaging]'
       test: ${activate} python3 -m pytest ${GARDEN_CMD_VERBOSE} "$@" jsonpickle tests
       tox: tox run-parallel --parallel-live "$@" ${GARDEN_CMD_VERBOSE}
+      wheel: |
+        ${activate}
+        python3 -m build -n .
+      publish: |
+        ${activate}
+        twine upload dist/*.whl dist/*.tar.gz
   pages:
     description: The jsonpickle.github.io website.
     url: git@github.com:jsonpickle/jsonpickle.github.io.git
