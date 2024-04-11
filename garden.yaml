@@ -21,13 +21,18 @@ trees:
           --benchmark-only \
           --benchmark-histogram=./images/benchmark-${timestamp} \
           ./jsonpickle_benchmarks.py
+      check>:
+        - test
+        - check/fmt
+        - doc
+      check/fmt: garden ${GARDEN_CMD_VERBOSE} fmt -- --check
       doc: |
         test -d pages || garden grow pages
         python3 -m sphinx docs pages
       fmt: |
-        black --skip-string-normalization --target-version py37 jsonpickle tests
-        isort --profile=black jsonpickle tests
-      test: python3 -m pytest ${GARDEN_CMD_VERBOSE} jsonpickle tests "$@"
+        black --skip-string-normalization --target-version py37 "$@" jsonpickle tests
+        isort --profile=black "$@" jsonpickle tests
+      test: python3 -m pytest ${GARDEN_CMD_VERBOSE} "$@" jsonpickle tests
       tox: tox run-parallel --parallel-live "$@" ${GARDEN_CMD_VERBOSE}
   pages:
     description: The jsonpickle.github.io website.
