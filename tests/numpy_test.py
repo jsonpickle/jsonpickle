@@ -19,7 +19,7 @@ from jsonpickle import handlers
 @pytest.fixture(scope='module', autouse=True)
 def numpy_extension():
     """Initialize the numpy extension for this test module"""
-    jsonpickle.ext.numpy.register_handlers()
+    jsonpickle.ext.numpy.register_handlers(ndarray_mode='warn')
     yield  # control to the test function.
     jsonpickle.ext.numpy.unregister_handlers()
 

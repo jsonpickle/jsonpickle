@@ -1,3 +1,8 @@
+v3.1.0
+======
+    * `jsonpickle.ext.numpy.register_handlers` now provides options that are forwarded
+      to the `NumpyNDArrayHandler` constructor. (+489)
+
 v3.0.4
 ======
     * Fixed an issue with django.SafeString and other classes inheriting from
