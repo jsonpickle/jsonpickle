@@ -6,6 +6,7 @@ v3.0.4
     * A `garden.yaml` file was added for use with the
       `garden <https://crates.io/crates/garden-tools>_` command runner. (+486)
     * The test suite was updated to avoid deprecated SQLALchemy APIs.
+    * The `jaraco.packaging.sphinx` documentation dependency was removed.
 
 v3.0.3
 ======

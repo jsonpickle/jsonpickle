@@ -6,10 +6,6 @@ try:
 except ImportError:
     furo = None
 try:
-    import jaraco.packaging.sphinx as jaraco_packaging_sphinx
-except ImportError:
-    jaraco_packaging_sphinx = None
-try:
     import rst.linker as rst_linker
 except ImportError:
     rst_linker = None
@@ -23,9 +19,8 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.coverage',
 ]
-if jaraco_packaging_sphinx is not None:
-    extensions += ['jaraco.packaging.sphinx']
 
+project = 'jsonpickle'
 master_doc = 'index'
 
 if furo is not None:
@@ -34,17 +29,19 @@ if furo is not None:
 # Link dates and other references in the changelog
 if rst_linker is not None:
     extensions += ['rst.linker']
+
+package_url = 'https://github.com/jsonpickle/jsonpickle'
 link_files = {
     '../CHANGES.rst': dict(
         using=dict(GH='https://github.com'),
         replace=[
             dict(
                 pattern=r'(Issue #|\B#)(?P<issue>\d+)',
-                url='{package_url}/issues/{issue}',
+                url=package_url + '/issues/{issue}',
             ),
             dict(
                 pattern=r'\B\+(?P<pull>\d+)',
-                url='{package_url}/pull/{pull}',
+                url=package_url + '/pull/{pull}',
             ),
             dict(
                 pattern=r'(?m:^((?P<scm_version>v?\d+(\.\d+){1,2}))\n[-=]+\n)',
