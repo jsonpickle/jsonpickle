@@ -8,6 +8,11 @@ import dataclasses
 import sys
 import warnings
 
+try:
+    import mutuple
+except ImportError:
+    mutuple = None
+
 from . import compat, errors, handlers, tags, util
 from .backend import json
 from .compat import numeric_types
@@ -168,6 +173,11 @@ def _obj_setattr(obj, attr, proxy):
 def _obj_setvalue(obj, idx, proxy):
     """Use obj[key] assignments to update a proxy entry"""
     obj[idx] = proxy.get()
+
+
+def _mutuple_setitem(obj, idx, proxy):
+    """Use mutuple.setitem to update a proxy entry in a tuple"""
+    mutuple.setitme(obj, idx, proxy.get())
 
 
 def loadclass(module_and_name, classes=None):
@@ -436,6 +446,26 @@ class Unpickler(object):
             # produced "py/ref" references.
             self._namedict[self._refname()] = obj
         return obj
+
+    def _restore_tuple(self, obj):
+        """Restore serialized "py/tuple" instances"""
+        if mutuple is None:
+            return tuple([self._restore(v) for v in obj[tags.TUPLE]])
+        # Tuples must be pre-allocated in order to edit them using mutuple.setitem.
+        result = tuple([object() for _ in obj[tags.TUPLE]])
+        self._mkref(result)
+        setitem = mutuple.setitem
+        for idx, item in enumerate(obj[tags.TUPLE]):
+            setitem(result, idx, self._restore(item))
+        method = _mutuple_setitem
+        self._proxies.extend(
+            [
+                (result, idx, value, method)
+                for idx, value in enumerate(result)
+                if isinstance(value, _Proxy)
+            ]
+        )
+        return result
 
     def _restore_list(self, obj):
         parent = []
@@ -849,9 +879,6 @@ class Unpickler(object):
                 data[k] = self._restore(v)
                 self._namestack.pop()
         return data
-
-    def _restore_tuple(self, obj):
-        return tuple([self._restore(v) for v in obj[tags.TUPLE]])
 
     def _restore_tags(self, obj):
         """Return the restoration function for the specified object"""

@@ -12,6 +12,10 @@ import warnings
 import pytest
 from helper import SkippableTest
 
+try:
+    import mutuple
+except ImportError:
+    mutuple = None
 import jsonpickle
 import jsonpickle.backend
 import jsonpickle.handlers
@@ -644,6 +648,22 @@ class JSONPickleTestCase(SkippableTest):
         actual = jsonpickle.decode(pickle)
         self.assertTrue(uni in actual)
         self.assertEqual(actual[uni], uni)
+
+    def test_tuple_references(self):
+        """Test that we can handle tuples with cyclical references"""
+        item = Capture(None)
+        container = (item, item)
+        item.args = container
+
+        pickle = jsonpickle.encode(container)
+        actual = jsonpickle.decode(pickle)
+        assert actual[0].args == actual[1].args
+        # Bonus points: installing "mutuple" allows jsonpickle to reconstruct references
+        # pointing back to the root container tuple.
+        if mutuple is None:
+            assert actual is not actual[0].args
+        else:
+            assert actual is actual[0].args
 
     def test_tuple_dict_keys_default(self):
         """Test that we handle dictionaries with tuples as keys."""

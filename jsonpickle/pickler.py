@@ -11,6 +11,11 @@ import sys
 import warnings
 from itertools import chain, islice
 
+try:
+    import mutuple
+except ImportError:
+    mutuple = None
+
 from . import compat, handlers, tags, util
 from .backend import json
 from .compat import numeric_types, string_types
@@ -299,11 +304,13 @@ class Pickler(object):
         Return True if this object is new and was assigned
         a new ID. Otherwise return False.
         """
-        objid = id(obj)
-        is_new = objid not in self._objs
-        if is_new:
-            new_id = len(self._objs)
-            self._objs[objid] = new_id
+        obj_id = id(obj)
+        try:
+            _ = self._objs[obj_id]
+            is_new = False
+        except KeyError:
+            self._objs[obj_id] = len(self._objs)
+            is_new = True
         return is_new
 
     def _mkref(self, obj):
@@ -649,7 +656,7 @@ class Pickler(object):
                 ]
 
             if has_getnewargs and not has_getnewargs_ex:
-                data[tags.NEWARGS] = self._flatten(obj.__getnewargs__())
+                data[tags.NEWARGS] = self._flatten(list(obj.__getnewargs__()))
 
             if has_getinitargs:
                 data[tags.INITARGS] = self._flatten(obj.__getinitargs__())
@@ -832,15 +839,22 @@ class Pickler(object):
             else:
                 return self._getref
 
-        # We handle tuples and sets by encoding them in a "(tuple|set)dict"
-        elif type(obj) in (tuple, set):
+        elif type(obj) is tuple:
             if not self.unpicklable:
                 return self._list_recurse
-            return lambda obj: {
-                tags.TUPLE if type(obj) is tuple else tags.SET: [
-                    self._flatten(v) for v in obj
-                ]
-            }
+            if mutuple is None:
+                return self._flatten_tuple
+            # References to outer-most tuples requires "mutuple".
+            if self._mkref(obj):
+                return self._flatten_tuple
+            else:
+                return self._getref
+
+        # We handle tuples and sets by encoding them in a "(tuple|set)dict"
+        elif type(obj) is set:
+            if not self.unpicklable:
+                return self._list_recurse
+            return self._flatten_set
 
         elif util.is_module_function(obj):
             return self._flatten_function
@@ -865,3 +879,11 @@ class Pickler(object):
         else:
             return value
         return data
+
+    def _flatten_set(self, obj):
+        """Flatten a set object using the "py/set" tag"""
+        return {tags.SET: [self._flatten(value) for value in obj]}
+
+    def _flatten_tuple(self, obj):
+        """Flatten a tuple object using the "py/tuple" tag"""
+        return {tags.TUPLE: [self._flatten(value) for value in obj]}
