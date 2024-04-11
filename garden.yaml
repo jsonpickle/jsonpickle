@@ -26,6 +26,9 @@ trees:
         - check/fmt
         - doc
       check/fmt: garden ${GARDEN_CMD_VERBOSE} fmt -- --check
+      clean: |
+        rm -fr build dist jsonpickle.egg-info
+        find . -type d -name __pycache__ -print0 | xargs -0 rm -fr
       doc: |
         test -d pages || garden grow pages
         python3 -m sphinx docs pages
