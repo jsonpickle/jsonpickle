@@ -20,6 +20,7 @@
 
 jsonpickle
 ==========
+
 jsonpickle is a library for the two-way conversion of complex Python objects
 and `JSON <http://json.org/>`_.  jsonpickle builds upon existing JSON
 encoders, such as simplejson, json, and ujson.
@@ -39,6 +40,7 @@ Bug reports and merge requests are encouraged at the
 
 Why jsonpickle?
 ===============
+
 Data serialized with python's pickle (or cPickle or dill) is not easily readable outside of python. Using the json format, jsonpickle allows simple data types to be stored in a human-readable format, and more complex data types such as numpy arrays and pandas dataframes, to be machine-readable on any platform that supports json. E.g., unlike pickled data, jsonpickled data stored in an Amazon S3 bucket is indexible by Amazon's Athena.
 
 Security
@@ -80,7 +82,8 @@ Install from github for the latest changes:
 
 
 Numpy/Pandas Support
-=============
+====================
+
 jsonpickle includes built-in numpy and pandas extensions.  If you would
 like to encode sklearn models, numpy arrays, pandas DataFrames, and other
 numpy/pandas-based data, then you must enable the numpy and/or pandas
@@ -90,6 +93,7 @@ extensions by registering their handlers::
     >>> import jsonpickle.ext.pandas as jsonpickle_pandas
     >>> jsonpickle_numpy.register_handlers()
     >>> jsonpickle_pandas.register_handlers()
+
 
 Development
 ===========
@@ -122,8 +126,10 @@ issues when developing.
 
 GPG Signing
 ===========
+
 Unfortunately, while versions of jsonpickle before 3.0.1 should still be signed, GPG signing support was removed from PyPi (https://blog.pypi.org/posts/2023-05-23-removing-pgp/) back in May 2023.
 
 License
 =======
+
 Licensed under the BSD License. See COPYING for details.
