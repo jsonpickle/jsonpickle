@@ -120,6 +120,10 @@ to activate the virtualenv without polluting the shell environment::
         vx env3 pip install --editable '.[dev]'
         vx env3 make test
 
+If you can't use a venv, you can install the testing packages as follows::
+
+        pip install .[testing]
+
 `jsonpickle` supports multiple Python versions, so using a combination of
 multiple virtualenvs and `tox` is useful in order to catch compatibility
 issues when developing.
