@@ -113,8 +113,15 @@ A `tox` target is provided to run tests using all installed and supported Python
 
 The testing requirements are specified in `setup.cfg`.
 It is recommended to create a virtualenv and run tests from within the
-virtualenv, or use a tool such as `vx <https://github.com/davvid/vx/>`_
-to activate the virtualenv without polluting the shell environment::
+virtualenv.::
+
+        python3 -mvenv env3
+        source env3/bin/activate
+        pip install --editable '.[dev]'
+        make test
+
+You can also use a tool such as `vx <https://github.com/davvid/vx/>`_
+to activate the virtualenv without polluting your shell environment::
 
         python3 -mvenv env3
         vx env3 pip install --editable '.[dev]'
