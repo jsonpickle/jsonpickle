@@ -2,6 +2,9 @@ v3.1.0
 ======
     * `jsonpickle.ext.numpy.register_handlers` now provides options that are forwarded
       to the `NumpyNDArrayHandler` constructor. (+489)
+    * Fix bug of not handling ``classes`` argument to `jsonpickle.decode`
+      being a dict. Previously, the keys were ignored and only values were
+      used. (+494)
 
 v3.0.4
 ======
