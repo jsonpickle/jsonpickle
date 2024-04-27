@@ -59,6 +59,7 @@ trees:
       jaraco: "git@github.com:jaraco/jsonpickle.git"
       marcintustin: "git@github.com:marcintustin/jsonpickle.git"
       paulocheque: "git@github.com:paulocheque/jsonpickle.git"
+      Squadrick: "git@github.com:Squadrick/jsonpickle.git"
       synapticarbors: "git@github.com:synapticarbors/jsonpickle.git"
       Theelx: "git@github.com:Theelx/jsonpickle.git"
   pages:
