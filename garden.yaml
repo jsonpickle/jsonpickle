@@ -11,9 +11,6 @@ trees:
     description: Two-way conversion of complex Python objects into JSON.
     path: "${GARDEN_CONFIG_DIR}"
     url: "git@github.com:jsonpickle/jsonpickle.git"
-    remotes:
-      Theelx: git@github.com:Theelx/jsonpickle.git
-      davvid: git@github.com:davvid/jsonpickle.git
     commands:
       bench: |
         python3 -m pytest \
@@ -49,6 +46,17 @@ trees:
       publish: |
         ${activate}
         twine upload dist/*.whl dist/*.tar.gz
+    remotes:
+      aldanor: "git@github.com:aldanor/jsonpickle.git"
+      davvid: "git@github.com:davvid/jsonpickle.git"
+      eoghanmurray: "git@github.com:eoghanmurray/jsonpickle.git"
+      hartwork: "git@github.com:hartwork/jsonpickle.git"
+      hroncok: "git@github.com:hroncok/jsonpickle.git"
+      jaraco: "git@github.com:jaraco/jsonpickle.git"
+      marcintustin: "git@github.com:marcintustin/jsonpickle.git"
+      paulocheque: "git@github.com:paulocheque/jsonpickle.git"
+      synapticarbors: "git@github.com:synapticarbors/jsonpickle.git"
+      Theelx: "git@github.com:Theelx/jsonpickle.git"
   pages:
     description: The jsonpickle.github.io website.
     url: "git@github.com:jsonpickle/jsonpickle.github.io.git"
