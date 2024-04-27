@@ -577,6 +577,16 @@ class PicklingTestCase(unittest.TestCase):
         self.assertIsInstance(decoded, MyPropertiesDict)
         self.assertEqual(obj, decoded)
 
+    def test_classes_dict(self):
+        # reuse MyPropertiesSlots because it has a nice eq method
+        obj = MyPropertiesSlots()
+        encoded = jsonpickle.encode(obj)
+        # MyPropertiesSlots and MyPropertiesDict have compatible eq methods
+        decoded = jsonpickle.decode(encoded, classes={MyPropertiesSlots: MyPropertiesDict})
+        self.assertIsInstance(decoded, MyPropertiesDict)
+        self.assertEqual(obj, decoded)
+
+
     def test_warnings(self):
         data = os.fdopen(os.pipe()[0])
         with warnings.catch_warnings(record=True) as w:

@@ -5,6 +5,9 @@ v3.1.0
     * Fix bug of not handling ``classes`` argument to `jsonpickle.decode`
       being a dict. Previously, the keys were ignored and only values were
       used. (+494)
+    * Allow the ``classes`` argument to `jsonpickle.pickle` to have class
+      objects as keys. This extends the current functionality of only having
+      class name strings as keys. (+TODO)
 
 v3.0.4
 ======
