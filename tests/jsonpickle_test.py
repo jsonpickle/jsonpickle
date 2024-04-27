@@ -36,7 +36,7 @@ class Thing:
 
     def __iter__(self):
         for attr in [
-            x for x in getattr(self.__class__, "__dict__") if not x.startswith("__")
+            x for x in getattr(self.__class__, '__dict__') if not x.startswith('__')
         ]:
             yield attr, getattr(self, attr)
 
@@ -112,7 +112,7 @@ class Outer:
 
 
 class MySlots:
-    __slots__ = ("alpha", "__beta")
+    __slots__ = ('alpha', '__beta')
 
     def __init__(self):
         self.alpha = 1
@@ -120,7 +120,7 @@ class MySlots:
 
 
 class MyPropertiesSlots:
-    __slots__ = ("alpha", "arr")
+    __slots__ = ('alpha', 'arr')
 
     def __init__(self):
         self.alpha = 1
@@ -132,7 +132,7 @@ class MyPropertiesSlots:
 
     @property
     def other_object(self):
-        return Thing("Test")
+        return Thing('Test')
 
     def __eq__(self, other):
         return (
@@ -154,7 +154,7 @@ class MyPropertiesDict:
 
     @property
     def other_object(self):
-        return Thing("Test")
+        return Thing('Test')
 
     def __eq__(self, other):
         return (
@@ -176,7 +176,7 @@ class SafeString(str, SafeData):
 
 def on_missing_callback(class_name):
     # not actually a runtime problem but it doesn't matter
-    warnings.warn("The unpickler couldn't find %s" % class_name, RuntimeWarning)
+    warnings.warn('The unpickler could not find %s' % class_name, RuntimeWarning)
 
 
 class PicklingTestCase(unittest.TestCase):
@@ -528,12 +528,12 @@ class PicklingTestCase(unittest.TestCase):
                 jsonpickle.decode(case, on_missing='warn')
                 self.assertTrue(issubclass(w[-1].category, UserWarning))
                 self.assertTrue(
-                    "Unpickler._restore_object could not find" in str(w[-1].message)
+                    'Unpickler._restore_object could not find' in str(w[-1].message)
                 )
 
                 jsonpickle.decode(case, on_missing=on_missing_callback)
                 self.assertTrue(issubclass(w[-1].category, RuntimeWarning))
-                self.assertTrue("The unpickler couldn't find" in str(w[-1].message))
+                self.assertTrue('The unpickler could not find' in str(w[-1].message))
 
             self.assertTrue(
                 jsonpickle.decode(case, on_missing='ignore')
@@ -550,20 +550,20 @@ class PicklingTestCase(unittest.TestCase):
 
     def test_private_slot_members(self):
         obj = jsonpickle.loads(jsonpickle.dumps(MySlots()))
-        alpha = getattr(obj, "alpha", "(missing alpha)")
-        beta = getattr(obj, "_" + obj.__class__.__name__ + "__beta", "(missing beta)")
+        alpha = getattr(obj, 'alpha', '(missing alpha)')
+        beta = getattr(obj, '_' + obj.__class__.__name__ + '__beta', '(missing beta)')
         self.assertEqual(alpha, beta)
 
     def test_include_properties_slots(self):
         obj = MyPropertiesSlots()
         dumped = jsonpickle.dumps(obj, include_properties=True)
-        self.assertTrue("py/property" in dumped)
+        self.assertTrue('py/property' in dumped)
         self.assertEqual(obj, jsonpickle.loads(dumped))
 
     def test_include_properties_dict(self):
         obj = MyPropertiesDict()
         dumped = jsonpickle.dumps(obj, include_properties=True)
-        self.assertTrue("py/property" in dumped)
+        self.assertTrue('py/property' in dumped)
         self.assertEqual(obj, jsonpickle.loads(dumped))
 
     def test_load_non_fully_qualified_classes(self):
@@ -571,7 +571,9 @@ class PicklingTestCase(unittest.TestCase):
         obj = MyPropertiesSlots()
         encoded = jsonpickle.encode(obj)
         # MyPropertiesSlots and MyPropertiesDict have compatible eq methods
-        decoded = jsonpickle.decode(encoded, classes={"MyPropertiesSlots": MyPropertiesDict})
+        decoded = jsonpickle.decode(
+            encoded, classes={'MyPropertiesSlots': MyPropertiesDict}
+        )
         self.assertIsInstance(decoded, MyPropertiesDict)
         self.assertEqual(obj, decoded)
 
