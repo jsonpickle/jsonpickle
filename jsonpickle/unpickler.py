@@ -390,10 +390,13 @@ class Unpickler(object):
             for cls in classes:
                 self.register_classes(cls)
         elif isinstance(classes, dict):
-            self._classes.update({
-                cls if isinstance(cls, str) else util.importable_name(cls): handler
+            self._classes.update(
+                (
+                    cls if isinstance(cls, str) else util.importable_name(cls),
+                    handler,
+                )
                 for cls, handler in classes.items()
-            })
+            )
         else:
             self._classes[util.importable_name(classes)] = classes
 
