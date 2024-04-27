@@ -443,7 +443,8 @@ class Pickler(object):
         """Flatten a key/value pair into the passed-in dictionary."""
         if not util.is_picklable(k, v):
             return data
-        # TODO: use inspect.getmembers_static on 3.11+ because it avoids dynamic attribute lookups
+        # TODO: use inspect.getmembers_static on 3.11+ because it avoids dynamic
+        # attribute lookups
         if (
             self.handle_readonly
             and k in {attr for attr, val in inspect.getmembers(self._original_object)}

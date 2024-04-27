@@ -22,7 +22,7 @@ def decode(
     safe=False,
     classes=None,
     v1_decode=False,
-    on_missing="ignore",
+    on_missing='ignore',
     handle_readonly=False,
 ):
     """Convert a JSON string into a Python object.
@@ -48,27 +48,27 @@ def decode(
     :param safe: If set to True, eval() is avoided, but backwards-compatible
         (pre-0.7.0) deserialization of repr-serialized objects is disabled.
 
-    :param classes: If set to a single class, or a sequence (list, set, tuple) of classes,
-        then the classes will be made available when constructing objects.
+    :param classes: If set to a single class, or a sequence (list, set, tuple) of
+        classes, then the classes will be made available when constructing objects.
         If set to a dictionary of class names to class objects, the class object
         will be provided to jsonpickle to deserialize the class name into.
         This can be used to give jsonpickle access to local classes that are not
         available through the global module import scope, and the dict method can
         be used to deserialize encoded objects into a new class.
 
-    :param v1_decode: If set to True it enables you to decode objects serialized in jsonpickle v1.
-        Please do not attempt to re-encode the objects in the v1 format! Version 2's
-        format fixes issue #255, and allows dictionary identity to be preserved
-        through an encode/decode cycle.
+    :param v1_decode: If set to True it enables you to decode objects serialized in
+        jsonpickle v1. Please do not attempt to re-encode the objects in the v1 format!
+        Version 2's format fixes issue #255, and allows dictionary identity to be
+        preserved through an encode/decode cycle.
 
-    :param on_missing: If set to 'error', it will raise an error if the class it's decoding is not
-        found. If set to 'warn', it will warn you in said case. If set to a
-        non-awaitable function, it will call said callback function with the class
-        name (a string) as the only parameter. Strings passed to on_missing are
-        lowercased automatically.
+    :param on_missing: If set to 'error', it will raise an error if the class it's
+        decoding is not found. If set to 'warn', it will warn you in said case.
+        If set to a non-awaitable function, it will call said callback function
+        with the class name (a string) as the only parameter. Strings passed to
+        `on_missing` are lowercased automatically.
 
-    :param handle_readonly: If set to True, the Unpickler will handle objects encoded with
-        'handle_readonly' properly. Do not set this flag for objects not encoded
+    :param handle_readonly: If set to True, the Unpickler will handle objects encoded
+        with 'handle_readonly' properly. Do not set this flag for objects not encoded
         with 'handle_readonly' set to True.
 
 
@@ -232,7 +232,7 @@ def getargs(obj, classes=None):
     """Return arguments suitable for __new__()"""
     # Let saved newargs take precedence over everything
     if has_tag(obj, tags.NEWARGSEX):
-        raise ValueError("__newargs_ex__ returns both args and kwargs")
+        raise ValueError('__newargs_ex__ returns both args and kwargs')
 
     if has_tag(obj, tags.NEWARGS):
         return obj[tags.NEWARGS]
@@ -563,10 +563,10 @@ class Unpickler(object):
         if self.on_missing == 'ignore':
             pass
         elif self.on_missing == 'warn':
-            warnings.warn("Unpickler._restore_object could not find %s!" % class_name)
+            warnings.warn('Unpickler._restore_object could not find %s!' % class_name)
         elif self.on_missing == 'error':
             raise errors.ClassNotFoundError(
-                "Unpickler.restore_object could not find %s!" % class_name
+                'Unpickler.restore_object could not find %s!' % class_name
             )
         elif util.is_function(self.on_missing):
             self.on_missing(class_name)
@@ -641,15 +641,15 @@ class Unpickler(object):
                         # certain numpy objects require us to prepend a _ to the var
                         # this should go in the np handler but I think this could be
                         # useful for other code
-                        setattr(instance, f"_{k}", value)
+                        setattr(instance, f'_{k}', value)
                     except dataclasses.FrozenInstanceError:
                         # issue #240
                         # i think this is the only way to set frozen dataclass attrs
                         object.__setattr__(instance, k, value)
                     except AttributeError as e:
-                        # some objects may raise this for read-only attributes (#422) (#478)
+                        # some objects raise this for read-only attributes (#422) (#478)
                         if (
-                            hasattr(instance, "__slots__")
+                            hasattr(instance, '__slots__')
                             and not len(instance.__slots__)
                             and issubclass(instance.__class__, int)
                             and self.handle_readonly
@@ -659,7 +659,7 @@ class Unpickler(object):
                             continue
                         raise e
                 else:
-                    setattr(instance, f"_{instance.__class__.__name__}{k}", value)
+                    setattr(instance, f'_{instance.__class__.__name__}{k}', value)
 
             # This instance has an instance variable named `k` that is
             # currently a proxy and must be replaced
