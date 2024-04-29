@@ -37,7 +37,7 @@ trees:
         python3 -m venv env3
         garden ${GARDEN_CMD_VERBOSE} setup/dev
       setup/dev: |
-        ${activate} pip install --editable '.[dev,docs]'
+        ${activate} pip install --editable '.[dev,docs,testing]'
       setup/packaging: |
         ${activate} pip install --editable '.[packaging]'
       test: |

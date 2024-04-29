@@ -8,6 +8,8 @@ v3.1.0
     * Allow the ``classes`` argument to `jsonpickle.pickle` to have class
       objects as keys. This extends the current functionality of only having
       class name strings as keys. (+494)
+    * The ``garden setup/dev`` action and ``requirements-dev.txt`` requirements file
+      now include test dependencies for use during development.
 
 v3.0.4
 ======

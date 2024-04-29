@@ -1,1 +1,1 @@
-.[dev,docs]
+.[dev,docs,testing]
