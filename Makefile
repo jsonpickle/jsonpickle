@@ -9,7 +9,7 @@ FIND ?= find
 PYTHON ?= python3
 PYTEST ?= $(PYTHON) -m pytest
 SPHINX ?= $(PYTHON) -m sphinx
-BENCHMARK ?= py.test
+BENCHMARK ?= pytest
 RM_R ?= rm -fr
 TOX ?= tox
 # Detect macOS to customize how we query the cpu count.
