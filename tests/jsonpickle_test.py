@@ -1102,6 +1102,9 @@ class PickleProtocol2GetStateDict(PickleProtocol2Thing):
     def __getstate__(self):
         return {'magic': True}
 
+class PickleProtocol2GetStateNestedDict(PickleProtocol2Thing):
+    def __getstate__(self):
+        return {'nested': {'magic': True}}
 
 class PickleProtocol2GetStateSlots(PickleProtocol2Thing):
     def __getstate__(self):
@@ -1554,6 +1557,20 @@ class PicklingProtocol2TestCase(SkippableTest):
         encoded = jsonpickle.encode(instance)
         decoded = jsonpickle.decode(encoded)
         self.assertTrue(decoded.magic)
+
+    def test_restore_nested_dict_state_with_references_preserved(self):
+        """
+        Ensure that nested dicts in "py/state" are not duplicated when tracking
+        objects to preserve references
+        """
+        instance1 = PickleProtocol2GetStateNestedDict('whatevs')
+        instance2 = PickleProtocol2GetStateNestedDict('different')
+        encoded = jsonpickle.encode([instance1, instance1, instance2, instance2])
+        decoded = jsonpickle.decode(encoded)
+        self.assertTrue(decoded[0].nested['magic'])
+        self.assertIs(decoded[1], decoded[0])
+        self.assertTrue(decoded[2].nested['magic'])
+        self.assertIs(decoded[3], decoded[2])
 
     def test_restore_slots_state(self):
         """
