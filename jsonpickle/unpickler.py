@@ -286,7 +286,7 @@ def loadrepr(reprstr):
     if '.' in localname:
         localname = module.split('.', 1)[0]
     mylocals[localname] = __import__(module)
-    return eval(evalstr)
+    return eval(evalstr, mylocals)
 
 
 def has_tag_dict(obj, tag):
