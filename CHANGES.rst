@@ -10,7 +10,7 @@ v3.1.0
       class name strings as keys. (+494)
     * The ``garden setup/dev`` action and ``requirements-dev.txt`` requirements file
       now include test dependencies for use during development.
-    * Added support for Python 3.13. (+505)
+    * Added support for Python 3.13. (+505) (#504)
 
 v3.0.4
 ======
