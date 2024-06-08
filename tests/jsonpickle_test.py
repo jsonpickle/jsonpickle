@@ -257,7 +257,7 @@ class PicklingTestCase(unittest.TestCase):
         self.assertEqual(listD, self.pickler.flatten(listD))
         self.assertEqual(listD, self.unpickler.restore(listD))
 
-    def test_NoneType(self):
+    def test_nonetype(self):
         typ = type(None)
         typ_pickled = jsonpickle.encode(typ)
         typ_unpickled = jsonpickle.decode(typ_pickled)
