@@ -1,3 +1,7 @@
+Upcoming
+========
+    * ``tests/benchmark.py`` was updated to avoid python2 syntax.
+
 v3.2.1
 ======
     * The ``ignorereserved`` parameter to the private ``_restore_from_dict()``

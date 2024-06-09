@@ -23,7 +23,7 @@ jsonpickle.set_preferred_backend('%s')
 pickled = jsonpickle.encode(doc)
 unpickled = jsonpickle.decode(pickled)
 if doc['feed']['title'] != unpickled['feed']['title']:
-    print 'Not a match'
+    print('Not a match')
 """
 
 
