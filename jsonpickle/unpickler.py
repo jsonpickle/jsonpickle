@@ -607,23 +607,26 @@ class Unpickler(object):
 
         return restore_key
 
-    def _restore_from_dict(self, obj, instance, ignorereserved=True):
+    def _restore_from_dict(self, obj, instance, restore_dict_items=True):
         restore_key = self._restore_key_fn()
         method = _obj_setattr
         deferred = {}
 
         for k, v in util.items(obj):
             # ignore the reserved attribute
-            if ignorereserved and k in tags.RESERVED:
+            if restore_dict_items and k in tags.RESERVED:
                 continue
             if isinstance(k, numeric_types):
                 str_k = k.__str__()
             else:
                 str_k = k
             self._namestack.append(str_k)
-            k = restore_key(k)
-            # step into the namespace
-            value = self._restore(v)
+            if restore_dict_items:
+                k = restore_key(k)
+                # step into the namespace
+                value = self._restore(v)
+            else:
+                value = v
             if util.is_noncomplex(instance) or util.is_dictionary_subclass(instance):
                 try:
                     if k == '__dict__':
@@ -690,12 +693,12 @@ class Unpickler(object):
             # implements described default handling
             # of state for object with instance dict
             # and no slots
-            instance = self._restore_from_dict(state, instance, ignorereserved=False)
+            instance = self._restore_from_dict(state, instance, restore_dict_items=False)
         elif has_slots:
-            instance = self._restore_from_dict(state[1], instance, ignorereserved=False)
+            instance = self._restore_from_dict(state[1], instance, restore_dict_items=False)
             if has_slots_and_dict:
                 instance = self._restore_from_dict(
-                    state[0], instance, ignorereserved=False
+                    state[0], instance, restore_dict_items=False
                 )
         elif not hasattr(instance, '__getnewargs__') and not hasattr(
             instance, '__getnewargs_ex__'
