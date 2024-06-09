@@ -208,6 +208,9 @@ def loadclass(module_and_name, classes=None):
             return obj
         except (AttributeError, ImportError, ValueError):
             continue
+    # NoneType is a special case and can not be imported/created
+    if module_and_name == "builtins.NoneType":
+        return type(None)
     return None
 
 

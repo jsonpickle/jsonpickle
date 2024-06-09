@@ -1,3 +1,8 @@
+v3.2.2
+======
+    * A bug with the incorrect (de)serialization of NoneType objects has been fixed.
+      (+507)
+
 v3.2.1
 ======
     * The ``ignorereserved`` parameter to the private ``_restore_from_dict()``
