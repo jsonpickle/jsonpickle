@@ -54,6 +54,7 @@ trees:
       aldanor: "git@github.com:aldanor/jsonpickle.git"
       davvid: "git@github.com:davvid/jsonpickle.git"
       eoghanmurray: "git@github.com:eoghanmurray/jsonpickle.git"
+      GREsau: "git@github.com:GREsau/jsonpickle.git"
       hartwork: "git@github.com:hartwork/jsonpickle.git"
       hroncok: "git@github.com:hroncok/jsonpickle.git"
       jaraco: "git@github.com:jaraco/jsonpickle.git"

@@ -1,3 +1,13 @@
+v3.2.1
+======
+    * The ``ignorereserved`` parameter to the private ``_restore_from_dict()``
+      function has been restored for backwards compatibility. (+501)
+
+v3.2.0
+======
+    * Nested dictionaries in `py/state` are now correctly restored when
+      tracking object references. (+501) (#500)
+
 v3.1.0
 ======
     * `jsonpickle.ext.numpy.register_handlers` now provides options that are forwarded
