@@ -1,4 +1,3 @@
-#
 # Copyright (C) 2008 John Paulett (john -at- paulett.org)
 # Copyright (C) 2009, 2011, 2013 David Aguilar (davvid -at- gmail.com)
 # All rights reserved.
