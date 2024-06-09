@@ -1102,9 +1102,11 @@ class PickleProtocol2GetStateDict(PickleProtocol2Thing):
     def __getstate__(self):
         return {'magic': True}
 
+
 class PickleProtocol2GetStateNestedDict(PickleProtocol2Thing):
     def __getstate__(self):
         return {'nested': {'magic': True}}
+
 
 class PickleProtocol2GetStateSlots(PickleProtocol2Thing):
     def __getstate__(self):

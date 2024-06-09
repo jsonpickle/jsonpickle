@@ -693,9 +693,13 @@ class Unpickler(object):
             # implements described default handling
             # of state for object with instance dict
             # and no slots
-            instance = self._restore_from_dict(state, instance, restore_dict_items=False)
+            instance = self._restore_from_dict(
+                state, instance, restore_dict_items=False
+            )
         elif has_slots:
-            instance = self._restore_from_dict(state[1], instance, restore_dict_items=False)
+            instance = self._restore_from_dict(
+                state[1], instance, restore_dict_items=False
+            )
             if has_slots_and_dict:
                 instance = self._restore_from_dict(
                     state[0], instance, restore_dict_items=False
