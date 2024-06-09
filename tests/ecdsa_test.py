@@ -37,7 +37,7 @@ class EcdsaTestCase(SkippableTest):
         if self.should_skip:
             return self.skip('ecdsa module is not installed')
 
-        message = 'test'.encode('utf-8')
+        message = b'test'
         key_pair = self.SigningKey.generate(curve=self.NIST384p)
         sig = key_pair.sign(message)
 

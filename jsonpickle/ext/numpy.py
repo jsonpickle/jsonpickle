@@ -147,7 +147,7 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
         """encode numpy to json"""
         if self.size_threshold is None or self.size_threshold >= obj.size:
             # encode as text
-            data = super(NumpyNDArrayHandlerBinary, self).flatten(obj, data)
+            data = super().flatten(obj, data)
         else:
             # encode as binary
             if obj.dtype == object:
@@ -190,7 +190,7 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
         values = data['values']
         if isinstance(values, list):
             # decode text representation
-            arr = super(NumpyNDArrayHandlerBinary, self).restore(data)
+            arr = super().restore(data)
         elif isinstance(values, numeric_types):
             # single-value array
             arr = np.array([values], dtype=self.restore_dtype(data))
@@ -256,7 +256,7 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
             valid values for 'compression' are {zlib, bz2, None}
             if compression is None, no compression is applied
         """
-        super(NumpyNDArrayHandlerView, self).__init__(size_threshold, compression)
+        super().__init__(size_threshold, compression)
         self.mode = mode
 
     def flatten(self, obj, data):
@@ -264,7 +264,7 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
         base = obj.base
         if base is None and obj.flags.forc:
             # store by value
-            data = super(NumpyNDArrayHandlerView, self).flatten(obj, data)
+            data = super().flatten(obj, data)
             # ensure that views on arrays stored as text
             # are interpreted correctly
             if not obj.flags.c_contiguous:
@@ -309,7 +309,7 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
                     "not know how to serialize."
                 )
                 raise ValueError(msg)
-            data = super(NumpyNDArrayHandlerView, self).flatten(obj.copy(), data)
+            data = super().flatten(obj.copy(), data)
 
         return data
 
@@ -318,7 +318,7 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
         base = data.get('base', None)
         if base is None:
             # decode array with owndata=True
-            arr = super(NumpyNDArrayHandlerView, self).restore(data)
+            arr = super().restore(data)
         else:
             # decode array view, which references the data of another array
             base = self.context.restore(base, reset=False)

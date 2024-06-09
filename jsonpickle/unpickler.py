@@ -112,7 +112,7 @@ def _is_json_key(key):
     return isinstance(key, compat.string_types) and key.startswith(tags.JSON_KEY)
 
 
-class _Proxy(object):
+class _Proxy:
     """Proxies are dummy objects that are later replaced by real instances
 
     The `restore()` function has to solve a tricky problem when pickling
@@ -306,7 +306,7 @@ def has_tag_dict(obj, tag):
     return tag in obj
 
 
-class Unpickler(object):
+class Unpickler:
     def __init__(
         self,
         backend=None,

@@ -51,7 +51,7 @@ class QtTestCase(unittest.TestCase):
 
 def suite(self):
     suite = unittest.TestSuite()
-    suite.addSuite(unittest.makeSuite(QtTestCase))
+    suite.addSuite(unittest.defaultTestLoader.loadTestsFromTestCase(QtTestCase))
     return suite
 
 

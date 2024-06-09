@@ -12,7 +12,7 @@ import jsonpickle
 bson = None
 
 
-class Object(object):
+class Object:
     def __init__(self, offset):
         self.offset = datetime.timedelta(offset)
 

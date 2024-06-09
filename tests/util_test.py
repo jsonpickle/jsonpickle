@@ -12,7 +12,7 @@ import unittest
 from jsonpickle import compat, util
 
 
-class Thing(object):
+class Thing:
     def __init__(self, name):
         self.name = name
         self.child = None
@@ -26,7 +26,7 @@ class ListSubclass(list):
     pass
 
 
-class MethodTestClass(object):
+class MethodTestClass:
     variable = None
 
     @staticmethod
@@ -74,7 +74,7 @@ class UtilTestCase(unittest.TestCase):
 
     def test_is_primitive_bytes(self):
         self.assertFalse(util.is_primitive(b'hello'))
-        self.assertFalse(util.is_primitive('foo'.encode('utf-8')))
+        self.assertFalse(util.is_primitive(b'foo'))
         self.assertTrue(util.is_primitive('foo'))
 
     def test_is_primitive_unicode(self):
@@ -136,7 +136,7 @@ class UtilTestCase(unittest.TestCase):
     def test_is_dictionary_primitive(self):
         self.assertFalse(util.is_dictionary(int()))
         self.assertFalse(util.is_dictionary(None))
-        self.assertFalse(util.is_dictionary(str()))
+        self.assertFalse(util.is_dictionary(''))
 
     def test_is_dictionary_subclass_dict(self):
         self.assertFalse(util.is_dictionary_subclass({}))
@@ -164,7 +164,7 @@ class UtilTestCase(unittest.TestCase):
         self.assertTrue(util.is_function(lambda: False))
 
     def test_is_function_instance_method(self):
-        class Foo(object):
+        class Foo:
             def method(self):
                 pass
 
@@ -237,7 +237,7 @@ class UtilTestCase(unittest.TestCase):
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(UtilTestCase))
+    suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(UtilTestCase))
     suite.addTest(doctest.DocTestSuite(util))
     return suite
 
