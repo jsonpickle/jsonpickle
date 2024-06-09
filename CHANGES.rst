@@ -2,6 +2,7 @@ v3.2.2
 ======
     * A bug with the incorrect (de)serialization of NoneType objects has been fixed.
       (+507)
+    * Some basic scripts have been made to analyze benchmark results. (+511)
 
 v3.2.1
 ======
