@@ -1,6 +1,6 @@
 v3.2.0
 ======
-    * Nested dictionaries in `py/state` are now correct restored when
+    * Nested dictionaries in `py/state` are now correctly restored when
       tracking object references. (#501) (#500)
 
 v3.1.0
