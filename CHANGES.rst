@@ -1,6 +1,7 @@
 Upcoming
 ========
     * ``tests/benchmark.py`` was updated to avoid python2 syntax.
+    * The unpickler was updated to avoid creating temporary functions.
 
 v3.2.1
 ======
