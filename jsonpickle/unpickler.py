@@ -607,14 +607,16 @@ class Unpickler(object):
 
         return restore_key
 
-    def _restore_from_dict(self, obj, instance, restore_dict_items=True):
+    def _restore_from_dict(
+        self, obj, instance, ignorereserved=True, restore_dict_items=True
+    ):
         restore_key = self._restore_key_fn()
         method = _obj_setattr
         deferred = {}
 
         for k, v in util.items(obj):
             # ignore the reserved attribute
-            if restore_dict_items and k in tags.RESERVED:
+            if ignorereserved and k in tags.RESERVED:
                 continue
             if isinstance(k, numeric_types):
                 str_k = k.__str__()
@@ -694,15 +696,15 @@ class Unpickler(object):
             # of state for object with instance dict
             # and no slots
             instance = self._restore_from_dict(
-                state, instance, restore_dict_items=False
+                state, instance, ignorereserved=False, restore_dict_items=False
             )
         elif has_slots:
             instance = self._restore_from_dict(
-                state[1], instance, restore_dict_items=False
+                state[1], instance, ignorereserved=False, restore_dict_items=False
             )
             if has_slots_and_dict:
                 instance = self._restore_from_dict(
-                    state[0], instance, restore_dict_items=False
+                    state[0], instance, ignorereserved=False, restore_dict_items=False
                 )
         elif not hasattr(instance, '__getnewargs__') and not hasattr(
             instance, '__getnewargs_ex__'
