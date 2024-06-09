@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Test miscellaneous objects from the standard library"""
 
 import unittest
@@ -46,8 +45,8 @@ class BytesTestCase(unittest.TestCase):
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(UUIDTestCase))
-    suite.addTest(unittest.makeSuite(BytesTestCase))
+    suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(UUIDTestCase))
+    suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(BytesTestCase))
     return suite
 
 

@@ -1,7 +1,7 @@
 from .compat import string_types
 
 
-class JSONBackend(object):
+class JSONBackend:
     """Manages encoding and decoding using various backends.
 
     It tries these modules in this order:

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright (C) 2013 Jason R. Coombs <jaraco@jaraco.com>
 # All rights reserved.
@@ -15,7 +14,7 @@ import jsonpickle
 from jsonpickle import tags
 
 
-class ObjWithDate(object):
+class ObjWithDate:
     def __init__(self):
         ts = datetime.datetime.now()
         self.data = dict(a='a', ts=ts)
@@ -39,7 +38,7 @@ class UTC(datetime.tzinfo):
 utc = UTC()
 
 
-class TimestampedVariable(object):
+class TimestampedVariable:
     def __init__(self, value=None):
         self._value = value
         self._dt_read = datetime.datetime.utcnow()
@@ -76,7 +75,7 @@ class TimestampedVariable(object):
         return s
 
 
-class PersistantVariables(object):
+class PersistantVariables:
     def __init__(self):
         self._data = {}
 
@@ -265,9 +264,15 @@ class DateTimeAdvancedTestCase(unittest.TestCase):
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(DateTimeSimpleTestCase))
-    suite.addTest(unittest.makeSuite(DateTimeAdvancedTestCase))
-    suite.addTest(unittest.makeSuite(DateTimeInnerReferenceTestCase))
+    suite.addTest(
+        unittest.defaultTestLoader.loadTestsFromTestCase(DateTimeSimpleTestCase)
+    )
+    suite.addTest(
+        unittest.defaultTestLoader.loadTestsFromTestCase(DateTimeAdvancedTestCase)
+    )
+    suite.addTest(
+        unittest.defaultTestLoader.loadTestsFromTestCase(DateTimeInnerReferenceTestCase)
+    )
     return suite
 
 

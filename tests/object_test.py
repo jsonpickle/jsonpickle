@@ -14,7 +14,7 @@ from jsonpickle import compat, handlers, tags, util
 from jsonpickle.compat import queue
 
 
-class Thing(object):
+class Thing:
     def __init__(self, name):
         self.name = name
         self.child = None
@@ -51,7 +51,7 @@ class GetstateDict(dict):
         self.active = True
 
 
-class GetstateOnly(object):
+class GetstateOnly:
     def __init__(self, a=1, b=2):
         self.a = a
         self.b = b
@@ -60,7 +60,7 @@ class GetstateOnly(object):
         return [self.a, self.b]
 
 
-class GetstateReturnsList(object):
+class GetstateReturnsList:
     def __init__(self, x, y):
         self.x = x
         self.y = y
@@ -72,7 +72,7 @@ class GetstateReturnsList(object):
         self.x, self.y = state[0], state[1]
 
 
-class GetstateRecursesInfintely(object):
+class GetstateRecursesInfintely:
     def __getstate__(self):
         return GetstateRecursesInfintely()
 
@@ -80,13 +80,13 @@ class GetstateRecursesInfintely(object):
 class ListSubclassWithInit(list):
     def __init__(self, attr):
         self.attr = attr
-        super(ListSubclassWithInit, self).__init__()
+        super().__init__()
 
 
 NamedTuple = collections.namedtuple('NamedTuple', 'a, b, c')
 
 
-class ObjWithJsonPickleRepr(object):
+class ObjWithJsonPickleRepr:
     def __init__(self):
         self.data = {'a': self}
 
@@ -106,12 +106,12 @@ def func(x):
     return x
 
 
-class ThingWithFunctionRefs(object):
+class ThingWithFunctionRefs:
     def __init__(self):
         self.fn = func
 
 
-class ThingWithQueue(object):
+class ThingWithQueue:
     def __init__(self):
         self.child_1 = queue.Queue()
         self.child_2 = queue.Queue()
@@ -119,7 +119,7 @@ class ThingWithQueue(object):
         self.childref_2 = self.child_2
 
 
-class ThingWithSlots(object):
+class ThingWithSlots:
     __slots__ = ('a', 'b')
 
     def __init__(self, a, b):
@@ -135,7 +135,7 @@ class ThingWithInheritedSlots(ThingWithSlots):
         self.c = c
 
 
-class ThingWithIterableSlots(object):
+class ThingWithIterableSlots:
     __slots__ = iter('ab')
 
     def __init__(self, a, b):
@@ -143,7 +143,7 @@ class ThingWithIterableSlots(object):
         self.b = b
 
 
-class ThingWithStringSlots(object):
+class ThingWithStringSlots:
     __slots__ = 'ab'
 
     def __init__(self, a, b):
@@ -204,7 +204,7 @@ class SubEnum(enum.Enum):
     b = 2
 
 
-class EnumClass(object):
+class EnumClass:
     def __init__(self):
         self.enum_a = SubEnum.a
         self.enum_b = SubEnum.b
@@ -224,7 +224,7 @@ class MessageCommands(enum.Enum):
     STATUS_ALL = 'STATUS_ALL'
 
 
-class Message(object):
+class Message:
     def __init__(self, message_type, command, status=None, body=None):
         self.message_type = MessageTypes(message_type)
         if command:
@@ -235,7 +235,7 @@ class Message(object):
             self.body = body
 
 
-class ThingWithTimedeltaAttribute(object):
+class ThingWithTimedeltaAttribute:
     def __init__(self, offset):
         self.offset = datetime.timedelta(offset)
 
@@ -244,7 +244,7 @@ class ThingWithTimedeltaAttribute(object):
 
 
 class FailSafeTestCase(SkippableTest):
-    class BadClass(object):
+    class BadClass:
         def __getstate__(self):
             raise ValueError('Intentional error')
 
@@ -275,7 +275,7 @@ class FailSafeTestCase(SkippableTest):
         self.assertEqual(decoded[0], CUSTOM_ERR_MSG)
 
 
-class IntKeysObject(object):
+class IntKeysObject:
     def __init__(self):
         self.data = {0: 0}
 
@@ -285,7 +285,7 @@ class IntKeysObject(object):
 
 class ExceptionWithArguments(Exception):
     def __init__(self, value):
-        super(ExceptionWithArguments, self).__init__('test')
+        super().__init__('test')
         self.value = value
 
 
@@ -914,7 +914,7 @@ issue281 = pytest.mark.xfail(
 @issue281
 def test_list_with_fd():
     """Serialize a list with an file descriptor"""
-    fd = open(__file__, 'r')
+    fd = open(__file__)
     fd.close()
     obj = [fd]
     jsonstr = jsonpickle.encode(obj)
@@ -925,7 +925,7 @@ def test_list_with_fd():
 @issue281
 def test_thing_with_fd():
     """Serialize an object with a file descriptor"""
-    fd = open(__file__, 'r')
+    fd = open(__file__)
     fd.close()
     obj = Thing(fd)
     jsonstr = jsonpickle.encode(obj)
@@ -936,7 +936,7 @@ def test_thing_with_fd():
 @issue281
 def test_dict_with_fd():
     """Serialize a dict with a file descriptor"""
-    fd = open(__file__, 'r')
+    fd = open(__file__)
     fd.close()
     obj = {'fd': fd}
     jsonstr = jsonpickle.encode(obj)
@@ -1102,14 +1102,14 @@ def test_multiple_string_enums_when_make_refs_is_false():
 
 
 # Test classes for ExternalHandlerTestCase
-class Mixin(object):
+class Mixin:
     def ok(self):
         return True
 
 
 class UnicodeMixin(str, Mixin):
     def __add__(self, rhs):
-        obj = super(UnicodeMixin, self).__add__(rhs)
+        obj = super().__add__(rhs)
         return UnicodeMixin(obj)
 
 

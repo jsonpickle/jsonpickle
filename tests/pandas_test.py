@@ -202,7 +202,7 @@ def test_period_roundtrip():
 
 
 def test_interval_roundtrip():
-    obj = pd.Interval(2, 4, closed=str('left'))
+    obj = pd.Interval(2, 4, closed='left')
     decoded_obj = roundtrip(obj)
     assert decoded_obj == obj
 

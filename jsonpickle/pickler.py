@@ -193,7 +193,7 @@ def _wrap_string_slot(string):
     return string
 
 
-class Pickler(object):
+class Pickler:
     def __init__(
         self,
         unpicklable=True,

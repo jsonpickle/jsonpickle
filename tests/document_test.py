@@ -1,11 +1,9 @@
-# -*- coding: utf-8 -*-
-
 import unittest
 
 import jsonpickle
 
 
-class Node(object):
+class Node:
     def __init__(self, name):
         self._name = name
         self._children = []
@@ -37,7 +35,7 @@ class Question(Node):
         Node.__init__(self, name)
 
     def __str__(self):
-        return 'Question "%s", parent: "%s"\n' % (self._name, self._parent._name)
+        return f'Question "{self._name}", parent: "{self._parent._name}"\n'
 
     def __repr__(self):
         return self.__str__()
@@ -48,7 +46,7 @@ class Section(Node):
         Node.__init__(self, name)
 
     def __str__(self):
-        ret_str = 'Section "%s", parent: "%s"\n' % (self._name, self._parent._name)
+        ret_str = f'Section "{self._name}", parent: "{self._parent._name}"\n'
         for c in self._children:
             ret_str += repr(c)
         return ret_str
@@ -92,7 +90,7 @@ class DocumentTestCase(unittest.TestCase):
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(DocumentTestCase))
+    suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(DocumentTestCase))
     return suite
 
 

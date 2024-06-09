@@ -542,7 +542,7 @@ def importable_name(cls):
                 module = cls.__self__.__module__
             else:
                 module = cls.__self__.__class__.__module__
-    return '{}.{}'.format(module, name)
+    return f'{module}.{name}'
 
 
 def b64encode(data):
