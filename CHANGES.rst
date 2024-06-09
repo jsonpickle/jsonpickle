@@ -1,3 +1,8 @@
+v3.2.0
+======
+    * Nested dictionaries in `py/state` are now correct restored when
+      tracking object references. (#501) (#500)
+
 v3.1.0
 ======
     * `jsonpickle.ext.numpy.register_handlers` now provides options that are forwarded
