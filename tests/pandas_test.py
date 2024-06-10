@@ -34,14 +34,13 @@ def test_series_roundtrip():
     ser = pd.Series(
         {
             'an_int': np.int_(1),
-            'a_float': np.float_(2.5),
+            'a_float': np.float64(2.5),
             'a_nan': np.nan,
             'a_minus_inf': -np.inf,
             'an_inf': np.inf,
             'a_str': np.str_('foo'),
-            'a_unicode': np.unicode_('bar'),
             'date': np.datetime64('2014-01-01'),
-            'complex': np.complex_(1 - 2j),
+            'complex': np.complex128(1 - 2j),
             # TODO: the following dtypes are not currently supported.
             # 'object': np.object_({'a': 'b'}),
         }
@@ -54,14 +53,13 @@ def test_dataframe_roundtrip():
     df = pd.DataFrame(
         {
             'an_int': np.int_([1, 2, 3]),
-            'a_float': np.float_([2.5, 3.5, 4.5]),
+            'a_float': np.float64([2.5, 3.5, 4.5]),
             'a_nan': np.array([np.nan] * 3),
             'a_minus_inf': np.array([-np.inf] * 3),
             'an_inf': np.array([np.inf] * 3),
             'a_str': np.str_('foo'),
-            'a_unicode': np.unicode_('bar'),
             'date': np.array([np.datetime64('2014-01-01')] * 3, dtype="datetime64[s]"),
-            'complex': np.complex_([1 - 2j, 2 - 1.2j, 3 - 1.3j]),
+            'complex': np.complex128([1 - 2j, 2 - 1.2j, 3 - 1.3j]),
             # TODO: the following dtypes are not currently supported.
             # 'object': np.object_([{'a': 'b'}]*3),
         }
@@ -76,12 +74,11 @@ def test_multindex_dataframe_roundtrip():
             'idx_lvl0': ['a', 'b', 'c'],
             'idx_lvl1': np.int_([1, 1, 2]),
             'an_int': np.int_([1, 2, 3]),
-            'a_float': np.float_([2.5, 3.5, 4.5]),
+            'a_float': np.float64([2.5, 3.5, 4.5]),
             'a_nan': np.array([np.nan] * 3),
             'a_minus_inf': np.array([-np.inf] * 3),
             'an_inf': np.array([np.inf] * 3),
             'a_str': np.str_('foo'),
-            'a_unicode': np.unicode_('bar'),
         }
     )
     df = df.set_index(['idx_lvl0', 'idx_lvl1'])
