@@ -32,9 +32,7 @@ def test_dtype_roundtrip():
     dtypes = [
         np.int_,
         np.int32,
-        np.float_,
         np.float64,
-        np.complex_,
         np.complex128,
         np.str_,
         np.object_,
@@ -86,15 +84,14 @@ def test_generic_roundtrip():
     values = [
         np.int_(1),
         np.int32(-2),
-        np.float_(2.5),
+        np.float64(2.5),
         np.nan,
         -np.inf,
         np.inf,
         np.datetime64('2014-01-01'),
         np.str_('foo'),
-        np.unicode_('bar'),
         np.object_({'a': 'b'}),
-        np.complex_(1 - 2j),
+        np.complex128(1 - 2j),
     ]
     for value in values:
         decoded = roundtrip(value)
@@ -309,18 +306,22 @@ def test_immutable():
 def test_byteorder():
     """Test the byteorder for text and binary encodings"""
     # small arr is stored as text
-    a = np.arange(10).newbyteorder()
-    b = a[:].newbyteorder()
-    _a, _b = roundtrip([a, b])
-    npt.assert_array_equal(a, _a)
-    npt.assert_array_equal(b, _b)
+    a = np.arange(10)
+    av = a.view(a.dtype.newbyteorder())
+    b = a[:]
+    bv = b.view(b.dtype.newbyteorder())
+    _av, _bv = roundtrip([av, bv])
+    npt.assert_array_equal(av, _av)
+    npt.assert_array_equal(bv, _bv)
 
     # bigger arr is stored as binary
-    a = np.arange(100).newbyteorder()
-    b = a[:].newbyteorder()
-    _a, _b = roundtrip([a, b])
-    npt.assert_array_equal(a, _a)
-    npt.assert_array_equal(b, _b)
+    a = np.arange(100)
+    av = a.view(a.dtype.newbyteorder())
+    b = a[:]
+    bv = b.view(b.dtype.newbyteorder())
+    _av, _bv = roundtrip([av, bv])
+    npt.assert_array_equal(av, _av)
+    npt.assert_array_equal(bv, _bv)
 
 
 def test_zero_dimensional_array():
