@@ -306,18 +306,22 @@ def test_immutable():
 def test_byteorder():
     """Test the byteorder for text and binary encodings"""
     # small arr is stored as text
-    a = np.arange(10).newbyteorder()
-    b = a[:].newbyteorder()
-    _a, _b = roundtrip([a, b])
-    npt.assert_array_equal(a, _a)
-    npt.assert_array_equal(b, _b)
+    a = np.arange(10)
+    av = a.view(a.dtype.newbyteorder())
+    b = a[:]
+    bv = b.view(b.dtype.newbyteorder())
+    _av, _bv = roundtrip([av, bv])
+    npt.assert_array_equal(av, _av)
+    npt.assert_array_equal(bv, _bv)
 
     # bigger arr is stored as binary
-    a = np.arange(100).newbyteorder()
-    b = a[:].newbyteorder()
-    _a, _b = roundtrip([a, b])
-    npt.assert_array_equal(a, _a)
-    npt.assert_array_equal(b, _b)
+    a = np.arange(100)
+    av = a.view(a.dtype.newbyteorder())
+    b = a[:]
+    bv = b.view(b.dtype.newbyteorder())
+    _av, _bv = roundtrip([av, bv])
+    npt.assert_array_equal(av, _av)
+    npt.assert_array_equal(bv, _bv)
 
 
 def test_zero_dimensional_array():
