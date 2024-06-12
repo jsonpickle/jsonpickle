@@ -23,21 +23,21 @@ import jsonpickle
 ###################################################################################
 
 
-class SlotPickleMixin(object):
+class SlotPickleMixin:
     def __getstate__(self):
         all_slots = itertools.chain.from_iterable(
             getattr(cls, '__slots__', []) for cls in self.__class__.__mro__
         )
-        return dict(
-            (slot, getattr(self, slot)) for slot in all_slots if hasattr(self, slot)
-        )
+        return {
+            slot: getattr(self, slot) for slot in all_slots if hasattr(self, slot)
+        }
 
     def __setstate__(self, state):
         for slot, value in dict(state).items():
             setattr(self, slot, value)
 
 
-class MyClass(object):
+class MyClass:
     __slots__ = ['idk', 'idk2']
 
     def __init__(self):
@@ -91,7 +91,7 @@ class MyClassGetState(SlotPickleMixin):
         SlotPickleMixin.__setstate__(self, object_state)
 
 
-class MyClassSimple(object):
+class MyClassSimple:
     def __init__(self):
         self.idk = {'a': 0}
         self.idk2 = ['a', 0]

@@ -12,12 +12,12 @@ import unittest
 from jsonpickle import decode, encode
 
 
-class World(object):
+class World:
     def __init__(self):
         self.wizards = []
 
 
-class Wizard(object):
+class Wizard:
     def __init__(self, world, name):
         self.name = name
         self.spells = collections.OrderedDict()
@@ -27,23 +27,23 @@ class Wizard(object):
         for (ka, va), (kb, vb) in zip(self.spells.items(), other.spells.items()):
             cmp_name = cmp(ka.name, kb.name)  # noqa: F821
             if cmp_name != 0:
-                print('Wizards cmp: %s != %s' % (ka.name, kb.name))
+                print('Wizards cmp: {} != {}'.format(ka.name, kb.name))
                 return cmp_name
             for sa, sb in zip(va, vb):
                 cmp_spell = cmp(sa, sb)  # noqa: F821
                 if cmp_spell != 0:
-                    print('Spells cmp: %s != %s' % (sa.name, sb.name))
+                    print('Spells cmp: {} != {}'.format(sa.name, sb.name))
                     return cmp_spell
         return cmp(self.name, other.name)  # noqa: F821
 
     def __eq__(self, other):
         for (ka, va), (kb, vb) in zip(self.spells.items(), other.spells.items()):
             if ka.name != kb.name:
-                print('Wizards differ: %s != %s' % (ka.name, kb.name))
+                print('Wizards differ: {} != {}'.format(ka.name, kb.name))
                 return False
             for sa, sb in zip(va, vb):
                 if sa != sb:
-                    print('Spells differ: %s != %s' % (sa.name, sb.name))
+                    print('Spells differ: {} != {}'.format(sa.name, sb.name))
                     return False
         return self.name == other.name
 
@@ -51,7 +51,7 @@ class Wizard(object):
         return hash('Wizard %s' % self.name)
 
 
-class Spell(object):
+class Spell:
     def __init__(self, caster, target, name):
         self.caster = caster
         self.target = target
@@ -78,7 +78,7 @@ class Spell(object):
 
     def __hash__(self):
         return hash(
-            'Spell %s by %s on %s' % (self.name, self.caster.name, self.target.name)
+            'Spell {} by {} on {}'.format(self.name, self.caster.name, self.target.name)
         )
 
 
@@ -89,7 +89,7 @@ def hashsum(items):
 def compare_spells(a, b):
     for (ka, va), (kb, vb) in zip(a.items(), b.items()):
         if ka != kb:
-            print('Keys differ: %s != %s' % (ka, kb))
+            print('Keys differ: {} != {}'.format(ka, kb))
             return False
     return True
 

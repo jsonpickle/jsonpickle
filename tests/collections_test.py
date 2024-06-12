@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # This document is free and open-source software, subject to the OSI-approved
 # BSD license below.
@@ -60,19 +59,19 @@ expectation of failure via raising exceptions.
 """
 
 
-class Group(object):
+class Group:
     def __init__(self, name):
-        super(Group, self).__init__()
+        super().__init__()
         self.name = name
         self.elements = []
 
     def __repr__(self):
-        return 'Group({})'.format(self.name)
+        return f'Group({self.name})'
 
 
-class C(object):
+class C:
     def __init__(self, v):
-        super(C, self).__init__()
+        super().__init__()
         self.v = v
         self.plain = dict()
         self.plain_ordered = OrderedDict()
@@ -87,16 +86,16 @@ class C(object):
         return hash(self.v) if hasattr(self, 'v') else id(self)
 
     def __repr__(self):
-        return 'C({})'.format(self.v)
+        return f'C({self.v})'
 
 
 def c_factory():
     return (C(0), '_')
 
 
-class D(object):
+class D:
     def __init__(self, v):
-        super(D, self).__init__()
+        super().__init__()
         self.v = v
         self.plain = set()
 
@@ -107,7 +106,7 @@ class D(object):
         return hash(self.v) if hasattr(self, 'v') else id(self)
 
     def __repr__(self):
-        return 'D({})'.format(self.v)
+        return f'D({self.v})'
 
 
 def pickle_and_unpickle(obj):

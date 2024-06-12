@@ -542,7 +542,7 @@ def importable_name(cls):
                 module = cls.__self__.__module__
             else:
                 module = cls.__self__.__class__.__module__
-    return '{}.{}'.format(module, name)
+    return f'{module}.{name}'
 
 
 def b64encode(data):
@@ -581,5 +581,4 @@ def items(obj):
     """
     TODO: Replace all calls to this with plain dict.items()
     """
-    for k, v in obj.items():
-        yield k, v
+    yield from obj.items()
