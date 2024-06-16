@@ -309,6 +309,11 @@ def has_tag_dict(obj, tag):
     return tag in obj
 
 
+def _passthrough(value):
+    """A function that returns its input as-is"""
+    return value
+
+
 class Unpickler(object):
     def __init__(
         self,
@@ -350,14 +355,11 @@ class Unpickler(object):
             method(obj, attr, proxy)
         self._proxies = []
 
-    def _restore(self, obj):
+    def _restore(self, obj, _passthrough=_passthrough):
         # if obj isn't in these types, neither it nor nothing in it can have a tag
         # don't change the tuple of types to a set, it won't work with isinstance
         if not isinstance(obj, (str, list, dict, set, tuple)):
-
-            def restore(x):
-                return x
-
+            restore = _passthrough
         else:
             restore = self._restore_tags(obj)
         return restore(obj)
@@ -589,7 +591,7 @@ class Unpickler(object):
             )
         return key
 
-    def _restore_key_fn(self):
+    def _restore_key_fn(self, _passthrough=_passthrough):
         """Return a callable that restores keys
 
         This function is responsible for restoring non-string keys
@@ -604,10 +606,7 @@ class Unpickler(object):
         if self.keys:
             restore_key = self._restore_pickled_key
         else:
-
-            def restore_key(key):
-                return key
-
+            restore_key = _passthrough
         return restore_key
 
     def _restore_from_dict(
@@ -870,15 +869,11 @@ class Unpickler(object):
     def _restore_tuple(self, obj):
         return tuple([self._restore(v) for v in obj[tags.TUPLE]])
 
-    def _restore_tags(self, obj):
+    def _restore_tags(self, obj, _passthrough=_passthrough):
         """Return the restoration function for the specified object"""
         try:
             if not tags.RESERVED <= set(obj) and type(obj) not in (list, dict):
-
-                def restore(x):
-                    return x
-
-                return restore
+                return _passthrough
         except TypeError:
             pass
         if type(obj) is dict:
@@ -909,8 +904,5 @@ class Unpickler(object):
         elif util.is_list(obj):
             restore = self._restore_list
         else:
-
-            def restore(x):
-                return x
-
+            restore = _passthrough
         return restore
