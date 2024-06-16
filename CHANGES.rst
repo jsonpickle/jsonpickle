@@ -2,9 +2,10 @@ v3.2.2
 ======
     * A bug with the incorrect (de)serialization of NoneType objects has been fixed.
       (+507)
-    * Fix test suite compatibility with Numpy 2.x (+512)
     * ``tests/benchmark.py`` was updated to avoid Python 2 syntax. (+508)
     * The unpickler was updated to avoid creating temporary functions. (+508)
+    * Some basic scripts have been made to analyze benchmark results. (+511)
+    * Fix test suite compatibility with Numpy 2.x (+512)
 
 v3.2.1
 ======

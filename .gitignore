@@ -23,3 +23,6 @@ __pycache__
 # Local benchmarking files for Theelx
 kern*.py
 *.lprof
+benchmark-*.json
+perf.csv
+perf.svg
