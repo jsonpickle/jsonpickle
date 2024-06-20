@@ -6,6 +6,7 @@ v3.2.2
     * The unpickler was updated to avoid creating temporary functions. (+508)
     * Some basic scripts have been made to analyze benchmark results. (+511)
     * Fix test suite compatibility with Numpy 2.x (+512)
+    * `setup.cfg` was updated to use `license_files` instead of `license_file`.
 
 v3.2.1
 ======
