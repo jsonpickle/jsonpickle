@@ -15,6 +15,7 @@ ID = 'py/id'
 INITARGS = 'py/initargs'
 ITERATOR = 'py/iterator'
 JSON_KEY = 'json://'
+MODULE = 'py/mod'
 NEWARGS = 'py/newargs'
 NEWARGSEX = 'py/newargsex'
 NEWOBJ = 'py/newobj'
@@ -36,6 +37,7 @@ RESERVED = {
     ID,
     INITARGS,
     ITERATOR,
+    MODULE,
     NEWARGS,
     NEWARGSEX,
     NEWOBJ,

@@ -404,7 +404,7 @@ class PicklingTestCase(unittest.TestCase):
         flattened = self.pickler.flatten(obj)
         self.unpickler.safe = True
         inflated = self.unpickler.restore(flattened)
-        self.assertEqual(inflated.themodule, None)
+        assert inflated.themodule is os
 
     def test_thing_with_submodule(self):
         obj = Thing('with-submodule')
