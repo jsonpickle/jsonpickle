@@ -1,3 +1,8 @@
+v3.3.0
+======
+    * The unpickler was updated to avoid using ``eval``, which helps improve its
+      security. (+513)
+
 v3.2.2
 ======
     * A bug with the incorrect (de)serialization of NoneType objects has been fixed.

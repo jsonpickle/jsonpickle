@@ -278,6 +278,10 @@ def loadrepr(reprstr):
     """Returns an instance of the object from the object's repr() string.
     It involves the dynamic specification of code.
 
+    ..warning::
+
+        This function is unsafe and uses `eval()`. `loadrepr` is deprecated.
+
     >>> obj = loadrepr('datetime/datetime.datetime.now()')
     >>> obj.__class__.__name__
     'datetime'
@@ -290,6 +294,25 @@ def loadrepr(reprstr):
         localname = module.split('.', 1)[0]
     mylocals[localname] = __import__(module)
     return eval(evalstr, mylocals)
+
+
+def loadmodule(module_str):
+    """Returns a reference to a module.
+
+    >>> fn = loadmodule('datetime/datetime.datetime.fromtimestamp')
+    >>> fn.__name__
+    'fromtimestamp'
+
+    """
+    module, identifier = module_str.split('/')
+    toplevel_name = module.split('.', 1)[0]
+    result = __import__(module)
+    for name in identifier.split('.')[1:]:
+        try:
+            result = getattr(result, name)
+        except AttributeError:
+            return None
+    return result
 
 
 def has_tag_dict(obj, tag):
@@ -555,7 +578,7 @@ class Unpickler(object):
         if self.safe:
             # eval() is not allowed in safe mode
             return None
-        obj = loadrepr(obj[tags.REPR])
+        obj = loadmodule(obj[tags.REPR])
         return self._mkref(obj)
 
     def _loadfactory(self, obj):
