@@ -278,9 +278,9 @@ def loadrepr(reprstr):
     """Returns an instance of the object from the object's repr() string.
     It involves the dynamic specification of code.
 
-    ..warning::
+    .. warning::
 
-        This function is unsafe and uses `eval()`. `loadrepr` is deprecated.
+        This function is unsafe and uses `eval()`.
 
     >>> obj = loadrepr('datetime/datetime.datetime.now()')
     >>> obj.__class__.__name__
