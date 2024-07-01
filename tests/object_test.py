@@ -188,6 +188,25 @@ class ThingWithDefaultFactory:
         # Keep track of how many times this constructor has been run.
         ThingWithDefaultFactoryRegistry.count += 1
 
+class ThingWithIteratorPlusData:
+    """ Class that has an iterator and more"""
+    def __init__(self, a):
+        self.a = a
+        self._data = [3,1,4,1,5,9]
+        self._index = 0
+
+    def __iter__(self):
+        self._index = 0
+        return self
+
+    def __next__(self):
+        try:
+            item = self._data[self._index]
+        except IndexError as e:
+            raise StopIteration from e
+        self._index += 1
+        return item
+
 
 class IntEnumTest(enum.IntEnum):
     X = 1
@@ -1139,6 +1158,13 @@ def test_datetime_with_tz_copies_refs():
     assert len(decoded) == 2
     assert decoded[0] == d0
     assert decoded[1] == d1
+
+def test_iterator_plus():
+    obj = ThingWithIteratorPlusData(1)
+    encoded = jsonpickle.encode(obj, ignore_iterator=True)
+    decoded = jsonpickle.decode(encoded)
+    assert hasattr(decoded, 'a')
+    assert decoded.a == obj.a
 
 
 if __name__ == '__main__':

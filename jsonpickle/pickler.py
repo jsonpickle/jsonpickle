@@ -35,6 +35,7 @@ def encode(
     separators=None,
     include_properties=False,
     handle_readonly=False,
+        ignore_iterator=False
 ):
     """Return a JSON formatted representation of value, a Python object.
 
@@ -134,6 +135,10 @@ def encode(
         basically prevents jsonpickle from raising an exception for such objects.
         You MUST set ``handle_readonly=True`` for the decoding if you encode with
         this flag set to ``True``.
+    :param ignore_iterator:
+        Handle objects that contain an iterator that doesn't encode data from that object.
+        If set to False, the default, an object with an iterator will ignore other data elements.
+        Defaults to ``False``.
 
     >>> encode('my string') == '"my string"'
     True
@@ -161,6 +166,7 @@ def encode(
         include_properties=include_properties,
         handle_readonly=handle_readonly,
         original_object=value,
+        ignore_iterator=ignore_iterator
     )
     return backend.encode(
         context.flatten(value, reset=reset), indent=indent, separators=separators
@@ -210,6 +216,7 @@ class Pickler(object):
         include_properties=False,
         handle_readonly=False,
         original_object=None,
+        ignore_iterator=False
     ):
         self.unpicklable = unpicklable
         self.make_refs = make_refs
@@ -247,6 +254,7 @@ class Pickler(object):
         self.include_properties = include_properties
 
         self._original_object = original_object
+        self.ignore_iterator = ignore_iterator
 
     def _determine_sort_keys(self):
         for _, options in getattr(self.backend, '_encoder_options', {}).values():
@@ -681,7 +689,7 @@ class Pickler(object):
         if util.is_sequence_subclass(obj):
             return self._flatten_sequence_obj(obj, data)
 
-        if util.is_iterator(obj):
+        if not self.ignore_iterator and util.is_iterator(obj):
             # force list in python 3
             data[tags.ITERATOR] = list(map(self._flatten, islice(obj, self._max_iter)))
             return data
