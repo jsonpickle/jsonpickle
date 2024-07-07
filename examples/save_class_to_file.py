@@ -1,6 +1,6 @@
-import jsonpickle
-
 from utilities import ensure_no_files_overwritten
+
+import jsonpickle
 
 ensure_no_files_overwritten(
     expected_contents='{"py/object": "__main__.Example", "data": {"BAR": 1, "foo": 0}}'
