@@ -35,7 +35,7 @@ def encode(
     separators=None,
     include_properties=False,
     handle_readonly=False,
-        ignore_iterator=False
+    ignore_iterator=False
 ):
     """Return a JSON formatted representation of value, a Python object.
 
