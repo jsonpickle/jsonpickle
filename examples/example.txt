@@ -1,0 +1,1 @@
+{"py/object": "__main__.Example", "data": {"BAR": 1, "foo": 0}}

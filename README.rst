@@ -38,6 +38,12 @@ For complete documentation, please visit the
 Bug reports and merge requests are encouraged at the
 `jsonpickle repository on github <https://github.com/jsonpickle/jsonpickle>`_.
 
+Usage
+=====
+
+See the `examples directory on GitHub <https://github.com/jsonpickle/jsonpickle/tree/main/examples>`_ for example scripts. These can be run on your local machine to see how jsonpickle works and behaves, and how to use it. Contributions from users regarding how they use jsonpickle are welcome!
+
+
 Why jsonpickle?
 ===============
 
