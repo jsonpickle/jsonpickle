@@ -19,6 +19,7 @@ __pycache__
 *#*
 *~
 *.tar.gz
+examples/example.json
 
 # Local benchmarking files for Theelx
 kern*.py
