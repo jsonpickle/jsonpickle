@@ -32,13 +32,13 @@ print(
 )
 
 
-with open("example.txt", "w+") as f:
+with open("example.json", "w+") as f:
     f.write(encoded_instance)
     print(
-        f"jsonpickle successfully wrote the instance of the Example class to example.txt!"
+        "jsonpickle successfully wrote the instance of the Example class to example.json!"
     )
 
-with open("example.txt", "r+") as f:
+with open("example.json", "r+") as f:
     written_instance = f.read()
     # decode the file into a copy of the original object
     decoded_instance = jsonpickle.decode(written_instance)
