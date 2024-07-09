@@ -40,8 +40,31 @@ Bug reports and merge requests are encouraged at the
 
 Usage
 =====
+The following is a very simple example of how one can use jsonpickle in their scripts/projects. Note the usage of jsonpickle.encode and decode, and how the data is written/encoded to a file and then read/decoded from the file.
 
-See the `examples directory on GitHub <https://github.com/jsonpickle/jsonpickle/tree/main/examples>`_ for example scripts. These can be run on your local machine to see how jsonpickle works and behaves, and how to use it. Contributions from users regarding how they use jsonpickle are welcome!
+.. code-block:: python
+
+    import jsonpickle
+    from dataclasses import dataclass
+   
+    @dataclass
+    class Example:
+        data: str
+   
+   
+    ex = Example("value1")
+    encoded_instance = jsonpickle.encode(ex)
+    assert encoded_instance == '{"py/object": "__main__.Example", "data": "value1"}'
+   
+    with open("example.json", "w+") as f:
+        f.write(encoded_instance)
+   
+    with open("example.json", "r+") as f:
+        written_instance = f.read()
+        decoded_instance = jsonpickle.decode(written_instance)
+    assert decoded_instance == ex
+
+For more examples, see the `examples directory on GitHub <https://github.com/jsonpickle/jsonpickle/tree/main/examples>`_ for example scripts. These can be run on your local machine to see how jsonpickle works and behaves, and how to use it. Contributions from users regarding how they use jsonpickle are welcome!
 
 
 Why jsonpickle?
