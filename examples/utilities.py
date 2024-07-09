@@ -4,7 +4,7 @@ import sys
 
 def ensure_no_files_overwritten(expected_contents):
     # ensure we don't overwrite the user's files, if they run it on their machine
-    if os.path.exists('example.json'):
+    if os.path.exists("example.json"):
         with open("example.json", "r") as f:
             contents = f.read()
         if contents != expected_contents:
