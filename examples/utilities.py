@@ -9,4 +9,6 @@ def ensure_no_files_overwritten(expected_contents):
             contents = f.read()
         if contents != expected_contents:
             # exit with a non-zero error code
-            sys.exit("I don't want to overwrite the example.json file in my current directory! Please delete example.txt and try again!")
+            sys.exit(
+                "I don't want to overwrite the example.json file in my current directory! Please delete example.txt and try again!"
+            )
