@@ -91,6 +91,12 @@ protocol for representing object instances.
    :meth:`__getstate__` and :meth:`__setstate__`, the state object needn't be a
    dictionary and these methods can do what they want.
 
+.. py:attribute:: object._jsonpickle_exclude = set()
+
+    Classes can specify attributes that they want to exclude from being pickled
+    by defining an attribute named `_jsonpickle_exclude`. This set should contain
+    the names of attributes of that class to exclude from being pickled.
+
 
 :mod:`jsonpickle.handlers` -- Custom Serialization Handlers
 -----------------------------------------------------------

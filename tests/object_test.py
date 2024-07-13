@@ -289,6 +289,20 @@ class ExceptionWithArguments(Exception):
         self.value = value
 
 
+class ThingWithExclusion:
+    _jsonpickle_exclude = ["foo"]
+
+    def __init__(self, a):
+        self.foo = 1
+        self.bar = a
+
+
+class ThingWithExcludeSubclass:
+    def __init__(self, foo):
+        self.foo = foo
+        self.thing = ThingWithExclusion(3)
+
+
 class AdvancedObjectsTestCase(SkippableTest):
     def setUp(self):
         self.pickler = jsonpickle.pickler.Pickler()
@@ -1139,6 +1153,24 @@ def test_datetime_with_tz_copies_refs():
     assert len(decoded) == 2
     assert decoded[0] == d0
     assert decoded[1] == d1
+
+
+def test_with_exclude():
+    """Does the _jsonpickle_exclude work"""
+    obj = ThingWithExclusion('baz')
+    encoded = jsonpickle.encode(obj)
+    decoded = jsonpickle.decode(encoded)
+    assert decoded.bar == 'baz'
+    assert not hasattr(decoded, 'foo')
+
+
+def test_contained_exclusion():
+    """_jsonpickle_exclude should work only on the class it is defined in"""
+    obj = ThingWithExcludeSubclass('alpha')
+    encoded = jsonpickle.encode(obj)
+    decoded = jsonpickle.decode(encoded)
+    assert decoded.foo == 'alpha'
+    assert not hasattr(decoded.thing, 'foo')
 
 
 if __name__ == '__main__':
