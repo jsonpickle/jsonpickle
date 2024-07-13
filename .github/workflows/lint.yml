@@ -1,8 +1,5 @@
 name: Lint
 
-permissions:
-   contents: write
-
 on:
   push:
     branches:
@@ -19,31 +16,12 @@ jobs:
         with:
           python-version: "3.10"
 
-      - name: Run isort check
-        uses: isort/isort-action@master
-        with:
-            configuration: "--check-only --diff --profile black"
-
-      - name: Run isort
-        if: failure()
-        uses: isort/isort-action@master
-        with:
-            configuration: "--profile black"
-
       - name: Run black check
         uses: psf/black@stable
         with:
           options: "--check --diff"
 
-      - name: Run black format
-        if: failure()
-        uses: psf/black@stable
+      - name: Run isort check
+        uses: isort/isort-action@master
         with:
-          options: ""
-
-      - name: Commit isort+black format
-        if: failure()
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: "Apply black to code"
-
+            configuration: "--check-only --diff --profile black"
