@@ -305,7 +305,6 @@ def loadmodule(module_str):
 
     """
     module, identifier = module_str.split('/')
-    toplevel_name = module.split('.', 1)[0]
     result = __import__(module)
     for name in identifier.split('.')[1:]:
         try:
