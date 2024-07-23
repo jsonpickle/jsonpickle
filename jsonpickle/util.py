@@ -577,9 +577,11 @@ def itemgetter(obj, getter=operator.itemgetter(0)):
     return compat.ustr(getter(obj))
 
 
-def items(obj):
+def items(obj, exclude=()):
     """
     TODO: Replace all calls to this with plain dict.items()
     """
     for k, v in obj.items():
+        if k in exclude:
+            continue
         yield k, v
