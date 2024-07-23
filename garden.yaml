@@ -53,6 +53,7 @@ trees:
     remotes:
       aldanor: "git@github.com:aldanor/jsonpickle.git"
       davvid: "git@github.com:davvid/jsonpickle.git"
+      dwagon: "git@github.com:dwagon/jsonpickle.git"
       eoghanmurray: "git@github.com:eoghanmurray/jsonpickle.git"
       GREsau: "git@github.com:GREsau/jsonpickle.git"
       hartwork: "git@github.com:hartwork/jsonpickle.git"
