@@ -539,6 +539,7 @@ class Pickler(object):
         has_getnewargs_ex = util.has_method(obj, '__getnewargs_ex__')
         has_getinitargs = util.has_method(obj, '__getinitargs__')
         has_reduce, has_reduce_ex = util.has_reduce(obj)
+        exclude = set(getattr(obj, '_jsonpickle_exclude', ()))
 
         # Support objects with __getstate__(); this ensures that
         # both __setstate__() and __getstate__() are implemented
@@ -675,7 +676,7 @@ class Pickler(object):
             return data
 
         if util.is_dictionary_subclass(obj):
-            self._flatten_dict_obj(obj, data)
+            self._flatten_dict_obj(obj, data, exclude=exclude)
             return data
 
         if util.is_sequence_subclass(obj):
@@ -693,7 +694,7 @@ class Pickler(object):
 
             # hack for zope persistent objects; this unghostifies the object
             getattr(obj, '_', None)
-            return self._flatten_dict_obj(obj.__dict__, data)
+            return self._flatten_dict_obj(obj.__dict__, data, exclude=exclude)
 
         if has_slots:
             return self._flatten_newstyle_with_slots(obj, data)
@@ -770,7 +771,7 @@ class Pickler(object):
         data[k] = self._flatten(v)
         return data
 
-    def _flatten_dict_obj(self, obj, data=None):
+    def _flatten_dict_obj(self, obj, data=None, exclude=()):
         """Recursively call flatten() and return json-friendly dict"""
         if data is None:
             data = obj.__class__()
@@ -780,17 +781,17 @@ class Pickler(object):
         if self.keys:
             # Phase 1: serialize regular objects, ignore fancy keys.
             flatten = self._flatten_string_key_value_pair
-            for k, v in util.items(obj):
+            for k, v in util.items(obj, exclude=exclude):
                 flatten(k, v, data)
 
             # Phase 2: serialize non-string keys.
             flatten = self._flatten_non_string_key_value_pair
-            for k, v in util.items(obj):
+            for k, v in util.items(obj, exclude=exclude):
                 flatten(k, v, data)
         else:
             # If we have string keys only then we only need a single pass.
             flatten = self._flatten_key_value_pair
-            for k, v in util.items(obj):
+            for k, v in util.items(obj, exclude=exclude):
                 flatten(k, v, data)
 
         # the collections.defaultdict protocol
@@ -817,7 +818,7 @@ class Pickler(object):
         if hasattr(obj, '__dict__') and self.unpicklable and obj != obj.__dict__:
             if self._mkref(obj.__dict__):
                 dict_data = {}
-                self._flatten_dict_obj(obj.__dict__, dict_data)
+                self._flatten_dict_obj(obj.__dict__, dict_data, exclude=exclude)
                 data['__dict__'] = dict_data
             else:
                 data['__dict__'] = self._getref(obj.__dict__)

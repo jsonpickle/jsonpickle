@@ -3,6 +3,9 @@ v3.3.0
     * The unpickler was updated to avoid using ``eval``, which helps improve its
       security. Users can still pass ``safe=False`` to ``decode`` to use the old
       behavior, though this is not recommended. (+513)
+    * Objects can now exclude specific attributes from pickling by providing a
+      ``_jsonpickle_exclude`` class or instance attribute. This attribute should contain
+      the list of attribute names to exclude when pickling the object.
 
 v3.2.2
 ======
