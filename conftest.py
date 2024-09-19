@@ -1,4 +1,4 @@
-collect_ignore = ['contrib']
+collect_ignore = ['contrib', 'examples']
 
 
 def pytest_addoption(parser):
