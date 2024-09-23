@@ -13,7 +13,21 @@ Once you have those installed, start by cloning the repository and entering into
 ```sh
 git clone https://github.com/jsonpickle/jsonpickle.git && cd jsonpickle/examples
 ```
-Then, you should install jsonpickle:
+Then, you should install jsonpickle. The preferred method, using a virtual environment (which isolates packages), goes as so:
+```sh
+# DO NOT RUN LINES BEGINNING WITH #
+# Create a virtualenv in the "env" directory. You don't need to run this again.
+python3 -m venv env
+
+# You must activate the virtualenv anytime you open a new shell in order to
+# make the to-be-installed jsonpickle package available. You should run this
+# in the same directory that you ran the previous command in.
+source env/bin/activate
+
+pip install jsonpickle
+python3 save_class_to_file.py
+```
+If you'd rather install jsonpickle globally though, you can just run this:
 ```sh
 pip install jsonpickle
 ```
@@ -29,7 +43,23 @@ Once you have those installed, start by cloning the repository in a terminal (su
 git clone https://github.com/jsonpickle/jsonpickle.git
 cd jsonpickle/examples
 ```
-Then, you should install jsonpickle in the same terminal:
+Then, you should install jsonpickle in the same terminal. The preferred method, using a virtual environment (which isolates packages), goes as so:
+```sh
+pip install virtualenv
+
+# DO NOT RUN LINES BEGINNING WITH #
+# Create a virtualenv in the "env" directory. You don't need to run this again.
+virtualenv venv
+
+# You must activate the virtualenv anytime you open a new shell in order to
+# make the to-be-installed jsonpickle package available. You should run this
+# in the same directory that you ran the previous command in.
+.\venv\Scripts\activate
+
+pip install jsonpickle
+python save_class_to_file.py
+```
+If you'd rather install jsonpickle globally though, you can just run this:
 ```sh
 pip install jsonpickle
 ```
