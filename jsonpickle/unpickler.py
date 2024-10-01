@@ -19,7 +19,7 @@ def decode(
     context=None,
     keys=False,
     reset=True,
-    safe=False,
+    safe=True,
     classes=None,
     v1_decode=False,
     on_missing='ignore',
@@ -45,8 +45,13 @@ def decode(
         This flag is not typically used outside of a custom handler or
         `__getstate__` implementation.
 
-    :param safe: If set to True, eval() is avoided, but backwards-compatible
-        (pre-0.7.0) deserialization of repr-serialized objects is disabled.
+    :param safe: If set to False, use of ``eval()`` for backwards-compatible (pre-0.7.0)
+        deserialization of repr-serialized objects is enabled. Defaults to True.
+
+        .. warning::
+
+            ``eval()`` is used when set to ``False`` and is not secure against
+            malicious inputs. You should avoid setting ``safe=False``.
 
     :param classes: If set to a single class, or a sequence (list, set, tuple) of
         classes, then the classes will be made available when constructing objects.
@@ -296,10 +301,10 @@ def loadrepr(reprstr):
     return eval(evalstr, mylocals)
 
 
-def loadmodule(module_str):
+def _loadmodule(module_str):
     """Returns a reference to a module.
 
-    >>> fn = loadmodule('datetime/datetime.datetime.fromtimestamp')
+    >>> fn = _loadmodule('datetime/datetime.datetime.fromtimestamp')
     >>> fn.__name__
     'fromtimestamp'
 
@@ -341,7 +346,7 @@ class Unpickler(object):
         self,
         backend=None,
         keys=False,
-        safe=False,
+        safe=True,
         v1_decode=False,
         on_missing='ignore',
         handle_readonly=False,
@@ -573,11 +578,16 @@ class Unpickler(object):
             return obj
         return typeref
 
+    def _restore_module(self, obj):
+        obj = _loadmodule(obj[tags.MODULE])
+        return self._mkref(obj)
+
+    def _restore_repr_safe(self, obj):
+        obj = _loadmodule(obj[tags.REPR])
+        return self._mkref(obj)
+
     def _restore_repr(self, obj):
-        if self.safe:
-            # eval() is not allowed in safe mode
-            return None
-        obj = loadmodule(obj[tags.REPR])
+        obj = loadrepr(obj[tags.REPR])
         return self._mkref(obj)
 
     def _loadfactory(self, obj):
@@ -919,8 +929,13 @@ class Unpickler(object):
                 restore = self._restore_reduce
             elif tags.FUNCTION in obj:
                 restore = self._restore_function
-            elif tags.REPR in obj:  # Backwards compatibility
-                restore = self._restore_repr
+            elif tags.MODULE in obj:
+                restore = self._restore_module
+            elif tags.REPR in obj:
+                if self.safe:
+                    restore = self._restore_repr_safe
+                else:
+                    restore = self._restore_repr
             else:
                 restore = self._restore_dict
         elif util.is_list(obj):
