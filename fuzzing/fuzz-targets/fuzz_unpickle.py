@@ -29,6 +29,7 @@ expected_errors = {
         ("object is not iterable", 881),
         ("object is not iterable", 892),
         ("unhashable type", 407),
+        ("unhashable type", 841),
         ("object argument after * must be an iterable", 493),
         ("object argument after * must be an iterable", 520),
         ("list index out of range", 160),
