@@ -76,7 +76,7 @@ tox::
 .PHONY: tox
 
 benchmark::
-	$(BENCHMARKCMD) --benchmark-only --benchmark-histogram=./images/benchmark-$(DATEANDTIME) ./jsonpickle_benchmarks.py
+	$(BENCHMARKCMD) --benchmark-histogram=./images/benchmark-$(DATEANDTIME) ./jsonpickle_benchmarks.py
 .PHONY: benchmark
 
 doc::
