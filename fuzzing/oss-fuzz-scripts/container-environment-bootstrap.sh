@@ -32,18 +32,6 @@ download_and_concatenate_common_dictionaries() {
   done
 }
 
-create_seed_corpora_zips() {
-  local seed_corpora_dir="$1"
-  local output_zip
-  for dir in "$seed_corpora_dir"/*; do
-    if [ -d "$dir" ] && [ -n "$dir" ]; then
-      output_zip="$SRC/$(basename "$dir")_seed_corpus.zip"
-      printf '[%s] Zipping the contents of %s into %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$dir" "$output_zip"
-      zip -jur "$output_zip" "$dir"/*
-    fi
-  done
-}
-
 prepare_dictionaries_for_fuzz_targets() {
   local dictionaries_dir="$1"
   local fuzz_targets_dir="$2"
@@ -81,10 +69,6 @@ prepare_dictionaries_for_fuzz_targets() {
 ########################
 # Main execution logic #
 ########################
-
-git clone --depth 1 https://github.com/DaveLak/oss-fuzz-inputs.git "$WORK/qa-assets"
-
-create_seed_corpora_zips "$WORK/qa-assets/jsonpickle/corpora"
 
 prepare_dictionaries_for_fuzz_targets "$SRC/jsonpickle/fuzzing/dictionaries" "$SRC/jsonpickle/fuzzing"
 
