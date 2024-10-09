@@ -9,7 +9,6 @@ FIND ?= find
 PYTHON ?= python3
 PYTEST ?= $(PYTHON) -m pytest
 SPHINX ?= $(PYTHON) -m sphinx
-BENCHMARK ?= pytest
 RM_R ?= rm -fr
 TOX ?= tox
 # Detect macOS to customize how we query the cpu count.
@@ -19,6 +18,15 @@ ifeq ($(uname_S),Darwin)
 else
     NPROC ?= nproc
 endif
+
+ifeq ($(uname_S),Linux)
+    # set core affinity (preferred core to run on) to 1 for more reliable results
+    # by preventing core switching from occuring
+    # this adds a dependency for `sudo apt install schedutils`
+    BENCHMARK = taskset -c 1
+endif
+
+BENCHMARK += pytest
 
 # Options
 flags ?=
@@ -76,7 +84,8 @@ tox::
 .PHONY: tox
 
 benchmark::
-	$(BENCHMARKCMD) --benchmark-histogram=./images/benchmark-$(DATEANDTIME) ./jsonpickle_benchmarks.py
+    # disable gc for reproducibility, warmup on for the experimental python 3.13 JIT
+	$(BENCHMARKCMD) --benchmark-disable-gc --benchmark-warmup=on --benchmark-warmup-iterations=1 --benchmark-min-rounds=10000 --benchmark-histogram=./images/benchmark-$(DATEANDTIME) ./jsonpickle_benchmarks.py
 .PHONY: benchmark
 
 doc::
