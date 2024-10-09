@@ -27,3 +27,5 @@ kern*.py
 benchmark-*.json
 perf.csv
 perf.svg
+# Files created by OSS-Fuzz when running locally
+fuzz_*.pkg.spec
