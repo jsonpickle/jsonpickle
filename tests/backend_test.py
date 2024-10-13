@@ -171,11 +171,26 @@ class UJsonTestCase(BackendBase):
         self.assert_roundtrip(expected_pickled)
 
 
+class YamlTestCase(BackendBase):
+    def setUp(self):
+        self.set_preferred_backend('yaml')
+
+    def test_backend(self):
+        expected_pickled = (
+            'things:\n'
+            '  - py/object: backend_test.Thing\n'
+            '    name: data\n'
+            '    child: null\n'
+        )
+        self.assert_roundtrip(expected_pickled)
+
+
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(JsonTestCase))
     suite.addTest(unittest.makeSuite(UJsonTestCase))
     suite.addTest(unittest.makeSuite(SimpleJsonTestCase))
+    suite.addTest(unittest.makeSuite(YamlTestCase))
     return suite
 
 

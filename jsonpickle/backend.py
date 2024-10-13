@@ -16,11 +16,7 @@ class JSONBackend(object):
         """Ensures that we've loaded at least one JSON backend."""
         if self._verified:
             return
-        raise AssertionError(
-            'jsonpickle requires at least one of the '
-            'following:\n'
-            '    python2.6, simplejson'
-        )
+        raise AssertionError('jsonpickle could not load any json modules')
 
     def encode(self, obj, indent=None, separators=None):
         """
@@ -98,6 +94,9 @@ class JSONBackend(object):
 
         self.load_backend('simplejson')
         self.load_backend('json')
+        self.load_backend(
+            'yaml', dumps='dump', loads='safe_load', loads_exc='YAMLError'
+        )
         self.load_backend('ujson')
 
         # Defaults for various encoders
