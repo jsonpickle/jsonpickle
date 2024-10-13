@@ -31,6 +31,9 @@ Homepage = "https://jsonpickle.readthedocs.io/"
 Source = "https://github.com/jsonpickle/jsonpickle"
 
 [project.optional-dependencies]
+cov = [
+    "pytest-cov",
+]
 dev = [
     "black",
 ]
