@@ -1,6 +1,5 @@
 Upcoming
 ========
-
     * **Breaking Change**: Support for pre-0.7.0 ``repr``-serialized objects is no
       longer enabled by default. The ``safe`` option to ``decode()`` was changed from
       ``False`` to ``True``. Users can still pass ``safe=False`` to ``decode()`` in order
@@ -10,6 +9,8 @@ Upcoming
       feature. (+514)
     * The pickler no longer produces ``py/repr`` tags when pickling modules.
       ``py/mod`` is used instead, as it is clearer and uses one less byte. (+514)
+    * The ``setup.cfg`` packaging configuration has been replaced by
+      ``pyproject.toml``. (+527)
 
 v3.3.0
 ======
