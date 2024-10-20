@@ -11,6 +11,7 @@ Upcoming
       ``py/mod`` is used instead, as it is clearer and uses one less byte. (+514)
     * The ``setup.cfg`` packaging configuration has been replaced by
       ``pyproject.toml``. (+527)
+    * ``yaml`` is now supported as a jsonpickle backend. (+528)
 
 v3.3.0
 ======
