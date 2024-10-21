@@ -30,8 +30,8 @@ trees:
         black --skip-string-normalization --target-version py37 "$@" jsonpickle tests
         isort --profile=black "$@" jsonpickle tests
       setup: |
-        python3 -m venv env3
-        garden ${GARDEN_CMD_VERBOSE} setup/dev
+        test -d env3 || python3 -m venv env3
+        garden setup/dev ${GARDEN_CMD_VERBOSE}
       setup/dev: |
         ${activate} pip install --editable '.[dev,docs,testing]'
       setup/packaging: |
