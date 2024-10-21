@@ -13,11 +13,7 @@ trees:
     url: "git@github.com:jsonpickle/jsonpickle.git"
     commands:
       bench: |
-        python3 -m pytest \
-          --benchmark-verbose \
-          --benchmark-only \
-          --benchmark-histogram=./images/benchmark-${timestamp} \
-          ./jsonpickle_benchmarks.py
+        make benchmark
       check>:
         - test
         - check/fmt
