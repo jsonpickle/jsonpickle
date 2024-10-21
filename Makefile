@@ -9,7 +9,7 @@ FIND ?= find
 PYTHON ?= python3
 PYTEST ?= $(PYTHON) -m pytest
 SPHINX ?= $(PYTHON) -m sphinx
-BENCHMARK ?= pytest
+BENCHMARK ?= $(PYTEST)
 RM_R ?= rm -fr
 TOX ?= tox
 # Detect macOS to customize how we query the cpu count.
@@ -22,6 +22,9 @@ endif
 
 # Options
 flags ?=
+
+# Capture extra arguments for the benchmark target
+EXTRA_BENCH_ARGS ?= 
 
 # Default job count -- this is used if "-j" is not present in MAKEFLAGS.
 nproc := $(shell sh -c '$(NPROC) 2>/dev/null || echo 4')
@@ -76,7 +79,57 @@ tox::
 .PHONY: tox
 
 benchmark::
-	$(BENCHMARKCMD) --benchmark-only --benchmark-histogram=./images/benchmark-$(DATEANDTIME) ./jsonpickle_benchmarks.py
+	@if [ "$(uname_S)" = "Linux" ]; then \
+		echo "Operating System detected: Linux"; \
+		\
+		if [ -f /etc/os-release ]; then \
+			. /etc/os-release; \
+			if [ "$$ID" = "ubuntu" ]; then \
+				echo "Ubuntu detected."; \
+				\
+				if ! command -v taskset >/dev/null 2>&1; then \
+					echo "'taskset' not found. We need this to reduce noise. Installing util-linux..."; \
+					\
+					sudo apt-get update && \
+					\
+					sudo apt-get install -y util-linux && \
+					\
+					if ! command -v taskset >/dev/null 2>&1; then \
+						echo "Failed to install util-linux. Please install it manually."; \
+						exit 1; \
+					else \
+						echo "Successfully installed util-linux."; \
+					fi; \
+				else \
+					echo "'taskset' is already installed."; \
+				fi; \
+			else \
+				echo "Non-Ubuntu Linux distribution detected. Skipping util-linux installation."; \
+			fi; \
+		else \
+			echo "Cannot detect OS. Skipping util-linux installation."; \
+		fi; \
+		\
+		NUM_CORES=`$(NPROC)`; \
+		\
+		# use #cores / 2 - 1 because cores 0, 1, and last get most noise \
+		# and we divide by 2 to get physical cores for systems with SMT (most x86) \
+		# so this works well for 4+ core machines \
+		if [ $$NUM_CORES -gt 16 ]; then \
+			TARGET_CORE=7; \
+		else \
+			TARGET_CORE=$$((NUM_CORES / 2 - 1)); \
+		fi; \
+		\
+		echo "Running '$(BENCHMARKCMD)' on core $$TARGET_CORE of $$NUM_CORES cores."; \
+		\
+		# execute the benchmark command with core affinity set to the target core \
+		# disable gc for reproducibility, warmup on for the experimental python 3.13 JIT \
+		taskset -c $$TARGET_CORE $(BENCHMARKCMD) --benchmark-disable-gc --benchmark-warmup=on --benchmark-warmup-iterations=1 --benchmark-min-rounds=10000 --benchmark-histogram=./images/benchmark-$(DATEANDTIME) $(EXTRA_BENCH_ARGS) ./jsonpickle_benchmarks.py; \
+	else \
+	    $(BENCHMARKCMD) --benchmark-disable-gc --benchmark-warmup=on --benchmark-warmup-iterations=1 --benchmark-min-rounds=10000 --benchmark-histogram=./images/benchmark-$(DATEANDTIME) $(EXTRA_BENCH_ARGS) ./jsonpickle_benchmarks.py; \
+		echo "The 'benchmark' target has much less noise on Linux, try running it on there!"; \
+	fi
 .PHONY: benchmark
 
 doc::
