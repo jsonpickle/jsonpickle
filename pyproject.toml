@@ -53,6 +53,7 @@ testing = [
     "numpy",
     "pandas",
     "pymongo",
+    "PyYAML",
     "scikit-learn",
     "scipy>=1.9.3; python_version > '3.10'",
     "scipy; python_version <= '3.10'",
