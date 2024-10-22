@@ -94,10 +94,10 @@ class JSONBackend(object):
 
         self.load_backend('simplejson')
         self.load_backend('json')
+        self.load_backend('ujson')
         self.load_backend(
             'yaml', dumps='dump', loads='safe_load', loads_exc='YAMLError'
         )
-        self.load_backend('ujson')
 
         # Defaults for various encoders
         json_opts = ((), {'sort_keys': False})
