@@ -26,7 +26,7 @@ import jsonpickle
 class SlotPickleMixin(object):
     def __getstate__(self):
         all_slots = itertools.chain.from_iterable(
-            getattr(cls, '__slots__', []) for cls in self.__class__.__mro__
+            getattr(cls, "__slots__", []) for cls in self.__class__.__mro__
         )
         return dict(
             (slot, getattr(self, slot)) for slot in all_slots if hasattr(self, slot)
@@ -38,49 +38,49 @@ class SlotPickleMixin(object):
 
 
 class MyClass(object):
-    __slots__ = ['idk', 'idk2']
+    __slots__ = ["idk", "idk2"]
 
     def __init__(self):
         self.idk = {
-            'a': 0,
-            'b': [0.5783, 1, 2.5789],
-            'c': {0, 1.87559, 2},
-            'd': ['0', '1', '2'],
-            'e': {'0', '1', '2'},
-            'f': {'a': 0, 'b': {'a': 1}},
+            "a": 0,
+            "b": [0.5783, 1, 2.5789],
+            "c": {0, 1.87559, 2},
+            "d": ["0", "1", "2"],
+            "e": {"0", "1", "2"},
+            "f": {"a": 0, "b": {"a": 1}},
         }
         self.idk2 = [
-            'a',
-            'b',
-            'c',
+            "a",
+            "b",
+            "c",
             0,
             0.18752,
             2,
-            ['a', 'b', 'c', 0.8579, 1, 2.59757],
+            ["a", "b", "c", 0.8579, 1, 2.59757],
             (self.idk, self.idk),
         ]
 
 
 class MyClassGetState(SlotPickleMixin):
-    __slots__ = ['idk', 'idk2']
+    __slots__ = ["idk", "idk2"]
 
     def __init__(self):
         self.idk = {
-            'a': 0,
-            'b': [0.5783, 1, 2.5789],
-            'c': {0, 1.87559, 2},
-            'd': ['0', '1', '2'],
-            'e': {'0', '1', '2'},
-            'f': {'a': 0, 'b': {'a': 1}},
+            "a": 0,
+            "b": [0.5783, 1, 2.5789],
+            "c": {0, 1.87559, 2},
+            "d": ["0", "1", "2"],
+            "e": {"0", "1", "2"},
+            "f": {"a": 0, "b": {"a": 1}},
         }
         self.idk2 = [
-            'a',
-            'b',
-            'c',
+            "a",
+            "b",
+            "c",
             0,
             0.18752,
             2,
-            ['a', 'b', 'c', 0.8579, 1, 2.59757],
+            ["a", "b", "c", 0.8579, 1, 2.59757],
             (self.idk, self.idk),
         ]
 
@@ -93,36 +93,36 @@ class MyClassGetState(SlotPickleMixin):
 
 class MyClassSimple(object):
     def __init__(self):
-        self.idk = {'a': 0}
-        self.idk2 = ['a', 0]
+        self.idk = {"a": 0}
+        self.idk2 = ["a", 0]
 
 
 HOMOGENOUS_COMPLEX_DICT = {
-    'a': 0,
-    'b': 4.2,
-    'c': {6.9: 'd'},
+    "a": 0,
+    "b": 4.2,
+    "c": {6.9: "d"},
     -1: {5: 5},
     6: {8.42: -2.5},
 }
 HOMOGENOUS_COMPLEX_LIST = [
-    'a',
+    "a",
     0,
-    'b',
+    "b",
     4.2,
-    'c',
-    [6.9, 'd'],
+    "c",
+    [6.9, "d"],
     -1,
     [5, 5],
     6,
     [8.42, -2.5],
 ]
 HOMOGENOUS_COMPLEX_TUPLE = (
-    'a',
+    "a",
     0,
-    'b',
+    "b",
     4.2,
-    'c',
-    (6.9, 'd'),
+    "c",
+    (6.9, "d"),
     -1,
     (5, 5),
     6,
@@ -130,12 +130,12 @@ HOMOGENOUS_COMPLEX_TUPLE = (
 )
 # can't put a set inside a set :(
 HOMOGENOUS_COMPLEX_SET = {
-    'a',
+    "a",
     0,
-    'b',
+    "b",
     4.2,
-    'c',
-    (6.9, 'd'),
+    "c",
+    (6.9, "d"),
     -1,
     (5, 5),
     6,
@@ -143,46 +143,46 @@ HOMOGENOUS_COMPLEX_SET = {
 }
 
 HETEROGENOUS_COMPLEX_DICT = {
-    'a': (0, '1'),
+    "a": (0, "1"),
     2.53: [3, 1],
-    'c': {4.2, 6.9},
-    'd': {1: 5.432},
+    "c": {4.2, 6.9},
+    "d": {1: 5.432},
 }
 HETEROGENOUS_COMPLEX_LIST = [
-    'a',
-    (0, '1'),
+    "a",
+    (0, "1"),
     2.53,
     [3, 1],
-    'c',
+    "c",
     {4.2, 6.9},
-    'd',
+    "d",
     {1: 5.432},
 ]
 HETEROGENOUS_COMPLEX_TUPLE = (
-    'a',
-    (0, '1'),
+    "a",
+    (0, "1"),
     2.53,
     [3, 1],
-    'c',
+    "c",
     {4.2, 6.9},
-    'd',
+    "d",
     {1: 5.432},
 )
 HETEROGENOUS_COMPLEX_SET = {
-    'a',
-    (0, '1'),
+    "a",
+    (0, "1"),
     2.53,
     (3, 1),
-    'c',
+    "c",
     (4.2, 6.9),
-    'd',
+    "d",
     (1, 5.432),
 }
 
-simple_dict_encoded = jsonpickle.encode({'a': 0, 'b': 4.2, 3: 6.9})
-simple_list_encoded = jsonpickle.encode(['a', 0, 'b', 4.2, 3, 6.9])
-simple_tuple_encoded = jsonpickle.encode(('a', 0, 'b', 4.2, 3, 6.9))
-simple_set_encoded = jsonpickle.encode({'a', 0, 'b', 4.2, 3, 6.9})
+simple_dict_encoded = jsonpickle.encode({"a": 0, "b": 4.2, 3: 6.9})
+simple_list_encoded = jsonpickle.encode(["a", 0, "b", 4.2, 3, 6.9])
+simple_tuple_encoded = jsonpickle.encode(("a", 0, "b", 4.2, 3, 6.9))
+simple_set_encoded = jsonpickle.encode({"a", 0, "b", 4.2, 3, 6.9})
 
 homogenous_dict_encoded = jsonpickle.encode(HOMOGENOUS_COMPLEX_DICT)
 homogenous_list_encoded = jsonpickle.encode(HOMOGENOUS_COMPLEX_LIST)
@@ -203,7 +203,7 @@ state_class_encoded = jsonpickle.encode(MyClassGetState())
 
 
 def simple_dict_encode(benchmark):
-    benchmark(jsonpickle.encode, {'a': 0})
+    benchmark(jsonpickle.encode, {"a": 0})
 
 
 def simple_dict_decode(benchmark):
@@ -211,7 +211,7 @@ def simple_dict_decode(benchmark):
 
 
 def simple_list_encode(benchmark):
-    benchmark(jsonpickle.encode, ['a', 0])
+    benchmark(jsonpickle.encode, ["a", 0])
 
 
 def simple_list_decode(benchmark):
@@ -219,7 +219,7 @@ def simple_list_decode(benchmark):
 
 
 def simple_tuple_encode(benchmark):
-    benchmark(jsonpickle.encode, ('a', 0))
+    benchmark(jsonpickle.encode, ("a", 0))
 
 
 def simple_tuple_decode(benchmark):
@@ -227,7 +227,7 @@ def simple_tuple_decode(benchmark):
 
 
 def simple_set_encode(benchmark):
-    benchmark(jsonpickle.encode, {'a', 0})
+    benchmark(jsonpickle.encode, {"a", 0})
 
 
 def simple_set_decode(benchmark):
