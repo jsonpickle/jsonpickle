@@ -9,6 +9,10 @@ Upcoming
       feature. (+514)
     * The pickler no longer produces ``py/repr`` tags when pickling modules.
       ``py/mod`` is used instead, as it is clearer and uses one less byte. (+514)
+    * Officially support Python 3.12 in the GitHub Actions testing matrix, and update
+      GHA package versions used. (+524)
+    * Improve reproducibility of benchmarking commands on Linux by using taskset and
+      adding a "HOWTO" run benchmarks section in ``benchmarking/README.md``. (+526)
     * The ``setup.cfg`` packaging configuration has been replaced by
       ``pyproject.toml``. (+527)
     * ``yaml`` is now supported as a jsonpickle backend. (+528)
