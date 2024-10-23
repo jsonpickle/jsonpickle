@@ -53,9 +53,11 @@ ARTIFACTS += dist
 ARTIFACTS += __pycache__
 ARTIFACTS += tags
 ARTIFACTS += *.egg-info
+ARTIFACTS += fuzz_*.pkg.spec # Files created by OSS-Fuzz when running locally
 
 PYTHON_DIRS := tests
 PYTHON_DIRS += jsonpickle
+PYTHON_DIRS += fuzzing
 
 # The default target of this makefile is....
 all:: help
