@@ -7,6 +7,9 @@ from utils import is_expected_error
 with atheris.instrument_imports():
     import jsonpickle
 
+# Keys are filenames and values are lists of tuples.
+# Each tuple contains a substring of an expected exception message and a line number
+# (or -1 to match any line number).
 expected_errors = {
     "jsonpickle/unpickler.py": [
         ("object has no attribute 'split'", 283),
