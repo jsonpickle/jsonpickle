@@ -1,8 +1,8 @@
 import sys
-import atheris
 from json import JSONDecodeError
-from utils import is_expected_error
 
+import atheris
+from utils import is_expected_error
 
 with atheris.instrument_imports():
     import jsonpickle

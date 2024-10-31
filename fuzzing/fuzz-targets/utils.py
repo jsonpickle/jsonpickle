@@ -1,6 +1,7 @@
-import atheris  # pragma: no cover
 import traceback  # pragma: no cover
-from typing import List, Dict, Tuple, Union  # pragma: no cover
+from typing import Dict, List, Tuple, Union  # pragma: no cover
+
+import atheris  # pragma: no cover
 
 
 @atheris.instrument_func
