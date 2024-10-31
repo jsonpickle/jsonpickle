@@ -16,6 +16,8 @@ Upcoming
     * The ``setup.cfg`` packaging configuration has been replaced by
       ``pyproject.toml``. (+527)
     * ``yaml`` is now supported as a jsonpickle backend. (+528)
+    * `OSSFuzz <https://github.com/google/oss-fuzz>`_ scripts are now available in
+      the ``fuzzing/`` directory. (+525)
 
 v3.3.0
 ======
