@@ -75,4 +75,4 @@ prepare_dictionaries_for_fuzz_targets "$SRC/jsonpickle/fuzzing/dictionaries" "$S
 # The OSS-Fuzz base image has outdated dependencies by default so we upgrade them below.
 python3 -m pip install --upgrade pip
 # Upgrade to the latest versions known to work at the time the below changes were introduced:
-python3 -m pip install 'atheris>=2.3.0' 'setuptools~=73.0' 'pyinstaller~=6.0' typing_extensions
+python3 -m pip install 'atheris~=2.3.0' 'setuptools~=73.0' 'pyinstaller~=6.0' typing_extensions
