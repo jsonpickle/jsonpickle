@@ -1,4 +1,5 @@
 # shellcheck shell=bash
+# https://google.github.io/oss-fuzz/getting-started/new-project-guide/#buildsh-script-environment
 
 set -euo pipefail
 
