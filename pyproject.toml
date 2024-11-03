@@ -60,6 +60,8 @@ testing = [
     "simplejson",
     "sqlalchemy",
     "ujson",
+    # fuzzing
+    "atheris ~= 2.3.0; python_version < '3.12'",
 ]
 docs = [
     "furo",
