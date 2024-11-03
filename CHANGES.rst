@@ -23,6 +23,7 @@ Upcoming
     * Pandas dataframe columns with an ``object`` dtype that contain multiple different
       types within (e.g. a column of type ``list[Union[str, int]]``) now preserve the types
       upon being roundtripped. (#457) (#358) (+534)
+    * Fix warnings in the test suite regarding numpy.compat usage. (#533) (+535)
 
 v3.3.0
 ======
