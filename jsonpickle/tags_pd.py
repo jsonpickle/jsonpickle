@@ -202,6 +202,6 @@ pd_dtypes = list(
 
 
 TYPE_MAP = get_smallest_unique_substrings(np_dtypes, prefix="np")
-TYPE_MAP |= get_smallest_unique_substrings(pd_dtypes, prefix="pd")
+TYPE_MAP.update(get_smallest_unique_substrings(pd_dtypes, prefix="pd"))
 
 REVERSE_TYPE_MAP = {v: k for k, v in TYPE_MAP.items()}
