@@ -6,7 +6,6 @@ import pytest
 try:
     import numpy as np
     import numpy.testing as npt
-    from numpy.compat import asbytes
     from numpy.testing import assert_equal
 except ImportError:
     pytest.skip('numpy is not available', allow_module_level=True)
@@ -36,7 +35,6 @@ def test_dtype_roundtrip():
         np.complex128,
         np.str_,
         np.object_,
-        np.compat.unicode,
         np.dtype(np.void),
         np.dtype(np.int32),
         np.dtype(np.float32),
@@ -106,7 +104,7 @@ def test_ndarray_roundtrip():
         np.array(['foo', 'bar']),
         np.array(['baz'.encode('utf-8')]),
         np.array(['2010', 'NaT', '2030']).astype('M'),
-        np.rec.array(asbytes('abcdefg') * 100, formats='i2,a3,i4', shape=3),
+        np.rec.array('abcdefg'.encode('utf-8') * 100, formats='i2,a3,i4', shape=3),
         np.rec.array(
             [
                 (1, 11, 'a'),
