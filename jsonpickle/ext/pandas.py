@@ -1,15 +1,61 @@
+import warnings
 import zlib
-from io import StringIO
 
 import pandas as pd
+import numpy as np
 
 from .. import decode, encode
 from ..handlers import BaseHandler, register, unregister
+from ..tags_pd import TYPE_MAP, REVERSE_TYPE_MAP
 from ..util import b64decode, b64encode
 from .numpy import register_handlers as register_numpy_handlers
 from .numpy import unregister_handlers as unregister_numpy_handlers
 
 __all__ = ['register_handlers', 'unregister_handlers']
+
+
+def pd_encode(obj, **kwargs):
+    if isinstance(obj, np.generic):
+        # convert pandas/numpy scalar to native Python type
+        return obj.item()
+    return encode(obj, **kwargs)
+
+
+def pd_decode(s, **kwargs):
+    return decode(s, **kwargs)
+
+
+def rle_encode(types_list):
+    """
+    Encodes a list of type codes using Run-Length Encoding (RLE). This allows for object columns in dataframes to contain items of different types without massively bloating the encoded representation.
+    """
+    if not types_list:
+        return []
+
+    encoded = []
+    current_type = types_list[0]
+    count = 1
+
+    for typ in types_list[1:]:
+        if typ == current_type:
+            count += 1
+        else:
+            encoded.append([current_type, count])
+            current_type = typ
+            count = 1
+    encoded.append([current_type, count])
+
+    return encoded
+
+
+def rle_decode(encoded_list):
+    """
+    Decodes a Run-Length Encoded (RLE) list back into the original list of type codes.
+    """
+    decoded = []
+    for typ, count in encoded_list:
+        decoded.extend([typ] * count)
+    return decoded
 
 
 class PandasProcessor(object):
@@ -85,44 +131,143 @@ def make_read_csv_params(meta, context):
 
 
 class PandasDfHandler(BaseHandler):
-    pp = PandasProcessor()
-
     def flatten(self, obj, data):
-        dtype = obj.dtypes.to_dict()
+        pp = PandasProcessor()
+        # handle multiindex columns
+        if isinstance(obj.columns, pd.MultiIndex):
+            columns = [tuple(col) for col in obj.columns]
+            column_names = obj.columns.names
+            is_multicolumns = True
+        else:
+            columns = obj.columns.tolist()
+            column_names = obj.columns.name
+            is_multicolumns = False
 
+        # handle multiindex index
+        if isinstance(obj.index, pd.MultiIndex):
+            index_values = [tuple(idx) for idx in obj.index.values]
+            index_names = obj.index.names
+            is_multiindex = True
+        else:
+            index_values = obj.index.tolist()
+            index_names = obj.index.name
+            is_multiindex = False
+
+        data_columns = {}
+        type_codes = []
+        for col in obj.columns:
+            col_data = obj[col]
+            dtype_name = col_data.dtype.name
+
+            if dtype_name == "object":
+                # check if items are complex types
+                if col_data.apply(
+                    lambda x: isinstance(x, (list, dict, set, tuple, np.ndarray))
+                ).any():
+                    # if items are complex, erialize each item individually
+                    serialized_values = col_data.apply(lambda x: encode(x)).tolist()
+                    data_columns[col] = serialized_values
+                    type_codes.append("py/jp")
+                else:
+                    # treat it as regular object dtype
+                    data_columns[col] = col_data.tolist()
+                    type_codes.append(TYPE_MAP.get(dtype_name, "object"))
+            else:
+                # for other dtypes, store their values directly
+                data_columns[col] = col_data.tolist()
+                type_codes.append(TYPE_MAP.get(dtype_name, "object"))
+
+        # store index data
+        index_encoded = encode(index_values, keys=True)
+
+        rle_types = rle_encode(type_codes)
+        # prepare metadata
         meta = {
-            'dtypes': self.context.flatten(
-                {k: str(dtype[k]) for k in dtype}, reset=False
-            ),
-            'index': encode(obj.index),
-            'column_level_names': obj.columns.names,
-            'header': list(range(len(obj.columns.names))),
+            "dtypes_rle": rle_types,
+            "index": index_encoded,
+            "index_names": index_names,
+            "columns": encode(columns, keys=True),
+            "column_names": column_names,
+            "is_multiindex": is_multiindex,
+            "is_multicolumns": is_multicolumns,
         }
 
-        data = self.pp.flatten_pandas(
-            obj.reset_index(drop=True).to_csv(index=False), data, meta
-        )
+        # serialize data_columns with keys=True to allow for non-object keys
+        data_encoded = encode(data_columns, keys=True)
+
+        # use PandasProcessor to flatten
+        data = pp.flatten_pandas(data_encoded, data, meta)
         return data
 
-    def restore(self, data):
-        csv, meta = self.pp.restore_pandas(data)
-        params, timedeltas, parse_datetime_v2 = make_read_csv_params(meta, self.context)
-        # None makes it compatible with objects serialized before
-        # column_levels_names has been introduced.
-        column_level_names = meta.get('column_level_names', None)
-        df = (
-            pd.read_csv(StringIO(csv), **params)
-            if data['values'].strip()
-            else pd.DataFrame()
-        )
-        for col in timedeltas:
-            df[col] = pd.to_timedelta(df[col])
-        df = df.astype(parse_datetime_v2)
+    def restore(self, obj):
+        pp = PandasProcessor()
+        data_encoded, meta = pp.restore_pandas(obj)
 
-        df.set_index(decode(meta['index']), inplace=True)
-        # restore the column level(s) name(s)
-        if column_level_names:
-            df.columns.names = column_level_names
+        data_columns = decode(data_encoded, keys=True)
+
+        # get type codes, un-RLE-ed
+        rle_types = meta["dtypes_rle"]
+        type_codes = rle_decode(rle_types)
+
+        # handle multicolumns
+        columns_decoded = decode(meta["columns"], keys=True)
+        if meta.get("is_multicolumns", False):
+            columns = pd.MultiIndex.from_tuples(
+                columns_decoded, names=meta.get("column_names")
+            )
+        else:
+            columns = columns_decoded
+
+        # progressively reconstruct dataframe as a dict
+        df_data = {}
+        dtypes = {}
+        for col, type_code in zip(columns, type_codes):
+            col_data = data_columns[col]
+            if type_code == "py/jp":
+                # deserialize each item in the column
+                col_values = [decode(item) for item in col_data]
+                df_data[col] = col_values
+            else:
+                df_data[col] = col_data
+                # used later to get correct dtypes
+                dtype_str = REVERSE_TYPE_MAP.get(type_code, "object")
+                dtypes[col] = dtype_str
+
+        # turn dict into df
+        df = pd.DataFrame(df_data)
+        df.columns = columns
+
+        # apply dtypes
+        for col in df.columns:
+            dtype_str = dtypes.get(col, "object")
+            try:
+                dtype = np.dtype(dtype_str)
+                df[col] = df[col].astype(dtype)
+            except Exception:
+                msg = (
+                    f"jsonpickle was unable to properly deserialize "
+                    f"the column {col} into its inferred dtype. "
+                    f"Please file a bugreport on the jsonpickle GitHub! "
+                )
+                warnings.warn(msg)
+
+        # decode and set the index
+        index_values = decode(meta["index"], keys=True)
+        if meta.get("is_multiindex", False):
+            index = pd.MultiIndex.from_tuples(
+                index_values, names=meta.get("index_names")
+            )
+        else:
+            index = pd.Index(index_values, name=meta.get("index_names"))
+        df.index = index
+
+        # restore column names for easy readability
+        if "column_names" in meta:
+            if meta.get("is_multicolumns", False):
+                df.columns.names = meta.get("column_names")
+            else:
+                df.columns.name = meta.get("column_names")
+
         return df
 
 

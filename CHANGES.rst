@@ -18,6 +18,11 @@ Upcoming
     * ``yaml`` is now supported as a jsonpickle backend. (+528)
     * `OSSFuzz <https://github.com/google/oss-fuzz>`_ scripts are now available in
       the ``fuzzing/`` directory. (+525)
+    * Pure-python dtypes are now preserved across ``encode()``/``decode()`` roundtrips
+      for the pandas extension. (#407) (+534)
+    * Pandas dataframe columns with an ``object`` dtype that contain multiple different
+      types within (e.g. a column of type ``list[Union[str, int]]``) now preserve the types
+      upon being roundtripped. (#457) (#358) (+534)
 
 v3.3.0
 ======
