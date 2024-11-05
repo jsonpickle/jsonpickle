@@ -1,6 +1,5 @@
 import warnings
 import zlib
-
 from io import StringIO
 
 import numpy as np
