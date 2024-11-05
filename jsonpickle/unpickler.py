@@ -45,8 +45,9 @@ def decode(
         This flag is not typically used outside of a custom handler or
         `__getstate__` implementation.
 
-    :param safe: If set to False, use of ``eval()`` for backwards-compatible (pre-0.7.0)
-        deserialization of repr-serialized objects is enabled. Defaults to True.
+    :param safe: If set to ``False``, use of ``eval()`` for backwards-compatible (pre-0.7.0)
+        deserialization of repr-serialized objects is enabled. Defaults to ``True``.
+        The default value was ``False`` in jsonpickle v3 and changed to ``True`` in jsonpickle v4.
 
         .. warning::
 
