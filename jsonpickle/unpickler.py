@@ -19,7 +19,7 @@ def decode(
     context=None,
     keys=False,
     reset=True,
-    safe=True,
+    safe=False,
     classes=None,
     v1_decode=False,
     on_missing='ignore',
@@ -46,7 +46,8 @@ def decode(
         `__getstate__` implementation.
 
     :param safe: If set to False, use of ``eval()`` for backwards-compatible (pre-0.7.0)
-        deserialization of repr-serialized objects is enabled. Defaults to True.
+        deserialization of repr-serialized objects is enabled. Defaults to False.
+        The default value will change to True in jsonpickle v4.
 
         .. warning::
 
@@ -346,7 +347,7 @@ class Unpickler(object):
         self,
         backend=None,
         keys=False,
-        safe=True,
+        safe=False,
         v1_decode=False,
         on_missing='ignore',
         handle_readonly=False,
