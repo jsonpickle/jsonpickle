@@ -1,6 +1,8 @@
 import warnings
 import zlib
 
+from io import StringIO
+
 import numpy as np
 import pandas as pd
 
@@ -131,6 +133,8 @@ def make_read_csv_params(meta, context):
 
 
 class PandasDfHandler(BaseHandler):
+    pp = PandasProcessor()
+
     def flatten(self, obj, data):
         pp = PandasProcessor()
         # handle multiindex columns
@@ -200,13 +204,16 @@ class PandasDfHandler(BaseHandler):
         return data
 
     def restore(self, obj):
-        pp = PandasProcessor()
-        data_encoded, meta = pp.restore_pandas(obj)
+        data_encoded, meta = self.pp.restore_pandas(obj)
 
         data_columns = decode(data_encoded, keys=True)
 
         # get type codes, un-RLE-ed
-        rle_types = meta["dtypes_rle"]
+        try:
+            rle_types = meta["dtypes_rle"]
+        except KeyError:
+            # was encoded with pre-v3.4 scheme
+            return self.restore_v3_3(obj)
         type_codes = rle_decode(rle_types)
 
         # handle multicolumns
@@ -268,6 +275,27 @@ class PandasDfHandler(BaseHandler):
             else:
                 df.columns.name = meta.get("column_names")
 
+        return df
+
+    def restore_v3_3(self, data):
+        csv, meta = self.pp.restore_pandas(data)
+        params, timedeltas, parse_datetime_v2 = make_read_csv_params(meta, self.context)
+        # None makes it compatible with objects serialized before
+        # column_levels_names has been introduced.
+        column_level_names = meta.get("column_level_names", None)
+        df = (
+            pd.read_csv(StringIO(csv), **params)
+            if data["values"].strip()
+            else pd.DataFrame()
+        )
+        for col in timedeltas:
+            df[col] = pd.to_timedelta(df[col])
+        df = df.astype(parse_datetime_v2)
+
+        df.set_index(decode(meta["index"]), inplace=True)
+        # restore the column level(s) name(s)
+        if column_level_names:
+            df.columns.names = column_level_names
         return df
 
 
