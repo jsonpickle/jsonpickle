@@ -1,12 +1,12 @@
 import warnings
 import zlib
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 
 from .. import decode, encode
 from ..handlers import BaseHandler, register, unregister
-from ..tags_pd import TYPE_MAP, REVERSE_TYPE_MAP
+from ..tags_pd import REVERSE_TYPE_MAP, TYPE_MAP
 from ..util import b64decode, b64encode
 from .numpy import register_handlers as register_numpy_handlers
 from .numpy import unregister_handlers as unregister_numpy_handlers

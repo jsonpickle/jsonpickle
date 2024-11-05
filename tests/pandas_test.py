@@ -59,7 +59,9 @@ def test_dataframe_roundtrip():
             'an_inf': np.array([np.inf] * 3),
             'a_str': np.str_('foo'),
             'date': np.array([np.datetime64('2014-01-01')] * 3, dtype="datetime64[s]"),
-            'date_ns': np.array([np.datetime64('2014-01-01')] * 3, dtype="datetime64[ns]"),
+            'date_ns': np.array(
+                [np.datetime64('2014-01-01')] * 3, dtype="datetime64[ns]"
+            ),
             'timedelta': np.array([np.timedelta64(1, "Y")] * 3, dtype="timedelta64[Y]"),
             'complex': np.complex128([1 - 2j, 2 - 1.2j, 3 - 1.3j]),
             # TODO: the following dtypes are not currently supported.
@@ -69,11 +71,15 @@ def test_dataframe_roundtrip():
     decoded_df = roundtrip(df)
     assert_frame_equal(decoded_df, df)
 
+
 def test_dataframe_nested_containers():
     # adapted from #407
-    a = pd.DataFrame({"date": ["20220921abc", 20220921.5], "date2": [20220921, "20220921"]})
+    a = pd.DataFrame(
+        {"date": ["20220921abc", 20220921.5], "date2": [20220921, "20220921"]}
+    )
     b = roundtrip(a, keys=True)
     assert a['date'][0] == b['date'][0]
+
 
 def test_dataframe_mixed_dtypes():
     # adapted from #358
@@ -87,6 +93,7 @@ def test_dataframe_mixed_dtypes():
     df1 = pd.DataFrame(([1, 2], [4, 'foo']))
     df2 = roundtrip(df1)
     assert (df1[0] == df2[0]).all()
+
 
 def test_multindex_dataframe_roundtrip():
     df = pd.DataFrame(
