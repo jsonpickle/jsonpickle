@@ -10,6 +10,10 @@ Upcoming
     * The pickler no longer produces ``py/repr`` tags when pickling modules.
       ``py/mod`` is used instead, as it is clearer and uses one less byte. (+514)
 
+v3.4.1
+======
+    * Support decoding pandas dataframes encoded with versions 3.3.0 and older. (+536)
+
 v3.4.0
 ======
     * Officially support Python 3.12 in the GitHub Actions testing matrix, and update
