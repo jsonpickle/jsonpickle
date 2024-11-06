@@ -670,7 +670,7 @@ class Pickler(object):
 
         if util.is_module(obj):
             if self.unpicklable:
-                data[tags.MODULE] = '{name}/{name}'.format(name=obj.__name__)
+                data[tags.REPR] = '{name}/{name}'.format(name=obj.__name__)
             else:
                 data = compat.ustr(obj)
             return data
