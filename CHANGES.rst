@@ -10,6 +10,11 @@ Upcoming
     * The pickler no longer produces ``py/repr`` tags when pickling modules.
       ``py/mod`` is used instead, as it is clearer and uses one less byte. (+514)
 
+v3.4.2
+======
+    * The breaking changes from v4 were inadvertedly included in v3.4.1, which has
+      been yanked. This release remedies this by reverting the v4 changes.
+
 v3.4.1
 ======
     * Support decoding pandas dataframes encoded with versions 3.3.0 and older. (+536)
