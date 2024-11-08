@@ -9,6 +9,8 @@ Upcoming
       feature. (+514)
     * The pickler no longer produces ``py/repr`` tags when pickling modules.
       ``py/mod`` is used instead, as it is clearer and uses one less byte. (+514)
+    * The test suite no longer uses the deprecated ``datetime.datetime.utcnow()``
+      function. (+539)
 
 v3.4.2
 ======
