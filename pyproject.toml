@@ -36,6 +36,7 @@ cov = [
 ]
 dev = [
     "black",
+    "pyupgrade",
 ]
 testing = [
     # core
