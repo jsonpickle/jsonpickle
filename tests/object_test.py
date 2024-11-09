@@ -905,13 +905,6 @@ def test_counter_roundtrip_with_keys():
     assert decoded.get(1) == 2
 
 
-issue281 = pytest.mark.xfail(
-    'sys.version_info >= (3, 8)',
-    reason='https://github.com/jsonpickle/jsonpickle/issues/281',
-)
-
-
-@issue281
 def test_list_with_fd():
     """Serialize a list with an file descriptor"""
     with open(__file__) as fd:
@@ -927,7 +920,6 @@ def _test_list_with_fd(fd):
     assert [None] == newobj
 
 
-@issue281
 def test_thing_with_fd():
     """Serialize an object with a file descriptor"""
     with open(__file__) as fd:
@@ -943,7 +935,6 @@ def _test_thing_with_fd(fd):
     assert newobj.name is None
 
 
-@issue281
 def test_dict_with_fd():
     """Serialize a dict with a file descriptor"""
     with open(__file__) as fd:
