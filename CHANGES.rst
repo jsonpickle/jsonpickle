@@ -1,5 +1,5 @@
-Upcoming
-========
+v4.0.0
+======
     * **Breaking Change**: Python 3.7 is no longer supported.
     * **Breaking Change**: Support for pre-0.7.0 ``repr``-serialized objects is no
       longer enabled by default. The ``safe`` option to ``decode()`` was changed from
