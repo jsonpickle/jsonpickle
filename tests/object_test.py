@@ -914,8 +914,13 @@ issue281 = pytest.mark.xfail(
 @issue281
 def test_list_with_fd():
     """Serialize a list with an file descriptor"""
-    fd = open(__file__)
-    fd.close()
+    with open(__file__) as fd:
+        _test_list_with_fd(fd)
+    _test_list_with_fd(fd)  # fd is closed.
+
+
+def _test_list_with_fd(fd):
+    """Serialize a list with an file descriptor"""
     obj = [fd]
     jsonstr = jsonpickle.encode(obj)
     newobj = jsonpickle.decode(jsonstr)
@@ -925,8 +930,13 @@ def test_list_with_fd():
 @issue281
 def test_thing_with_fd():
     """Serialize an object with a file descriptor"""
-    fd = open(__file__)
-    fd.close()
+    with open(__file__) as fd:
+        _test_thing_with_fd(fd)
+    _test_thing_with_fd(fd)  # fd is closed.
+
+
+def _test_thing_with_fd(fd):
+    """Serialize an object with a file descriptor"""
     obj = Thing(fd)
     jsonstr = jsonpickle.encode(obj)
     newobj = jsonpickle.decode(jsonstr)
@@ -936,8 +946,13 @@ def test_thing_with_fd():
 @issue281
 def test_dict_with_fd():
     """Serialize a dict with a file descriptor"""
-    fd = open(__file__)
-    fd.close()
+    with open(__file__) as fd:
+        _test_dict_with_fd(fd)
+    _test_dict_with_fd(fd)
+
+
+def _test_dict_with_fd(fd):
+    """Serialize a dict with a file descriptor"""
     obj = {'fd': fd}
     jsonstr = jsonpickle.encode(obj)
     newobj = jsonpickle.decode(jsonstr)
