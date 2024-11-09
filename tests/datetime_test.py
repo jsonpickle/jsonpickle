@@ -41,31 +41,31 @@ utc = UTC()
 class TimestampedVariable:
     def __init__(self, value=None):
         self._value = value
-        self._dt_read = datetime.datetime.utcnow()
+        self._dt_read = datetime.datetime.now(tz=datetime.timezone.utc)
         self._dt_write = self._dt_read
 
     def get(self, default_value=None):
         if self._dt_read is None and self._dt_write is None:
             value = default_value
             self._value = value
-            self._dt_write = datetime.datetime.utcnow()
+            self._dt_write = datetime.datetime.now(tz=datetime.timezone.utc)
         else:
             value = self._value
-        self._dt_read = datetime.datetime.utcnow()
+        self._dt_read = datetime.datetime.now(tz=datetime.timezone.utc)
         return value
 
     def set(self, new_value):
-        self._dt_write = datetime.datetime.utcnow()
+        self._dt_write = datetime.datetime.now(tz=datetime.timezone.utc)
         self._value = new_value
 
     def erasable(self, td=datetime.timedelta(seconds=1)):
-        dt_now = datetime.datetime.utcnow()
+        dt_now = datetime.datetime.now(tz=datetime.timezone.utc)
         td_read = dt_now - self._dt_read
         td_write = dt_now - self._dt_write
         return td_read > td and td_write > td
 
     def __repr__(self):
-        dt_now = datetime.datetime.utcnow()
+        dt_now = datetime.datetime.now(tz=datetime.timezone.utc)
         td_read = dt_now - self._dt_read
         td_write = dt_now - self._dt_write
         s = '<TimestampedVariable>\n'
@@ -149,7 +149,9 @@ class DateTimeSimpleTestCase(unittest.TestCase):
         jsonpickle should be able to encode and decode a datetime with a
         simple, pickleable UTC tzinfo.
         """
-        self._roundtrip(datetime.datetime.utcnow().replace(tzinfo=utc))
+        self._roundtrip(
+            datetime.datetime.now(tz=datetime.timezone.utc).replace(tzinfo=utc)
+        )
 
     def test_unpickleable(self):
         """
