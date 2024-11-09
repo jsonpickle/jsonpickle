@@ -102,9 +102,9 @@ def test_ndarray_roundtrip():
         np.random.random((10, 20)),
         np.array([[True, False, True]]),
         np.array(['foo', 'bar']),
-        np.array(['baz'.encode('utf-8')]),
+        np.array([b'baz']),
         np.array(['2010', 'NaT', '2030']).astype('M'),
-        np.rec.array('abcdefg'.encode('utf-8') * 100, formats='i2,a3,i4', shape=3),
+        np.rec.array(b'abcdefg' * 100, formats='i2,a3,i4', shape=3),
         np.rec.array(
             [
                 (1, 11, 'a'),
@@ -259,7 +259,7 @@ def test_fortran_base():
 
 def test_buffer():
     """test behavior with memoryviews which are not ndarrays"""
-    bstring = 'abcdefgh'.encode('utf-8')
+    bstring = b'abcdefgh'
     a = np.frombuffer(bstring, dtype=np.byte)
     warn_count = 1
     with warnings.catch_warnings(record=True) as w:

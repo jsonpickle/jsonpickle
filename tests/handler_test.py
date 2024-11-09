@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright (C) 2013 Jason R. Coombs <jaraco@jaraco.com>
 # All rights reserved.
@@ -13,7 +12,7 @@ import jsonpickle
 import jsonpickle.handlers
 
 
-class CustomObject(object):
+class CustomObject:
     "A class to be serialized by a custom handler"
 
     def __init__(self, name=None, creator=None):
@@ -143,7 +142,7 @@ class HandlerTestCase(unittest.TestCase):
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(HandlerTestCase))
+    suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(HandlerTestCase))
     suite.addTest(doctest.DocTestSuite(jsonpickle.handlers))
     return suite
 

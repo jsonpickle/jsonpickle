@@ -24,7 +24,9 @@ if sys.version_info >= (3, 9):
 
     def suite():
         suite = unittest.TestSuite()
-        suite.addTest(unittest.makeSuite(ZoneInfoSimpleTestCase))
+        suite.addTest(
+            unittest.defaultTestLoader.loadTestsFromTestCase(ZoneInfoSimpleTestCase)
+        )
         return suite
 
     if __name__ == '__main__':

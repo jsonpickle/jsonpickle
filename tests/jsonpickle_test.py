@@ -50,7 +50,7 @@ class Capture:
         self.kwargs = kwargs
 
     def __repr__(self):
-        return object.__repr__(self) + ('(%r, %r)' % (self.args, self.kwargs))
+        return object.__repr__(self) + (f'({self.args!r}, {self.kwargs!r})')
 
 
 class ThingWithProps:
@@ -204,12 +204,12 @@ class PicklingTestCase(unittest.TestCase):
         self.assertEqual({tags.B64: encoded}, self.pickler.flatten(data))
 
     def test_decode_base85(self):
-        expected = 'Pÿthöñ 3!'.encode('utf-8')
+        expected = 'Pÿthöñ 3!'.encode()
         pickled = {tags.B85: util.b85encode(expected)}
         self.assertEqual(expected, self.unpickler.restore(pickled))
 
     def test_base85_still_handles_base64(self):
-        expected = 'Pÿthöñ 3!'.encode('utf-8')
+        expected = 'Pÿthöñ 3!'.encode()
         pickled = {tags.B64: util.b64encode(expected)}
         self.assertEqual(expected, self.unpickler.restore(pickled))
 
@@ -948,7 +948,7 @@ class JSONPickleTestCase(SkippableTest):
         self.assertEqual(decoded.name, obj.name)
 
     def test_can_serialize_inner_classes(self):
-        class InnerScope(object):
+        class InnerScope:
             """Private class visible to this method only"""
 
             def __init__(self, name):
@@ -1030,7 +1030,7 @@ class JSONPickleTestCase(SkippableTest):
         self.assertEqual(unpickled, s)
 
 
-class PicklableNamedTuple(object):
+class PicklableNamedTuple:
     """
     A picklable namedtuple wrapper, to demonstrate the need
     for protocol 2 compatibility. Yes, this is contrived in
@@ -1046,7 +1046,7 @@ class PicklableNamedTuple(object):
         return instance
 
 
-class PicklableNamedTupleEx(object):
+class PicklableNamedTupleEx:
     """
     A picklable namedtuple wrapper, to demonstrate the need
     for protocol 4 compatibility. Yes, this is contrived in
@@ -1066,7 +1066,7 @@ class PicklableNamedTupleEx(object):
         return instance
 
 
-class PickleProtocol2Thing(object):
+class PickleProtocol2Thing:
     def __init__(self, *args):
         self.args = args
 
@@ -1096,7 +1096,7 @@ dictmagic = PickleProtocol2Thing('dictmagic')
 
 class PickleProtocol2GetState(PickleProtocol2Thing):
     def __new__(cls, *args):
-        instance = super(PickleProtocol2GetState, cls).__new__(cls)
+        instance = super().__new__(cls)
         instance.newargs = args
         return instance
 
@@ -1135,7 +1135,7 @@ class PickleProtocol2GetSetState(PickleProtocol2GetState):
             self.magic = False
 
 
-class PickleProtocol2ChildThing(object):
+class PickleProtocol2ChildThing:
     def __init__(self, child):
         self.child = child
 
@@ -1143,12 +1143,12 @@ class PickleProtocol2ChildThing(object):
         return ([self.child],)
 
 
-class PickleProtocol2ReduceString(object):
+class PickleProtocol2ReduceString:
     def __reduce__(self):
         return __name__ + '.slotmagic'
 
 
-class PickleProtocol2ReduceExString(object):
+class PickleProtocol2ReduceExString:
     def __reduce_ex__(self, n):
         return __name__ + '.slotmagic'
 
@@ -1156,7 +1156,7 @@ class PickleProtocol2ReduceExString(object):
         assert False, "Should not be here"
 
 
-class PickleProtocol2ReduceTuple(object):
+class PickleProtocol2ReduceTuple:
     def __init__(self, argval, optional=None):
         self.argval = argval
         self.optional = optional
@@ -1172,7 +1172,7 @@ class PickleProtocol2ReduceTuple(object):
 
 
 @compat.iterator
-class ReducibleIterator(object):
+class ReducibleIterator:
     def __next__(self):
         raise StopIteration()
 
@@ -1187,7 +1187,7 @@ def protocol_2_reduce_tuple_func(*args):
     return PickleProtocol2ReduceTupleFunc(*args)
 
 
-class PickleProtocol2ReduceTupleFunc(object):
+class PickleProtocol2ReduceTupleFunc:
     def __init__(self, argval, optional=None):
         self.argval = argval
         self.optional = optional
@@ -1249,7 +1249,7 @@ class PickleProtocol2ReduceTupleSetState(PickleProtocol2ReduceTuple):
         self.bar = state['foo']
 
 
-class PickleProtocol2ReduceTupleStateSlots(object):
+class PickleProtocol2ReduceTupleStateSlots:
     __slots__ = ('argval', 'optional', 'foo')
 
     def __init__(self, argval, optional=None):
@@ -1266,7 +1266,7 @@ class PickleProtocol2ReduceTupleStateSlots(object):
         )
 
 
-class PickleProtocol2ReduceListitemsAppend(object):
+class PickleProtocol2ReduceListitemsAppend:
     def __init__(self):
         self.inner = []
 
@@ -1283,7 +1283,7 @@ class PickleProtocol2ReduceListitemsAppend(object):
         )
 
 
-class PickleProtocol2ReduceListitemsExtend(object):
+class PickleProtocol2ReduceListitemsExtend:
     def __init__(self):
         self.inner = []
 
@@ -1300,7 +1300,7 @@ class PickleProtocol2ReduceListitemsExtend(object):
         )
 
 
-class PickleProtocol2ReduceDictitems(object):
+class PickleProtocol2ReduceDictitems:
     def __init__(self):
         self.inner = {}
 

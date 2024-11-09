@@ -17,8 +17,15 @@ trees:
       check>:
         - test
         - check/fmt
+        - check/pyupgrade
         - doc
-      check/fmt: "garden ${GARDEN_CMD_VERBOSE} fmt -- --check"
+      check/fmt: "garden fmt ${GARDEN_CMD_VERBOSE} -- --check"
+      check/pyupgrade: |
+        ${activate}
+        if type pyupgrade >/dev/null 2>&1
+        then
+            pyupgrade --py38-plus jsonpickle/*.py jsonpickle/*/*.py tests/*.py fuzzing/fuzz-targets/*.py
+        fi
       clean: |
         rm -fr build dist jsonpickle.egg-info
         find . -type d -name __pycache__ -print0 | xargs -0 rm -fr
@@ -27,7 +34,7 @@ trees:
         ${activate} python3 -m sphinx docs pages
       fmt: |
         ${activate}
-        black --skip-string-normalization --target-version py37 "$@" jsonpickle tests fuzzing/fuzz-targets
+        black --skip-string-normalization --target-version py38 "$@" jsonpickle tests fuzzing/fuzz-targets
         isort --profile=black "$@" jsonpickle tests fuzzing/fuzz-targets
       setup: |
         test -d env3 || python3 -m venv env3

@@ -8,18 +8,18 @@ from helper import SkippableTest
 import jsonpickle
 
 
-class Thing(object):
+class Thing:
     def __init__(self, name):
         self.name = name
         self.child = None
 
 
-class A(object):
+class A:
     def __init__(self):
         self.id = md5(str(id(self)).encode()).hexdigest()[:5]  # unique enough hash
 
 
-class BSlots(object):
+class BSlots:
     __slots__ = ["a2", "a1", "a3"]
 
     def __init__(self):
@@ -187,10 +187,10 @@ class YamlTestCase(BackendBase):
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(JsonTestCase))
-    suite.addTest(unittest.makeSuite(UJsonTestCase))
-    suite.addTest(unittest.makeSuite(SimpleJsonTestCase))
-    suite.addTest(unittest.makeSuite(YamlTestCase))
+    suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(JsonTestCase))
+    suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(UJsonTestCase))
+    suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(SimpleJsonTestCase))
+    suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(YamlTestCase))
     return suite
 
 

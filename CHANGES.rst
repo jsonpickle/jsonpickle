@@ -1,5 +1,6 @@
 Upcoming
 ========
+    * **Breaking Change**: Python 3.7 is no longer supported.
     * **Breaking Change**: Support for pre-0.7.0 ``repr``-serialized objects is no
       longer enabled by default. The ``safe`` option to ``decode()`` was changed from
       ``False`` to ``True``. Users can still pass ``safe=False`` to ``decode()`` in order

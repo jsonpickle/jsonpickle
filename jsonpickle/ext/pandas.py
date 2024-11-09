@@ -59,7 +59,7 @@ def rle_decode(encoded_list):
     return decoded
 
 
-class PandasProcessor(object):
+class PandasProcessor:
     def __init__(self, size_threshold=500, compression=zlib):
         """
         :param size_threshold: nonnegative int or None
