@@ -250,23 +250,24 @@ class Pickler:
 
     def _determine_sort_keys(self):
         for _, options in getattr(self.backend, '_encoder_options', {}).values():
-            if options.get("sort_keys", False):
+            if options.get('sort_keys', False):
                 # the user has set one of the backends to sort keys
                 return True
         return False
 
     def _sort_attrs(self, obj):
-        if hasattr(obj, "__slots__") and self.warn:
+        if hasattr(obj, '__slots__') and self.warn:
             # Slots are read-only by default, the only way
             # to sort keys is to do it in a subclass
             # and that would require calling the init function
             # of the parent again. That could cause issues
             # so we refuse to handle it.
             raise TypeError(
-                "Objects with __slots__ cannot have their keys reliably sorted by jsonpickle! Please sort the keys in the __slots__ definition instead."
+                'Objects with __slots__ cannot have their keys reliably sorted  by '
+                'jsonpickle! Please sort the keys in the __slots__ definition instead.'
             )
         # Somehow some classes don't have slots or dict
-        elif hasattr(obj, "__dict__"):
+        elif hasattr(obj, '__dict__'):
             try:
                 obj.__dict__ = dict(sorted(obj.__dict__.items()))
             except (TypeError, AttributeError):
