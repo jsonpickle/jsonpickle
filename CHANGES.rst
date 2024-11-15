@@ -1,6 +1,7 @@
 Upcoming
 ========
     * The unpickler is now more resilient to malformed "py/set" input data.
+    * The test suite was updated to leverage more pytest features.
 
 v4.0.0
 ======
