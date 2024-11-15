@@ -849,7 +849,10 @@ class Unpickler:
         return loadclass(obj[tags.FUNCTION], classes=self._classes)
 
     def _restore_set(self, obj):
-        return {self._restore(v) for v in obj[tags.SET]}
+        try:
+            return {self._restore(v) for v in obj[tags.SET]}
+        except TypeError:
+            return set()
 
     def _restore_dict(self, obj):
         data = {}

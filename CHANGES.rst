@@ -1,3 +1,7 @@
+Upcoming
+========
+    * The unpickler is now more resilient to malformed "py/set" input data.
+
 v4.0.0
 ======
     * **Breaking Change**: Python 3.7 is no longer supported.

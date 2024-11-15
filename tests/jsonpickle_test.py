@@ -274,6 +274,11 @@ class PicklingTestCase(unittest.TestCase):
         setA_pickle = {tags.SET: setlist}
         self.assertEqual(setA, self.unpickler.restore(setA_pickle))
 
+    def test_set_invalid(self):
+        data = {tags.SET: 1}
+        result = self.unpickler.restore(data)
+        assert result == set()
+
     def test_dict(self):
         dictA = {'key1': 1.0, 'key2': 20, 'key3': 'thirty', tags.JSON_KEY + '6': 6}
         self.assertEqual(dictA, self.pickler.flatten(dictA))
