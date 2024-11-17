@@ -373,7 +373,3 @@ def test_np_poly1d():
     # issue 391, test poly1d roundtrip
     obj = np.poly1d([1, 2, 3])
     assert obj == jsonpickle.decode(jsonpickle.encode(obj))
-
-
-if __name__ == '__main__':
-    pytest.main([__file__])

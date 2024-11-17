@@ -1,11 +1,9 @@
-#
 # Copyright (C) 2013 Jason R. Coombs <jaraco@jaraco.com>
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 
-import doctest
 import unittest
 
 import jsonpickle
@@ -138,14 +136,3 @@ class HandlerTestCase(unittest.TestCase):
         self.assertEqual(len(data), 2)
         self.assertEqual('jarjar', data['name'])
         self.assertEqual('sith.lord', data['py/object'])
-
-
-def suite():
-    suite = unittest.TestSuite()
-    suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(HandlerTestCase))
-    suite.addTest(doctest.DocTestSuite(jsonpickle.handlers))
-    return suite
-
-
-if __name__ == '__main__':
-    unittest.main(defaultTest='suite')

@@ -1,7 +1,5 @@
 """Test serializing sqlalchemy models"""
 
-import unittest
-
 from helper import SkippableTest
 
 import jsonpickle
@@ -120,13 +118,3 @@ class SQLAlchemyTestCase(SkippableTest):
         self.assertEqual(expect.c.id.type.__class__, actual.c.id.type.__class__)
         self.assertEqual(expect.c.text.name, actual.c.text.name)
         self.assertEqual(expect.c.text.type.__class__, actual.c.text.type.__class__)
-
-
-def suite():
-    suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(SQLAlchemyTestCase, 'test'))
-    return suite
-
-
-if __name__ == '__main__':
-    unittest.main()

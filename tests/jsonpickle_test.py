@@ -4,6 +4,7 @@
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
+
 import collections
 import os
 import unittest
@@ -1792,7 +1793,3 @@ def test_repeat_objects_are_expanded():
     assert flattened['passengers'][1]['name'] == 'bob'
     assert flattened['driver']['child']['name'] == 'bob'
     assert flattened['passengers'][0]['child']['name'] == 'bob'
-
-
-if __name__ == '__main__':
-    pytest.main([__file__])

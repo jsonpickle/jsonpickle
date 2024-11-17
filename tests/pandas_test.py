@@ -329,7 +329,3 @@ def test_multilevel_columns():
     assert data_frame.columns.names == cloned_data_frame.columns.names
     assert_frame_equal(data_frame, cloned_data_frame)
     assert names == cloned_data_frame.columns.names
-
-
-if __name__ == '__main__':
-    pytest.main([__file__])

@@ -6,7 +6,6 @@ import enum
 import re
 import threading
 
-import pytest
 from helper import SkippableTest
 
 import jsonpickle
@@ -1177,7 +1176,3 @@ def test_contained_exclusion():
     decoded = jsonpickle.decode(encoded)
     assert decoded.foo == 'alpha'
     assert not hasattr(decoded.thing, 'foo')
-
-
-if __name__ == '__main__':
-    pytest.main([__file__])

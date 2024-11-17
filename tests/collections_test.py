@@ -1,4 +1,3 @@
-#
 # This document is free and open-source software, subject to the OSI-approved
 # BSD license below.
 #
@@ -32,10 +31,7 @@
 """
 Unit tests for collections
 """
-import sys
 from collections import OrderedDict, defaultdict
-
-import pytest
 
 import jsonpickle
 
@@ -360,7 +356,3 @@ def test_set_mutual_cycle():
     # succeeds because d2u added to d1u after __setstate__
     assert list(d1u.plain)[0] in d1u.plain
     assert list(d2u.plain)[0] in d2u.plain
-
-
-if __name__ == '__main__':
-    pytest.main([__file__] + sys.argv[1:])

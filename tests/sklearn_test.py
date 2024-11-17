@@ -68,7 +68,3 @@ def test_nested_array_serialization():
     pipe2 = jsonpickle.loads(js)
     # coef_ only appears on an instance that has already been fit to something
     assert np.all(pipe.coef_ == pipe2.coef_)
-
-
-if __name__ == '__main__':
-    pytest.main([__file__])

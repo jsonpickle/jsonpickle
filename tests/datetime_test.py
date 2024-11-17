@@ -262,21 +262,3 @@ class DateTimeAdvancedTestCase(unittest.TestCase):
         expect = datetime_dict
         actual = jsonpickle.decode(pickled, keys=True)
         self.assertEqual(expect, actual)
-
-
-def suite():
-    suite = unittest.TestSuite()
-    suite.addTest(
-        unittest.defaultTestLoader.loadTestsFromTestCase(DateTimeSimpleTestCase)
-    )
-    suite.addTest(
-        unittest.defaultTestLoader.loadTestsFromTestCase(DateTimeAdvancedTestCase)
-    )
-    suite.addTest(
-        unittest.defaultTestLoader.loadTestsFromTestCase(DateTimeInnerReferenceTestCase)
-    )
-    return suite
-
-
-if __name__ == '__main__':
-    unittest.main(defaultTest='suite')

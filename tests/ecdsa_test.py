@@ -1,7 +1,5 @@
 """Test serializing ecdsa keys"""
 
-import unittest
-
 import pytest
 from helper import SkippableTest
 
@@ -44,13 +42,3 @@ class EcdsaTestCase(SkippableTest):
         serialized = jsonpickle.dumps(key_pair.get_verifying_key())
         restored = jsonpickle.loads(serialized)
         self.assertTrue(restored.verify(sig, message))
-
-
-def suite():
-    suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(EcdsaTestCase, 'test'))
-    return suite
-
-
-if __name__ == '__main__':
-    unittest.main()

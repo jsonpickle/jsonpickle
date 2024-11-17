@@ -4,7 +4,7 @@
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
-import doctest
+
 import io
 import time
 import unittest
@@ -233,14 +233,3 @@ class UtilTestCase(unittest.TestCase):
         )
         self.assertEqual(util.importable_name(io_method_obj), '_io.BytesIO.readline')
         self.assertEqual(util.importable_name(dict), 'builtins.dict')
-
-
-def suite():
-    suite = unittest.TestSuite()
-    suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(UtilTestCase))
-    suite.addTest(doctest.DocTestSuite(util))
-    return suite
-
-
-if __name__ == '__main__':
-    unittest.main(defaultTest='suite')

@@ -47,13 +47,3 @@ class QtTestCase(unittest.TestCase):
         json = jsonpickle.encode(expect)
         actual = jsonpickle.decode(json)
         self.assertEqual(expect, actual)
-
-
-def suite(self):
-    suite = unittest.TestSuite()
-    suite.addSuite(unittest.makeSuite(QtTestCase))
-    return suite
-
-
-if __name__ == '__main__':
-    unittest.main()

@@ -86,13 +86,3 @@ class DocumentTestCase(unittest.TestCase):
         unpickled = jsonpickle.decode(pickled)
 
         self.assertEqual(str(document), str(unpickled))
-
-
-def suite():
-    suite = unittest.TestSuite()
-    suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(DocumentTestCase))
-    return suite
-
-
-if __name__ == '__main__':
-    unittest.main(defaultTest='suite')

@@ -1,5 +1,4 @@
 import decimal
-import unittest
 from hashlib import md5
 from warnings import warn
 
@@ -183,16 +182,3 @@ class YamlTestCase(BackendBase):
             '    child: null\n'
         )
         self.assert_roundtrip(expected_pickled)
-
-
-def suite():
-    suite = unittest.TestSuite()
-    suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(JsonTestCase))
-    suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(UJsonTestCase))
-    suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(SimpleJsonTestCase))
-    suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(YamlTestCase))
-    return suite
-
-
-if __name__ == '__main__':
-    unittest.main(defaultTest='suite')

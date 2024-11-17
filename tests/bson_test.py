@@ -3,7 +3,6 @@
 import datetime
 import json
 import pickle
-import unittest
 
 from helper import SkippableTest
 
@@ -85,13 +84,3 @@ class BSONTestCase(SkippableTest):
         clone = json.loads(doc, object_hook=lambda x: unpickler.restore(x, reset=False))
 
         self.assertEqual(obj.tzinfo.__reduce__(), clone.tzinfo.__reduce__())
-
-
-def suite():
-    suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(BSONTestCase, 'test'))
-    return suite
-
-
-if __name__ == '__main__':
-    unittest.main()

@@ -205,7 +205,3 @@ class MagicTestCase(unittest.TestCase):
         # Ensure Merlin's object is unique and consistently hashed.
         self.assertEqual(id(u_wizard_merlin), id(merlin_spells_keys[1]))
         self.assertEqual(hash(u_wizard_merlin), hash(merlin_spells_keys[1]))
-
-
-if __name__ == '__main__':
-    unittest.main()

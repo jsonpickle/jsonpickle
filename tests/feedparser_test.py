@@ -1,12 +1,8 @@
-#
 # Copyright (C) 2008 John Paulett (john -at- paulett.org)
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
-
-import unittest
-
 from helper import SkippableTest
 
 import jsonpickle
@@ -87,13 +83,3 @@ class FeedParserTestCase(SkippableTest):
         pickled = jsonpickle.encode(self.doc)
         unpickled = jsonpickle.decode(pickled)
         self.assertEqual(self.doc['feed']['title'], unpickled['feed']['title'])
-
-
-def suite():
-    suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(FeedParserTestCase, 'test'))
-    return suite
-
-
-if __name__ == '__main__':
-    unittest.main(defaultTest='suite')

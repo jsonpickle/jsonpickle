@@ -41,14 +41,3 @@ class BytesTestCase(unittest.TestCase):
         encoded = jsonpickle.encode(expect)
         actual = jsonpickle.decode(encoded)
         self.assertEqual(expect, actual)
-
-
-def suite():
-    suite = unittest.TestSuite()
-    suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(UUIDTestCase))
-    suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(BytesTestCase))
-    return suite
-
-
-if __name__ == '__main__':
-    unittest.main(defaultTest='suite')
