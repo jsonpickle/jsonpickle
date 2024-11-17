@@ -7,7 +7,6 @@ Includes functionality to assist with adding compatibility to jsonpickle.
 """
 
 import collections
-import unittest
 
 from jsonpickle import decode, encode
 
@@ -92,116 +91,93 @@ def compare_spells(a, b):
     return True
 
 
-class MagicTestCase(unittest.TestCase):
-    def test_without_pickling(self):
-        world = World()
-        wizard_merlin = Wizard(world, 'Merlin')
-        wizard_morgana = Wizard(world, 'Morgana')
-        spell_a = Spell(wizard_merlin, wizard_morgana, 'magic-missile')
-        spell_b = Spell(wizard_merlin, wizard_merlin, 'stone-skin')
-        spell_c = Spell(wizard_morgana, wizard_merlin, 'geas')
+def test_without_pickling():
+    world = World()
+    wizard_merlin = Wizard(world, 'Merlin')
+    wizard_morgana = Wizard(world, 'Morgana')
+    spell_a = Spell(wizard_merlin, wizard_morgana, 'magic-missile')
+    spell_b = Spell(wizard_merlin, wizard_merlin, 'stone-skin')
+    spell_c = Spell(wizard_morgana, wizard_merlin, 'geas')
+    assert wizard_merlin.spells[wizard_morgana][0] == spell_a
+    assert wizard_merlin.spells[wizard_merlin][0] == spell_b
+    assert wizard_morgana.spells[wizard_merlin][0] == spell_c
+    # Merlin has cast Magic Missile on Morgana, and Stone Skin on himself
+    assert wizard_merlin.spells[wizard_morgana][0].name == 'magic-missile'
+    assert wizard_merlin.spells[wizard_merlin][0].name == 'stone-skin'
+    # Morgana has cast Geas on Merlin
+    assert wizard_morgana.spells[wizard_merlin][0].name == 'geas'
+    # Merlin's first target was Morgana
+    merlin_spells = wizard_merlin.spells
+    merlin_spells_keys = list(merlin_spells.keys())
+    assert merlin_spells_keys[0] in wizard_merlin.spells
+    assert merlin_spells_keys[0] == wizard_morgana
+    # Merlin's second target was himself
+    assert merlin_spells_keys[1] in wizard_merlin.spells
+    assert merlin_spells_keys[1] == wizard_merlin
+    # Morgana's first target was Merlin
+    morgana_spells_keys = list(wizard_morgana.spells.keys())
+    assert morgana_spells_keys[0] in wizard_morgana.spells
+    assert morgana_spells_keys[0] == wizard_merlin
+    # Merlin's first spell cast with himself as target is in the dictionary,
+    # first by looking up directly with Merlin's instance object...
+    assert wizard_merlin == wizard_merlin.spells[wizard_merlin][0].target
+    # ...and then with the instance object directly from the dictionary keys
+    assert wizard_merlin == merlin_spells[merlin_spells_keys[1]][0].target
+    # Ensure Merlin's object is unique...
+    assert id(wizard_merlin) == id(merlin_spells_keys[1])
+    # ...and consistently hashed
+    assert hash(wizard_merlin) == hash(merlin_spells_keys[1])
 
-        self.assertEqual(wizard_merlin.spells[wizard_morgana][0], spell_a)
-        self.assertEqual(wizard_merlin.spells[wizard_merlin][0], spell_b)
-        self.assertEqual(wizard_morgana.spells[wizard_merlin][0], spell_c)
 
-        # Merlin has cast Magic Missile on Morgana, and Stone Skin on himself
-        self.assertEqual(wizard_merlin.spells[wizard_morgana][0].name, 'magic-missile')
-        self.assertEqual(wizard_merlin.spells[wizard_merlin][0].name, 'stone-skin')
+def test_with_pickling():
+    world = World()
+    wizard_merlin = Wizard(world, 'Merlin')
+    wizard_morgana = Wizard(world, 'Morgana')
+    wizard_morgana_prime = Wizard(world, 'Morgana')
+    assert wizard_morgana.__dict__ == wizard_morgana_prime.__dict__
 
-        # Morgana has cast Geas on Merlin
-        self.assertEqual(wizard_morgana.spells[wizard_merlin][0].name, 'geas')
+    spell_a = Spell(wizard_merlin, wizard_morgana, 'magic-missile')
+    spell_b = Spell(wizard_merlin, wizard_merlin, 'stone-skin')
+    spell_c = Spell(wizard_morgana, wizard_merlin, 'geas')
+    assert wizard_merlin.spells[wizard_morgana][0] == spell_a
+    assert wizard_merlin.spells[wizard_merlin][0] == spell_b
+    assert wizard_morgana.spells[wizard_merlin][0] == spell_c
 
-        # Merlin's first target was Morgana
-        merlin_spells = wizard_merlin.spells
-        merlin_spells_keys = list(merlin_spells.keys())
-        self.assertTrue(merlin_spells_keys[0] in wizard_merlin.spells)
-        self.assertEqual(merlin_spells_keys[0], wizard_morgana)
+    flat_world = encode(world, keys=True)
+    u_world = decode(flat_world, keys=True)
+    u_wizard_merlin = u_world.wizards[0]
+    u_wizard_morgana = u_world.wizards[1]
+    morgana_spells_encoded = encode(wizard_morgana.spells, keys=True)
+    morgana_spells_decoded = decode(morgana_spells_encoded, keys=True)
+    assert wizard_morgana.spells == morgana_spells_decoded
 
-        # Merlin's second target was himself
-        self.assertTrue(merlin_spells_keys[1] in wizard_merlin.spells)
-        self.assertEqual(merlin_spells_keys[1], wizard_merlin)
-
-        # Morgana's first target was Merlin
-        morgana_spells_keys = list(wizard_morgana.spells.keys())
-        self.assertTrue(morgana_spells_keys[0] in wizard_morgana.spells)
-        self.assertEqual(morgana_spells_keys[0], wizard_merlin)
-
-        # Merlin's first spell cast with himself as target is in the dictionary,
-        # first by looking up directly with Merlin's instance object...
-        self.assertEqual(wizard_merlin, wizard_merlin.spells[wizard_merlin][0].target)
-
-        # ...and then with the instance object directly from the dictionary keys
-        self.assertEqual(wizard_merlin, merlin_spells[merlin_spells_keys[1]][0].target)
-
-        # Ensure Merlin's object is unique...
-        self.assertEqual(id(wizard_merlin), id(merlin_spells_keys[1]))
-
-        # ...and consistently hashed
-        self.assertEqual(hash(wizard_merlin), hash(merlin_spells_keys[1]))
-
-    def test_with_pickling(self):
-        world = World()
-        wizard_merlin = Wizard(world, 'Merlin')
-        wizard_morgana = Wizard(world, 'Morgana')
-        wizard_morgana_prime = Wizard(world, 'Morgana')
-
-        self.assertEqual(wizard_morgana.__dict__, wizard_morgana_prime.__dict__)
-
-        spell_a = Spell(wizard_merlin, wizard_morgana, 'magic-missile')
-        spell_b = Spell(wizard_merlin, wizard_merlin, 'stone-skin')
-        spell_c = Spell(wizard_morgana, wizard_merlin, 'geas')
-
-        self.assertEqual(wizard_merlin.spells[wizard_morgana][0], spell_a)
-        self.assertEqual(wizard_merlin.spells[wizard_merlin][0], spell_b)
-        self.assertEqual(wizard_morgana.spells[wizard_merlin][0], spell_c)
-        flat_world = encode(world, keys=True)
-        u_world = decode(flat_world, keys=True)
-        u_wizard_merlin = u_world.wizards[0]
-        u_wizard_morgana = u_world.wizards[1]
-
-        morgana_spells_encoded = encode(wizard_morgana.spells, keys=True)
-        morgana_spells_decoded = decode(morgana_spells_encoded, keys=True)
-
-        self.assertEqual(wizard_morgana.spells, morgana_spells_decoded)
-
-        morgana_encoded = encode(wizard_morgana, keys=True)
-        morgana_decoded = decode(morgana_encoded, keys=True)
-
-        self.assertEqual(wizard_morgana, morgana_decoded)
-        self.assertEqual(hash(wizard_morgana), hash(morgana_decoded))
-        self.assertEqual(wizard_morgana.spells, morgana_decoded.spells)
-
-        # Merlin has cast Magic Missile on Morgana, and Stone Skin on himself
-        merlin_spells = u_wizard_merlin.spells
-        self.assertEqual(merlin_spells[u_wizard_morgana][0].name, 'magic-missile')
-        self.assertEqual(merlin_spells[u_wizard_merlin][0].name, 'stone-skin')
-
-        # Morgana has cast Geas on Merlin
-        self.assertEqual(u_wizard_morgana.spells[u_wizard_merlin][0].name, 'geas')
-
-        # Merlin's first target was Morgana
-        merlin_spells_keys = list(u_wizard_merlin.spells.keys())
-        self.assertTrue(merlin_spells_keys[0] in u_wizard_merlin.spells)
-        self.assertEqual(merlin_spells_keys[0], u_wizard_morgana)
-
-        # Merlin's second target was himself
-        self.assertTrue(merlin_spells_keys[1] in u_wizard_merlin.spells)
-        self.assertEqual(merlin_spells_keys[1], u_wizard_merlin)
-
-        # Morgana's first target was Merlin
-        morgana_spells_keys = list(u_wizard_morgana.spells.keys())
-        self.assertTrue(morgana_spells_keys[0] in u_wizard_morgana.spells)
-        self.assertEqual(morgana_spells_keys[0], u_wizard_merlin)
-
-        # Merlin's first spell cast with himself as target is in the dict.
-        # First try the lookup with Merlin's instance object
-        self.assertEqual(u_wizard_merlin, merlin_spells[u_wizard_merlin][0].target)
-        # Next try the lookup with the object from the dictionary keys.
-        self.assertEqual(
-            u_wizard_merlin, merlin_spells[merlin_spells_keys[1]][0].target
-        )
-
-        # Ensure Merlin's object is unique and consistently hashed.
-        self.assertEqual(id(u_wizard_merlin), id(merlin_spells_keys[1]))
-        self.assertEqual(hash(u_wizard_merlin), hash(merlin_spells_keys[1]))
+    morgana_encoded = encode(wizard_morgana, keys=True)
+    morgana_decoded = decode(morgana_encoded, keys=True)
+    assert wizard_morgana == morgana_decoded
+    assert hash(wizard_morgana) == hash(morgana_decoded)
+    assert wizard_morgana.spells == morgana_decoded.spells
+    # Merlin has cast Magic Missile on Morgana, and Stone Skin on himself
+    merlin_spells = u_wizard_merlin.spells
+    assert merlin_spells[u_wizard_morgana][0].name == 'magic-missile'
+    assert merlin_spells[u_wizard_merlin][0].name == 'stone-skin'
+    # Morgana has cast Geas on Merlin
+    assert u_wizard_morgana.spells[u_wizard_merlin][0].name == 'geas'
+    # Merlin's first target was Morgana
+    merlin_spells_keys = list(u_wizard_merlin.spells.keys())
+    assert merlin_spells_keys[0] in u_wizard_merlin.spells
+    assert merlin_spells_keys[0] == u_wizard_morgana
+    # Merlin's second target was himself
+    assert merlin_spells_keys[1] in u_wizard_merlin.spells
+    assert merlin_spells_keys[1] == u_wizard_merlin
+    # Morgana's first target was Merlin
+    morgana_spells_keys = list(u_wizard_morgana.spells.keys())
+    assert morgana_spells_keys[0] in u_wizard_morgana.spells
+    assert morgana_spells_keys[0] == u_wizard_merlin
+    # Merlin's first spell cast with himself as target is in the dict.
+    # First try the lookup with Merlin's instance object
+    assert u_wizard_merlin == merlin_spells[u_wizard_merlin][0].target
+    # Next try the lookup with the object from the dictionary keys.
+    assert u_wizard_merlin == merlin_spells[merlin_spells_keys[1]][0].target
+    # Ensure Merlin's object is unique and consistently hashed.
+    assert id(u_wizard_merlin) == id(merlin_spells_keys[1])
+    assert hash(u_wizard_merlin) == hash(merlin_spells_keys[1])
