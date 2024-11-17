@@ -8,7 +8,7 @@ import dataclasses
 import sys
 import warnings
 
-from . import compat, errors, handlers, tags, util
+from . import errors, handlers, tags, util
 from .backend import json
 from .compat import numeric_types
 
@@ -115,7 +115,7 @@ def _safe_hasattr(obj, attr):
 
 def _is_json_key(key):
     """Has this key a special object that has been encoded to JSON?"""
-    return isinstance(key, compat.string_types) and key.startswith(tags.JSON_KEY)
+    return isinstance(key, str) and key.startswith(tags.JSON_KEY)
 
 
 class _Proxy:

@@ -13,7 +13,7 @@ from itertools import chain, islice
 
 from . import handlers, tags, util
 from .backend import json
-from .compat import numeric_types, string_types
+from .compat import numeric_types
 
 
 def encode(
@@ -188,7 +188,7 @@ def _mktyperef(obj):
 
 def _wrap_string_slot(string):
     """Converts __slots__ = 'a' into __slots__ = ('a',)"""
-    if isinstance(string, string_types):
+    if isinstance(string, str):
         return (string,)
     return string
 
@@ -458,7 +458,7 @@ class Pickler:
 
         if self.numeric_keys and isinstance(k, numeric_types):
             pass
-        elif not isinstance(k, string_types):
+        elif not isinstance(k, str):
             try:
                 k = repr(k)
             except Exception:
@@ -593,7 +593,7 @@ class Pickler:
                     # we ignore those
                     pass
 
-            if reduce_val and isinstance(reduce_val, string_types):
+            if reduce_val and isinstance(reduce_val, str):
                 try:
                     varpath = iter(reduce_val.split('.'))
                     # curmod will be transformed by the
@@ -743,7 +743,7 @@ class Pickler:
         """Flatten only non-string key/value pairs"""
         if not util.is_picklable(k, v):
             return data
-        if self.keys and not isinstance(k, string_types):
+        if self.keys and not isinstance(k, str):
             k = self._escape_key(k)
             data[k] = self._flatten(v)
         return data
@@ -753,7 +753,7 @@ class Pickler:
         if not util.is_picklable(k, v):
             return data
         if self.keys:
-            if not isinstance(k, string_types):
+            if not isinstance(k, str):
                 return data
             elif k.startswith(tags.JSON_KEY):
                 k = self._escape_key(k)
@@ -763,7 +763,7 @@ class Pickler:
 
             if self.numeric_keys and isinstance(k, numeric_types):
                 pass
-            elif not isinstance(k, string_types):
+            elif not isinstance(k, str):
                 try:
                     k = repr(k)
                 except Exception:
