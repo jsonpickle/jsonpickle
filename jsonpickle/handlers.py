@@ -12,11 +12,12 @@ import array
 import copy
 import datetime
 import io
+import queue
 import re
 import threading
 import uuid
 
-from . import compat, util
+from . import util
 
 
 class Registry:
@@ -224,10 +225,10 @@ class QueueHandler(BaseHandler):
         return data
 
     def restore(self, data):
-        return compat.queue.Queue()
+        return queue.Queue()
 
 
-QueueHandler.handles(compat.queue.Queue)
+QueueHandler.handles(queue.Queue)
 
 
 class CloneFactory:
