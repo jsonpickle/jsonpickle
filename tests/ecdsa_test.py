@@ -38,7 +38,6 @@ class EcdsaTestCase(SkippableTest):
         message = b'test'
         key_pair = self.SigningKey.generate(curve=self.NIST384p)
         sig = key_pair.sign(message)
-
         serialized = jsonpickle.dumps(key_pair.get_verifying_key())
         restored = jsonpickle.loads(serialized)
-        self.assertTrue(restored.verify(sig, message))
+        assert restored.verify(sig, message)
