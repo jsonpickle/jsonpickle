@@ -19,8 +19,9 @@ import types
 from collections.abc import Iterator as abc_iterator
 
 from . import tags
-from .compat import iterator_types, numeric_types
+from .compat import numeric_types
 
+ITERATOR_TYPE = type(iter(''))
 SEQUENCES = (list, set, tuple)
 SEQUENCES_SET = {list, set, tuple}
 PRIMITIVES = {str, bool, type(None)} | set(numeric_types)
@@ -381,7 +382,7 @@ def is_reducible(obj):
     # Condensing it into one line seems to save the parser a lot of time.
     # fmt: off
     # pylint: disable=line-too-long
-    if type(obj) in NON_REDUCIBLE_TYPES or obj is object or is_dictionary_subclass(obj) or isinstance(obj, types.ModuleType) or is_reducible_sequence_subclass(obj) or is_list_like(obj) or isinstance(getattr(obj, '__slots__', None), iterator_types) or (is_type(obj) and obj.__module__ == 'datetime'):  # noqa: E501
+    if type(obj) in NON_REDUCIBLE_TYPES or obj is object or is_dictionary_subclass(obj) or isinstance(obj, types.ModuleType) or is_reducible_sequence_subclass(obj) or is_list_like(obj) or isinstance(getattr(obj, '__slots__', None), ITERATOR_TYPE) or (is_type(obj) and obj.__module__ == 'datetime'):  # noqa: E501
         return False
     # fmt: on
     return True
