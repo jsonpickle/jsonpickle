@@ -2,6 +2,7 @@ import decimal
 from hashlib import md5
 from warnings import warn
 
+import pytest
 from helper import SkippableTest
 
 import jsonpickle
@@ -54,13 +55,13 @@ class BackendBase(SkippableTest):
     def assert_roundtrip(self, json_input):
         expect = SAMPLE_DATA
         actual = jsonpickle.decode(json_input)
-        self.assertEqual(expect['things'][0].name, actual['things'][0].name)
-        self.assertEqual(expect['things'][0].child, actual['things'][0].child)
+        assert expect['things'][0].name == actual['things'][0].name
+        assert expect['things'][0].child == actual['things'][0].child
 
         pickled = jsonpickle.encode(SAMPLE_DATA)
         actual = jsonpickle.decode(pickled)
-        self.assertEqual(expect['things'][0].name, actual['things'][0].name)
-        self.assertEqual(expect['things'][0].child, actual['things'][0].child)
+        assert expect['things'][0].name == actual['things'][0].name
+        assert expect['things'][0].child == actual['things'][0].child
 
     def test_None_dict_key(self):
         """Ensure that backends produce the same result for None dict keys"""
@@ -68,7 +69,7 @@ class BackendBase(SkippableTest):
         expect = {'null': None}
         pickle = jsonpickle.encode(data)
         actual = jsonpickle.decode(pickle)
-        self.assertEqual(expect, actual)
+        assert expect == actual
 
     def test_encode_with_indent_and_separators(self):
         obj = {
@@ -77,7 +78,7 @@ class BackendBase(SkippableTest):
         }
         expect = '{\n' '    "a": 1,\n' '    "b": 2\n' '}'
         actual = jsonpickle.encode(obj, indent=4, separators=(',', ': '))
-        self.assertEqual(expect, actual)
+        assert expect == actual
 
 
 class JsonTestCase(BackendBase):
@@ -114,8 +115,8 @@ class SimpleJsonTestCase(BackendBase):
         obj = decimal.Decimal(0.5)
         as_json = jsonpickle.dumps(obj)
         clone = jsonpickle.loads(as_json)
-        self.assertTrue(isinstance(clone, decimal.Decimal))
-        self.assertEqual(obj, clone)
+        assert isinstance(clone, decimal.Decimal)
+        assert obj == clone
 
         # Custom behavior: we want to use simplejson's Decimal support.
         jsonpickle.set_encoder_options('simplejson', use_decimal=True, sort_keys=True)
@@ -125,16 +126,16 @@ class SimpleJsonTestCase(BackendBase):
         # use_decimal mode allows Decimal objects to pass-through to simplejson.
         # The end result is we get a simple '0.5' value as our json string.
         as_json = jsonpickle.dumps(obj, unpicklable=True, use_decimal=True)
-        self.assertEqual(as_json, '0.5')
+        assert as_json == '0.5'
         # But when loading we get back a Decimal.
         clone = jsonpickle.loads(as_json)
-        self.assertTrue(isinstance(clone, decimal.Decimal))
+        assert isinstance(clone, decimal.Decimal)
 
         # side-effect: floats become decimals too!
         obj = 0.5
         as_json = jsonpickle.dumps(obj)
         clone = jsonpickle.loads(as_json)
-        self.assertTrue(isinstance(clone, decimal.Decimal))
+        assert isinstance(clone, decimal.Decimal)
         # options are persisted unless we disable them
         jsonpickle.set_encoder_options('simplejson', use_decimal=False)
         jsonpickle.set_decoder_options('simplejson', use_decimal=False)
@@ -142,7 +143,8 @@ class SimpleJsonTestCase(BackendBase):
     def test_sort_keys(self):
         jsonpickle.set_encoder_options('simplejson', sort_keys=True)
         b = BSlots()
-        self.assertRaises(TypeError, jsonpickle.encode, b, keys=True, warn=True)
+        with pytest.raises(TypeError):
+            jsonpickle.encode(b, keys=True, warn=True)
         # return encoder options to default
         jsonpickle.set_encoder_options('simplejson', sort_keys=False)
 
