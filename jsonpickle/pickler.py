@@ -11,7 +11,7 @@ import sys
 import warnings
 from itertools import chain, islice
 
-from . import compat, handlers, tags, util
+from . import handlers, tags, util
 from .backend import json
 from .compat import numeric_types, string_types
 
@@ -462,7 +462,7 @@ class Pickler:
             try:
                 k = repr(k)
             except Exception:
-                k = compat.ustr(k)
+                k = str(k)
 
         data[k] = self._flatten(v)
         return data
@@ -673,7 +673,7 @@ class Pickler:
             if self.unpicklable:
                 data[tags.MODULE] = '{name}/{name}'.format(name=obj.__name__)
             else:
-                data = compat.ustr(obj)
+                data = str(obj)
             return data
 
         if util.is_dictionary_subclass(obj):
@@ -767,7 +767,7 @@ class Pickler:
                 try:
                     k = repr(k)
                 except Exception:
-                    k = compat.ustr(k)
+                    k = str(k)
 
         data[k] = self._flatten(v)
         return data

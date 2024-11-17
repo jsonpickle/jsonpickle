@@ -17,12 +17,12 @@ import sys
 import time
 import types
 
-from . import compat, tags
+from . import tags
 from .compat import abc_iterator, class_types, iterator_types, numeric_types
 
 SEQUENCES = (list, set, tuple)
 SEQUENCES_SET = {list, set, tuple}
-PRIMITIVES = {compat.ustr, bool, type(None)} | set(numeric_types)
+PRIMITIVES = {str, bool, type(None)} | set(numeric_types)
 FUNCTION_TYPES = {
     types.FunctionType,
     types.MethodType,
@@ -205,8 +205,8 @@ def is_bytes(obj):
 
 
 def is_unicode(obj):
-    """Helper method to see if the object is a unicode string"""
-    return type(obj) is compat.ustr
+    """DEPRECATED: Helper method to see if the object is a unicode string"""
+    return type(obj) is str
 
 
 def is_tuple(obj):
@@ -574,7 +574,7 @@ def b85decode(payload):
 
 
 def itemgetter(obj, getter=operator.itemgetter(0)):
-    return compat.ustr(getter(obj))
+    return str(getter(obj))
 
 
 def items(obj, exclude=()):

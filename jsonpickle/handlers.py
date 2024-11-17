@@ -175,7 +175,7 @@ class DatetimeHandler(BaseHandler):
             if hasattr(obj, 'isoformat'):
                 result = obj.isoformat()
             else:
-                result = compat.ustr(obj)
+                result = str(obj)
             return result
         cls, args = obj.__reduce__()
         flatten = pickler.flatten
