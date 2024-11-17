@@ -1,3 +1,5 @@
+"""jsonpickle.compat is a deprecated private module and will be removed in the future"""
+
 import queue  # noqa
 import sys
 from collections.abc import Iterator as abc_iterator  # noqa
@@ -13,5 +15,4 @@ ustr = str
 
 
 def iterator(class_):
-    # TODO: Replace all instances of this
     return class_
