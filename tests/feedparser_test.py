@@ -82,4 +82,4 @@ class FeedParserTestCase(SkippableTest):
             return self.skip('feedparser module not available, please install')
         pickled = jsonpickle.encode(self.doc)
         unpickled = jsonpickle.decode(pickled)
-        self.assertEqual(self.doc['feed']['title'], unpickled['feed']['title'])
+        assert self.doc['feed']['title'] == unpickled['feed']['title']
