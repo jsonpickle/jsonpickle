@@ -6,9 +6,8 @@ import zlib
 
 import numpy as np
 
-from ..compat import numeric_types
 from ..handlers import BaseHandler, register, unregister
-from ..util import b64decode, b64encode
+from ..util import NUMERIC_TYPES, b64decode, b64encode
 
 __all__ = ['register_handlers', 'unregister_handlers']
 
@@ -190,7 +189,7 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
         if isinstance(values, list):
             # decode text representation
             arr = super().restore(data)
-        elif isinstance(values, numeric_types):
+        elif isinstance(values, NUMERIC_TYPES):
             # single-value array
             arr = np.array([values], dtype=self.restore_dtype(data))
         else:

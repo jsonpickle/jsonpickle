@@ -19,12 +19,12 @@ import types
 from collections.abc import Iterator as abc_iterator
 
 from . import tags
-from .compat import numeric_types
 
+NUMERIC_TYPES = (int, float)
 ITERATOR_TYPE = type(iter(''))
 SEQUENCES = (list, set, tuple)
 SEQUENCES_SET = {list, set, tuple}
-PRIMITIVES = {str, bool, type(None)} | set(numeric_types)
+PRIMITIVES = {str, bool, int, float, type(None)}
 FUNCTION_TYPES = {
     types.FunctionType,
     types.MethodType,

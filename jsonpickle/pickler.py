@@ -13,7 +13,7 @@ from itertools import chain, islice
 
 from . import handlers, tags, util
 from .backend import json
-from .compat import numeric_types
+from .util import NUMERIC_TYPES
 
 
 def encode(
@@ -456,7 +456,7 @@ class Pickler:
         if k is None:
             k = 'null'  # for compatibility with common json encoders
 
-        if self.numeric_keys and isinstance(k, numeric_types):
+        if self.numeric_keys and isinstance(k, NUMERIC_TYPES):
             pass
         elif not isinstance(k, str):
             try:
@@ -761,7 +761,7 @@ class Pickler:
             if k is None:
                 k = 'null'  # for compatibility with common json encoders
 
-            if self.numeric_keys and isinstance(k, numeric_types):
+            if self.numeric_keys and isinstance(k, NUMERIC_TYPES):
                 pass
             elif not isinstance(k, str):
                 try:

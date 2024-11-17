@@ -10,7 +10,7 @@ import warnings
 
 from . import errors, handlers, tags, util
 from .backend import json
-from .compat import numeric_types
+from .util import NUMERIC_TYPES
 
 
 def decode(
@@ -653,7 +653,7 @@ class Unpickler:
             # ignore the reserved attribute
             if ignorereserved and k in tags.RESERVED:
                 continue
-            if isinstance(k, numeric_types):
+            if isinstance(k, NUMERIC_TYPES):
                 str_k = k.__str__()
             else:
                 str_k = k
@@ -868,7 +868,7 @@ class Unpickler:
             for k, v in util.items(obj):
                 if _is_json_key(k):
                     continue
-                if isinstance(k, numeric_types):
+                if isinstance(k, NUMERIC_TYPES):
                     str_k = k.__str__()
                 else:
                     str_k = k
@@ -893,7 +893,7 @@ class Unpickler:
         else:
             # No special keys, thus we don't need to restore the keys either.
             for k, v in util.items(obj):
-                if isinstance(k, numeric_types):
+                if isinstance(k, NUMERIC_TYPES):
                     str_k = k.__str__()
                 else:
                     str_k = k
