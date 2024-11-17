@@ -6,6 +6,8 @@
 
 import unittest
 
+import pytest
+
 import jsonpickle
 import jsonpickle.handlers
 
@@ -70,7 +72,7 @@ class HandlerTestCase(unittest.TestCase):
     def roundtrip(self, ob):
         encoded = jsonpickle.encode(ob)
         decoded = jsonpickle.decode(encoded)
-        self.assertEqual(decoded, ob)
+        assert decoded == ob
         return decoded
 
     def test_custom_handler(self):
@@ -78,9 +80,9 @@ class HandlerTestCase(unittest.TestCase):
         expect = CustomObject('jarjar')
         encoded = jsonpickle.encode(expect)
         actual = jsonpickle.decode(encoded)
-        self.assertEqual(expect.name, actual.name)
-        self.assertTrue(expect.creator is None)
-        self.assertTrue(actual.creator is NullHandler)
+        assert expect.name == actual.name
+        assert expect.creator is None
+        assert actual.creator is NullHandler
 
     def test_references(self):
         """
@@ -91,39 +93,39 @@ class HandlerTestCase(unittest.TestCase):
         subject = dict(a=ob, b=ob, c=ob)
         # ensure the subject can be roundtripped
         new_subject = self.roundtrip(subject)
-        self.assertEqual(new_subject['a'], new_subject['b'])
-        self.assertEqual(new_subject['b'], new_subject['c'])
-        self.assertTrue(new_subject['a'] is new_subject['b'])
-        self.assertTrue(new_subject['b'] is new_subject['c'])
+        assert new_subject['a'] == new_subject['b']
+        assert new_subject['b'] == new_subject['c']
+        assert new_subject['a'] is new_subject['b']
+        assert new_subject['b'] is new_subject['c']
 
     def test_invalid_class(self):
-        self.assertRaises(TypeError, jsonpickle.handlers.register, 'foo', NullHandler)
+        with pytest.raises(TypeError):
+            jsonpickle.handlers.register('foo', NullHandler)
 
     def test_base_handler(self):
         a = CustomA('a')
-        self.assertTrue(a.creator is None)
-        self.assertTrue(jsonpickle.decode(jsonpickle.encode(a)).creator is None)
+        assert a.creator is None
+        assert jsonpickle.decode(jsonpickle.encode(a)).creator is None
 
         b = CustomB('b')
-        self.assertTrue(b.creator is None)
-        self.assertTrue(jsonpickle.decode(jsonpickle.encode(b)).creator is None)
+        assert b.creator is None
+        assert jsonpickle.decode(jsonpickle.encode(b)).creator is None
 
         OtherHandler = type('OtherHandler', (NullHandler,), {})
         jsonpickle.handlers.register(CustomA, OtherHandler, base=True)
-        self.assertTrue(self.roundtrip(a).creator is OtherHandler)
-        self.assertTrue(self.roundtrip(b).creator is OtherHandler)
+        assert self.roundtrip(a).creator is OtherHandler
+        assert self.roundtrip(b).creator is OtherHandler
 
         SpecializedHandler = type('SpecializedHandler', (NullHandler,), {})
         jsonpickle.handlers.register(CustomB, SpecializedHandler)
-        self.assertTrue(self.roundtrip(a).creator is OtherHandler)
-        self.assertTrue(self.roundtrip(b).creator is SpecializedHandler)
+        assert self.roundtrip(a).creator is OtherHandler
+        assert self.roundtrip(b).creator is SpecializedHandler
 
     def test_decorated_register(self):
         db = DecoratedBase('db')
         dc = DecoratedChild('dc')
-
-        self.assertTrue(self.roundtrip(db).creator is DecoratedHandler)
-        self.assertTrue(self.roundtrip(dc).creator is DecoratedHandler)
+        assert self.roundtrip(db).creator is DecoratedHandler
+        assert self.roundtrip(dc).creator is DecoratedHandler
 
     def test_custom_handler_can_rewrite_everything(self):
         """Test the low-level pickling structures"""
@@ -132,7 +134,7 @@ class HandlerTestCase(unittest.TestCase):
         obj = CustomObject('jarjar')  # secret sith lord jarjar
         pickler = jsonpickle.pickler.Pickler()
         data = pickler.flatten(obj)
-        self.assertTrue(isinstance(data, dict))
-        self.assertEqual(len(data), 2)
-        self.assertEqual('jarjar', data['name'])
-        self.assertEqual('sith.lord', data['py/object'])
+        assert isinstance(data, dict)
+        assert len(data) == 2
+        assert data['name'] == 'jarjar'
+        assert data['py/object'] == 'sith.lord'
