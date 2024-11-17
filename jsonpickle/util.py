@@ -16,9 +16,10 @@ import operator
 import sys
 import time
 import types
+from collections.abc import Iterator as abc_iterator
 
 from . import tags
-from .compat import abc_iterator, class_types, iterator_types, numeric_types
+from .compat import iterator_types, numeric_types
 
 SEQUENCES = (list, set, tuple)
 SEQUENCES_SET = {list, set, tuple}
@@ -65,7 +66,7 @@ def is_type(obj):
     True
     """
     # use "isinstance" and not "is" to allow for metaclasses
-    return isinstance(obj, class_types)
+    return isinstance(obj, type)
 
 
 def has_method(obj, name):
