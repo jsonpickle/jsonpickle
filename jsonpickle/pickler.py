@@ -13,7 +13,6 @@ from itertools import chain, islice
 
 from . import handlers, tags, util
 from .backend import json
-from .util import NUMERIC_TYPES
 
 
 def encode(
@@ -377,7 +376,7 @@ class Pickler:
             return self._flatten_bytestring(obj)
 
         # Decimal is a primitive when use_decimal is True
-        if type(obj) in util.PRIMITIVES or (
+        if type(obj) in (str, bool, int, float, type(None)) or (
             self._use_decimal and isinstance(obj, decimal.Decimal)
         ):
             return obj
@@ -456,7 +455,7 @@ class Pickler:
         if k is None:
             k = 'null'  # for compatibility with common json encoders
 
-        if self.numeric_keys and isinstance(k, NUMERIC_TYPES):
+        if self.numeric_keys and isinstance(k, (int, float)):
             pass
         elif not isinstance(k, str):
             try:
@@ -761,7 +760,7 @@ class Pickler:
             if k is None:
                 k = 'null'  # for compatibility with common json encoders
 
-            if self.numeric_keys and isinstance(k, NUMERIC_TYPES):
+            if self.numeric_keys and isinstance(k, (int, float)):
                 pass
             elif not isinstance(k, str):
                 try:
