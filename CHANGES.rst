@@ -1,6 +1,7 @@
 Upcoming
 ========
-    * The unpickler is now more resilient to malformed "py/set" input data.
+    * The unpickler is now more resilient to malformed "py/set", "py/tuple", and
+      "py/iterator" input data.
     * The test suite was updated to leverage more pytest features.
     * The ``jsonpickle.compat`` module is no longer used. It is still provided
       for backwards compatibility but it may be removed in a future version.

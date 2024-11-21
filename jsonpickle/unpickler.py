@@ -489,7 +489,10 @@ class Unpickler:
         return parent
 
     def _restore_iterator(self, obj):
-        return iter(self._restore_list(obj[tags.ITERATOR]))
+        try:
+            return iter(self._restore_list(obj[tags.ITERATOR]))
+        except TypeError:
+            return iter([])
 
     def _swapref(self, proxy, instance):
         proxy_id = id(proxy)
@@ -902,7 +905,10 @@ class Unpickler:
         return data
 
     def _restore_tuple(self, obj):
-        return tuple([self._restore(v) for v in obj[tags.TUPLE]])
+        try:
+            return tuple(self._restore(v) for v in obj[tags.TUPLE])
+        except TypeError:
+            return ()
 
     def _restore_tags(self, obj, _passthrough=_passthrough):
         """Return the restoration function for the specified object"""

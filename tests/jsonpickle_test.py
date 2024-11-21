@@ -302,6 +302,21 @@ def test_set_with_invalid_data(unpickler):
     assert result == set()
 
 
+def test_tuple_with_invalid_data(unpickler):
+    """Invalid serialized tuple data results in an empty tuple"""
+    data = {tags.TUPLE: 0}
+    result = unpickler.restore(data)
+    assert result == tuple()
+
+
+def test_iterator_with_invalid_data(unpickler):
+    """Invalid serialized iterator data results in an empty iterator"""
+    data = {tags.ITERATOR: set()}
+    result = unpickler.restore(data)
+    with pytest.raises(StopIteration):
+        assert next(result) == set()
+
+
 def test_dict(pickler, unpickler):
     """Our custom keys are preserved when user dicts contain them"""
     dict_a = {'key1': 1.0, 'key2': 20, 'key3': 'thirty', tags.JSON_KEY + '6': 6}
