@@ -1,6 +1,3 @@
-from .compat import string_types
-
-
 class JSONBackend:
     """Manages encoding and decoding using various backends.
 
@@ -172,7 +169,7 @@ class JSONBackend:
         ):
             return False
 
-        if isinstance(loads_exc, string_types):
+        if isinstance(loads_exc, str):
             # This backend's decoder exception is part of the backend
             if not self._store(self._decoder_exceptions, name, mod, loads_exc):
                 return False

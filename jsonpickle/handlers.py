@@ -12,11 +12,12 @@ import array
 import copy
 import datetime
 import io
+import queue
 import re
 import threading
 import uuid
 
-from . import compat, util
+from . import util
 
 
 class Registry:
@@ -174,7 +175,7 @@ class DatetimeHandler(BaseHandler):
             if hasattr(obj, 'isoformat'):
                 result = obj.isoformat()
             else:
-                result = compat.ustr(obj)
+                result = str(obj)
             return result
         cls, args = obj.__reduce__()
         flatten = pickler.flatten
@@ -224,10 +225,10 @@ class QueueHandler(BaseHandler):
         return data
 
     def restore(self, data):
-        return compat.queue.Queue()
+        return queue.Queue()
 
 
-QueueHandler.handles(compat.queue.Queue)
+QueueHandler.handles(queue.Queue)
 
 
 class CloneFactory:

@@ -16,13 +16,14 @@ import operator
 import sys
 import time
 import types
+from collections.abc import Iterator as abc_iterator
 
-from . import compat, tags
-from .compat import abc_iterator, class_types, iterator_types, numeric_types
+from . import tags
 
+_ITERATOR_TYPE = type(iter(''))
 SEQUENCES = (list, set, tuple)
 SEQUENCES_SET = {list, set, tuple}
-PRIMITIVES = {compat.ustr, bool, type(None)} | set(numeric_types)
+PRIMITIVES = {str, bool, int, float, type(None)}
 FUNCTION_TYPES = {
     types.FunctionType,
     types.MethodType,
@@ -65,7 +66,7 @@ def is_type(obj):
     True
     """
     # use "isinstance" and not "is" to allow for metaclasses
-    return isinstance(obj, class_types)
+    return isinstance(obj, type)
 
 
 def has_method(obj, name):
@@ -205,8 +206,8 @@ def is_bytes(obj):
 
 
 def is_unicode(obj):
-    """Helper method to see if the object is a unicode string"""
-    return type(obj) is compat.ustr
+    """DEPRECATED: Helper method to see if the object is a unicode string"""
+    return type(obj) is str
 
 
 def is_tuple(obj):
@@ -380,7 +381,7 @@ def is_reducible(obj):
     # Condensing it into one line seems to save the parser a lot of time.
     # fmt: off
     # pylint: disable=line-too-long
-    if type(obj) in NON_REDUCIBLE_TYPES or obj is object or is_dictionary_subclass(obj) or isinstance(obj, types.ModuleType) or is_reducible_sequence_subclass(obj) or is_list_like(obj) or isinstance(getattr(obj, '__slots__', None), iterator_types) or (is_type(obj) and obj.__module__ == 'datetime'):  # noqa: E501
+    if type(obj) in NON_REDUCIBLE_TYPES or obj is object or is_dictionary_subclass(obj) or isinstance(obj, types.ModuleType) or is_reducible_sequence_subclass(obj) or is_list_like(obj) or isinstance(getattr(obj, '__slots__', None), _ITERATOR_TYPE) or (is_type(obj) and obj.__module__ == 'datetime'):  # noqa: E501
         return False
     # fmt: on
     return True
@@ -574,7 +575,7 @@ def b85decode(payload):
 
 
 def itemgetter(obj, getter=operator.itemgetter(0)):
-    return compat.ustr(getter(obj))
+    return str(getter(obj))
 
 
 def items(obj, exclude=()):

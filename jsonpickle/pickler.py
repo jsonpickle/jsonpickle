@@ -11,9 +11,8 @@ import sys
 import warnings
 from itertools import chain, islice
 
-from . import compat, handlers, tags, util
+from . import handlers, tags, util
 from .backend import json
-from .compat import numeric_types, string_types
 
 
 def encode(
@@ -188,7 +187,7 @@ def _mktyperef(obj):
 
 def _wrap_string_slot(string):
     """Converts __slots__ = 'a' into __slots__ = ('a',)"""
-    if isinstance(string, string_types):
+    if isinstance(string, str):
         return (string,)
     return string
 
@@ -377,7 +376,7 @@ class Pickler:
             return self._flatten_bytestring(obj)
 
         # Decimal is a primitive when use_decimal is True
-        if type(obj) in util.PRIMITIVES or (
+        if type(obj) in (str, bool, int, float, type(None)) or (
             self._use_decimal and isinstance(obj, decimal.Decimal)
         ):
             return obj
@@ -456,13 +455,13 @@ class Pickler:
         if k is None:
             k = 'null'  # for compatibility with common json encoders
 
-        if self.numeric_keys and isinstance(k, numeric_types):
+        if self.numeric_keys and isinstance(k, (int, float)):
             pass
-        elif not isinstance(k, string_types):
+        elif not isinstance(k, str):
             try:
                 k = repr(k)
             except Exception:
-                k = compat.ustr(k)
+                k = str(k)
 
         data[k] = self._flatten(v)
         return data
@@ -593,7 +592,7 @@ class Pickler:
                     # we ignore those
                     pass
 
-            if reduce_val and isinstance(reduce_val, string_types):
+            if reduce_val and isinstance(reduce_val, str):
                 try:
                     varpath = iter(reduce_val.split('.'))
                     # curmod will be transformed by the
@@ -673,7 +672,7 @@ class Pickler:
             if self.unpicklable:
                 data[tags.MODULE] = '{name}/{name}'.format(name=obj.__name__)
             else:
-                data = compat.ustr(obj)
+                data = str(obj)
             return data
 
         if util.is_dictionary_subclass(obj):
@@ -743,7 +742,7 @@ class Pickler:
         """Flatten only non-string key/value pairs"""
         if not util.is_picklable(k, v):
             return data
-        if self.keys and not isinstance(k, string_types):
+        if self.keys and not isinstance(k, str):
             k = self._escape_key(k)
             data[k] = self._flatten(v)
         return data
@@ -753,7 +752,7 @@ class Pickler:
         if not util.is_picklable(k, v):
             return data
         if self.keys:
-            if not isinstance(k, string_types):
+            if not isinstance(k, str):
                 return data
             elif k.startswith(tags.JSON_KEY):
                 k = self._escape_key(k)
@@ -761,13 +760,13 @@ class Pickler:
             if k is None:
                 k = 'null'  # for compatibility with common json encoders
 
-            if self.numeric_keys and isinstance(k, numeric_types):
+            if self.numeric_keys and isinstance(k, (int, float)):
                 pass
-            elif not isinstance(k, string_types):
+            elif not isinstance(k, str):
                 try:
                     k = repr(k)
                 except Exception:
-                    k = compat.ustr(k)
+                    k = str(k)
 
         data[k] = self._flatten(v)
         return data

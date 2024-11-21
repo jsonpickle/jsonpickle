@@ -6,8 +6,6 @@ import zlib
 
 import numpy as np
 
-from .. import compat
-from ..compat import numeric_types
 from ..handlers import BaseHandler, register, unregister
 from ..util import b64decode, b64encode
 
@@ -27,7 +25,7 @@ class NumpyBaseHandler(BaseHandler):
         if hasattr(dtype, 'tostring'):
             data['dtype'] = dtype.tostring()
         else:
-            dtype = compat.ustr(dtype)
+            dtype = str(dtype)
             prefix = '(numpy.record, '
             if dtype.startswith(prefix):
                 dtype = dtype[len(prefix) : -1]
@@ -191,7 +189,7 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
         if isinstance(values, list):
             # decode text representation
             arr = super().restore(data)
-        elif isinstance(values, numeric_types):
+        elif isinstance(values, (int, float)):
             # single-value array
             arr = np.array([values], dtype=self.restore_dtype(data))
         else:
