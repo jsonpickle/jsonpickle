@@ -513,7 +513,13 @@ class Unpickler:
         """
         proxy = _Proxy()
         self._mkref(proxy)
-        reduce_val = list(map(self._restore, obj[tags.REDUCE]))
+        try:
+            reduce_val = list(map(self._restore, obj[tags.REDUCE]))
+        except TypeError:
+            result = []
+            proxy.reset(result)
+            self._swapref(proxy, result)
+            return result
         if len(reduce_val) < 5:
             reduce_val.extend([None] * (5 - len(reduce_val)))
         f, args, state, listitems, dictitems = reduce_val
