@@ -317,6 +317,14 @@ def test_iterator_with_invalid_data(unpickler):
         assert next(result) == set()
 
 
+@pytest.mark.parametrize('value', ['', 0, True, None, [], {}, ('x',), {'x': True}])
+def test_reduce_with_invalid_data(value, unpickler):
+    """Invalid serialized reduce data results in an empty list"""
+    data = {tags.REDUCE: value}
+    result = unpickler.restore(data)
+    assert result == []
+
+
 def test_dict(pickler, unpickler):
     """Our custom keys are preserved when user dicts contain them"""
     dict_a = {'key1': 1.0, 'key2': 20, 'key3': 'thirty', tags.JSON_KEY + '6': 6}
