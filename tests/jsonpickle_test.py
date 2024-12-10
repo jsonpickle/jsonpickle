@@ -295,16 +295,18 @@ def test_set(pickler, unpickler):
     assert unpickler.restore(set_pickle) == set_obj
 
 
-def test_set_with_invalid_data(unpickler):
+@pytest.mark.parametrize('value', ['', 0, 1, True, False, None, [], {}])
+def test_set_with_invalid_data(value, unpickler):
     """Invalid serialized set data results in an empty set"""
-    data = {tags.SET: 1}
+    data = {tags.SET: value}
     result = unpickler.restore(data)
     assert result == set()
 
 
-def test_tuple_with_invalid_data(unpickler):
+@pytest.mark.parametrize('value', ['', 0, 1, True, False, None, [], {}])
+def test_tuple_with_invalid_data(value, unpickler):
     """Invalid serialized tuple data results in an empty tuple"""
-    data = {tags.TUPLE: 0}
+    data = {tags.TUPLE: value}
     result = unpickler.restore(data)
     assert result == tuple()
 
@@ -314,10 +316,13 @@ def test_iterator_with_invalid_data(unpickler):
     data = {tags.ITERATOR: set()}
     result = unpickler.restore(data)
     with pytest.raises(StopIteration):
-        assert next(result) == set()
+        next(result)
+        assert False
 
 
-@pytest.mark.parametrize('value', ['', 0, True, None, [], {}, ('x',), {'x': True}])
+@pytest.mark.parametrize(
+    'value', ['', 0, True, False, None, [], {}, ('x',), {'x': True}]
+)
 def test_reduce_with_invalid_data(value, unpickler):
     """Invalid serialized reduce data results in an empty list"""
     data = {tags.REDUCE: value}
