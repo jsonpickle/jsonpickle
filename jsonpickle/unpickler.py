@@ -433,10 +433,16 @@ class Unpickler:
             self._classes[util.importable_name(classes)] = classes
 
     def _restore_base64(self, obj):
-        return util.b64decode(obj[tags.B64].encode('utf-8'))
+        try:
+            return util.b64decode(obj[tags.B64].encode('utf-8'))
+        except AttributeError:
+            return b''
 
     def _restore_base85(self, obj):
-        return util.b85decode(obj[tags.B85].encode('utf-8'))
+        try:
+            return util.b85decode(obj[tags.B85].encode('utf-8'))
+        except AttributeError:
+            return b''
 
     def _refname(self):
         """Calculates the name of the current location in the JSON stack.
