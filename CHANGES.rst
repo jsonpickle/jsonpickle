@@ -1,5 +1,5 @@
-Upcoming
-========
+v4.0.1
+======
     * The unpickler is now more resilient to malformed "py/reduce", "py/set",
       "py/tuple", "py/b64", "py/b85", and "py/iterator" input data. (+544) (+545)
     * The test suite was updated to leverage more pytest features.
