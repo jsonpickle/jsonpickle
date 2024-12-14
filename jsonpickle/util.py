@@ -9,6 +9,7 @@
 determining the type of an object.
 """
 import base64
+import binascii
 import collections
 import inspect
 import io
@@ -557,7 +558,10 @@ def b64decode(payload):
     """
     Decode payload - must be ascii text.
     """
-    return base64.b64decode(payload)
+    try:
+        return base64.b64decode(payload)
+    except (TypeError, binascii.Error):
+        return b''
 
 
 def b85encode(data):
@@ -571,7 +575,10 @@ def b85decode(payload):
     """
     Decode payload - must be ascii text.
     """
-    return base64.b85decode(payload)
+    try:
+        return base64.b85decode(payload)
+    except (TypeError, ValueError):
+        return b''
 
 
 def itemgetter(obj, getter=operator.itemgetter(0)):
