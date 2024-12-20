@@ -613,6 +613,21 @@ def test_restore_legacy_builtins():
     assert cls is int
 
 
+@pytest.mark.parametrize(
+    'value,expect',
+    [
+        ('module_does_not_exist/ignored', None),
+        ('builtins/int', None),
+        ('builtins/invalid.int', None),
+        ('builtins/builtinsx.int', None),
+    ],
+)
+def test_restore_invalid_repr(value, expect, unpickler):
+    """Test restoring invalid repr tags"""
+    result = unpickler.restore({tags.REPR: value})
+    assert result is expect
+
+
 def test_unpickler_on_missing():
     """Emit warnings when decoding objects whose classes are missing"""
     encoded = jsonpickle.encode(Outer.Middle.Inner())

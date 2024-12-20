@@ -313,8 +313,15 @@ def _loadmodule(module_str):
 
     """
     module, identifier = module_str.split('/')
-    result = __import__(module)
-    for name in identifier.split('.')[1:]:
+    try:
+        result = __import__(module)
+    except ImportError:
+        return None
+    identifier_parts = identifier.split('.')
+    first_identifier = identifier_parts[0]
+    if first_identifier != module and not module.startswith(f'{first_identifier}.'):
+        return None
+    for name in identifier_parts[1:]:
         try:
             result = getattr(result, name)
         except AttributeError:
