@@ -1,3 +1,7 @@
+Upcoming
+========
+    * The unpickler is now more resilient to malformed "py/id" data. (+546)
+
 v4.0.1
 ======
     * The unpickler is now more resilient to malformed "py/reduce", "py/set",
