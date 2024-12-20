@@ -346,6 +346,13 @@ def test_reduce_with_invalid_data(value, unpickler):
     assert result == []
 
 
+@pytest.mark.parametrize('value', ['', 'x', 1, True, [], {}])
+def test_restore_id_with_invalid_data(value, unpickler):
+    """Invalid serialized ID data results in None"""
+    result = unpickler.restore({'ref': {tags.ID: value}})
+    assert result['ref'] is None
+
+
 def test_dict(pickler, unpickler):
     """Our custom keys are preserved when user dicts contain them"""
     dict_a = {'key1': 1.0, 'key2': 20, 'key3': 'thirty', tags.JSON_KEY + '6': 6}

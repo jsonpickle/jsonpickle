@@ -162,7 +162,10 @@ class _IDProxy(_Proxy):
         self._objs = objs
 
     def get(self):
-        return self._objs[self._index]
+        try:
+            return self._objs[self._index]
+        except IndexError:
+            return None
 
 
 def _obj_setattr(obj, attr, proxy):
@@ -591,6 +594,8 @@ class Unpickler:
             return self._objs[idx]
         except IndexError:
             return _IDProxy(self._objs, idx)
+        except TypeError:
+            return None
 
     def _restore_type(self, obj):
         typeref = loadclass(obj[tags.TYPE], classes=self._classes)
@@ -917,7 +922,9 @@ class Unpickler:
                 else:
                     str_k = k
                 self._namestack.append(str_k)
-                data[k] = self._restore(v)
+                data[k] = result = self._restore(v)
+                if isinstance(result, _Proxy):
+                    self._proxies.append((data, k, result, _obj_setvalue))
                 self._namestack.pop()
         return data
 
