@@ -5,6 +5,7 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 
+import builtins
 import collections
 import os
 import warnings
@@ -611,6 +612,20 @@ def test_restore_legacy_builtins():
     assert ae is AssertionError
     cls = jsonpickle.decode('{"py/type": "__builtin__.int"}')
     assert cls is int
+
+
+@pytest.mark.parametrize(
+    'value,expect',
+    [
+        ('module_does_not_exist/None', None),
+        ('builtins/None', builtins),
+        ('builtins/invalid.None', None),
+    ],
+)
+def test_restore_invalid_repr(value, expect, unpickler):
+    """Test restoring invalid repr tags"""
+    result = unpickler.restore({tags.REPR: value})
+    assert result is expect
 
 
 def test_unpickler_on_missing():

@@ -313,7 +313,10 @@ def _loadmodule(module_str):
 
     """
     module, identifier = module_str.split('/')
-    result = __import__(module)
+    try:
+        result = __import__(module)
+    except ImportError:
+        return None
     for name in identifier.split('.')[1:]:
         try:
             result = getattr(result, name)
