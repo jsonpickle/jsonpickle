@@ -445,13 +445,13 @@ class Unpickler:
     def _restore_base64(self, obj):
         try:
             return util.b64decode(obj[tags.B64].encode('utf-8'))
-        except AttributeError:
+        except (AttributeError, UnicodeEncodeError):
             return b''
 
     def _restore_base85(self, obj):
         try:
             return util.b85decode(obj[tags.B85].encode('utf-8'))
-        except AttributeError:
+        except (AttributeError, UnicodeEncodeError):
             return b''
 
     def _refname(self):
