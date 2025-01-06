@@ -217,7 +217,7 @@ def test_decode_base85(unpickler):
     assert unpickler.restore(pickled) == expected
 
 
-@pytest.mark.parametrize('value', ['', '/', 1, True, False, None, [], {}])
+@pytest.mark.parametrize('value', ['', '/', '\udc00', 1, True, False, None, [], {}])
 def test_decode_invalid_b85(value, unpickler):
     """Invalid base85 data restores to an empty string"""
     expected = b''
@@ -232,7 +232,9 @@ def test_base85_still_handles_base64(unpickler):
     assert unpickler.restore(pickled) == expected
 
 
-@pytest.mark.parametrize('value', ['', 'x', '!', 0, 1, True, False, None, [], {}])
+@pytest.mark.parametrize(
+    'value', ['', 'x', '!', '\udc00', 0, 1, True, False, None, [], {}]
+)
 def test_decode_invalid_b64(value, unpickler):
     """Invalid base85 data restores to an empty string"""
     expected = b''
