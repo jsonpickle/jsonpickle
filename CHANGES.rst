@@ -3,6 +3,7 @@ Upcoming
     * The unpickler is now more resilient to malformed "py/id" and "py/repr" data.
       (+546)
     * The unpickler is now more resilient to invalid "py/b85" and "py/b64" data.
+      (+547)
 
 v4.0.1
 ======
