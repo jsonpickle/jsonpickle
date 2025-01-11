@@ -4,6 +4,8 @@ Upcoming
       (+546)
     * The unpickler is now more resilient to invalid "py/b85" and "py/b64" data.
       (+547)
+    * The unpickler's support for read-only str attributes was improved.
+      (+548) (#478)
 
 v4.0.1
 ======
