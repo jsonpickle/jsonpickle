@@ -725,10 +725,9 @@ class Unpickler:
                         if (
                             hasattr(instance, '__slots__')
                             and not len(instance.__slots__)
-                            and issubclass(instance.__class__, int)
-                            and self.handle_readonly
                             # we have to handle this separately because of +483
-                            and issubclass(instance.__class__, str)
+                            and issubclass(instance.__class__, (int, str))
+                            and self.handle_readonly
                         ):
                             continue
                         raise e

@@ -1185,6 +1185,20 @@ def test_readonly_attrs():
     assert safe_str == unpickled
 
 
+def test_readonly_str_attrs():
+    """Objects with readonly string attributes can roundtrip"""
+    safe_str = SafeString('test')
+    # We'll first try setting handle_readonly=True when encoding.
+    encoded = jsonpickle.encode(safe_str, handle_readonly=True)
+    actual = jsonpickle.decode(encoded, handle_readonly=True)
+    assert safe_str == actual
+    # Next we'll ensure that we can decode a payload that contains readonly attributes
+    # by omitting the handle_readonly option when pickling.
+    encoded = jsonpickle.encode(safe_str)
+    actual = jsonpickle.decode(encoded, handle_readonly=True)
+    assert safe_str == actual
+
+
 class PicklableNamedTuple:
     """A namedtuple wrapper that uses ``__getnewargs__``
 
