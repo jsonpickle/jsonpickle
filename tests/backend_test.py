@@ -6,6 +6,7 @@ import pytest
 from helper import SkippableTest
 
 import jsonpickle
+import jsonpickle.ext.yaml
 
 
 class Thing:
@@ -174,6 +175,7 @@ class UJsonTestCase(BackendBase):
 
 class YamlTestCase(BackendBase):
     def setUp(self):
+        jsonpickle.ext.yaml.register()
         self.set_preferred_backend('yaml')
 
     def test_backend(self):
