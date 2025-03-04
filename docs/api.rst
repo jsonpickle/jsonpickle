@@ -12,8 +12,6 @@ jsonpickle API
     import jsonpickle.handlers
     import jsonpickle.util
 
-.. contents::
-
 .. _api-docs:
 
 :mod:`jsonpickle` -- High Level API

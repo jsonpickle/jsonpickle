@@ -1,3 +1,7 @@
+Upcoming
+========
+    * Documentation warnings from ``furo`` have been fixed.
+
 v4.0.2
 ======
     * The unpickler is now more resilient to malformed "py/id" and "py/repr" data.
