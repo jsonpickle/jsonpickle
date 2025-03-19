@@ -4,6 +4,8 @@ Upcoming
       You can re-enable yaml support using ``jsonpickle.ext.yaml.register()``.
       (#550) (+551)
     * Documentation warnings from ``furo`` have been fixed.
+    * Numpy datetime64 objects with nanosecond precision are now supported.
+      (+556) (#555)
 
 v4.0.2
 ======
