@@ -373,3 +373,34 @@ def test_np_poly1d():
     # issue 391, test poly1d roundtrip
     obj = np.poly1d([1, 2, 3])
     assert obj == jsonpickle.decode(jsonpickle.encode(obj))
+
+
+def test_np_datetime64_units():
+    """Ensure that we can roundtrip a numpy datetime64 with varying precisions"""
+    obj = np.datetime64('2000', 'ns')
+    encoded = jsonpickle.encode(obj)
+    assert obj == jsonpickle.decode(encoded)
+
+    obj = np.datetime64('2001', 'ms')
+    encoded = jsonpickle.encode(obj)
+    assert obj == jsonpickle.decode(encoded)
+
+    obj = np.datetime64('2002', 's')
+    encoded = jsonpickle.encode(obj)
+    assert obj == jsonpickle.decode(encoded)
+
+    obj = np.datetime64('2003', 'm')
+    encoded = jsonpickle.encode(obj)
+    assert obj == jsonpickle.decode(encoded)
+
+    obj = np.datetime64('2004', 'h')
+    encoded = jsonpickle.encode(obj)
+    assert obj == jsonpickle.decode(encoded)
+
+    obj = np.datetime64('2005', 'D')
+    encoded = jsonpickle.encode(obj)
+    assert obj == jsonpickle.decode(encoded)
+
+    obj = np.datetime64('2006', 'Y')
+    encoded = jsonpickle.encode(obj)
+    assert obj == jsonpickle.decode(encoded)

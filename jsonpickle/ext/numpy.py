@@ -58,6 +58,17 @@ class NumpyGenericHandler(NumpyBaseHandler):
         return self.restore_dtype(data).type(value)
 
 
+class NumpyDatetimeHandler(NumpyGenericHandler):
+    """Extend NumpyGenericHandler to handle nanosecond-resolution datetime64"""
+
+    def restore(self, data):
+        value = self.context.restore(data['value'], reset=False)
+        dtype = data['dtype']
+        if dtype.endswith('[ns]'):
+            return self.restore_dtype(data).type(value, 'ns')
+        return self.restore_dtype(data).type(value)
+
+
 class UnpickleableNumpyGenericHandler(NumpyGenericHandler):
     """
     From issue #381, this is used for simplifying the output of numpy arrays
@@ -364,6 +375,7 @@ def register_handlers(
     register(np.dtype(np.float32).__class__, NumpyDTypeHandler, base=True)
     register(np.dtype(np.int32).__class__, NumpyDTypeHandler, base=True)
     register(np.dtype(np.datetime64).__class__, NumpyDTypeHandler, base=True)
+    register(np.datetime64, NumpyDatetimeHandler, base=True)
 
 
 def unregister_handlers():
