@@ -14,7 +14,7 @@
    :alt: Github Actions
 
 .. image:: https://img.shields.io/badge/License-BSD%203--Clause-blue.svg
-   :target: https://github.com/jsonpickle/jsonpickle/blob/main/COPYING
+   :target: https://github.com/jsonpickle/jsonpickle/blob/main/LICENSE
    :alt: BSD
 
 
@@ -172,4 +172,4 @@ Unfortunately, while versions of jsonpickle before 3.0.1 should still be signed,
 License
 =======
 
-Licensed under the BSD License. See COPYING for details.
+Licensed under the BSD License. See the LICENSE file for more details.
