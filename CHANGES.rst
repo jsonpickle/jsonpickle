@@ -1,5 +1,5 @@
-Upcoming
-========
+v4.0.4
+======
     * ``pyproject.toml`` was updated to avoid specifying the license file.
       This avoids breaking older setuptools versions while also avoiding
       the deprecated ``tool.setuptools.license-files`` field.
