@@ -1,3 +1,12 @@
+Upcoming
+========
+    * ``pyproject.toml`` was updated to avoid specifying the license file.
+      This avoids breaking older setuptools versions while also avoiding
+      the deprecated ``tool.setuptools.license-files`` field.
+      ``setuptools`` will find our ``LICENSE`` file automatically,
+      so there is no need to specify it.
+      (#558)
+
 v4.0.3
 ======
     * Documentation warnings from ``furo`` have been fixed.
