@@ -1,5 +1,5 @@
-Upcoming
-========
+v4.0.3
+======
     * Documentation warnings from ``furo`` have been fixed.
     * Numpy datetime64 objects with nanosecond precision are now supported.
       (+556) (#555)
