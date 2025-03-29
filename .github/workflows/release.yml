@@ -2,15 +2,12 @@ name: release
 
 # Only do the release on release and pre-release tags.
 # Examples:
-#   v1.2.3      Release
-#   v1.2.3.a4   alpha pre-release
-#   v1.2.3.b4   beta pre-release
-#   v1.2.3.rc4  release candidate pre-release
+# * v1.2.3      Stable release
+# * v1.2.3rc4   Preview release candidate
 on:
   push:
     tags:
       - "v[0-9]+.[0-9]+.[0-9]+"
-      - "v[0-9]+.[0-9]+.[0-9][ab][0-9]+"
       - "v[0-9]+.[0-9]+.[0-9]rc[0-9]+"
 
 # We need this to be able to create releases.
