@@ -1,3 +1,8 @@
+v4.0.5
+======
+    * ``pyproject.toml`` was updated to include the ``project.license.text`` field so
+      that pypi continues to list our license.
+
 v4.0.4
 ======
     * ``pyproject.toml`` was updated to avoid specifying the license file.
