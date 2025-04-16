@@ -99,7 +99,7 @@ def test_multindex_dataframe_roundtrip():
     df = pd.DataFrame(
         {
             'idx_lvl0': ['a', 'b', 'c'],
-            'idx_lvl1': np.int_([1, 1, 2]),
+            'idx_lvl1': np.int64([1, 1, 2]),
             'an_int': np.int_([1, 2, 3]),
             'a_float': np.float64([2.5, 3.5, 4.5]),
             'a_nan': np.array([np.nan] * 3),
