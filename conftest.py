@@ -1,4 +1,18 @@
-collect_ignore = ['contrib', 'examples']
+import sys
+from pathlib import Path
+
+collect_ignore = ['contrib', 'examples', 'build']
+
+
+def pytest_ignore_collect(path, config):
+    p = Path(path)
+    if any(directory in p.parts for directory in collect_ignore):
+        return True
+    # atheris isn't available on python 3.13+, so we disable fuzzing when that's the case
+    if sys.version_info >= (3, 13):
+        if "fuzzing" in p.parts:
+            return True
+    return False
 
 
 def pytest_addoption(parser):
