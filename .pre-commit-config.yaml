@@ -1,10 +1,22 @@
 repos:
 - repo: https://github.com/psf/black
-  rev: 22.3.0
+  rev: 25.1.0
   hooks:
   - id: black
+    args:
+      - --skip-string-normalization
+      - --target-version=py39
+      - jsonpickle tests fuzzing/fuzz-targets
 
 - repo: https://github.com/asottile/blacken-docs
-  rev: v1.4.0
+  rev: v1.12.1
   hooks:
   - id: blacken-docs
+
+- repo: https://github.com/pycqa/isort
+  rev: 6.0.1
+  hooks:
+  - id: isort
+    args:
+      - --profile=black
+      - jsonpickle tests fuzzing/fuzz-targets
