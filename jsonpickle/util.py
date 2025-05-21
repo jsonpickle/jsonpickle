@@ -406,13 +406,17 @@ def is_reducible(obj):
     # defaultdicts may contain functions which we cannot serialise
     if is_collections(obj) and not isinstance(obj, collections.defaultdict):
         return True
-    # We turn off the formatting in order to double the speed of the function.
-    # Condensing it into one line seems to save the parser a lot of time.
-    # fmt: off
-    # pylint: disable=line-too-long
-    if type(obj) in NON_REDUCIBLE_TYPES or obj is object or is_dictionary_subclass(obj) or isinstance(obj, types.ModuleType) or is_reducible_sequence_subclass(obj) or is_list_like(obj) or isinstance(getattr(obj, '__slots__', None), _ITERATOR_TYPE) or (is_type(obj) and obj.__module__ == 'datetime'):  # noqa: E501
+    if (
+        type(obj) in NON_REDUCIBLE_TYPES
+        or obj is object
+        or is_dictionary_subclass(obj)
+        or isinstance(obj, types.ModuleType)
+        or is_reducible_sequence_subclass(obj)
+        or is_list_like(obj)
+        or isinstance(getattr(obj, '__slots__', None), _ITERATOR_TYPE)
+        or (is_type(obj) and obj.__module__ == 'datetime')
+    ):
         return False
-    # fmt: on
     return True
 
 
