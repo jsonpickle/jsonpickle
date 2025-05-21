@@ -6,7 +6,6 @@ repos:
     args:
       - --skip-string-normalization
       - --target-version=py39
-      - jsonpickle tests fuzzing/fuzz-targets
 
 - repo: https://github.com/asottile/blacken-docs
   rev: v1.12.1
@@ -19,4 +18,3 @@ repos:
   - id: isort
     args:
       - --profile=black
-      - jsonpickle tests fuzzing/fuzz-targets
