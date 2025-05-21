@@ -17,6 +17,7 @@ import operator
 import sys
 import time
 import types
+import warnings
 from collections.abc import Iterator as abc_iterator
 
 from . import tags
