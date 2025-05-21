@@ -8,8 +8,8 @@ import decimal
 import inspect
 import itertools
 import sys
-import warnings
 import types
+import warnings
 from itertools import chain, islice
 
 from . import handlers, tags, util
