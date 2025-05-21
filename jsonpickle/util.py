@@ -17,11 +17,26 @@ import operator
 import sys
 import time
 import types
-import warnings
 from collections.abc import Iterator as abc_iterator
+from typing import (
+    Callable,
+    Iterable,
+    Iterator,
+    Mapping,
+    Tuple,
+    TypeVar,
+)
 
 from . import tags
-from typing import Any, Dict, Optional, Tuple, Union
+
+# key
+K = TypeVar("K")
+# value
+V = TypeVar("V")
+# type
+T = TypeVar("T")
+# return value
+R = TypeVar("R")
 
 _ITERATOR_TYPE = type(iter(''))
 SEQUENCES = (list, set, tuple)
@@ -55,7 +70,7 @@ NON_CLASS_TYPES = {
 } | PRIMITIVES
 
 
-def is_type(obj: Any) -> bool:
+def is_type(obj: object) -> bool:
     """Returns True is obj is a reference to a type.
 
     >>> is_type(1)
@@ -72,7 +87,7 @@ def is_type(obj: Any) -> bool:
     return isinstance(obj, type)
 
 
-def has_method(obj: Any, name: str) -> bool:
+def has_method(obj: object, name: str) -> bool:
     # false if attribute doesn't exist
     if not hasattr(obj, name):
         return False
@@ -119,8 +134,7 @@ def has_method(obj: Any, name: str) -> bool:
     return isinstance(obj, type(bound_to))
 
 
-# used in one place, TODO remove by 5.0.0
-def is_object(obj: Any) -> bool:
+def is_object(obj: object) -> bool:
     """Returns True is obj is a reference to an object instance.
 
     >>> is_object(1)
@@ -137,15 +151,14 @@ def is_object(obj: Any) -> bool:
     )
 
 
-# used in one place, TODO remove by 5.0.0
-def is_not_class(obj: Any) -> bool:
+def is_not_class(obj: object) -> bool:
     """Determines if the object is not a class or a class instance.
     Used for serializing properties.
     """
     return type(obj) in NON_CLASS_TYPES
 
 
-def is_primitive(obj: Any) -> bool:
+def is_primitive(obj: object) -> bool:
     """Helper method to see if the object is a basic data type. Unicode strings,
     integers, longs, floats, booleans, and None are considered primitive
     and will return True when passed into *is_primitive()*
@@ -158,27 +171,12 @@ def is_primitive(obj: Any) -> bool:
     return type(obj) in PRIMITIVES
 
 
-def is_enum(obj: Any) -> bool:
+def is_enum(obj: object) -> bool:
     """Is the object an enum?"""
     return 'enum' in sys.modules and isinstance(obj, sys.modules['enum'].Enum)
 
 
-# used only in tests and jsonpickleJS, TODO remove by 5.0.0
-def is_dictionary(obj: Any) -> bool:
-    """Helper method for testing if the object is a dictionary.
-
-    >>> is_dictionary({'key':'value'})
-    True
-
-    """
-    warnings.warn(
-        "This function will be removed in the next release of jsonpickle, 5.0.0! Please migrate now.",
-        DeprecationWarning,
-    )
-    return type(obj) is dict
-
-# used only in tests, TODO remove by 5.0.0
-def is_sequence(obj: Any) -> bool:
+def is_sequence(obj: object) -> bool:
     """Helper method to see if the object is a sequence (list, set, or tuple).
 
     >>> is_sequence([4])
@@ -188,68 +186,7 @@ def is_sequence(obj: Any) -> bool:
     return type(obj) in SEQUENCES_SET
 
 
-def is_list(obj: Any) -> bool:
-    """Helper method to see if the object is a Python list.
-
-    >>> is_list([4])
-    True
-    """
-    warnings.warn(
-        "This function will be removed in the next release of jsonpickle, 5.0.0! Please migrate now.",
-        DeprecationWarning,
-    )
-    return type(obj) is list
-
-# used only in tests and jsonpickleJS, TODO remove by 5.0.0
-def is_set(obj: Any) -> bool:
-    """Helper method to see if the object is a Python set.
-
-    >>> is_set(set())
-    True
-    """
-    warnings.warn(
-        "This function will be removed in the next release of jsonpickle, 5.0.0! Please migrate now.",
-        DeprecationWarning,
-    )
-    return type(obj) is set
-
-# not used anywhere, TODO remove by 5.0.0
-def is_bytes(obj: Any) -> bool:
-    """Helper method to see if the object is a bytestring.
-
-    >>> is_bytes(b'foo')
-    True
-    """
-    warnings.warn(
-        "This function will be removed in the next release of jsonpickle, 5.0.0! Please migrate now.",
-        DeprecationWarning,
-    )
-    return type(obj) is bytes
-
-# not used anywhere, TODO remove by 5.0.0
-def is_unicode(obj: Any) -> bool:
-    """DEPRECATED: Helper method to see if the object is a unicode string"""
-    warnings.warn(
-        "This function will be removed in the next release of jsonpickle, 5.0.0! Please migrate now.",
-        DeprecationWarning,
-    )
-    return type(obj) is str
-
-# used only in tests and jsonpickleJS, TODO remove by 5.0.0
-def is_tuple(obj: Any) -> bool:
-    """Helper method to see if the object is a Python tuple.
-
-    >>> is_tuple((1,))
-    True
-    """
-    warnings.warn(
-        "This function will be removed in the next release of jsonpickle, 5.0.0! Please migrate now.",
-        DeprecationWarning,
-    )
-    return type(obj) is tuple
-
-
-def is_dictionary_subclass(obj: Any) -> bool:
+def is_dictionary_subclass(obj: object) -> bool:
     """Returns True if *obj* is a subclass of the dict type. *obj* must be
     a subclass and not the actual builtin dict.
 
@@ -265,7 +202,7 @@ def is_dictionary_subclass(obj: Any) -> bool:
     )
 
 
-def is_sequence_subclass(obj: Any) -> bool:
+def is_sequence_subclass(obj: object) -> bool:
     """Returns True if *obj* is a subclass of list, set or tuple.
 
     *obj* must be a subclass and not the actual builtin, such
@@ -282,7 +219,7 @@ def is_sequence_subclass(obj: Any) -> bool:
     )
 
 
-def is_noncomplex(obj: Any) -> bool:
+def is_noncomplex(obj: object) -> bool:
     """Returns True if *obj* is a special (weird) class, that is more complex
     than primitive data types, but is not a full object. Including:
 
@@ -293,7 +230,7 @@ def is_noncomplex(obj: Any) -> bool:
     return False
 
 
-def is_function(obj: Any) -> bool:
+def is_function(obj: object) -> bool:
     """Returns true if passed a function
 
     >>> is_function(lambda x: 1)
@@ -312,7 +249,7 @@ def is_function(obj: Any) -> bool:
     return type(obj) in FUNCTION_TYPES
 
 
-def is_module_function(obj: Any) -> bool:
+def is_module_function(obj: object) -> bool:
     """Return True if `obj` is a module-global function
 
     >>> import os
@@ -331,21 +268,6 @@ def is_module_function(obj: Any) -> bool:
         and hasattr(obj, '__name__')
         and obj.__name__ != '<lambda>'
     ) or is_cython_function(obj)
-
-
-def is_module(obj: Any) -> bool:
-    """Returns True if passed a module
-
-    >>> import os
-    >>> is_module(os)
-    True
-
-    """
-    warnings.warn(
-        "This function will be removed in the next release of jsonpickle, 5.0.0! Please migrate now.",
-        DeprecationWarning,
-    )
-    return isinstance(obj, types.ModuleType)
 
 
 def is_picklable(name: str, value: types.FunctionType) -> bool:
@@ -368,7 +290,7 @@ def is_picklable(name: str, value: types.FunctionType) -> bool:
     return is_module_function(value) or not is_function(value)
 
 
-def is_installed(module: types.ModuleType):
+def is_installed(module: types.ModuleType) -> bool:
     """Tests to see if ``module`` is available on the sys.path
 
     >>> is_installed('sys')
@@ -384,26 +306,26 @@ def is_installed(module: types.ModuleType):
         return False
 
 
-def is_list_like(obj: Any) -> bool:
+def is_list_like(obj: object) -> bool:
     return hasattr(obj, '__getitem__') and hasattr(obj, 'append')
 
 
-def is_iterator(obj: Any) -> bool:
+def is_iterator(obj: object) -> bool:
     return isinstance(obj, abc_iterator) and not isinstance(obj, io.IOBase)
 
 
-def is_collections(obj: Any) -> bool:
+def is_collections(obj: object) -> bool:
     try:
         return type(obj).__module__ == 'collections'
     except Exception:
         return False
 
 
-def is_reducible_sequence_subclass(obj: Any) -> bool:
+def is_reducible_sequence_subclass(obj: object) -> bool:
     return hasattr(obj, '__class__') and issubclass(obj.__class__, SEQUENCES)
 
 
-def is_reducible(obj: Any) -> bool:
+def is_reducible(obj: object) -> bool:
     """
     Returns false if of a type which have special casing,
     and should not have their __reduce__ methods used
@@ -425,7 +347,7 @@ def is_reducible(obj: Any) -> bool:
     return True
 
 
-def is_cython_function(obj: Any) -> bool:
+def is_cython_function(obj: object) -> bool:
     """Returns true if the object is a reference to a Cython function"""
     return (
         callable(obj)
@@ -434,7 +356,7 @@ def is_cython_function(obj: Any) -> bool:
     )
 
 
-def is_readonly(obj: Any, attr: str, value: Any) -> bool:
+def is_readonly(obj: object, attr: str, value: object) -> bool:
     # CPython 3.11+ has 0-cost try/except, please use up-to-date versions!
     try:
         setattr(obj, attr, value)
@@ -448,7 +370,7 @@ def is_readonly(obj: Any, attr: str, value: Any) -> bool:
         return True
 
 
-def in_dict(obj: Any, key: str, default: bool=False) -> bool:
+def in_dict(obj: object, key: str, default: bool = False) -> bool:
     """
     Returns true if key exists in obj.__dict__; false if not in.
     If obj.__dict__ is absent, return default
@@ -456,7 +378,7 @@ def in_dict(obj: Any, key: str, default: bool=False) -> bool:
     return (key in obj.__dict__) if getattr(obj, '__dict__', None) else default
 
 
-def in_slots(obj: Any, key: str, default: bool=False) -> bool:
+def in_slots(obj: object, key: str, default: bool = False) -> bool:
     """
     Returns true if key exists in obj.__slots__; false if not in.
     If obj.__slots__ is absent, return default
@@ -464,7 +386,7 @@ def in_slots(obj: Any, key: str, default: bool=False) -> bool:
     return (key in obj.__slots__) if getattr(obj, '__slots__', None) else default
 
 
-def has_reduce(obj: Any) -> Tuple[bool, bool]:
+def has_reduce(obj: object) -> Tuple[bool, bool]:
     """
     Tests if __reduce__ or __reduce_ex__ exists in the object dict or
     in the class dicts of every class in the MRO *except object*.
@@ -517,8 +439,7 @@ def has_reduce(obj: Any) -> Tuple[bool, bool]:
     return (has_reduce, has_reduce_ex)
 
 
-# this function isn't used anywhere, it should be deleted by 5.0.0 so types shouldn't matter
-def translate_module_name(module: Any) -> Any:
+def translate_module_name(module: str) -> str:
     """Rename builtin modules to a consistent module name.
 
     Prefer the more modern naming.
@@ -555,7 +476,7 @@ def untranslate_module_name(module: str) -> str:
     return _0_9_6_compat_untranslate(module)
 
 
-def importable_name(cls: Any) -> str:
+def importable_name(cls: type) -> str:
     """
     >>> class Example(object):
     ...     pass
@@ -619,11 +540,11 @@ def b85decode(payload: bytes) -> bytes:
         return b''
 
 
-def itemgetter(obj: Any, getter: Any=operator.itemgetter(0)) -> str:
+def itemgetter(obj: T, getter: Callable[[T], R] = operator.itemgetter(0)) -> str:
     return str(getter(obj))
 
 
-def items(obj: Any, exclude=()):
+def items(obj: Mapping[K, V], exclude: Iterable[K] = ()) -> Iterator[Tuple[K, V]]:
     """
     This can't be easily replaced by dict.items() because this has the exclude parameter.
     Keep it for now.
