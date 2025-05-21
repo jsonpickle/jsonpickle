@@ -4,6 +4,13 @@ Upcoming
       You can re-enable yaml support using ``jsonpickle.ext.yaml.register()``.
       (#550) (+551)
 
+v4.1.0
+======
+    * Deprecation warnings were added to certain simple functions in ``jsonpickle/util.py``.
+      These functions will be removed in 5.0.0 to ease the transition into typing everything.
+    * The ``test_multindex_dataframe_roundtrip`` test in the pandas extension had been failing
+      on 32-bit architectures in Debian's test suite. This has been resolved. (+560)
+
 v4.0.5
 ======
     * ``pyproject.toml`` was updated to include the ``project.license.text`` field so
