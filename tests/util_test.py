@@ -109,53 +109,10 @@ def test_is_primitive_object():
     assert not util.is_primitive(Thing('test'))
 
 
-def test_is_list_list():
-    assert util.is_list([1, 2])
-
-
-def test_is_list_set():
-    assert util.is_set({1, 2})
-
-
-def test_is_list_tuple():
-    assert util.is_tuple((1, 2))
-
-
-def test_is_list_dict():
-    assert not util.is_list({'key': 'value'})
-    assert not util.is_set({'key': 'value'})
-    assert not util.is_tuple({'key': 'value'})
-
-
-def test_is_list_other():
-    assert not util.is_list(1)
-    assert not util.is_set(1)
-    assert not util.is_tuple(1)
-
-
 def test_is_sequence_various():
     assert util.is_sequence([])
     assert util.is_sequence(tuple())
     assert util.is_sequence(set())
-
-
-def test_is_dictionary_dict():
-    assert util.is_dictionary({})
-
-
-def test_is_dicitonary_sequences():
-    assert not util.is_dictionary([])
-    assert not util.is_dictionary(set())
-
-
-def test_is_dictionary_tuple():
-    assert not util.is_dictionary(tuple())
-
-
-def test_is_dictionary_primitive():
-    assert not util.is_dictionary(int())
-    assert not util.is_dictionary(None)
-    assert not util.is_dictionary('')
 
 
 def test_is_dictionary_subclass_dict():

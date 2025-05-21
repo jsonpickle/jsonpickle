@@ -977,7 +977,7 @@ class Unpickler:
                     restore = self._restore_repr
             else:
                 restore = self._restore_dict
-        elif util.is_list(obj):
+        elif type(obj) is list:
             restore = self._restore_list
         else:
             restore = _passthrough

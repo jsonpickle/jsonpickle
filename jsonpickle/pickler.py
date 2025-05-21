@@ -9,6 +9,7 @@ import inspect
 import itertools
 import sys
 import warnings
+import types
 from itertools import chain, islice
 
 from . import handlers, tags, util
@@ -641,7 +642,7 @@ class Pickler:
 
                     return data
 
-        if has_class and not util.is_module(obj):
+        if has_class and not isinstance(obj, types.ModuleType):
             if self.unpicklable:
                 data[tags.OBJECT] = class_name
 
@@ -668,7 +669,7 @@ class Pickler:
                 if state:
                     return self._getstate(state, data)
 
-        if util.is_module(obj):
+        if isinstance(obj, types.ModuleType):
             if self.unpicklable:
                 data[tags.MODULE] = '{name}/{name}'.format(name=obj.__name__)
             else:

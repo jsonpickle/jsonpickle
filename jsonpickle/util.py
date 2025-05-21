@@ -166,6 +166,10 @@ def is_dictionary(obj):
     True
 
     """
+    warnings.warn(
+        "This function will be removed in the next release of jsonpickle, 5.0.0! Please migrate now.",
+        DeprecationWarning,
+    )
     return type(obj) is dict
 
 
@@ -185,6 +189,10 @@ def is_list(obj):
     >>> is_list([4])
     True
     """
+    warnings.warn(
+        "This function will be removed in the next release of jsonpickle, 5.0.0! Please migrate now.",
+        DeprecationWarning,
+    )
     return type(obj) is list
 
 
@@ -194,6 +202,10 @@ def is_set(obj):
     >>> is_set(set())
     True
     """
+    warnings.warn(
+        "This function will be removed in the next release of jsonpickle, 5.0.0! Please migrate now.",
+        DeprecationWarning,
+    )
     return type(obj) is set
 
 
@@ -203,11 +215,19 @@ def is_bytes(obj):
     >>> is_bytes(b'foo')
     True
     """
+    warnings.warn(
+        "This function will be removed in the next release of jsonpickle, 5.0.0! Please migrate now.",
+        DeprecationWarning,
+    )
     return type(obj) is bytes
 
 
 def is_unicode(obj):
     """DEPRECATED: Helper method to see if the object is a unicode string"""
+    warnings.warn(
+        "This function will be removed in the next release of jsonpickle, 5.0.0! Please migrate now.",
+        DeprecationWarning,
+    )
     return type(obj) is str
 
 
@@ -217,6 +237,10 @@ def is_tuple(obj):
     >>> is_tuple((1,))
     True
     """
+    warnings.warn(
+        "This function will be removed in the next release of jsonpickle, 5.0.0! Please migrate now.",
+        DeprecationWarning,
+    )
     return type(obj) is tuple
 
 
@@ -312,6 +336,10 @@ def is_module(obj):
     True
 
     """
+    warnings.warn(
+        "This function will be removed in the next release of jsonpickle, 5.0.0! Please migrate now.",
+        DeprecationWarning,
+    )
     return isinstance(obj, types.ModuleType)
 
 
@@ -587,7 +615,8 @@ def itemgetter(obj, getter=operator.itemgetter(0)):
 
 def items(obj, exclude=()):
     """
-    TODO: Replace all calls to this with plain dict.items()
+    This can't be easily replaced by dict.items() because this has the exclude parameter.
+    Keep it for now.
     """
     for k, v in obj.items():
         if k in exclude:
