@@ -16,7 +16,7 @@ import queue
 import re
 import threading
 import uuid
-from typing import Any, Callable, Dict, Optional, Type, Union
+from typing import Any, Callable, Dict, Optional, Type, TypeVar, Union
 
 from . import util
 
@@ -258,7 +258,7 @@ class CloneFactory:
 class UUIDHandler(BaseHandler):
     """Serialize uuid.UUID objects"""
 
-    def flatten(self, obj: uuid.UUIDs, data: Dict[str, Any]) -> HandlerReturn:
+    def flatten(self, obj: uuid.UUID, data: Dict[str, Any]) -> HandlerReturn:
         data['hex'] = obj.hex
         return data
 
