@@ -38,18 +38,18 @@ T = TypeVar("T")
 # return value
 R = TypeVar("R")
 
-_ITERATOR_TYPE = type(iter(''))
-SEQUENCES = (list, set, tuple)
-SEQUENCES_SET = {list, set, tuple}
-PRIMITIVES = {str, bool, int, float, type(None)}
-FUNCTION_TYPES = {
+_ITERATOR_TYPE: type = type(iter(''))
+SEQUENCES: tuple = (list, set, tuple)
+SEQUENCES_SET: set = {list, set, tuple}
+PRIMITIVES: set = {str, bool, int, float, type(None)}
+FUNCTION_TYPES: set = {
     types.FunctionType,
     types.MethodType,
     types.LambdaType,
     types.BuiltinFunctionType,
     types.BuiltinMethodType,
 }
-NON_REDUCIBLE_TYPES = (
+NON_REDUCIBLE_TYPES: set = (
     {
         list,
         dict,
@@ -61,7 +61,7 @@ NON_REDUCIBLE_TYPES = (
     | PRIMITIVES
     | FUNCTION_TYPES
 )
-NON_CLASS_TYPES = {
+NON_CLASS_TYPES: set = {
     list,
     dict,
     set,

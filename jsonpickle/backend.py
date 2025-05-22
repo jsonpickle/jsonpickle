@@ -1,3 +1,7 @@
+from types import ModuleType
+from typing import Any, Dict, Optional, Type, Union
+
+
 class JSONBackend:
     """Manages encoding and decoding using various backends.
 
@@ -9,13 +13,15 @@ class JSONBackend:
 
     """
 
-    def _verify(self):
+    def _verify(self) -> None:
         """Ensures that we've loaded at least one JSON backend."""
         if self._verified:
             return
         raise AssertionError('jsonpickle could not load any json modules')
 
-    def encode(self, obj, indent=None, separators=None):
+    def encode(
+        self, obj: Any, indent: Optional[int] = None, separators: Optional[Any] = None
+    ) -> str:
         """
         Attempt to encode an object into JSON.
 
@@ -41,7 +47,7 @@ class JSONBackend:
     # def dumps
     dumps = encode
 
-    def decode(self, string):
+    def decode(self, string: str) -> Any:
         """
         Attempt to decode an object from a JSON string.
 
@@ -67,7 +73,7 @@ class JSONBackend:
     # def loads
     loads = decode
 
-    def __init__(self, fallthrough=True):
+    def __init__(self, fallthrough: bool = True) -> None:
         # Whether we should fallthrough to the next backend
         self._fallthrough = fallthrough
         # The names of backends that have been successfully imported
@@ -102,7 +108,7 @@ class JSONBackend:
             'django.util.simplejson': json_opts,
         }
 
-    def enable_fallthrough(self, enable):
+    def enable_fallthrough(self, enable: bool) -> None:
         """
         Disable jsonpickle's fallthrough-on-error behavior
 
@@ -119,7 +125,7 @@ class JSONBackend:
         """
         self._fallthrough = enable
 
-    def _store(self, dct, backend, obj, name):
+    def _store(self, dct: Dict[str, Any], backend: str, obj: ModuleType, name: str):
         try:
             dct[backend] = getattr(obj, name)
         except AttributeError:
@@ -127,7 +133,13 @@ class JSONBackend:
             return False
         return True
 
-    def load_backend(self, name, dumps='dumps', loads='loads', loads_exc=ValueError):
+    def load_backend(
+        self,
+        name: str,
+        dumps: str = 'dumps',
+        loads: str = 'loads',
+        loads_exc: Union[str, Type[Exception]] = ValueError,
+    ) -> bool:
         """Load a JSON backend by name.
 
         This method loads a backend and sets up references to that
@@ -185,7 +197,7 @@ class JSONBackend:
         self._verified = True
         return True
 
-    def remove_backend(self, name):
+    def remove_backend(self, name: str) -> None:
         """Remove all entries for a particular backend."""
         self._encoders.pop(name, None)
         self._decoders.pop(name, None)
@@ -196,7 +208,13 @@ class JSONBackend:
             self._backend_names.remove(name)
         self._verified = bool(self._backend_names)
 
-    def backend_encode(self, name, obj, indent=None, separators=None):
+    def backend_encode(
+        self,
+        name: str,
+        obj: Any,
+        indent: Optional[int] = None,
+        separators: Optional[str] = None,
+    ):
         optargs, optkwargs = self._encoder_options.get(name, ([], {}))
         encoder_kwargs = optkwargs.copy()
         if indent is not None:
@@ -206,12 +224,12 @@ class JSONBackend:
         encoder_args = (obj,) + tuple(optargs)
         return self._encoders[name](*encoder_args, **encoder_kwargs)
 
-    def backend_decode(self, name, string):
+    def backend_decode(self, name: str, string: str) -> Any:
         optargs, optkwargs = self._decoder_options.get(name, ((), {}))
         decoder_kwargs = optkwargs.copy()
         return self._decoders[name](string, *optargs, **decoder_kwargs)
 
-    def set_preferred_backend(self, name):
+    def set_preferred_backend(self, name: str) -> None:
         """
         Set the preferred json backend.
 
@@ -236,7 +254,7 @@ class JSONBackend:
             errmsg = 'The "%s" backend has not been loaded.' % name
             raise AssertionError(errmsg)
 
-    def set_encoder_options(self, name, *args, **kwargs):
+    def set_encoder_options(self, name: str, *args: Any, **kwargs: Any) -> None:
         """
         Associate encoder-specific options with an encoder.
 
@@ -257,7 +275,7 @@ class JSONBackend:
         """
         self._encoder_options[name] = (args, kwargs)
 
-    def set_decoder_options(self, name, *args, **kwargs):
+    def set_decoder_options(self, name: str, *args: Any, **kwargs: Any) -> None:
         """
         Associate decoder-specific options with a decoder.
 
