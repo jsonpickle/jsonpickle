@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
         os: [ubuntu-latest]
 
     steps:
@@ -43,7 +43,7 @@ jobs:
           python -m pip install -U "tox>=4"
 
       - name: Install gmpy2 dependencies
-        if: matrix.python-version == '3.11' || matrix.python-version == '3.12'
+        if: matrix.python-version == '3.11' || matrix.python-version == '3.12' || matrix.python-version == '3.13'
         run: |
           sudo apt-get -y update
           sudo apt-get install -y libmpfr-dev libmpc-dev
