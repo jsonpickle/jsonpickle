@@ -4,8 +4,8 @@ from pathlib import Path
 collect_ignore = ['contrib', 'examples', 'build']
 
 
-def pytest_ignore_collect(path, config):
-    p = Path(path)
+def pytest_ignore_collect(collection_path, config):
+    p = Path(collection_path)
     if any(directory in p.parts for directory in collect_ignore):
         return True
     # atheris isn't available on python 3.13+, so we disable fuzzing when that's the case
