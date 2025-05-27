@@ -4,6 +4,11 @@ Upcoming
       You can re-enable yaml support using ``jsonpickle.ext.yaml.register()``.
       (#550) (+551)
 
+v4.1.1
+======
+    * An error in the jsonpickle pandas extension when decoding objects that were encoded
+      before jsonpickle v3.4.0 was fixed, and warnings were added. (+562)
+
 v4.1.0
 ======
     * Deprecation warnings were added to certain simple functions in ``jsonpickle/util.py``.
