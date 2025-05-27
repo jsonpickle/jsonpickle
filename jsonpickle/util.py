@@ -19,6 +19,7 @@ import time
 import types
 from collections.abc import Iterator as abc_iterator
 from typing import (
+    Any,
     Callable,
     Iterable,
     Iterator,
@@ -70,7 +71,7 @@ NON_CLASS_TYPES: set = {
 } | PRIMITIVES
 
 
-def is_type(obj: object) -> bool:
+def is_type(obj: Any) -> bool:
     """Returns True is obj is a reference to a type.
 
     >>> is_type(1)
@@ -87,7 +88,7 @@ def is_type(obj: object) -> bool:
     return isinstance(obj, type)
 
 
-def has_method(obj: object, name: str) -> bool:
+def has_method(obj: Any, name: str) -> bool:
     # false if attribute doesn't exist
     if not hasattr(obj, name):
         return False
@@ -134,7 +135,7 @@ def has_method(obj: object, name: str) -> bool:
     return isinstance(obj, type(bound_to))
 
 
-def is_object(obj: object) -> bool:
+def is_object(obj: Any) -> bool:
     """Returns True is obj is a reference to an object instance.
 
     >>> is_object(1)
@@ -151,14 +152,14 @@ def is_object(obj: object) -> bool:
     )
 
 
-def is_not_class(obj: object) -> bool:
+def is_not_class(obj: Any) -> bool:
     """Determines if the object is not a class or a class instance.
     Used for serializing properties.
     """
     return type(obj) in NON_CLASS_TYPES
 
 
-def is_primitive(obj: object) -> bool:
+def is_primitive(obj: Any) -> bool:
     """Helper method to see if the object is a basic data type. Unicode strings,
     integers, longs, floats, booleans, and None are considered primitive
     and will return True when passed into *is_primitive()*
@@ -171,12 +172,12 @@ def is_primitive(obj: object) -> bool:
     return type(obj) in PRIMITIVES
 
 
-def is_enum(obj: object) -> bool:
+def is_enum(obj: Any) -> bool:
     """Is the object an enum?"""
     return 'enum' in sys.modules and isinstance(obj, sys.modules['enum'].Enum)
 
 
-def is_sequence(obj: object) -> bool:
+def is_sequence(obj: Any) -> bool:
     """Helper method to see if the object is a sequence (list, set, or tuple).
 
     >>> is_sequence([4])
@@ -186,7 +187,7 @@ def is_sequence(obj: object) -> bool:
     return type(obj) in SEQUENCES_SET
 
 
-def is_dictionary_subclass(obj: object) -> bool:
+def is_dictionary_subclass(obj: Any) -> bool:
     """Returns True if *obj* is a subclass of the dict type. *obj* must be
     a subclass and not the actual builtin dict.
 
@@ -202,7 +203,7 @@ def is_dictionary_subclass(obj: object) -> bool:
     )
 
 
-def is_sequence_subclass(obj: object) -> bool:
+def is_sequence_subclass(obj: Any) -> bool:
     """Returns True if *obj* is a subclass of list, set or tuple.
 
     *obj* must be a subclass and not the actual builtin, such
@@ -219,7 +220,7 @@ def is_sequence_subclass(obj: object) -> bool:
     )
 
 
-def is_noncomplex(obj: object) -> bool:
+def is_noncomplex(obj: Any) -> bool:
     """Returns True if *obj* is a special (weird) class, that is more complex
     than primitive data types, but is not a full object. Including:
 
@@ -230,7 +231,7 @@ def is_noncomplex(obj: object) -> bool:
     return False
 
 
-def is_function(obj: object) -> bool:
+def is_function(obj: Any) -> bool:
     """Returns true if passed a function
 
     >>> is_function(lambda x: 1)
@@ -249,7 +250,7 @@ def is_function(obj: object) -> bool:
     return type(obj) in FUNCTION_TYPES
 
 
-def is_module_function(obj: object) -> bool:
+def is_module_function(obj: Any) -> bool:
     """Return True if `obj` is a module-global function
 
     >>> import os
@@ -290,7 +291,7 @@ def is_picklable(name: str, value: types.FunctionType) -> bool:
     return is_module_function(value) or not is_function(value)
 
 
-def is_installed(module: types.ModuleType) -> bool:
+def is_installed(module: str) -> bool:
     """Tests to see if ``module`` is available on the sys.path
 
     >>> is_installed('sys')
@@ -306,26 +307,26 @@ def is_installed(module: types.ModuleType) -> bool:
         return False
 
 
-def is_list_like(obj: object) -> bool:
+def is_list_like(obj: Any) -> bool:
     return hasattr(obj, '__getitem__') and hasattr(obj, 'append')
 
 
-def is_iterator(obj: object) -> bool:
+def is_iterator(obj: Any) -> bool:
     return isinstance(obj, abc_iterator) and not isinstance(obj, io.IOBase)
 
 
-def is_collections(obj: object) -> bool:
+def is_collections(obj: Any) -> bool:
     try:
         return type(obj).__module__ == 'collections'
     except Exception:
         return False
 
 
-def is_reducible_sequence_subclass(obj: object) -> bool:
+def is_reducible_sequence_subclass(obj: Any) -> bool:
     return hasattr(obj, '__class__') and issubclass(obj.__class__, SEQUENCES)
 
 
-def is_reducible(obj: object) -> bool:
+def is_reducible(obj: Any) -> bool:
     """
     Returns false if of a type which have special casing,
     and should not have their __reduce__ methods used
@@ -347,7 +348,7 @@ def is_reducible(obj: object) -> bool:
     return True
 
 
-def is_cython_function(obj: object) -> bool:
+def is_cython_function(obj: Any) -> bool:
     """Returns true if the object is a reference to a Cython function"""
     return (
         callable(obj)
@@ -356,7 +357,7 @@ def is_cython_function(obj: object) -> bool:
     )
 
 
-def is_readonly(obj: object, attr: str, value: object) -> bool:
+def is_readonly(obj: Any, attr: str, value: Any) -> bool:
     # CPython 3.11+ has 0-cost try/except, please use up-to-date versions!
     try:
         setattr(obj, attr, value)
@@ -370,7 +371,7 @@ def is_readonly(obj: object, attr: str, value: object) -> bool:
         return True
 
 
-def in_dict(obj: object, key: str, default: bool = False) -> bool:
+def in_dict(obj: Any, key: str, default: bool = False) -> bool:
     """
     Returns true if key exists in obj.__dict__; false if not in.
     If obj.__dict__ is absent, return default
@@ -378,7 +379,7 @@ def in_dict(obj: object, key: str, default: bool = False) -> bool:
     return (key in obj.__dict__) if getattr(obj, '__dict__', None) else default
 
 
-def in_slots(obj: object, key: str, default: bool = False) -> bool:
+def in_slots(obj: Any, key: str, default: bool = False) -> bool:
     """
     Returns true if key exists in obj.__slots__; false if not in.
     If obj.__slots__ is absent, return default
@@ -386,7 +387,7 @@ def in_slots(obj: object, key: str, default: bool = False) -> bool:
     return (key in obj.__slots__) if getattr(obj, '__slots__', None) else default
 
 
-def has_reduce(obj: object) -> Tuple[bool, bool]:
+def has_reduce(obj: Any) -> Tuple[bool, bool]:
     """
     Tests if __reduce__ or __reduce_ex__ exists in the object dict or
     in the class dicts of every class in the MRO *except object*.

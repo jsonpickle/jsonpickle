@@ -3,7 +3,6 @@ This file exists to automatically generate tags for numpy/pandas extensions. Bec
 """
 
 import re
-from collections.abc import Iterable as _IterableABC
 from typing import Any, Dict, Iterable, List, Tuple, Type, Union
 
 import numpy as np

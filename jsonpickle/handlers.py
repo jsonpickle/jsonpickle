@@ -21,6 +21,10 @@ from typing import Any, Callable, Dict, Optional, Type, TypeVar, Union
 from . import util
 
 T = TypeVar("T")
+BaseHandlerType = TypeVar("BaseHandler", bound="BaseHandler")
+ContextType = Union[
+    TypeVar("Pickler", bound="Pickler"), TypeVar("Unpickler", bound="Unpickler")
+]
 HandlerType = Type[Any]
 KeyType = Union[Type[Any], str]
 HandlerReturn = Union[Dict[str, Any], str]
@@ -141,7 +145,7 @@ class BaseHandler:
         return cls
 
     #
-    def __call__(self, context: Any) -> "BaseHandler":
+    def __call__(self, context: ContextType) -> BaseHandlerType:
         """This permits registering either Handler instances or classes
 
         :Parameters:

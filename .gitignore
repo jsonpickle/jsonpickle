@@ -33,3 +33,5 @@ fuzz_*.pkg.spec
 monkeytype.sqlite3
 # pyenv files
 .python-version
+# type checking config
+.pyre*
