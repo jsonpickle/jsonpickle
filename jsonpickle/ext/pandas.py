@@ -204,14 +204,32 @@ class PandasDfHandler(BaseHandler):
 
     def restore(self, obj):
         data_encoded, meta = self.pp.restore_pandas(obj)
-
-        data_columns = decode(data_encoded, keys=True)
+        try:
+            data_columns = decode(data_encoded, keys=True)
+        except Exception:
+            # this may be a specific type of jsondecode error for pre-v3.4 encoding schemes, but also might not be
+            warnings.warn(
+                (
+                    "jsonpickle versions at and above v3.4 have a different encoding scheme for pandas dataframes."
+                    # stack level 6 is where the user called jsonpickle from
+                    " If you're not decoding an object encoded in pre-v3.4 jsonpickle, please file a bug report on our GitHub!"
+                ),
+                stacklevel=6,
+            )
+            return self.restore_v3_3(obj)
 
         # get type codes, un-RLE-ed
         try:
             rle_types = meta["dtypes_rle"]
         except KeyError:
-            # was encoded with pre-v3.4 scheme
+            # was definitely encoded with pre-v3.4 scheme, but warn anyway
+            warnings.warn(
+                (
+                    "jsonpickle versions at and above v3.4 have a different encoding scheme for pandas dataframes."
+                    " Please update your jsonpickle and re-encode these objects!"
+                ),
+                stacklevel=6,
+            )
             return self.restore_v3_3(obj)
         type_codes = rle_decode(rle_types)
 

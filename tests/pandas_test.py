@@ -329,3 +329,20 @@ def test_multilevel_columns():
     assert data_frame.columns.names == cloned_data_frame.columns.names
     assert_frame_equal(data_frame, cloned_data_frame)
     assert names == cloned_data_frame.columns.names
+
+
+def test_pre_v3_4_df_decoding():
+    df = pd.DataFrame(
+        {
+            'category': ['a', 'b'],
+            'value': [1, 2],
+        }
+    )
+    # the encoded df has to be manually stored unless we want to make it install jsonpickle 3.3
+    # then encode and store the object, then reinstall the latest jsonpickle
+    encoded_df = r'{"py/object": "pandas.core.frame.DataFrame", "values": "category,value\na,1\nb,2\n", "txt": true, "meta": {"dtypes": {"category": "object", "value": "int64"}, "index": "{\"py/object\": \"pandas.core.indexes.range.RangeIndex\", \"values\": \"[0, 1]\", \"txt\": true, \"meta\": {\"dtype\": \"int64\", \"name\": null}}", "column_level_names": [null], "header": [0]}}'
+    # assert that decoding this raises a UserWarning
+    with pytest.warns(UserWarning):
+        new_df = jsonpickle.loads(encoded_df)
+
+    assert_frame_equal(new_df, df)
