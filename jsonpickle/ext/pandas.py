@@ -2,7 +2,18 @@ import warnings
 import zlib
 from io import StringIO
 from types import ModuleType
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import (
+    Any,
+    Dict,
+    Hashable,
+    List,
+    Literal,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+)
 
 import numpy as np
 import pandas as pd
@@ -23,15 +34,15 @@ def pd_encode(obj: Any, **kwargs: Dict[str, Any]) -> Any:
     if isinstance(obj, np.generic):
         # convert pandas/numpy scalar to native Python type
         return obj.item()
-    return encode(obj, **kwargs)
+    return encode(obj, **kwargs)  # type: ignore[arg-type]
 
 
 # unused, TODO deprecate then remove
 def pd_decode(s: str, **kwargs: Dict[str, Any]) -> Any:
-    return decode(s, **kwargs)
+    return decode(s, **kwargs)  # type: ignore[arg-type]
 
 
-def rle_encode(types_list: List[str]) -> List[Tuple[str, int]]:
+def rle_encode(types_list: List[str]) -> List[List[object]]:
     """
     Encodes a list of type codes using Run-Length Encoding (RLE). This allows for object columns in dataframes to contain items of different types without massively bloating the encoded representation.
     """
@@ -81,13 +92,14 @@ class PandasProcessor:
         self.compression = compression
 
     def flatten_pandas(
-        self, buf: str, data: Dict[str, Any], meta: Dict[str, Any] = None
+        self, buf: str, data: Dict[str, Any], meta: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
         if self.size_threshold is not None and len(buf) > self.size_threshold:
             if self.compression:
                 buf = self.compression.compress(buf.encode())
                 data['comp'] = True
-            data['values'] = b64encode(buf)
+            # we have a mypy error here, not sure what the fix is so i'm silencing it temporarily
+            data['values'] = b64encode(buf)  # type: ignore[arg-type]
             data['txt'] = False
         else:
             data['values'] = buf
@@ -109,9 +121,11 @@ class PandasProcessor:
 
 
 def make_read_csv_params(
-    meta: Dict[str, Any], context: ContextType
+    # we can remove the valid-type ignore once we convert ContextType to a Type Alias when 3.9 is dropped
+    meta: Dict[str, Any],
+    context: ContextType,  # type: ignore[valid-type]
 ) -> Tuple[Dict[str, Any], List[str], Dict[str, str]]:
-    meta_dtypes = context.restore(meta.get('dtypes', {}), reset=False)
+    meta_dtypes = context.restore(meta.get('dtypes', {}), reset=False)  # type: ignore[attr-defined]
     # The header is used to select the rows of the csv from which
     # the columns names are retrieved
     header = meta.get('header', [0])
@@ -149,8 +163,12 @@ class PandasDfHandler(BaseHandler):
         pp = PandasProcessor()
         # handle multiindex columns
         if isinstance(obj.columns, pd.MultiIndex):
-            columns = [tuple(col) for col in obj.columns]
-            column_names = obj.columns.names
+            columns: Union[List[Tuple[Any, ...]], List[str]] = [
+                tuple(col) for col in obj.columns
+            ]
+            column_names: Union[List[List[object]], List[Hashable], Hashable] = (
+                obj.columns.names
+            )
             is_multicolumns = True
         else:
             columns = obj.columns.tolist()
@@ -160,7 +178,7 @@ class PandasDfHandler(BaseHandler):
         # handle multiindex index
         if isinstance(obj.index, pd.MultiIndex):
             index_values = [tuple(idx) for idx in obj.index.values]
-            index_names = obj.index.names
+            index_names: Union[List[Hashable], Hashable] = obj.index.names
             is_multiindex = True
         else:
             index_values = obj.index.tolist()
@@ -248,7 +266,7 @@ class PandasDfHandler(BaseHandler):
         columns_decoded = decode(meta["columns"], keys=True)
         if meta.get("is_multicolumns", False):
             columns = pd.MultiIndex.from_tuples(
-                columns_decoded, names=meta.get("column_names")
+                columns_decoded, names=meta.get("column_names")  # type: ignore[arg-type]
             )
         else:
             columns = columns_decoded
@@ -290,7 +308,7 @@ class PandasDfHandler(BaseHandler):
         index_values = decode(meta["index"], keys=True)
         if meta.get("is_multiindex", False):
             index = pd.MultiIndex.from_tuples(
-                index_values, names=meta.get("index_names")
+                index_values, names=meta.get("index_names")  # type: ignore[arg-type]
             )
         else:
             index = pd.Index(index_values, name=meta.get("index_names"))
@@ -299,7 +317,8 @@ class PandasDfHandler(BaseHandler):
         # restore column names for easy readability
         if "column_names" in meta:
             if meta.get("is_multicolumns", False):
-                df.columns.names = meta.get("column_names")
+                names: Any = meta.get("column_names")
+                df.columns.names = names
             else:
                 df.columns.name = meta.get("column_names")
 
@@ -348,9 +367,9 @@ class PandasSeriesHandler(BaseHandler):
 
 class PandasIndexHandler(BaseHandler):
     pp: PandasProcessor = PandasProcessor()
-    index_constructor: pd.Index = pd.Index
+    index_constructor: Type[pd.Index] = pd.Index
 
-    def name_bundler(self, obj: pd.Index) -> Dict[str, Optional[str]]:
+    def name_bundler(self, obj: pd.Index) -> Dict[str, Optional[Hashable]]:
         return {'name': obj.name}
 
     def flatten(self, obj: pd.Index, data: Dict[str, Any]) -> Dict[str, Any]:
@@ -364,21 +383,21 @@ class PandasIndexHandler(BaseHandler):
         buf, meta = self.pp.restore_pandas(data)
         dtype = meta.get('dtype', None)
         name_bundle = {
-            'name': (tuple if v is not None else lambda x: x)(v)
+            'name': (tuple if v is not None else lambda x: x)(v)  # type: ignore[misc]
             for k, v in meta.items()
             if k in {'name', 'names'}
         }
-        idx = self.index_constructor(decode(buf), dtype=dtype, **name_bundle)
+        idx = self.index_constructor(decode(buf), dtype=dtype, **name_bundle)  # type: ignore[arg-type]
         return idx
 
 
 class PandasPeriodIndexHandler(PandasIndexHandler):
-    index_constructor: pd.PeriodIndex = pd.PeriodIndex
+    index_constructor: Type[pd.PeriodIndex] = pd.PeriodIndex
 
 
 class PandasMultiIndexHandler(PandasIndexHandler):
     # sequence is technically the type pd.core.indexes.frozen.FrozenList
-    def name_bundler(self, obj: pd.MultiIndex) -> Dict[str, Sequence[Optional[str]]]:
+    def name_bundler(self, obj: pd.MultiIndex) -> Dict[str, Sequence[Optional[Hashable]]]:  # type: ignore[override]
         return {'names': obj.names}
 
 
@@ -435,7 +454,7 @@ class PandasIntervalHandler(BaseHandler):
         _, meta = self.pp.restore_pandas(data)
         left = decode(meta['left'])
         right = decode(meta['right'])
-        closed = str(meta['closed'])
+        closed: Literal['both', 'neither', 'left', 'right'] = str(meta['closed'])  # type: ignore[assignment]
         obj = pd.Interval(left, right, closed=closed)
         return obj
 

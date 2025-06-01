@@ -218,9 +218,9 @@ class JSONBackend:
         optargs, optkwargs = self._encoder_options.get(name, ([], {}))
         encoder_kwargs = optkwargs.copy()
         if indent is not None:
-            encoder_kwargs['indent'] = indent
+            encoder_kwargs['indent'] = indent  # type: ignore[assignment]
         if separators is not None:
-            encoder_kwargs['separators'] = separators
+            encoder_kwargs['separators'] = separators  # type: ignore[assignment]
         encoder_args = (obj,) + tuple(optargs)
         return self._encoders[name](*encoder_args, **encoder_kwargs)
 

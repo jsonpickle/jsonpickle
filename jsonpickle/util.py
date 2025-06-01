@@ -25,7 +25,9 @@ from typing import (
     Iterator,
     Mapping,
     Tuple,
+    Type,
     TypeVar,
+    Union,
 )
 
 from . import tags
@@ -36,8 +38,6 @@ K = TypeVar("K")
 V = TypeVar("V")
 # type
 T = TypeVar("T")
-# return value
-R = TypeVar("R")
 
 _ITERATOR_TYPE: type = type(iter(''))
 SEQUENCES: tuple = (list, set, tuple)
@@ -477,7 +477,7 @@ def untranslate_module_name(module: str) -> str:
     return _0_9_6_compat_untranslate(module)
 
 
-def importable_name(cls: type) -> str:
+def importable_name(cls: Union[Type, Callable[..., Any]]) -> str:
     """
     >>> class Example(object):
     ...     pass
@@ -541,7 +541,7 @@ def b85decode(payload: bytes) -> bytes:
         return b''
 
 
-def itemgetter(obj: T, getter: Callable[[T], R] = operator.itemgetter(0)) -> str:
+def itemgetter(obj: T, getter: Callable[[T], Any] = operator.itemgetter(0)) -> str:  # type: ignore[assignment]
     return str(getter(obj))
 
 

@@ -29,8 +29,6 @@ from typing import (
 from . import handlers, tags, util
 from .backend import JSONBackend, json
 
-PicklerType = TypeVar("Pickler", bound="Pickler")
-
 
 def encode(
     value: Any,
@@ -41,7 +39,7 @@ def encode(
     reset: bool = True,
     backend: Optional[JSONBackend] = None,
     warn: bool = False,
-    context: Optional[PicklerType] = None,
+    context: Optional["Pickler"] = None,
     max_iter: Optional[int] = None,
     use_decimal: bool = False,
     numeric_keys: bool = False,
@@ -204,7 +202,7 @@ def _mktyperef(obj: Type[Any]) -> Dict[str, str]:
     return {tags.TYPE: util.importable_name(obj)}
 
 
-def _wrap_string_slot(string: Union[str, Sequence[str]]) -> Tuple[str, ...]:
+def _wrap_string_slot(string: Union[str, Sequence[str]]) -> Sequence[str]:
     """Converts __slots__ = 'a' into __slots__ = ('a',)"""
     if isinstance(string, str):
         return (string,)
@@ -220,14 +218,14 @@ class Pickler:
         backend: Optional[JSONBackend] = None,
         keys: bool = False,
         warn: bool = False,
-        max_iter: int = None,
+        max_iter: Optional[int] = None,
         numeric_keys: bool = False,
         use_decimal: bool = False,
         use_base85: bool = False,
         fail_safe: Optional[Callable[[Exception], Any]] = None,
         include_properties: bool = False,
         handle_readonly: bool = False,
-        original_object: Any = None,
+        original_object: Optional[Any] = None,
     ) -> None:
         self.unpicklable = unpicklable
         self.make_refs = make_refs
@@ -337,7 +335,7 @@ class Pickler:
 
     def _getref(self, obj: Any) -> Dict[str, int]:
         """Return a "py/id" entry for the specified object"""
-        return {tags.ID: self._objs.get(id(obj))}
+        return {tags.ID: self._objs.get(id(obj))}  # type: ignore[dict-item]
 
     def _flatten(self, obj: Any) -> Any:
         """Flatten an object and its guts into a json-safe representation"""
@@ -423,7 +421,7 @@ class Pickler:
                 # break the cycle
                 flatten_func = repr
             else:
-                flatten_func = self._get_flattener(obj)
+                flatten_func = self._get_flattener(obj)  # type: ignore[assignment]
 
             if flatten_func is None:
                 self._pickle_warning(obj)
@@ -559,9 +557,13 @@ class Pickler:
 
         return data
 
-    def _flatten_obj_instance(self, obj: Any) -> Optional[Dict[str, Any]]:
+    def _flatten_obj_instance(
+        self, obj: Any
+    ) -> Optional[Union[Dict[str, Any], List[Any]]]:
         """Recursively flatten an instance and return a json-friendly dict"""
-        data = {}
+        # we're generally not bothering to annotate parts that aren't part of the public API
+        # but this annotation alone saves us 3 mypy "errors"
+        data: Dict[str, Any] = {}
         has_class = hasattr(obj, '__class__')
         has_dict = hasattr(obj, '__dict__')
         has_slots = not has_dict and hasattr(obj, '__slots__')
@@ -586,7 +588,7 @@ class Pickler:
 
         # Check for a custom handler
         class_name = util.importable_name(cls)
-        handler = handlers.get(cls, handlers.get(class_name))
+        handler = handlers.get(cls, handlers.get(class_name))  # type: ignore[arg-type]
         if handler is not None:
             if self.unpicklable:
                 data[tags.OBJECT] = class_name
@@ -702,7 +704,9 @@ class Pickler:
             if self.unpicklable:
                 data[tags.MODULE] = '{name}/{name}'.format(name=obj.__name__)
             else:
-                data = str(obj)
+                # TODO: this causes a mypy assignment error, figure out
+                # if it's actually an error or a false alarm
+                data = str(obj)  # type: ignore[assignment]
             return data
 
         if util.is_dictionary_subclass(obj):
@@ -737,7 +741,7 @@ class Pickler:
         self._pickle_warning(obj)
         return None
 
-    def _ref_obj_instance(self, obj: Any) -> Optional[Dict[str, Any]]:
+    def _ref_obj_instance(self, obj: Any) -> Optional[Union[Dict[str, Any], List[Any]]]:
         """Reference an existing object or flatten if new"""
         if self.unpicklable:
             if self._mkref(obj):
@@ -836,7 +840,8 @@ class Pickler:
             factory = obj.default_factory
             if util.is_type(factory):
                 # Reference the class/type
-                value = _mktyperef(factory)
+                # in this case it's Dict[str, str]
+                value: Dict[str, str] = _mktyperef(factory)
             else:
                 # The factory is not a type and could reference e.g. functions
                 # or even the object instance itself, which creates a cycle.
@@ -844,11 +849,12 @@ class Pickler:
                     # We've never seen this object before so pickle it in-place.
                     # Create an instance from the factory and assume that the
                     # resulting instance is a suitable exemplar.
-                    value = self._flatten_obj_instance(handlers.CloneFactory(factory()))
+                    value: Dict[str, Any] = self._flatten_obj_instance(handlers.CloneFactory(factory()))  # type: ignore[no-redef]
                 else:
                     # We've seen this object before.
                     # Break the cycle by emitting a reference.
-                    value = self._getref(factory)
+                    # in this case it's Dict[str, int]
+                    value: Dict[str, int] = self._getref(factory)  # type: ignore[no-redef]
             data['default_factory'] = value
 
         # Sub-classes of dict

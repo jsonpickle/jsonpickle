@@ -21,13 +21,13 @@ from typing import Any, Callable, Dict, Optional, Type, TypeVar, Union
 from . import util
 
 T = TypeVar("T")
-BaseHandlerType = TypeVar("BaseHandler", bound="BaseHandler")
-ContextType = Union[
+# we can't import the below types directly from pickler/unpickler because we'd get a circular import
+ContextType = Union[  # type: ignore[valid-type]
     TypeVar("Pickler", bound="Pickler"), TypeVar("Unpickler", bound="Unpickler")
 ]
 HandlerType = Type[Any]
 KeyType = Union[Type[Any], str]
-HandlerReturn = Union[Dict[str, Any], str]
+HandlerReturn = Optional[Union[Dict[str, Any], str]]
 DateTime = Union[datetime.datetime, datetime.date, datetime.time]
 
 
@@ -36,7 +36,7 @@ class Registry:
         self._handlers = {}
         self._base_handlers = {}
 
-    def get(self, cls_or_name: KeyType, default: Any = None) -> Any:
+    def get(self, cls_or_name: Type, default: Optional[Any] = None) -> Any:
         """
         :param cls_or_name: the type or its fully qualified name
         :param default: default value, if a matching handler is not found
@@ -55,7 +55,7 @@ class Registry:
         return default if handler is None else handler
 
     def register(
-        self, cls: Type[Any], handler: KeyType = None, base: bool = False
+        self, cls: Type[Any], handler: Optional[KeyType] = None, base: bool = False
     ) -> Optional[Callable[[HandlerType], HandlerType]]:
         """Register the a custom handler for a class
 
@@ -145,7 +145,7 @@ class BaseHandler:
         return cls
 
     #
-    def __call__(self, context: ContextType) -> BaseHandlerType:
+    def __call__(self, context: ContextType) -> "BaseHandler":  # type: ignore[valid-type]
         """This permits registering either Handler instances or classes
 
         :Parameters:
@@ -191,7 +191,7 @@ class DatetimeHandler(BaseHandler):
             else:
                 result = str(obj)
             return result
-        cls, args = obj.__reduce__()
+        cls, args = obj.__reduce__()  # type: ignore[misc]
         flatten = pickler.flatten
         payload = util.b64encode(args[0])
         args = [payload] + [flatten(i, reset=False) for i in args[1:]]
@@ -253,7 +253,7 @@ class CloneFactory:
 
     def __call__(self, clone: Callable[[T], T] = copy.copy) -> T:
         """Create new instances by making copies of the provided exemplar"""
-        return clone(self.exemplar)
+        return clone(self.exemplar)  # type: ignore[arg-type]
 
     def __repr__(self) -> str:
         return f'<CloneFactory object at 0x{id(self):x} ({self.exemplar})>'

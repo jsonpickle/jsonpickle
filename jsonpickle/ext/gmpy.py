@@ -1,5 +1,5 @@
 try:
-    import gmpy2 as gmpy
+    import gmpy2 as gmpy  # type: ignore[import-untyped]
 except ImportError:
     gmpy = None
 

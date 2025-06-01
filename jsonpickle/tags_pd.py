@@ -148,8 +148,8 @@ def get_all_numpy_dtype_strings() -> List[str]:
         dt_variants = list(
             dict.fromkeys(
                 [
-                    "datetime64[" + re.search(r"\[(.*?)\]", var).group(1) + "]"
-                    for var in char_codes._DT64Codes.__args__
+                    "datetime64[" + re.search(r"\[(.*?)\]", var).group(1) + "]"  # type: ignore[union-attr]
+                    for var in char_codes._DT64Codes.__args__  # type: ignore[attr-defined]
                     if re.search(r"\[(.*?)\]", var)
                 ]
             )
@@ -157,8 +157,8 @@ def get_all_numpy_dtype_strings() -> List[str]:
         td_variants = list(
             dict.fromkeys(
                 [
-                    "timedelta64[" + re.search(r"\[(.*?)\]", var).group(1) + "]"
-                    for var in char_codes._TD64Codes.__args__
+                    "timedelta64[" + re.search(r"\[(.*?)\]", var).group(1) + "]"  # type: ignore[union-attr]
+                    for var in char_codes._TD64Codes.__args__  # type: ignore[attr-defined]
                     if re.search(r"\[(.*?)\]", var)
                 ]
             )
