@@ -166,9 +166,9 @@ class PandasDfHandler(BaseHandler):
             columns: Union[List[Tuple[Any, ...]], List[str]] = [
                 tuple(col) for col in obj.columns
             ]
-            column_names: Union[List[List[object]], List[Hashable], Hashable] = (
-                obj.columns.names
-            )
+            column_names: Union[
+                List[List[object]], List[Hashable], List[str], Hashable
+            ] = obj.columns.names
             is_multicolumns = True
         else:
             columns = obj.columns.tolist()
@@ -178,7 +178,7 @@ class PandasDfHandler(BaseHandler):
         # handle multiindex index
         if isinstance(obj.index, pd.MultiIndex):
             index_values = [tuple(idx) for idx in obj.index.values]
-            index_names: Union[List[Hashable], Hashable] = obj.index.names
+            index_names: Union[List[Hashable], List[str], Hashable] = obj.index.names
             is_multiindex = True
         else:
             index_values = obj.index.tolist()
