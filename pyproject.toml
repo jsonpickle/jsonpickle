@@ -63,6 +63,9 @@ testing = [
     "ujson",
     # fuzzing
     "atheris ~= 2.3.0; python_version < '3.12'",
+    # type checking
+    "mypy",
+    "pandas-stubs",
 ]
 docs = [
     "furo",

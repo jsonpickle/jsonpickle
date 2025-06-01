@@ -37,7 +37,7 @@ jobs:
           restore-keys: |
             ${{ matrix.os }}-${{ matrix.python-version }}-v1-
 
-      - name: Install dependencies
+      - name: Install tox dependencies
         run: |
           python -m pip install -U pip
           python -m pip install -U "tox>=4"
@@ -51,3 +51,11 @@ jobs:
       - name: Tox tests
         run: |
           tox run
+
+      - name: Install mypy dependencies
+        run: |
+          python -m pip install -U .[testing]
+
+      - name: Mypy tests
+        run: |
+          mypy ./jsonpickle
