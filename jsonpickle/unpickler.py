@@ -7,12 +7,11 @@
 import dataclasses
 import sys
 import warnings
-from types import FunctionType, ModuleType
+from types import ModuleType
 from typing import (
     Any,
     Callable,
     Dict,
-    Iterable,
     Iterator,
     List,
     Optional,
@@ -20,7 +19,6 @@ from typing import (
     Set,
     Tuple,
     Type,
-    TypeVar,
     Union,
 )
 

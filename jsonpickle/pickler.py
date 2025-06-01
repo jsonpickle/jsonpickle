@@ -16,13 +16,10 @@ from typing import (
     Callable,
     Dict,
     Iterable,
-    Iterator,
     List,
     Optional,
     Sequence,
-    Tuple,
     Type,
-    TypeVar,
     Union,
 )
 

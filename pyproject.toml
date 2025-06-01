@@ -96,4 +96,5 @@ addopts = "--ruff"
 
 [tool.ruff.lint]
 # E721 Do not compare types -> jsonpickle compares types using "is" for performance.
-ignore = ["E721"]
+# E402 Module level import not at top of file -> this is expected behavior for isort and black
+ignore = ["E721", "E402"]

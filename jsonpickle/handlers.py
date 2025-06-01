@@ -23,7 +23,8 @@ from . import util
 T = TypeVar("T")
 # we can't import the below types directly from pickler/unpickler because we'd get a circular import
 ContextType = Union[  # type: ignore[valid-type]
-    TypeVar("Pickler", bound="Pickler"), TypeVar("Unpickler", bound="Unpickler")
+    TypeVar("Pickler", bound="Pickler"),
+    TypeVar("Unpickler", bound="Unpickler"),  # noqa: F821
 ]
 HandlerType = Type[Any]
 KeyType = Union[Type[Any], str]
