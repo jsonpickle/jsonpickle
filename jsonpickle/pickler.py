@@ -184,8 +184,8 @@ def _in_cycle(
     """Detect cyclic structures that would lead to infinite recursion"""
     return (
         (max_reached or (not make_refs and id(obj) in objs))
-        and not util.is_primitive(obj)
-        and not util.is_enum(obj)
+        and not util._is_primitive(obj)
+        and not util._is_enum(obj)
     )
 
 
@@ -245,7 +245,7 @@ class Pickler:
         self._use_decimal = use_decimal
         # A cache of objects that have already been flattened.
         self._flattened = {}
-        # Used for util.is_readonly, see +483
+        # Used for util._is_readonly, see +483
         self.handle_readonly = handle_readonly
 
         if self.use_base85:
@@ -457,14 +457,14 @@ class Pickler:
         self, k: Any, v: Any, data: Dict[Union[str, Any], Any]
     ) -> Dict[Union[str, Any], Any]:
         """Flatten a key/value pair into the passed-in dictionary."""
-        if not util.is_picklable(k, v):
+        if not util._is_picklable(k, v):
             return data
         # TODO: use inspect.getmembers_static on 3.11+ because it avoids dynamic
         # attribute lookups
         if (
             self.handle_readonly
             and k in {attr for attr, val in inspect.getmembers(self._original_object)}
-            and util.is_readonly(self._original_object, k, v)
+            and util._is_readonly(self._original_object, k, v)
         ):
             return data
 
@@ -524,7 +524,7 @@ class Pickler:
         properties_dict = {}
         for p_name in properties:
             p_val = getattr(obj, p_name)
-            if util.is_not_class(p_val):
+            if util._is_not_class(p_val):
                 properties_dict[p_name] = p_val
             else:
                 properties_dict[p_name] = self._flatten(p_val)
@@ -706,21 +706,21 @@ class Pickler:
                 data = str(obj)  # type: ignore[assignment]
             return data
 
-        if util.is_dictionary_subclass(obj):
+        if util._is_dictionary_subclass(obj):
             self._flatten_dict_obj(obj, data, exclude=exclude)
             return data
 
-        if util.is_sequence_subclass(obj):
+        if util._is_sequence_subclass(obj):
             return self._flatten_sequence_obj(obj, data)
 
-        if util.is_iterator(obj):
+        if util._is_iterator(obj):
             # force list in python 3
             data[tags.ITERATOR] = list(map(self._flatten, islice(obj, self._max_iter)))
             return data
 
         if has_dict:
             # Support objects that subclasses list and set
-            if util.is_sequence_subclass(obj):
+            if util._is_sequence_subclass(obj):
                 return self._flatten_sequence_obj(obj, data)
 
             # hack for zope persistent objects; this unghostifies the object
@@ -773,7 +773,7 @@ class Pickler:
         self, k: Any, v: Any, data: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Flatten only non-string key/value pairs"""
-        if not util.is_picklable(k, v):
+        if not util._is_picklable(k, v):
             return data
         if self.keys and not isinstance(k, str):
             k = self._escape_key(k)
@@ -782,7 +782,7 @@ class Pickler:
 
     def _flatten_string_key_value_pair(self, k: str, v: Any, data: Dict[str, Any]):
         """Flatten string key/value pairs only."""
-        if not util.is_picklable(k, v):
+        if not util._is_picklable(k, v):
             return data
         if self.keys:
             if not isinstance(k, str):
@@ -835,7 +835,7 @@ class Pickler:
         # the collections.defaultdict protocol
         if hasattr(obj, 'default_factory') and callable(obj.default_factory):
             factory = obj.default_factory
-            if util.is_type(factory):
+            if util._is_type(factory):
                 # Reference the class/type
                 # in this case it's Dict[str, str]
                 value: Dict[str, str] = _mktyperef(factory)
@@ -884,13 +884,13 @@ class Pickler:
                 ]
             }
 
-        elif util.is_module_function(obj):
+        elif util._is_module_function(obj):
             return self._flatten_function
 
-        elif util.is_object(obj):
+        elif util._is_object(obj):
             return self._ref_obj_instance
 
-        elif util.is_type(obj):
+        elif util._is_type(obj):
             return _mktyperef
 
         # instance methods, lambdas, old style classes...

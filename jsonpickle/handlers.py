@@ -23,7 +23,7 @@ from . import util
 T = TypeVar("T")
 # we can't import the below types directly from pickler/unpickler because we'd get a circular import
 ContextType = Union[  # type: ignore[valid-type]
-    TypeVar("Pickler", bound="Pickler"),
+    TypeVar("Pickler", bound="Pickler"),  # noqa: F821
     TypeVar("Unpickler", bound="Unpickler"),  # noqa: F821
 ]
 HandlerType = Type[Any]
@@ -49,7 +49,7 @@ class Registry:
         """
         handler = self._handlers.get(cls_or_name)
         # attempt to find a base class
-        if handler is None and util.is_type(cls_or_name):
+        if handler is None and util._is_type(cls_or_name):
             for cls, base_handler in self._base_handlers.items():
                 if issubclass(cls_or_name, cls):
                     return base_handler
@@ -81,7 +81,7 @@ class Registry:
                 return handler_cls
 
             return _register
-        if not util.is_type(cls):
+        if not util._is_type(cls):
             raise TypeError(f'{cls!r} is not a class/type')
         # store both the name and the actual type for the ugly cases like
         # _sre.SRE_Pattern that cannot be loaded back directly

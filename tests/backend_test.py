@@ -34,7 +34,7 @@ SAMPLE_DATA = {'things': [Thing('data')]}
 
 class BackendBase(SkippableTest):
     def _is_installed(self, backend):
-        if not jsonpickle.util.is_installed(backend):
+        if not jsonpickle.util._is_installed(backend):
             return self.skip('%s not available; please install' % backend)
 
     def set_backend(self, *args):

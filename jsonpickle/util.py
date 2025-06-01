@@ -71,17 +71,17 @@ NON_CLASS_TYPES: set = {
 } | PRIMITIVES
 
 
-def is_type(obj: Any) -> bool:
+def _is_type(obj: Any) -> bool:
     """Returns True is obj is a reference to a type.
 
-    >>> is_type(1)
+    >>> _is_type(1)
     False
 
-    >>> is_type(object)
+    >>> _is_type(object)
     True
 
     >>> class Klass: pass
-    >>> is_type(Klass)
+    >>> _is_type(Klass)
     True
     """
     # use "isinstance" and not "is" to allow for metaclasses
@@ -106,7 +106,7 @@ def has_method(obj: Any, name: str) -> bool:
     # methods are essentially descriptors
 
     # __class__ for old-style classes
-    base_type = obj if is_type(obj) else obj.__class__
+    base_type = obj if _is_type(obj) else obj.__class__
     original = None
     # there is no .mro() for old-style classes
     for subtype in inspect.getmro(base_type):
@@ -135,16 +135,16 @@ def has_method(obj: Any, name: str) -> bool:
     return isinstance(obj, type(bound_to))
 
 
-def is_object(obj: Any) -> bool:
+def _is_object(obj: Any) -> bool:
     """Returns True is obj is a reference to an object instance.
 
-    >>> is_object(1)
+    >>> _is_object(1)
     True
 
-    >>> is_object(object())
+    >>> _is_object(object())
     True
 
-    >>> is_object(lambda x: 1)
+    >>> _is_object(lambda x: 1)
     False
     """
     return isinstance(obj, object) and not isinstance(
@@ -152,47 +152,37 @@ def is_object(obj: Any) -> bool:
     )
 
 
-def is_not_class(obj: Any) -> bool:
+def _is_not_class(obj: Any) -> bool:
     """Determines if the object is not a class or a class instance.
     Used for serializing properties.
     """
     return type(obj) in NON_CLASS_TYPES
 
 
-def is_primitive(obj: Any) -> bool:
+def _is_primitive(obj: Any) -> bool:
     """Helper method to see if the object is a basic data type. Unicode strings,
     integers, longs, floats, booleans, and None are considered primitive
-    and will return True when passed into *is_primitive()*
+    and will return True when passed into *_is_primitive()*
 
-    >>> is_primitive(3)
+    >>> _is_primitive(3)
     True
-    >>> is_primitive([4,4])
+    >>> _is_primitive([4,4])
     False
     """
     return type(obj) in PRIMITIVES
 
 
-def is_enum(obj: Any) -> bool:
+def _is_enum(obj: Any) -> bool:
     """Is the object an enum?"""
     return 'enum' in sys.modules and isinstance(obj, sys.modules['enum'].Enum)
 
 
-def is_sequence(obj: Any) -> bool:
-    """Helper method to see if the object is a sequence (list, set, or tuple).
-
-    >>> is_sequence([4])
-    True
-
-    """
-    return type(obj) in SEQUENCES_SET
-
-
-def is_dictionary_subclass(obj: Any) -> bool:
+def _is_dictionary_subclass(obj: Any) -> bool:
     """Returns True if *obj* is a subclass of the dict type. *obj* must be
     a subclass and not the actual builtin dict.
 
     >>> class Temp(dict): pass
-    >>> is_dictionary_subclass(Temp())
+    >>> _is_dictionary_subclass(Temp())
     True
     """
     # TODO: add UserDict
@@ -203,61 +193,59 @@ def is_dictionary_subclass(obj: Any) -> bool:
     )
 
 
-def is_sequence_subclass(obj: Any) -> bool:
+def _is_sequence_subclass(obj: Any) -> bool:
     """Returns True if *obj* is a subclass of list, set or tuple.
 
     *obj* must be a subclass and not the actual builtin, such
     as list, set, tuple, etc..
 
     >>> class Temp(list): pass
-    >>> is_sequence_subclass(Temp())
+    >>> _is_sequence_subclass(Temp())
     True
     """
     return (
         hasattr(obj, '__class__')
         and issubclass(obj.__class__, SEQUENCES)
-        and not is_sequence(obj)
+        and type(obj) not in SEQUENCES_SET
     )
 
 
-def is_noncomplex(obj: Any) -> bool:
+def _is_noncomplex(obj: Any) -> bool:
     """Returns True if *obj* is a special (weird) class, that is more complex
     than primitive data types, but is not a full object. Including:
 
         * :class:`~time.struct_time`
     """
-    if type(obj) is time.struct_time:
-        return True
-    return False
+    return type(obj) is time.struct_time
 
 
-def is_function(obj: Any) -> bool:
+def _is_function(obj: Any) -> bool:
     """Returns true if passed a function
 
-    >>> is_function(lambda x: 1)
+    >>> _is_function(lambda x: 1)
     True
 
-    >>> is_function(locals)
+    >>> _is_function(locals)
     True
 
     >>> def method(): pass
-    >>> is_function(method)
+    >>> _is_function(method)
     True
 
-    >>> is_function(1)
+    >>> _is_function(1)
     False
     """
     return type(obj) in FUNCTION_TYPES
 
 
-def is_module_function(obj: Any) -> bool:
+def _is_module_function(obj: Any) -> bool:
     """Return True if `obj` is a module-global function
 
     >>> import os
-    >>> is_module_function(os.path.exists)
+    >>> _is_module_function(os.path.exists)
     True
 
-    >>> is_module_function(lambda: None)
+    >>> _is_module_function(lambda: None)
     False
 
     """
@@ -268,35 +256,35 @@ def is_module_function(obj: Any) -> bool:
         and hasattr(obj, '__module__')
         and hasattr(obj, '__name__')
         and obj.__name__ != '<lambda>'
-    ) or is_cython_function(obj)
+    ) or _is_cython_function(obj)
 
 
-def is_picklable(name: str, value: types.FunctionType) -> bool:
+def _is_picklable(name: str, value: types.FunctionType) -> bool:
     """Return True if an object can be pickled
 
     >>> import os
-    >>> is_picklable('os', os)
+    >>> _is_picklable('os', os)
     True
 
     >>> def foo(): pass
-    >>> is_picklable('foo', foo)
+    >>> _is_picklable('foo', foo)
     True
 
-    >>> is_picklable('foo', lambda: None)
+    >>> _is_picklable('foo', lambda: None)
     False
 
     """
     if name in tags.RESERVED:
         return False
-    return is_module_function(value) or not is_function(value)
+    return _is_module_function(value) or not _is_function(value)
 
 
-def is_installed(module: str) -> bool:
+def _is_installed(module: str) -> bool:
     """Tests to see if ``module`` is available on the sys.path
 
-    >>> is_installed('sys')
+    >>> _is_installed('sys')
     True
-    >>> is_installed('hopefullythisisnotarealmodule')
+    >>> _is_installed('hopefullythisisnotarealmodule')
     False
 
     """
@@ -307,48 +295,48 @@ def is_installed(module: str) -> bool:
         return False
 
 
-def is_list_like(obj: Any) -> bool:
+def _is_list_like(obj: Any) -> bool:
     return hasattr(obj, '__getitem__') and hasattr(obj, 'append')
 
 
-def is_iterator(obj: Any) -> bool:
+def _is_iterator(obj: Any) -> bool:
     return isinstance(obj, abc_iterator) and not isinstance(obj, io.IOBase)
 
 
-def is_collections(obj: Any) -> bool:
+def _is_collections(obj: Any) -> bool:
     try:
         return type(obj).__module__ == 'collections'
     except Exception:
         return False
 
 
-def is_reducible_sequence_subclass(obj: Any) -> bool:
+def _is_reducible_sequence_subclass(obj: Any) -> bool:
     return hasattr(obj, '__class__') and issubclass(obj.__class__, SEQUENCES)
 
 
-def is_reducible(obj: Any) -> bool:
+def _is_reducible(obj: Any) -> bool:
     """
     Returns false if of a type which have special casing,
     and should not have their __reduce__ methods used
     """
     # defaultdicts may contain functions which we cannot serialise
-    if is_collections(obj) and not isinstance(obj, collections.defaultdict):
+    if _is_collections(obj) and not isinstance(obj, collections.defaultdict):
         return True
     if (
         type(obj) in NON_REDUCIBLE_TYPES
         or obj is object
-        or is_dictionary_subclass(obj)
+        or _is_dictionary_subclass(obj)
         or isinstance(obj, types.ModuleType)
-        or is_reducible_sequence_subclass(obj)
-        or is_list_like(obj)
+        or _is_reducible_sequence_subclass(obj)
+        or _is_list_like(obj)
         or isinstance(getattr(obj, '__slots__', None), _ITERATOR_TYPE)
-        or (is_type(obj) and obj.__module__ == 'datetime')
+        or (_is_type(obj) and obj.__module__ == 'datetime')
     ):
         return False
     return True
 
 
-def is_cython_function(obj: Any) -> bool:
+def _is_cython_function(obj: Any) -> bool:
     """Returns true if the object is a reference to a Cython function"""
     return (
         callable(obj)
@@ -357,7 +345,7 @@ def is_cython_function(obj: Any) -> bool:
     )
 
 
-def is_readonly(obj: Any, attr: str, value: Any) -> bool:
+def _is_readonly(obj: Any, attr: str, value: Any) -> bool:
     # CPython 3.11+ has 0-cost try/except, please use up-to-date versions!
     try:
         setattr(obj, attr, value)
@@ -395,13 +383,13 @@ def has_reduce(obj: Any) -> Tuple[bool, bool]:
     Returns a tuple of booleans (has_reduce, has_reduce_ex)
     """
 
-    if not is_reducible(obj) or is_type(obj):
+    if not _is_reducible(obj) or _is_type(obj):
         return (False, False)
 
     # in this case, reduce works and is desired
     # notwithstanding depending on default object
     # reduce
-    if is_noncomplex(obj):
+    if _is_noncomplex(obj):
         return (False, True)
 
     has_reduce = False
@@ -416,7 +404,7 @@ def has_reduce(obj: Any) -> Tuple[bool, bool]:
 
     # turn to the MRO
     for base in type(obj).__mro__:
-        if is_reducible(base):
+        if _is_reducible(base):
             has_reduce = has_reduce or in_dict(base, REDUCE)
             has_reduce_ex = has_reduce_ex or in_dict(base, REDUCE_EX)
         if has_reduce and has_reduce_ex:

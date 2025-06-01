@@ -105,7 +105,7 @@ def decode(
 
     if isinstance(on_missing, str):
         on_missing = on_missing.lower()
-    elif not util.is_function(on_missing):
+    elif not util._is_function(on_missing):
         warnings.warn(
             "Unpickler.on_missing must be a string or a function! It will be ignored!"
         )
@@ -668,7 +668,7 @@ class Unpickler:
             raise errors.ClassNotFoundError(
                 'Unpickler.restore_object could not find %s!' % class_name  # type: ignore[arg-type]
             )
-        elif util.is_function(self.on_missing):
+        elif util._is_function(self.on_missing):
             self.on_missing(class_name)  # type: ignore[operator]
 
     def _restore_pickled_key(self, key: str) -> Any:
@@ -729,7 +729,7 @@ class Unpickler:
                 value = self._restore(v)
             else:
                 value = v
-            if util.is_noncomplex(instance) or util.is_dictionary_subclass(instance):
+            if util._is_noncomplex(instance) or util._is_dictionary_subclass(instance):
                 try:
                     if k == '__dict__':
                         setattr(instance, k, value)
