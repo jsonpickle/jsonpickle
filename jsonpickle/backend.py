@@ -92,6 +92,10 @@ class JSONBackend:
         self.load_backend('simplejson')
         self.load_backend('json')
         self.load_backend('ujson')
+        # TODO: remove default registration of the YAML backend in v5.0.0.
+        self.load_backend(
+            'yaml', dumps='dump', loads='safe_load', loads_exc='YAMLError'
+        )
 
         # Defaults for various encoders
         json_opts = ((), {'sort_keys': False})
