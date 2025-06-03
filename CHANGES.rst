@@ -14,8 +14,12 @@ v5.0.0
 
 v4.1.1
 ======
+    * Maintenance release to omit upcoming breaking changes.
     * An error in the jsonpickle pandas extension when decoding objects that were encoded
       before jsonpickle v3.4.0 was fixed, and warnings were added. (+562)
+    * Added ``jsonpickle.ext.yaml`` for forwards-compatibility, but the ``yaml`` module
+      continues to be registered by default. ``v5.0.0`` will no longer register
+      ``jsonpickle.ext.yaml`` by default.
 
 v4.1.0
 ======
