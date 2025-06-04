@@ -1,5 +1,5 @@
 v5.0.0
-========
+======
     * **Breaking Change**: The ``yaml`` module is no longer registered by default.
       You can re-enable yaml support using ``jsonpickle.ext.yaml.register()``.
       (#550) (+551)
