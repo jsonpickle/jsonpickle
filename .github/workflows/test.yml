@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
         os: [ubuntu-latest]
 
     steps:
@@ -37,13 +37,13 @@ jobs:
           restore-keys: |
             ${{ matrix.os }}-${{ matrix.python-version }}-v1-
 
-      - name: Install dependencies
+      - name: Install tox dependencies
         run: |
           python -m pip install -U pip
           python -m pip install -U "tox>=4"
 
       - name: Install gmpy2 dependencies
-        if: matrix.python-version == '3.11' || matrix.python-version == '3.12'
+        if: matrix.python-version == '3.11' || matrix.python-version == '3.12' || matrix.python-version == '3.13'
         run: |
           sudo apt-get -y update
           sudo apt-get install -y libmpfr-dev libmpc-dev
@@ -51,3 +51,11 @@ jobs:
       - name: Tox tests
         run: |
           tox run
+
+      - name: Install mypy dependencies
+        run: |
+          python -m pip install -U .[testing]
+
+      - name: Mypy tests
+        run: |
+          mypy ./jsonpickle

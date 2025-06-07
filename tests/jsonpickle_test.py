@@ -1669,7 +1669,7 @@ def test_reduce_newobj():
 def test_reduce_iter():
     """Iterators with ``__reduce__`` can roundtrip"""
     instance = iter('123')
-    assert util.is_iterator(instance)
+    assert util._is_iterator(instance)
     encoded = jsonpickle.encode(instance)
     decoded = jsonpickle.decode(encoded)
     assert next(decoded) == '1'
@@ -1680,7 +1680,7 @@ def test_reduce_iter():
 def test_reduce_iterable():
     """Reducible objects that are iterable should also pickle"""
     instance = ReducibleIterator()
-    assert util.is_iterator(instance)
+    assert util._is_iterator(instance)
     encoded = jsonpickle.encode(instance)
     decoded = jsonpickle.decode(encoded)
     assert isinstance(decoded, ReducibleIterator)

@@ -3,13 +3,17 @@ This file exists to automatically generate tags for numpy/pandas extensions. Bec
 """
 
 import re
+from typing import Any, Dict, Iterable, List, Tuple, Type, Union
 
 import numpy as np
 import pandas as pd
 from pandas.api.extensions import ExtensionDtype
 
+DTypeRepr = Union[str, Type]
 
-def split_letters_numbers_brackets(s):
+
+# TODO: add tests for this module
+def split_letters_numbers_brackets(s: str) -> Tuple[str, str, str]:
     """
     Split the string into letters, numbers, and brackets (with their content).
     This is a helper function for getting the smallest unique substring, for determining tags.
@@ -32,7 +36,9 @@ def split_letters_numbers_brackets(s):
     return letters_part, numbers_part, brackets_part
 
 
-def get_smallest_unique_substrings(strings, prefix="np"):
+def get_smallest_unique_substrings(
+    strings: Iterable[Any], prefix: str = "np"
+) -> Dict[Any, str]:
     used_substrings = set()
     used_letters_parts = set()
     result = {}
@@ -115,7 +121,7 @@ def get_smallest_unique_substrings(strings, prefix="np"):
     return result
 
 
-def all_subclasses(cls):
+def all_subclasses(cls: Type[Any]) -> List[Type[Any]]:
     # use a set to avoid adding duplicates
     subclasses = set()
     for subclass in cls.__subclasses__():
@@ -124,7 +130,7 @@ def all_subclasses(cls):
     return list(subclasses)
 
 
-def get_all_numpy_dtype_strings():
+def get_all_numpy_dtype_strings() -> List[str]:
     dtypes = []
 
     # sctypeDict is the dict of all possible numpy dtypes + some invalid dtypes too
@@ -142,8 +148,8 @@ def get_all_numpy_dtype_strings():
         dt_variants = list(
             dict.fromkeys(
                 [
-                    "datetime64[" + re.search(r"\[(.*?)\]", var).group(1) + "]"
-                    for var in char_codes._DT64Codes.__args__
+                    "datetime64[" + re.search(r"\[(.*?)\]", var).group(1) + "]"  # type: ignore[union-attr]
+                    for var in char_codes._DT64Codes.__args__  # type: ignore[attr-defined]
                     if re.search(r"\[(.*?)\]", var)
                 ]
             )
@@ -151,8 +157,8 @@ def get_all_numpy_dtype_strings():
         td_variants = list(
             dict.fromkeys(
                 [
-                    "timedelta64[" + re.search(r"\[(.*?)\]", var).group(1) + "]"
-                    for var in char_codes._TD64Codes.__args__
+                    "timedelta64[" + re.search(r"\[(.*?)\]", var).group(1) + "]"  # type: ignore[union-attr]
+                    for var in char_codes._TD64Codes.__args__  # type: ignore[attr-defined]
                     if re.search(r"\[(.*?)\]", var)
                 ]
             )
@@ -195,7 +201,7 @@ def get_all_numpy_dtype_strings():
     return list(dict.fromkeys(dtypes))
 
 
-def get_all_pandas_dtype_strings():
+def get_all_pandas_dtype_strings() -> List[DTypeRepr]:
     dtypes = []
 
     # get all pandas dtypes since it doesnt have a built-in api
@@ -216,20 +222,20 @@ def get_all_pandas_dtype_strings():
     return list(dict.fromkeys(dtypes))
 
 
-np_dtypes = list(
+np_dtypes: List[str] = list(
     dict.fromkeys(
         [dtype for dtype in get_all_numpy_dtype_strings() if isinstance(dtype, str)]
     )
 )
 
-pd_dtypes = list(
+pd_dtypes: List[str] = list(
     dict.fromkeys(
         [dtype for dtype in get_all_pandas_dtype_strings() if isinstance(dtype, str)]
     )
 )
 
 
-TYPE_MAP = get_smallest_unique_substrings(np_dtypes, prefix="np")
+TYPE_MAP: Dict[Any, str] = get_smallest_unique_substrings(np_dtypes, prefix="np")
 TYPE_MAP.update(get_smallest_unique_substrings(pd_dtypes, prefix="pd"))
 
-REVERSE_TYPE_MAP = {v: k for k, v in TYPE_MAP.items()}
+REVERSE_TYPE_MAP: Dict[str, Any] = {v: k for k, v in TYPE_MAP.items()}

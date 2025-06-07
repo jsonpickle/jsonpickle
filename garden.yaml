@@ -34,7 +34,7 @@ trees:
         ${activate} python3 -m sphinx docs pages
       fmt: |
         ${activate}
-        black --skip-string-normalization --target-version py38 "$@" jsonpickle tests fuzzing/fuzz-targets
+        black --skip-string-normalization --target-version py39 "$@" jsonpickle tests fuzzing/fuzz-targets
         isort --profile=black "$@" jsonpickle tests fuzzing/fuzz-targets
       setup: |
         test -d env3 || python3 -m venv env3

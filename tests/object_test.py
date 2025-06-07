@@ -820,7 +820,7 @@ def test_ordered_dict_reduces():
     """Ensure that OrderedDict is reduce()-able"""
     d = collections.OrderedDict([('c', 3), ('a', 1), ('b', 2)])
     has_reduce, has_reduce_ex = util.has_reduce(d)
-    assert util.is_reducible(d)
+    assert util._is_reducible(d)
     assert has_reduce or has_reduce_ex
 
 

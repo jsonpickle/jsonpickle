@@ -16,16 +16,28 @@ import queue
 import re
 import threading
 import uuid
+from typing import Any, Callable, Dict, Optional, Type, TypeVar, Union
 
 from . import util
 
+T = TypeVar("T")
+# we can't import the below types directly from pickler/unpickler because we'd get a circular import
+ContextType = Union[  # type: ignore[valid-type]
+    TypeVar("Pickler", bound="Pickler"),  # noqa: F821
+    TypeVar("Unpickler", bound="Unpickler"),  # noqa: F821
+]
+HandlerType = Type[Any]
+KeyType = Union[Type[Any], str]
+HandlerReturn = Optional[Union[Dict[str, Any], str]]
+DateTime = Union[datetime.datetime, datetime.date, datetime.time]
+
 
 class Registry:
-    def __init__(self):
+    def __init__(self) -> None:
         self._handlers = {}
         self._base_handlers = {}
 
-    def get(self, cls_or_name, default=None):
+    def get(self, cls_or_name: Type, default: Optional[Any] = None) -> Any:
         """
         :param cls_or_name: the type or its fully qualified name
         :param default: default value, if a matching handler is not found
@@ -37,13 +49,15 @@ class Registry:
         """
         handler = self._handlers.get(cls_or_name)
         # attempt to find a base class
-        if handler is None and util.is_type(cls_or_name):
+        if handler is None and util._is_type(cls_or_name):
             for cls, base_handler in self._base_handlers.items():
                 if issubclass(cls_or_name, cls):
                     return base_handler
         return default if handler is None else handler
 
-    def register(self, cls, handler=None, base=False):
+    def register(
+        self, cls: Type[Any], handler: Optional[KeyType] = None, base: bool = False
+    ) -> Optional[Callable[[HandlerType], HandlerType]]:
         """Register the a custom handler for a class
 
         :param cls: The custom object class to handle
@@ -67,7 +81,7 @@ class Registry:
                 return handler_cls
 
             return _register
-        if not util.is_type(cls):
+        if not util._is_type(cls):
             raise TypeError(f'{cls!r} is not a class/type')
         # store both the name and the actual type for the ugly cases like
         # _sre.SRE_Pattern that cannot be loaded back directly
@@ -76,7 +90,7 @@ class Registry:
             # only store the actual type for subclass checking
             self._base_handlers[cls] = handler
 
-    def unregister(self, cls):
+    def unregister(self, cls: Type[Any]) -> None:
         self._handlers.pop(cls, None)
         self._handlers.pop(util.importable_name(cls), None)
         self._base_handlers.pop(cls, None)
@@ -89,7 +103,7 @@ get = registry.get
 
 
 class BaseHandler:
-    def __init__(self, context):
+    def __init__(self, context: Any):
         """
         Initialize a new handler to handle a registered type.
 
@@ -99,7 +113,7 @@ class BaseHandler:
         """
         self.context = context
 
-    def flatten(self, obj, data):
+    def flatten(self, obj: Any, data: Dict[str, Any]) -> HandlerReturn:
         """
         Flatten `obj` into a json-friendly form and write result to `data`.
 
@@ -110,7 +124,7 @@ class BaseHandler:
         """
         raise NotImplementedError('You must implement flatten() in %s' % self.__class__)
 
-    def restore(self, obj):
+    def restore(self, obj: Any) -> Any:
         """
         Restore an object of the registered type from the json-friendly
         representation `obj` and return it.
@@ -118,7 +132,7 @@ class BaseHandler:
         raise NotImplementedError('You must implement restore() in %s' % self.__class__)
 
     @classmethod
-    def handles(self, cls):
+    def handles(self, cls: Type[Any]) -> Type[Any]:
         """
         Register this handler for the given class. Suitable as a decorator,
         e.g.::
@@ -131,7 +145,8 @@ class BaseHandler:
         registry.register(cls, self)
         return cls
 
-    def __call__(self, context):
+    #
+    def __call__(self, context: ContextType) -> "BaseHandler":  # type: ignore[valid-type]
         """This permits registering either Handler instances or classes
 
         :Parameters:
@@ -144,12 +159,12 @@ class BaseHandler:
 class ArrayHandler(BaseHandler):
     """Flatten and restore array.array objects"""
 
-    def flatten(self, obj, data):
+    def flatten(self, obj: array.array, data: Dict[str, Any]) -> HandlerReturn:
         data['typecode'] = obj.typecode
         data['values'] = self.context.flatten(obj.tolist(), reset=False)
         return data
 
-    def restore(self, data):
+    def restore(self, data: Dict[str, Any]) -> array.array:
         typecode = data['typecode']
         values = self.context.restore(data['values'], reset=False)
         if typecode == 'c':
@@ -169,7 +184,7 @@ class DatetimeHandler(BaseHandler):
 
     """
 
-    def flatten(self, obj, data):
+    def flatten(self, obj: DateTime, data: Dict[str, Any]) -> HandlerReturn:
         pickler = self.context
         if not pickler.unpicklable:
             if hasattr(obj, 'isoformat'):
@@ -177,14 +192,14 @@ class DatetimeHandler(BaseHandler):
             else:
                 result = str(obj)
             return result
-        cls, args = obj.__reduce__()
+        cls, args = obj.__reduce__()  # type: ignore[misc]
         flatten = pickler.flatten
         payload = util.b64encode(args[0])
         args = [payload] + [flatten(i, reset=False) for i in args[1:]]
         data['__reduce__'] = (flatten(cls, reset=False), args)
         return data
 
-    def restore(self, data):
+    def restore(self, data: Dict[str, Any]) -> DateTime:
         cls, args = data['__reduce__']
         unpickler = self.context
         restore = unpickler.restore
@@ -202,11 +217,11 @@ DatetimeHandler.handles(datetime.time)
 class RegexHandler(BaseHandler):
     """Flatten _sre.SRE_Pattern (compiled regex) objects"""
 
-    def flatten(self, obj, data):
+    def flatten(self, obj: re.Pattern, data: Dict[str, Any]) -> HandlerReturn:
         data['pattern'] = obj.pattern
         return data
 
-    def restore(self, data):
+    def restore(self, data: Dict[str, Any]) -> re.Pattern:
         return re.compile(data['pattern'])
 
 
@@ -221,10 +236,10 @@ class QueueHandler(BaseHandler):
 
     """
 
-    def flatten(self, obj, data):
+    def flatten(self, obj: queue.Queue, data: Dict[str, Any]) -> HandlerReturn:
         return data
 
-    def restore(self, data):
+    def restore(self, data: Dict[str, Any]) -> queue.Queue:
         return queue.Queue()
 
 
@@ -234,25 +249,25 @@ QueueHandler.handles(queue.Queue)
 class CloneFactory:
     """Serialization proxy for collections.defaultdict's default_factory"""
 
-    def __init__(self, exemplar):
+    def __init__(self, exemplar: T) -> None:
         self.exemplar = exemplar
 
-    def __call__(self, clone=copy.copy):
+    def __call__(self, clone: Callable[[T], T] = copy.copy) -> T:
         """Create new instances by making copies of the provided exemplar"""
-        return clone(self.exemplar)
+        return clone(self.exemplar)  # type: ignore[arg-type]
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'<CloneFactory object at 0x{id(self):x} ({self.exemplar})>'
 
 
 class UUIDHandler(BaseHandler):
     """Serialize uuid.UUID objects"""
 
-    def flatten(self, obj, data):
+    def flatten(self, obj: uuid.UUID, data: Dict[str, Any]) -> HandlerReturn:
         data['hex'] = obj.hex
         return data
 
-    def restore(self, data):
+    def restore(self, data: Dict[str, Any]) -> uuid.UUID:
         return uuid.UUID(data['hex'])
 
 
@@ -262,11 +277,11 @@ UUIDHandler.handles(uuid.UUID)
 class LockHandler(BaseHandler):
     """Serialize threading.Lock objects"""
 
-    def flatten(self, obj, data):
+    def flatten(self, obj: threading.Lock, data: Dict[str, Any]) -> HandlerReturn:
         data['locked'] = obj.locked()
         return data
 
-    def restore(self, data):
+    def restore(self, data: Dict[str, Any]) -> threading.Lock:
         lock = threading.Lock()
         if data.get('locked', False):
             lock.acquire()
@@ -280,10 +295,10 @@ LockHandler.handles(_lock.__class__)
 class TextIOHandler(BaseHandler):
     """Serialize file descriptors as None because we cannot roundtrip"""
 
-    def flatten(self, obj, data):
+    def flatten(self, obj: io.TextIOBase, data: Dict[str, Any]) -> None:
         return None
 
-    def restore(self, data):
+    def restore(self, data: Dict[str, Any]):
         """Restore should never get called because flatten() returns None"""
         raise AssertionError('Restoring IO.TextIOHandler is not supported')
 

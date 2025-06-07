@@ -31,3 +31,7 @@ perf.svg
 fuzz_*.pkg.spec
 *.dict
 monkeytype.sqlite3
+# pyenv files
+.python-version
+# type checking config
+.pyre*
