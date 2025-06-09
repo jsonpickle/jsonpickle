@@ -173,6 +173,13 @@ class SafeString(str, SafeData):
     __slots__ = ()
 
 
+class KwargsSubclassTest(Exception):
+    def __init__(self, a, *, b):
+        self.a = a
+        self.b = b
+        self.c = a + b
+
+
 def on_missing_callback(class_name):
     # not actually a runtime problem but it doesn't matter
     warnings.warn('The unpickler could not find %s' % class_name, RuntimeWarning)
@@ -1197,6 +1204,14 @@ def test_readonly_str_attrs():
     encoded = jsonpickle.encode(safe_str)
     actual = jsonpickle.decode(encoded, handle_readonly=True)
     assert safe_str == actual
+
+
+def test_exception_kwargs():
+    actual = KwargsSubclassTest("a", b="b")
+    encoded = jsonpickle.encode(actual)
+    decoded = jsonpickle.decode(encoded)
+    assert type(actual) == type(decoded)
+    assert actual.c == decoded.c
 
 
 class PicklableNamedTuple:

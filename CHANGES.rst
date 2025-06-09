@@ -4,13 +4,14 @@ v5.0.0
       You can re-enable yaml support using ``jsonpickle.ext.yaml.register()``.
       (#550) (+551)
     * **Breaking Change**: Support for CPython 3.7 and 3.8 was dropped, and support for
-      CPython 3.13 was added. (#561)
+      CPython 3.13 was added. (#561) (+563)
     * **Breaking Change**: Changed ``is_*`` functions in jsonpickle.util to the private API
-      rather than the public one by adding a single underscore to their names.
+      rather than the public one by adding a single underscore to their names. (+563)
     * **Breaking Change**: Removed the deprecated functions deprecated in 4.1.0 with commit
       59dda25. Additionally, ``util.is_sequence`` was removed due to having only one caller,
-      ``util.is_sequence_subclass``.
-    * Mypy-compatible typing has been added to the entire jsonpickle public API! (#561)
+      ``util.is_sequence_subclass``. (+563)
+    * Mypy-compatible typing has been added to the entire jsonpickle public API! (#561) (+563)
+    * Fixed bug with pickling subclasses of Exception with keyword-only args. (#564) (+565)
 
 v4.1.1
 ======

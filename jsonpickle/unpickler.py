@@ -580,7 +580,12 @@ class Unpickler:
                 proxy.reset(result)
                 self._swapref(proxy, result)
                 return result
-            stage1 = f(*args)
+            try:
+                stage1 = f(*args)
+            except TypeError:
+                # this happens when there are missing kwargs and args don't match so we bypass
+                # __init__ since the state dict will set all attributes immediately afterwards
+                stage1 = f.__new__(f, *args)
 
         if state:
             try:
