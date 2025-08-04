@@ -52,7 +52,8 @@ trees:
         python3 -m build -n .
       publish: |
         ${activate}
-        twine upload dist/*.whl dist/*.tar.gz
+        python3 -m pypi_attestations sign dist/*
+        twine upload --attestations dist/*.whl dist/*.tar.gz
     remotes:
       aldanor: "git@github.com:aldanor/jsonpickle.git"
       cdce8p: "git@github.com:cdce8p/jsonpickle.git"

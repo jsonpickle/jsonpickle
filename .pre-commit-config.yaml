@@ -18,3 +18,12 @@ repos:
   - id: isort
     args:
       - --profile=black
+
+- repo: https://github.com/pre-commit/mirrors-mypy
+  rev: v1.16.1
+  hooks:
+  - id: mypy
+    types: [python]
+    args: [--strict]
+    pass_filenames: false
+    language: system

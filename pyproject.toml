@@ -82,6 +82,7 @@ packaging = [
     "setuptools>=61.2",
     "setuptools_scm[toml]>=6.0",
     "twine",
+    "pypi-attestations",
 ]
 
 [tool.setuptools]
