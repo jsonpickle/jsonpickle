@@ -12,7 +12,7 @@ This document serves as a reminder for jsonpickle developers on how to tag, buil
 ## Git
 ```sh
 git tag -a vx.y.z
-git push origin main
+git push --tags origin main
 ```
 
 # GitHub
