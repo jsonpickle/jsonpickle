@@ -44,25 +44,26 @@ The following is a very simple example of how one can use jsonpickle in their sc
 
 .. code-block:: python
 
-    import jsonpickle
-    from dataclasses import dataclass
-   
-    @dataclass
-    class Example:
-        data: str
-   
-   
-    ex = Example("value1")
-    encoded_instance = jsonpickle.encode(ex)
-    assert encoded_instance == '{"py/object": "__main__.Example", "data": "value1"}'
-   
-    with open("example.json", "w+") as f:
-        f.write(encoded_instance)
-   
-    with open("example.json", "r+") as f:
-        written_instance = f.read()
-        decoded_instance = jsonpickle.decode(written_instance)
-    assert decoded_instance == ex
+   import jsonpickle
+   from dataclasses import dataclass
+
+
+   @dataclass
+   class Example:
+       data: str
+
+
+   ex = Example("value1")
+   encoded_instance = jsonpickle.encode(ex)
+   assert encoded_instance == '{"py/object": "__main__.Example", "data": "value1"}'
+
+   with open("example.json", "w+") as f:
+       f.write(encoded_instance)
+
+   with open("example.json", "r+") as f:
+       written_instance = f.read()
+       decoded_instance = jsonpickle.decode(written_instance)
+   assert decoded_instance == ex
 
 For more examples, see the `examples directory on GitHub <https://github.com/jsonpickle/jsonpickle/tree/main/examples>`_ for example scripts. These can be run on your local machine to see how jsonpickle works and behaves, and how to use it. Contributions from users regarding how they use jsonpickle are welcome!
 
@@ -163,6 +164,14 @@ If you can't use a venv, you can install the testing packages as follows::
 `jsonpickle` supports multiple Python versions, so using a combination of
 multiple virtualenvs and `tox` is useful in order to catch compatibility
 issues when developing.
+
+
+Related Links and Projects
+==========================
+* `jsonpickleJS <https://github.com/cuthbertLab/jsonpickleJS/>`_ was a sister
+project of jsonpickle for implementing similar functionality but in Javascript.
+The last release was in August 2025.
+
 
 GPG Signing
 ===========
