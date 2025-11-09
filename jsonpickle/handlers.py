@@ -124,7 +124,7 @@ class BaseHandler:
         """
         raise NotImplementedError('You must implement flatten() in %s' % self.__class__)
 
-    def restore(self, obj: Any) -> Any:
+    def restore(self, data: Dict[str, Any]) -> Any:
         """
         Restore an object of the registered type from the json-friendly
         representation `obj` and return it.
