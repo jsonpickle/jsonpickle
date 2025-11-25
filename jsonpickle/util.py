@@ -50,6 +50,8 @@ FUNCTION_TYPES: set = {
     types.BuiltinFunctionType,
     types.BuiltinMethodType,
 }
+# Internal set for NON_REDUCIBLE_TYPES that excludes MethodType to allow method round-trip
+_NON_REDUCIBLE_FUNCTION_TYPES: set = FUNCTION_TYPES - {types.MethodType}
 NON_REDUCIBLE_TYPES: set = (
     {
         list,
@@ -60,7 +62,7 @@ NON_REDUCIBLE_TYPES: set = (
         bytes,
     }
     | PRIMITIVES
-    | FUNCTION_TYPES
+    | _NON_REDUCIBLE_FUNCTION_TYPES
 )
 NON_CLASS_TYPES: set = {
     list,
