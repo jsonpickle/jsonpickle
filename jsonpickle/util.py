@@ -69,7 +69,11 @@ NON_CLASS_TYPES: set = {
     tuple,
     bytes,
 } | PRIMITIVES
-
+_TYPES_IMPORTABLE_NAMES = {
+    getattr(types, name): f"types.{name}"
+    for name in types.__all__
+    if name.endswith("Type")
+}
 
 def _is_type(obj: Any) -> bool:
     """Returns True is obj is a reference to a type.
@@ -464,11 +468,6 @@ def untranslate_module_name(module: str) -> str:
     """
     return _0_9_6_compat_untranslate(module)
 
-_TYPES_IMPORTABLE_NAMES = {
-    getattr(types, name): f"types.{name}"
-    for name in types.__all__
-    if name.endswith("Type")
-}
 
 def importable_name(cls: Union[Type, Callable[..., Any]]) -> str:
     """
