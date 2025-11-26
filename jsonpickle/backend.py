@@ -125,7 +125,9 @@ class JSONBackend:
         """
         self._fallthrough = enable
 
-    def _store(self, dct: Dict[str, Any], backend: str, obj: ModuleType, name: str):
+    def _store(
+        self, dct: Dict[str, Any], backend: str, obj: ModuleType, name: str
+    ) -> bool:
         try:
             dct[backend] = getattr(obj, name)
         except AttributeError:
@@ -214,7 +216,7 @@ class JSONBackend:
         obj: Any,
         indent: Optional[int] = None,
         separators: Optional[str] = None,
-    ):
+    ) -> str:
         optargs, optkwargs = self._encoder_options.get(name, ([], {}))
         encoder_kwargs = optkwargs.copy()
         if indent is not None:
@@ -222,7 +224,7 @@ class JSONBackend:
         if separators is not None:
             encoder_kwargs['separators'] = separators  # type: ignore[assignment]
         encoder_args = (obj,) + tuple(optargs)
-        return self._encoders[name](*encoder_args, **encoder_kwargs)
+        return self._encoders[name](*encoder_args, **encoder_kwargs)  # type: ignore[no-any-return]
 
     def backend_decode(self, name: str, string: str) -> Any:
         optargs, optkwargs = self._decoder_options.get(name, ((), {}))

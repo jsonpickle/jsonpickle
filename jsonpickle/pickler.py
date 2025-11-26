@@ -445,7 +445,7 @@ class Pickler:
 
         return data
 
-    def _getstate(self, obj: Any, data: Dict[str, Any]):
+    def _getstate(self, obj: Any, data: Dict[str, Any]) -> Dict[str, Any]:
         state = self._flatten(obj)
         if self.unpicklable:
             data[tags.STATE] = state
@@ -514,7 +514,7 @@ class Pickler:
         allslots_set = set(itertools.chain.from_iterable(allslots))
 
         # i don't like lambdas
-        def valid_property(x):
+        def valid_property(x: tuple[str, Any]) -> bool:
             return not x[0].startswith('__') and x[0] not in allslots_set
 
         properties = [
@@ -556,7 +556,7 @@ class Pickler:
 
     def _flatten_obj_instance(
         self, obj: Any
-    ) -> Optional[Union[Dict[str, Any], List[Any]]]:
+    ) -> Optional[Union[Dict[str, Any], List[Any], Any]]:
         """Recursively flatten an instance and return a json-friendly dict"""
         # we're generally not bothering to annotate parts that aren't part of the public API
         # but this annotation alone saves us 3 mypy "errors"
@@ -780,7 +780,9 @@ class Pickler:
             data[k] = self._flatten(v)
         return data
 
-    def _flatten_string_key_value_pair(self, k: str, v: Any, data: Dict[str, Any]):
+    def _flatten_string_key_value_pair(
+        self, k: str, v: Any, data: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Flatten string key/value pairs only."""
         if not util._is_picklable(k, v):
             return data
@@ -806,7 +808,7 @@ class Pickler:
 
     def _flatten_dict_obj(
         self,
-        obj: dict,
+        obj: dict[Any, Any],
         data: Optional[Dict[Any, Any]] = None,
         exclude: Iterable[Any] = (),
     ) -> Dict[str, Any]:

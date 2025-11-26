@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 from pandas.api.extensions import ExtensionDtype
 
-DTypeRepr = Union[str, Type]
+DTypeRepr = Union[str, type]
 
 
 # TODO: add tests for this module

@@ -6,7 +6,7 @@ import sys
 import warnings
 import zlib
 from types import ModuleType
-from typing import Any, Dict, Tuple
+from typing import Any, Dict, NoReturn, Tuple
 
 import numpy as np
 
@@ -49,11 +49,11 @@ class NumpyBaseHandler(BaseHandler):
                 dtype = dtype[len(prefix) : -1]
             data['dtype'] = dtype
 
-    def restore_dtype(self, data: Dict[str, Any]) -> np.dtype:
+    def restore_dtype(self, data: Dict[str, Any]) -> np.dtype:  # type: ignore[type-arg]
         dtype = data['dtype']
         if dtype.startswith(('{', '[')):
             dtype = ast.literal_eval(dtype)
-        return np.dtype(dtype)
+        return np.dtype(dtype)  # type: ignore[no-any-return]
 
 
 class NumpyDTypeHandler(NumpyBaseHandler):
@@ -66,14 +66,14 @@ class NumpyDTypeHandler(NumpyBaseHandler):
 
 
 class NumpyGenericHandler(NumpyBaseHandler):
-    def flatten(self, obj: NDArray, data: Dict[str, Any]) -> Dict[str, Any]:
+    def flatten(self, obj: NDArray[Any], data: Dict[str, Any]) -> Dict[str, Any]:
         self.flatten_dtype(obj.dtype.newbyteorder('N'), data)
         data['value'] = self.context.flatten(obj.tolist(), reset=False)
         return data
 
     def restore(self, data: Dict[str, Any]) -> Dict[str, Any]:
         value = self.context.restore(data['value'], reset=False)
-        return self.restore_dtype(data).type(value)
+        return self.restore_dtype(data).type(value)  # type: ignore[no-any-return]
 
 
 class NumpyDatetimeHandler(NumpyGenericHandler):
@@ -83,8 +83,8 @@ class NumpyDatetimeHandler(NumpyGenericHandler):
         value = self.context.restore(data['value'], reset=False)
         dtype = data['dtype']
         if dtype.endswith('[ns]'):
-            return self.restore_dtype(data).type(value, 'ns')
-        return self.restore_dtype(data).type(value)
+            return self.restore_dtype(data).type(value, 'ns')  # type: ignore[no-any-return]
+        return self.restore_dtype(data).type(value)  # type: ignore[no-any-return]
 
 
 class UnpickleableNumpyGenericHandler(NumpyGenericHandler):
@@ -94,28 +94,28 @@ class UnpickleableNumpyGenericHandler(NumpyGenericHandler):
     """
 
     # TODO: narrow return value down from Any
-    def flatten(self, obj: NDArray, data: Dict[str, Any]) -> Any:
+    def flatten(self, obj: NDArray[Any], data: Dict[str, Any]) -> Any:
         if not self.context.unpicklable:
             return self.context.flatten(obj.tolist(), reset=False)
         else:
             return super(NumpyGenericHandler, self).flatten(obj, data)
 
-    def restore(self, data: Dict[str, Any]):
+    def restore(self, data: Dict[str, Any]) -> NoReturn:
         raise NotImplementedError
 
 
 class NumpyNDArrayHandler(NumpyBaseHandler):
     """Stores arrays as text representation, without regard for views"""
 
-    def flatten_flags(self, obj: NDArray, data: Dict[str, Any]) -> None:
+    def flatten_flags(self, obj: NDArray[Any], data: Dict[str, Any]) -> None:
         if obj.flags.writeable is False:
             data['writeable'] = False
 
-    def restore_flags(self, data: Dict[str, Any], arr: NDArray) -> None:
+    def restore_flags(self, data: Dict[str, Any], arr: NDArray[Any]) -> None:
         if not data.get('writeable', True):
             arr.flags.writeable = False
 
-    def flatten(self, obj: NDArray, data: Dict[str, Any]) -> Dict[str, Any]:
+    def flatten(self, obj: NDArray[Any], data: Dict[str, Any]) -> Dict[str, Any]:
         self.flatten_dtype(obj.dtype.newbyteorder('N'), data)
         self.flatten_flags(obj, data)
         data['values'] = self.context.flatten(obj.tolist(), reset=False)
@@ -125,7 +125,7 @@ class NumpyNDArrayHandler(NumpyBaseHandler):
             data['shape'] = obj.shape
         return data
 
-    def restore(self, data: Dict[str, Any]) -> NDArray:
+    def restore(self, data: Dict[str, Any]) -> NDArray[Any]:
         values = self.context.restore(data['values'], reset=False)
         arr = np.array(
             values, dtype=self.restore_dtype(data), order=data.get('order', 'C')
@@ -163,17 +163,17 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
         self.size_threshold = size_threshold
         self.compression = compression
 
-    def flatten_byteorder(self, obj: NDArray, data: Dict[str, Any]) -> None:
+    def flatten_byteorder(self, obj: NDArray[Any], data: Dict[str, Any]) -> None:
         byteorder = obj.dtype.byteorder
         if byteorder != '|':
             data['byteorder'] = get_byteorder(obj)
 
-    def restore_byteorder(self, data: Dict[str, Any], arr: NDArray) -> None:
+    def restore_byteorder(self, data: Dict[str, Any], arr: NDArray[Any]) -> None:
         byteorder = data.get('byteorder', None)
         if byteorder:
             arr.dtype = arr.dtype.newbyteorder(byteorder)  # type: ignore[misc]
 
-    def flatten(self, obj: NDArray, data: Dict[str, Any]) -> Dict[str, Any]:
+    def flatten(self, obj: NDArray[Any], data: Dict[str, Any]) -> Dict[str, Any]:
         """encode numpy to json"""
         if self.size_threshold is None or self.size_threshold >= obj.size:
             # encode as text
@@ -215,7 +215,7 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
 
         return data
 
-    def restore(self, data: Dict[str, Any]) -> NDArray:
+    def restore(self, data: Dict[str, Any]) -> NDArray[Any]:
         """decode numpy from json"""
         values = data['values']
         if isinstance(values, list):
@@ -294,7 +294,7 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
         super().__init__(size_threshold, compression)
         self.mode = mode
 
-    def flatten(self, obj: NDArray, data: Dict[str, Any]) -> Dict[str, Any]:
+    def flatten(self, obj: NDArray[Any], data: Dict[str, Any]) -> Dict[str, Any]:
         """encode numpy to json"""
         base = obj.base
         if base is None and obj.flags.forc:
@@ -348,7 +348,7 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
 
         return data
 
-    def restore(self, data: Dict[str, Any]) -> NDArray:
+    def restore(self, data: Dict[str, Any]) -> NDArray[Any]:
         """decode numpy from json"""
         base = data.get('base', None)
         if base is None:

@@ -31,7 +31,7 @@ TUPLE: str = 'py/tuple'
 TYPE: str = 'py/type'
 
 # All reserved tag names
-RESERVED: set = {
+RESERVED: set[str] = {
     BYTES,
     FUNCTION,
     ID,
