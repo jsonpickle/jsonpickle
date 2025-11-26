@@ -349,7 +349,7 @@ class PandasDfHandler(BaseHandler):
 class PandasSeriesHandler(BaseHandler):
     pp: PandasProcessor = PandasProcessor()
 
-    def flatten(self, obj: pd.Series[Any], data: Dict[str, Any]) -> Dict[str, Any]:
+    def flatten(self, obj: pd.Series, data: Dict[str, Any]) -> Dict[str, Any]:  # type: ignore[type-arg]
         """Flatten the index and values for reconstruction"""
         data['name'] = obj.name
         # This relies on the numpy handlers for the inner guts.
@@ -357,7 +357,7 @@ class PandasSeriesHandler(BaseHandler):
         data['values'] = self.context.flatten(obj.values, reset=False)
         return data
 
-    def restore(self, data: Dict[str, Any]) -> pd.Series[Any]:
+    def restore(self, data: Dict[str, Any]) -> pd.Series:  # type: ignore[type-arg]
         """Restore the flattened data"""
         name = data['name']
         index = self.context.restore(data['index'], reset=False)
