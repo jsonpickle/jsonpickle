@@ -25,7 +25,6 @@ from typing import (
     Iterator,
     Mapping,
     Tuple,
-    Type,
     TypeVar,
     Union,
 )
