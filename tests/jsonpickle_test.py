@@ -7,6 +7,7 @@
 
 import collections
 import os
+import types
 import warnings
 
 import pytest
@@ -406,6 +407,33 @@ def test_list_roundtrip():
     """Lists can roundtrip"""
     data = [1, 2, 3]
     assert _roundtrip(data) == data
+
+
+def test_types_module_roundtrip():
+    """Types from the types module can roundtrip"""
+    # Test NoneType (available in Python 3.10+)
+    if hasattr(types, 'NoneType'):
+        assert _roundtrip(type(None)) == types.NoneType
+
+    # Test NotImplementedType (available in Python 3.10+)
+    if hasattr(types, 'NotImplementedType'):
+        assert _roundtrip(type(NotImplemented)) == types.NotImplementedType
+
+    # Test EllipsisType (available in Python 3.10+)
+    if hasattr(types, 'EllipsisType'):
+        assert _roundtrip(type(...)) == types.EllipsisType
+
+    # Test FunctionType (available in all supported versions)
+    def example_func():
+        pass
+    assert _roundtrip(type(example_func)) == types.FunctionType
+
+    # Test MethodType (available in all supported versions)
+    class ExampleClass:
+        def method(self):
+            pass
+    obj = ExampleClass()
+    assert _roundtrip(type(obj.method)) == types.MethodType
 
 
 def test_class(pickler, unpickler):
