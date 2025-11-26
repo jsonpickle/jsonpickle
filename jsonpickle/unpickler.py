@@ -261,9 +261,7 @@ def has_tag(obj: Any, tag: str) -> bool:
     return type(obj) is dict and tag in obj
 
 
-def getargs(
-    obj: Dict[str, Any], classes: Optional[Dict[str, Type[Any]]] = None
-) -> List[Any]:
+def getargs(obj: Dict[str, Any], classes: Optional[Dict[str, Type[Any]]] = None) -> Any:
     """Return arguments suitable for __new__()"""
     # Let saved newargs take precedence over everything
     if has_tag(obj, tags.NEWARGSEX):

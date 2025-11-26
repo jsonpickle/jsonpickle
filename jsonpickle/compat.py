@@ -14,5 +14,5 @@ numeric_types = (int, float)
 ustr = str
 
 
-def iterator(class_):
+def iterator(class_):  # type: ignore[no-untyped-def]
     return class_

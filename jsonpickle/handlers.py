@@ -16,7 +16,7 @@ import queue
 import re
 import threading
 import uuid
-from typing import Any, Callable, Dict, Optional, Type, TypeVar, Union
+from typing import Any, Callable, Dict, NoReturn, Optional, Type, TypeVar, Union
 
 from . import util
 
@@ -37,7 +37,7 @@ class Registry:
         self._handlers = {}
         self._base_handlers = {}
 
-    def get(self, cls_or_name: Type, default: Optional[Any] = None) -> Any:
+    def get(self, cls_or_name: type, default: Optional[Any] = None) -> Any:
         """
         :param cls_or_name: the type or its fully qualified name
         :param default: default value, if a matching handler is not found
@@ -76,7 +76,7 @@ class Registry:
         """
         if handler is None:
 
-            def _register(handler_cls):
+            def _register(handler_cls: Type[Any]) -> Type[Any]:
                 self.register(cls, handler=handler_cls, base=base)
                 return handler_cls
 
@@ -159,12 +159,12 @@ class BaseHandler:
 class ArrayHandler(BaseHandler):
     """Flatten and restore array.array objects"""
 
-    def flatten(self, obj: array.array, data: Dict[str, Any]) -> HandlerReturn:
+    def flatten(self, obj: array.array, data: Dict[str, Any]) -> HandlerReturn:  # type: ignore[type-arg]
         data['typecode'] = obj.typecode
         data['values'] = self.context.flatten(obj.tolist(), reset=False)
         return data
 
-    def restore(self, data: Dict[str, Any]) -> array.array:
+    def restore(self, data: Dict[str, Any]) -> array.array:  # type: ignore[type-arg]
         typecode = data['typecode']
         values = self.context.restore(data['values'], reset=False)
         if typecode == 'c':
@@ -199,7 +199,7 @@ class DatetimeHandler(BaseHandler):
         data['__reduce__'] = (flatten(cls, reset=False), args)
         return data
 
-    def restore(self, data: Dict[str, Any]) -> DateTime:
+    def restore(self, data: Dict[str, Any]) -> Any:
         cls, args = data['__reduce__']
         unpickler = self.context
         restore = unpickler.restore
@@ -217,11 +217,11 @@ DatetimeHandler.handles(datetime.time)
 class RegexHandler(BaseHandler):
     """Flatten _sre.SRE_Pattern (compiled regex) objects"""
 
-    def flatten(self, obj: re.Pattern, data: Dict[str, Any]) -> HandlerReturn:
+    def flatten(self, obj: re.Pattern[str], data: Dict[str, Any]) -> HandlerReturn:
         data['pattern'] = obj.pattern
         return data
 
-    def restore(self, data: Dict[str, Any]) -> re.Pattern:
+    def restore(self, data: Dict[str, Any]) -> re.Pattern[str]:
         return re.compile(data['pattern'])
 
 
@@ -236,10 +236,10 @@ class QueueHandler(BaseHandler):
 
     """
 
-    def flatten(self, obj: queue.Queue, data: Dict[str, Any]) -> HandlerReturn:
+    def flatten(self, obj: queue.Queue[Any], data: Dict[str, Any]) -> HandlerReturn:
         return data
 
-    def restore(self, data: Dict[str, Any]) -> queue.Queue:
+    def restore(self, data: Dict[str, Any]) -> queue.Queue[Any]:
         return queue.Queue()
 
 
@@ -298,7 +298,7 @@ class TextIOHandler(BaseHandler):
     def flatten(self, obj: io.TextIOBase, data: Dict[str, Any]) -> None:
         return None
 
-    def restore(self, data: Dict[str, Any]):
+    def restore(self, data: Dict[str, Any]) -> NoReturn:
         """Restore should never get called because flatten() returns None"""
         raise AssertionError('Restoring IO.TextIOHandler is not supported')
 

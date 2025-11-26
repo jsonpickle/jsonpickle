@@ -40,10 +40,10 @@ V = TypeVar("V")
 T = TypeVar("T")
 
 _ITERATOR_TYPE: type = type(iter(''))
-SEQUENCES: tuple = (list, set, tuple)
-SEQUENCES_SET: set = {list, set, tuple}
-PRIMITIVES: set = {str, bool, int, float, type(None)}
-FUNCTION_TYPES: set = {
+SEQUENCES: tuple[type] = (list, set, tuple)  # type: ignore[assignment]
+SEQUENCES_SET: set[type] = {list, set, tuple}
+PRIMITIVES: set[type] = {str, bool, int, float, type(None)}
+FUNCTION_TYPES: set[type] = {
     types.FunctionType,
     types.MethodType,
     types.LambdaType,
@@ -51,8 +51,8 @@ FUNCTION_TYPES: set = {
     types.BuiltinMethodType,
 }
 # Internal set for NON_REDUCIBLE_TYPES that excludes MethodType to allow method round-trip
-_NON_REDUCIBLE_FUNCTION_TYPES: set = FUNCTION_TYPES - {types.MethodType}
-NON_REDUCIBLE_TYPES: set = (
+_NON_REDUCIBLE_FUNCTION_TYPES: set[type] = FUNCTION_TYPES - {types.MethodType}
+NON_REDUCIBLE_TYPES: set[type] = (
     {
         list,
         dict,
@@ -64,14 +64,14 @@ NON_REDUCIBLE_TYPES: set = (
     | PRIMITIVES
     | _NON_REDUCIBLE_FUNCTION_TYPES
 )
-NON_CLASS_TYPES: set = {
+NON_CLASS_TYPES: set[type] = {
     list,
     dict,
     set,
     tuple,
     bytes,
 } | PRIMITIVES
-_TYPES_IMPORTABLE_NAMES = {
+_TYPES_IMPORTABLE_NAMES: dict[Union[type, Callable[..., Any]], str] = {
     getattr(types, name): f"types.{name}"
     for name in types.__all__
     if name.endswith("Type")
@@ -472,7 +472,7 @@ def untranslate_module_name(module: str) -> str:
     return _0_9_6_compat_untranslate(module)
 
 
-def importable_name(cls: Union[Type, Callable[..., Any]]) -> str:
+def importable_name(cls: Union[type, Callable[..., Any]]) -> str:
     """
     >>> class Example(object):
     ...     pass
