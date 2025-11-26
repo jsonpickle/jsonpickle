@@ -71,7 +71,11 @@ NON_CLASS_TYPES: set = {
     tuple,
     bytes,
 } | PRIMITIVES
-
+_TYPES_IMPORTABLE_NAMES = {
+    getattr(types, name): f"types.{name}"
+    for name in types.__all__
+    if name.endswith("Type")
+}
 
 def _is_type(obj: Any) -> bool:
     """Returns True is obj is a reference to a type.
@@ -477,14 +481,21 @@ def importable_name(cls: Union[Type, Callable[..., Any]]) -> str:
     True
     >>> importable_name(type(25)) == 'builtins.int'
     True
-    >>> importable_name(None.__class__) == 'builtins.NoneType'
+    >>> importable_name(object().__str__.__class__) == 'types.MethodWrapperType'
     True
     >>> importable_name(False.__class__) == 'builtins.bool'
     True
     >>> importable_name(AttributeError) == 'builtins.AttributeError'
     True
+    >>> import argparse
+    >>> importable_name(type(argparse.ArgumentParser().add_argument)) == 'types.MethodType'
+    True
 
     """
+    types_importable_name = _TYPES_IMPORTABLE_NAMES.get(cls)
+    if types_importable_name is not None:
+        return types_importable_name
+
     # Use the fully-qualified name if available (Python >= 3.3)
     name = getattr(cls, '__qualname__', cls.__name__)
     module = translate_module_name(cls.__module__)

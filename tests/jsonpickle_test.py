@@ -7,6 +7,7 @@
 
 import collections
 import os
+import types
 import warnings
 
 import pytest
@@ -423,6 +424,33 @@ def test_method_roundtrip():
     assert decoded_method.__name__ == method.__name__
     assert type(decoded_method) is type(method)
     assert type(decoded_method.__self__) == type(method.__self__)
+
+
+def test_types_module_roundtrip():
+    """Types from the types module can roundtrip"""
+    # Test NoneType (available in Python 3.10+)
+    if hasattr(types, 'NoneType'):
+        assert _roundtrip(type(None)) == types.NoneType
+
+    # Test NotImplementedType (available in Python 3.10+)
+    if hasattr(types, 'NotImplementedType'):
+        assert _roundtrip(type(NotImplemented)) == types.NotImplementedType
+
+    # Test EllipsisType (available in Python 3.10+)
+    if hasattr(types, 'EllipsisType'):
+        assert _roundtrip(type(...)) == types.EllipsisType
+
+    # Test FunctionType (available in all supported versions)
+    def example_func():
+        pass
+    assert _roundtrip(type(example_func)) == types.FunctionType
+
+    # Test MethodType (available in all supported versions)
+    class ExampleClass:
+        def method(self):
+            pass
+    obj = ExampleClass()
+    assert _roundtrip(type(obj.method)) == types.MethodType
 
 
 def test_class(pickler, unpickler):
