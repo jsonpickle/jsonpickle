@@ -12,6 +12,9 @@ v5.0.0
       ``util.is_sequence_subclass``. (+563)
     * Mypy-compatible typing has been added to the entire jsonpickle public API! (#561) (+563)
     * Fixed bug with pickling subclasses of Exception with keyword-only args. (#564) (+565)
+    * Removed jsonpickleJS from the tree. (#568) (+569)
+    * Add support for the ``types`` module in ``util.importable_name`` (#574) (+575)
+    * Fix roundtrip for method objects (#576) (+577)
 
 v4.1.1
 ======
