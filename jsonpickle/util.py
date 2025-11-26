@@ -77,6 +77,7 @@ _TYPES_IMPORTABLE_NAMES = {
     if name.endswith("Type")
 }
 
+
 def _is_type(obj: Any) -> bool:
     """Returns True is obj is a reference to a type.
 

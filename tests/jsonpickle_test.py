@@ -443,12 +443,14 @@ def test_types_module_roundtrip():
     # Test FunctionType (available in all supported versions)
     def example_func():
         pass
+
     assert _roundtrip(type(example_func)) == types.FunctionType
 
     # Test MethodType (available in all supported versions)
     class ExampleClass:
         def method(self):
             pass
+
     obj = ExampleClass()
     assert _roundtrip(type(obj.method)) == types.MethodType
 
