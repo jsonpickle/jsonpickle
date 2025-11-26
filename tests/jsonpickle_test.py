@@ -409,6 +409,23 @@ def test_list_roundtrip():
     assert _roundtrip(data) == data
 
 
+def test_method_roundtrip():
+    """Methods can roundtrip (issue #576)"""
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    method = parser.add_argument
+
+    # Encode and decode the method
+    decoded_method = _roundtrip(method)
+
+    # Verify it's still a callable method
+    assert callable(decoded_method)
+    assert decoded_method.__name__ == method.__name__
+    assert type(decoded_method) is type(method)
+    assert type(decoded_method.__self__) == type(method.__self__)
+
+
 def test_types_module_roundtrip():
     """Types from the types module can roundtrip"""
     # Test NoneType (available in Python 3.10+)
