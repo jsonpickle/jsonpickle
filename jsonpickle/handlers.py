@@ -147,8 +147,9 @@ class BaseHandler:
         registry.register(cls, self)
         return cls
 
-    # type: ignore[valid-type]
-    def __call__(self, context: ContextType) -> "BaseHandler":
+    def __call__(
+        self, context: ContextType  # type: ignore[valid-type]
+    ) -> "BaseHandler":
         """This permits registering either Handler instances or classes
 
         :Parameters:
