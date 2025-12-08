@@ -1097,6 +1097,18 @@ def test_enum_string_key_and_value():
     assert value2 == actual[value2]
 
 
+def test_int_enum_with_auto_value():
+    int_enum = IntEnumTest.X
+    string = jsonpickle.encode(int_enum)
+    actual = jsonpickle.decode(string)
+    assert int_enum == actual
+
+    dict_with_int_enum = {IntEnumTest.X: IntEnumTest.X}
+    string = jsonpickle.encode(dict_with_int_enum, keys=True)
+    actual = jsonpickle.decode(string, keys=True)
+    assert dict_with_int_enum == actual
+
+
 def test_multiple_string_enums_when_make_refs_is_false():
     """Enums do not create cycles when make_refs=False"""
     # The make_refs=False code path will fallback to repr() when encoding
