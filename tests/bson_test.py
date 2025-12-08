@@ -8,6 +8,7 @@ import pytest
 
 try:
     import bson
+    import bson.int64
     import bson.tz_util
 except ImportError:
     pytest.skip('bson is not available', allow_module_level=True)
@@ -69,3 +70,10 @@ def test_datetime_with_fixed_offset_incremental():
     # Incrementally restore using the same context
     clone = json.loads(doc, object_hook=lambda x: unpickler.restore(x, reset=False))
     assert obj.tzinfo.__reduce__() == clone.tzinfo.__reduce__()
+
+
+def test_int64_roundtrip():
+    value = bson.int64.Int64(9223372036854775807)
+    string = jsonpickle.encode(value, handle_readonly=True)
+    actual = jsonpickle.decode(string)
+    assert value == actual
