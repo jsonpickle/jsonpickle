@@ -21,7 +21,9 @@ from typing import Any, Callable, Dict, NoReturn, Optional, Type, TypeVar, Union
 from . import util
 
 T = TypeVar("T")
-# we can't import the below types directly from pickler/unpickler because we'd get a circular import
+
+# Nb. we can't import the below types directly from pickler/unpickler
+# without introducing a circular import dependency.
 ContextType = Union[  # type: ignore[valid-type]
     TypeVar("Pickler", bound="Pickler"),  # noqa: F821
     TypeVar("Unpickler", bound="Unpickler"),  # noqa: F821
@@ -145,8 +147,8 @@ class BaseHandler:
         registry.register(cls, self)
         return cls
 
-    #
-    def __call__(self, context: ContextType) -> "BaseHandler":  # type: ignore[valid-type]
+    # type: ignore[valid-type]
+    def __call__(self, context: ContextType) -> "BaseHandler":
         """This permits registering either Handler instances or classes
 
         :Parameters:
@@ -159,7 +161,8 @@ class BaseHandler:
 class ArrayHandler(BaseHandler):
     """Flatten and restore array.array objects"""
 
-    def flatten(self, obj: array.array, data: Dict[str, Any]) -> HandlerReturn:  # type: ignore[type-arg]
+    # type: ignore[type-arg]
+    def flatten(self, obj: array.array, data: Dict[str, Any]) -> HandlerReturn:
         data['typecode'] = obj.typecode
         data['values'] = self.context.flatten(obj.tolist(), reset=False)
         return data
