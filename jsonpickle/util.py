@@ -23,8 +23,6 @@ from typing import (
     Callable,
     Iterable,
     Iterator,
-    Mapping,
-    Tuple,
     TypeVar,
     Union,
 )
@@ -381,7 +379,7 @@ def in_slots(obj: Any, key: str, default: bool = False) -> bool:
     return (key in obj.__slots__) if getattr(obj, '__slots__', None) else default
 
 
-def has_reduce(obj: Any) -> Tuple[bool, bool]:
+def has_reduce(obj: Any) -> tuple[bool, bool]:
     """
     Tests if __reduce__ or __reduce_ex__ exists in the object dict or
     in the class dicts of every class in the MRO *except object*.
@@ -542,11 +540,17 @@ def b85decode(payload: bytes) -> bytes:
         return b''
 
 
-def itemgetter(obj: T, getter: Callable[[T], Any] = operator.itemgetter(0)) -> str:  # type: ignore[assignment]
+def itemgetter(
+    obj: Any,
+    getter: Callable[[Any], Any] = operator.itemgetter(0),
+) -> str:  # type: ignore[assignment]
     return str(getter(obj))
 
 
-def items(obj: Mapping[K, V], exclude: Iterable[K] = ()) -> Iterator[Tuple[K, V]]:
+def items(
+    obj: dict[Any, Any],
+    exclude: Iterable[Any] = (),
+) -> Iterator[tuple[Any, Any]]:
     """
     This can't be easily replaced by dict.items() because this has the exclude parameter.
     Keep it for now.

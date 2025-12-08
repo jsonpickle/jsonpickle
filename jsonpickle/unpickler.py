@@ -293,7 +293,7 @@ class _trivialclassic:
     """
 
 
-def make_blank_classic(cls: Type[Any]) -> _trivialclassic:
+def make_blank_classic(cls: Type[Any]) -> Any:
     """
     Implement the mandated strategy for dealing with classic classes
     which cannot be instantiated without __getinitargs__ because they

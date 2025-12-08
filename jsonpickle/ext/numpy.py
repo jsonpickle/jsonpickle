@@ -6,14 +6,14 @@ import sys
 import warnings
 import zlib
 from types import ModuleType
-from typing import Any, Dict, NoReturn, Tuple
+from typing import Any, NoReturn
 
 import numpy as np
 
 # do the annotations import so python doesn't complain about numpy type hints missing if numpy isn't installed
 
 
-_np_version: Tuple[int, ...] = tuple(int(x) for x in np.__version__.split('.')[:3])
+_np_version: tuple[int, ...] = tuple(int(x) for x in np.__version__.split('.')[:3])
 # numpy.typing was introduced in 1.20.0
 if _np_version >= (1, 20, 0):
     from numpy.typing import ArrayLike, DTypeLike, NDArray
@@ -39,7 +39,7 @@ def get_byteorder(arr: ArrayLike) -> str:
 
 
 class NumpyBaseHandler(BaseHandler):
-    def flatten_dtype(self, dtype: DTypeLike, data: Dict[str, Any]) -> None:
+    def flatten_dtype(self, dtype: DTypeLike, data: dict[str, Any]) -> None:
         if hasattr(dtype, 'tostring'):
             data['dtype'] = dtype.tostring()  # type: ignore[union-attr]
         else:
@@ -49,7 +49,7 @@ class NumpyBaseHandler(BaseHandler):
                 dtype = dtype[len(prefix) : -1]
             data['dtype'] = dtype
 
-    def restore_dtype(self, data: Dict[str, Any]) -> np.dtype:  # type: ignore[type-arg]
+    def restore_dtype(self, data: dict[str, Any]) -> np.dtype:  # type: ignore[type-arg]
         dtype = data['dtype']
         if dtype.startswith(('{', '[')):
             dtype = ast.literal_eval(dtype)
@@ -57,21 +57,21 @@ class NumpyBaseHandler(BaseHandler):
 
 
 class NumpyDTypeHandler(NumpyBaseHandler):
-    def flatten(self, obj: DTypeLike, data: Dict[str, Any]) -> Dict[str, Any]:
+    def flatten(self, obj: DTypeLike, data: dict[str, Any]) -> dict[str, Any]:
         self.flatten_dtype(obj, data)
         return data
 
-    def restore(self, data: Dict[str, Any]) -> DTypeLike:
+    def restore(self, data: dict[str, Any]) -> DTypeLike:
         return self.restore_dtype(data)
 
 
 class NumpyGenericHandler(NumpyBaseHandler):
-    def flatten(self, obj: NDArray[Any], data: Dict[str, Any]) -> Dict[str, Any]:
+    def flatten(self, obj: NDArray[Any], data: dict[str, Any]) -> dict[str, Any]:
         self.flatten_dtype(obj.dtype.newbyteorder('N'), data)
         data['value'] = self.context.flatten(obj.tolist(), reset=False)
         return data
 
-    def restore(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    def restore(self, data: dict[str, Any]) -> dict[str, Any]:
         value = self.context.restore(data['value'], reset=False)
         return self.restore_dtype(data).type(value)  # type: ignore[no-any-return]
 
@@ -79,7 +79,7 @@ class NumpyGenericHandler(NumpyBaseHandler):
 class NumpyDatetimeHandler(NumpyGenericHandler):
     """Extend NumpyGenericHandler to handle nanosecond-resolution datetime64"""
 
-    def restore(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    def restore(self, data: dict[str, Any]) -> dict[str, Any]:
         value = self.context.restore(data['value'], reset=False)
         dtype = data['dtype']
         if dtype.endswith('[ns]'):
@@ -94,28 +94,28 @@ class UnpickleableNumpyGenericHandler(NumpyGenericHandler):
     """
 
     # TODO: narrow return value down from Any
-    def flatten(self, obj: NDArray[Any], data: Dict[str, Any]) -> Any:
+    def flatten(self, obj: NDArray[Any], data: dict[str, Any]) -> Any:
         if not self.context.unpicklable:
             return self.context.flatten(obj.tolist(), reset=False)
         else:
             return super(NumpyGenericHandler, self).flatten(obj, data)
 
-    def restore(self, data: Dict[str, Any]) -> NoReturn:
+    def restore(self, data: dict[str, Any]) -> NoReturn:
         raise NotImplementedError
 
 
 class NumpyNDArrayHandler(NumpyBaseHandler):
     """Stores arrays as text representation, without regard for views"""
 
-    def flatten_flags(self, obj: NDArray[Any], data: Dict[str, Any]) -> None:
+    def flatten_flags(self, obj: NDArray[Any], data: dict[str, Any]) -> None:
         if obj.flags.writeable is False:
             data['writeable'] = False
 
-    def restore_flags(self, data: Dict[str, Any], arr: NDArray[Any]) -> None:
+    def restore_flags(self, data: dict[str, Any], arr: NDArray[Any]) -> None:
         if not data.get('writeable', True):
             arr.flags.writeable = False
 
-    def flatten(self, obj: NDArray[Any], data: Dict[str, Any]) -> Dict[str, Any]:
+    def flatten(self, obj: NDArray[Any], data: dict[str, Any]) -> dict[str, Any]:
         self.flatten_dtype(obj.dtype.newbyteorder('N'), data)
         self.flatten_flags(obj, data)
         data['values'] = self.context.flatten(obj.tolist(), reset=False)
@@ -125,7 +125,7 @@ class NumpyNDArrayHandler(NumpyBaseHandler):
             data['shape'] = obj.shape
         return data
 
-    def restore(self, data: Dict[str, Any]) -> NDArray[Any]:
+    def restore(self, data: dict[str, Any]) -> NDArray[Any]:
         values = self.context.restore(data['values'], reset=False)
         arr = np.array(
             values, dtype=self.restore_dtype(data), order=data.get('order', 'C')
@@ -163,17 +163,17 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
         self.size_threshold = size_threshold
         self.compression = compression
 
-    def flatten_byteorder(self, obj: NDArray[Any], data: Dict[str, Any]) -> None:
+    def flatten_byteorder(self, obj: NDArray[Any], data: dict[str, Any]) -> None:
         byteorder = obj.dtype.byteorder
         if byteorder != '|':
             data['byteorder'] = get_byteorder(obj)
 
-    def restore_byteorder(self, data: Dict[str, Any], arr: NDArray[Any]) -> None:
+    def restore_byteorder(self, data: dict[str, Any], arr: NDArray[Any]) -> None:
         byteorder = data.get('byteorder', None)
         if byteorder:
             arr.dtype = arr.dtype.newbyteorder(byteorder)  # type: ignore[misc]
 
-    def flatten(self, obj: NDArray[Any], data: Dict[str, Any]) -> Dict[str, Any]:
+    def flatten(self, obj: NDArray[Any], data: dict[str, Any]) -> dict[str, Any]:
         """encode numpy to json"""
         if self.size_threshold is None or self.size_threshold >= obj.size:
             # encode as text
@@ -215,7 +215,7 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
 
         return data
 
-    def restore(self, data: Dict[str, Any]) -> NDArray[Any]:
+    def restore(self, data: dict[str, Any]) -> NDArray[Any]:
         """decode numpy from json"""
         values = data['values']
         if isinstance(values, list):
@@ -294,7 +294,7 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
         super().__init__(size_threshold, compression)
         self.mode = mode
 
-    def flatten(self, obj: NDArray[Any], data: Dict[str, Any]) -> Dict[str, Any]:
+    def flatten(self, obj: NDArray[Any], data: dict[str, Any]) -> dict[str, Any]:
         """encode numpy to json"""
         base = obj.base
         if base is None and obj.flags.forc:
@@ -348,7 +348,7 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
 
         return data
 
-    def restore(self, data: Dict[str, Any]) -> NDArray[Any]:
+    def restore(self, data: dict[str, Any]) -> NDArray[Any]:
         """decode numpy from json"""
         base = data.get('base', None)
         if base is None:

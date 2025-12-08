@@ -30,7 +30,7 @@ ContextType = Union[  # type: ignore[valid-type]
 ]
 HandlerType = Type[Any]
 KeyType = Union[Type[Any], str]
-HandlerReturn = Optional[Union[Dict[str, Any], str]]
+HandlerReturn = Optional[Union[dict[str, Any], str]]
 DateTime = Union[datetime.datetime, datetime.date, datetime.time]
 
 
@@ -252,10 +252,10 @@ QueueHandler.handles(queue.Queue)
 class CloneFactory:
     """Serialization proxy for collections.defaultdict's default_factory"""
 
-    def __init__(self, exemplar: T) -> None:
+    def __init__(self, exemplar: Any) -> None:
         self.exemplar = exemplar
 
-    def __call__(self, clone: Callable[[T], T] = copy.copy) -> T:
+    def __call__(self, clone: Callable[[Any], Any] = copy.copy) -> Any:
         """Create new instances by making copies of the provided exemplar"""
         return clone(self.exemplar)  # type: ignore[arg-type]
 
@@ -280,11 +280,11 @@ UUIDHandler.handles(uuid.UUID)
 class LockHandler(BaseHandler):
     """Serialize threading.Lock objects"""
 
-    def flatten(self, obj: threading.Lock, data: Dict[str, Any]) -> HandlerReturn:
+    def flatten(self, obj: Any, data: dict[str, Any]) -> HandlerReturn:
         data['locked'] = obj.locked()
         return data
 
-    def restore(self, data: Dict[str, Any]) -> threading.Lock:
+    def restore(self, data: Dict[str, Any]) -> Any:
         lock = threading.Lock()
         if data.get('locked', False):
             lock.acquire()
