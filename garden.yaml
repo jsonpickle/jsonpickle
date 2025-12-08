@@ -17,9 +17,16 @@ trees:
       check>:
         - test
         - check/fmt
+        - check/mypy
         - check/pyupgrade
         - doc
       check/fmt: "garden fmt ${GARDEN_CMD_VERBOSE} -- --check"
+      check/mypy: |
+        ${activate}
+        if type mypy >/dev/null 2>&1
+        then
+            mypy ./jsonpickle
+        fi
       check/pyupgrade: |
         ${activate}
         if type pyupgrade >/dev/null 2>&1
