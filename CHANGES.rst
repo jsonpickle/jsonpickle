@@ -15,6 +15,8 @@ v5.0.0
     * Removed jsonpickleJS from the tree. (#568) (+569)
     * Add support for the ``types`` module in ``util.importable_name`` (#574) (+575)
     * Fix roundtrip for method objects (#576) (+577)
+    * jsonpickle now avoids holding onto external references when decoding, which can
+      improve memory deallocation behavior. (#579) (+580)
 
 v4.1.1
 ======
