@@ -418,10 +418,10 @@ class ThingWithDel:
 
 def test_no_external_references():
     """Ensure that no external references are held"""
-    state = {'count': 0}  # How many times has the destructor been called?
+    state = {"count": 0}  # How many times has the destructor been called?
 
     def destructor():
-        state['count'] += 1
+        state["count"] += 1
 
     obj = ThingWithDel(data=np.array([1, 2, 3]))
 
@@ -433,4 +433,4 @@ def test_no_external_references():
     obj2.fn = destructor
     del obj2
 
-    assert state['count'] == 2
+    assert state["count"] == 2
