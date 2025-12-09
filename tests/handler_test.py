@@ -33,11 +33,11 @@ class CustomB(CustomA):
 
 class NullHandler(jsonpickle.handlers.BaseHandler):
     def flatten(self, obj, data):
-        data['name'] = obj.name
+        data["name"] = obj.name
         return data
 
     def restore(self, obj):
-        return CustomObject(obj['name'], creator=type(self))
+        return CustomObject(obj["name"], creator=type(self))
 
 
 class DecoratedBase(CustomObject):
@@ -57,8 +57,8 @@ class SithHandler(jsonpickle.handlers.BaseHandler):
     """(evil) serialization handler that rewrites the entire object"""
 
     def flatten(self, obj, data):
-        data['name'] = obj.name
-        data['py/object'] = 'sith.lord'
+        data["name"] = obj.name
+        data["py/object"] = "sith.lord"
         return data
 
 
@@ -77,7 +77,7 @@ class HandlerTestCase(unittest.TestCase):
 
     def test_custom_handler(self):
         """Ensure that the custom handler is indeed used"""
-        expect = CustomObject('jarjar')
+        expect = CustomObject("jarjar")
         encoded = jsonpickle.encode(expect)
         actual = jsonpickle.decode(encoded)
         assert expect.name == actual.name
@@ -93,37 +93,37 @@ class HandlerTestCase(unittest.TestCase):
         subject = dict(a=ob, b=ob, c=ob)
         # ensure the subject can be roundtripped
         new_subject = self.roundtrip(subject)
-        assert new_subject['a'] == new_subject['b']
-        assert new_subject['b'] == new_subject['c']
-        assert new_subject['a'] is new_subject['b']
-        assert new_subject['b'] is new_subject['c']
+        assert new_subject["a"] == new_subject["b"]
+        assert new_subject["b"] == new_subject["c"]
+        assert new_subject["a"] is new_subject["b"]
+        assert new_subject["b"] is new_subject["c"]
 
     def test_invalid_class(self):
         with pytest.raises(TypeError):
-            jsonpickle.handlers.register('foo', NullHandler)
+            jsonpickle.handlers.register("foo", NullHandler)
 
     def test_base_handler(self):
-        a = CustomA('a')
+        a = CustomA("a")
         assert a.creator is None
         assert jsonpickle.decode(jsonpickle.encode(a)).creator is None
 
-        b = CustomB('b')
+        b = CustomB("b")
         assert b.creator is None
         assert jsonpickle.decode(jsonpickle.encode(b)).creator is None
 
-        OtherHandler = type('OtherHandler', (NullHandler,), {})
+        OtherHandler = type("OtherHandler", (NullHandler,), {})
         jsonpickle.handlers.register(CustomA, OtherHandler, base=True)
         assert self.roundtrip(a).creator is OtherHandler
         assert self.roundtrip(b).creator is OtherHandler
 
-        SpecializedHandler = type('SpecializedHandler', (NullHandler,), {})
+        SpecializedHandler = type("SpecializedHandler", (NullHandler,), {})
         jsonpickle.handlers.register(CustomB, SpecializedHandler)
         assert self.roundtrip(a).creator is OtherHandler
         assert self.roundtrip(b).creator is SpecializedHandler
 
     def test_decorated_register(self):
-        db = DecoratedBase('db')
-        dc = DecoratedChild('dc')
+        db = DecoratedBase("db")
+        dc = DecoratedChild("dc")
         assert self.roundtrip(db).creator is DecoratedHandler
         assert self.roundtrip(dc).creator is DecoratedHandler
 
@@ -131,10 +131,10 @@ class HandlerTestCase(unittest.TestCase):
         """Test the low-level pickling structures"""
         jsonpickle.handlers.unregister(CustomObject)
         jsonpickle.handlers.register(CustomObject, SithHandler)
-        obj = CustomObject('jarjar')  # secret sith lord jarjar
+        obj = CustomObject("jarjar")  # secret sith lord jarjar
         pickler = jsonpickle.pickler.Pickler()
         data = pickler.flatten(obj)
         assert isinstance(data, dict)
         assert len(data) == 2
-        assert data['name'] == 'jarjar'
-        assert data['py/object'] == 'sith.lord'
+        assert data["name"] == "jarjar"
+        assert data["py/object"] == "sith.lord"

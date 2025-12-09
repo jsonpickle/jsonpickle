@@ -16,4 +16,4 @@ def test_zoneinfo():
         return
     from zoneinfo import ZoneInfo
 
-    _roundtrip(ZoneInfo('Australia/Brisbane'))
+    _roundtrip(ZoneInfo("Australia/Brisbane"))

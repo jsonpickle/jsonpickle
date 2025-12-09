@@ -11,7 +11,7 @@ try:
     import bson.int64
     import bson.tz_util
 except ImportError:
-    pytest.skip('bson is not available', allow_module_level=True)
+    pytest.skip("bson is not available", allow_module_level=True)
 
 import jsonpickle
 
@@ -25,7 +25,7 @@ class Object:
 
 
 def test_FixedOffsetSerializable():
-    fo = bson.tz_util.FixedOffset(-60 * 5, 'EST')
+    fo = bson.tz_util.FixedOffset(-60 * 5, "EST")
     serialized = jsonpickle.dumps(fo)
     restored = jsonpickle.loads(serialized)
     assert vars(restored) == vars(fo)
@@ -39,7 +39,7 @@ def test_timedelta():
 
 
 def test_stdlib_pickle():
-    fo = bson.tz_util.FixedOffset(-60 * 5, 'EST')
+    fo = bson.tz_util.FixedOffset(-60 * 5, "EST")
     serialized = pickle.dumps(fo)
     restored = pickle.loads(serialized)
     assert vars(restored) == vars(fo)
@@ -53,7 +53,7 @@ def test_nested_objects():
 
 
 def test_datetime_with_fixed_offset():
-    fo = bson.tz_util.FixedOffset(-60 * 5, 'EST')
+    fo = bson.tz_util.FixedOffset(-60 * 5, "EST")
     dt = datetime.datetime.now().replace(tzinfo=fo)
     serialized = jsonpickle.dumps(dt)
     restored = jsonpickle.loads(serialized)

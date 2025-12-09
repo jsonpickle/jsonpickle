@@ -25,7 +25,7 @@ from ..util import b64decode, b64encode
 from .numpy import register_handlers as register_numpy_handlers
 from .numpy import unregister_handlers as unregister_numpy_handlers
 
-__all__ = ['register_handlers', 'unregister_handlers']
+__all__ = ["register_handlers", "unregister_handlers"]
 
 
 # unused, TODO deprecate then remove
@@ -97,26 +97,26 @@ class PandasProcessor:
         if self.size_threshold is not None and len(buf) > self.size_threshold:
             if self.compression:
                 buf = self.compression.compress(buf.encode())
-                data['comp'] = True
+                data["comp"] = True
             # we have a mypy error here, not sure what the fix is so i'm silencing it temporarily
-            data['values'] = b64encode(buf)  # type: ignore[arg-type]
-            data['txt'] = False
+            data["values"] = b64encode(buf)  # type: ignore[arg-type]
+            data["txt"] = False
         else:
-            data['values'] = buf
-            data['txt'] = True
+            data["values"] = buf
+            data["txt"] = True
 
-        data['meta'] = meta
+        data["meta"] = meta
         return data
 
     def restore_pandas(self, data: Dict[str, Any]) -> Tuple[str, Dict[str, Any]]:
-        if data.get('txt', True):
+        if data.get("txt", True):
             # It's just text...
-            buf = data['values']
+            buf = data["values"]
         else:
-            buf = b64decode(data['values'])
-            if data.get('comp', False):
+            buf = b64decode(data["values"])
+            if data.get("comp", False):
                 buf = self.compression.decompress(buf).decode()
-        meta = data.get('meta', {})
+        meta = data.get("meta", {})
         return (buf, meta)
 
 
@@ -125,10 +125,10 @@ def make_read_csv_params(
     meta: Dict[str, Any],
     context: ContextType,  # type: ignore[valid-type]
 ) -> Tuple[Dict[str, Any], List[str], Dict[str, str]]:
-    meta_dtypes = context.restore(meta.get('dtypes', {}), reset=False)  # type: ignore[attr-defined]
+    meta_dtypes = context.restore(meta.get("dtypes", {}), reset=False)  # type: ignore[attr-defined]
     # The header is used to select the rows of the csv from which
     # the columns names are retrieved
-    header = meta.get('header', [0])
+    header = meta.get("header", [0])
     parse_dates = []
     converters = {}
     timedeltas = []
@@ -136,14 +136,14 @@ def make_read_csv_params(
     parse_datetime_v2 = {}
     dtype = {}
     for k, v in meta_dtypes.items():
-        if v.startswith('datetime'):
+        if v.startswith("datetime"):
             parse_dates.append(k)
             parse_datetime_v2[k] = v
-        elif v.startswith('complex'):
+        elif v.startswith("complex"):
             converters[k] = complex
-        elif v.startswith('timedelta'):
+        elif v.startswith("timedelta"):
             timedeltas.append(k)
-            dtype[k] = 'object'
+            dtype[k] = "object"
         else:
             dtype[k] = v
 
@@ -351,17 +351,17 @@ class PandasSeriesHandler(BaseHandler):
 
     def flatten(self, obj: pd.Series, data: Dict[str, Any]) -> Dict[str, Any]:  # type: ignore[type-arg]
         """Flatten the index and values for reconstruction"""
-        data['name'] = obj.name
+        data["name"] = obj.name
         # This relies on the numpy handlers for the inner guts.
-        data['index'] = self.context.flatten(obj.index, reset=False)
-        data['values'] = self.context.flatten(obj.values, reset=False)
+        data["index"] = self.context.flatten(obj.index, reset=False)
+        data["values"] = self.context.flatten(obj.values, reset=False)
         return data
 
     def restore(self, data: Dict[str, Any]) -> pd.Series:  # type: ignore[type-arg]
         """Restore the flattened data"""
-        name = data['name']
-        index = self.context.restore(data['index'], reset=False)
-        values = self.context.restore(data['values'], reset=False)
+        name = data["name"]
+        index = self.context.restore(data["index"], reset=False)
+        values = self.context.restore(data["values"], reset=False)
         return pd.Series(values, index=index, name=name)  # type: ignore[no-any-return]
 
 
@@ -370,7 +370,7 @@ class PandasIndexHandler(BaseHandler):
     index_constructor: Type[pd.Index] = pd.Index  # type: ignore[type-arg]
 
     def name_bundler(self, obj: pd.Index) -> Dict[str, Optional[Hashable]]:  # type: ignore[type-arg]
-        return {'name': obj.name}
+        return {"name": obj.name}
 
     def flatten(self, obj: pd.Index, data: Dict[str, Any]) -> Dict[str, Any]:  # type: ignore[type-arg]
         name_bundle = self.name_bundler(obj)
@@ -381,11 +381,11 @@ class PandasIndexHandler(BaseHandler):
 
     def restore(self, data: Dict[str, Any]) -> pd.Index:  # type: ignore[type-arg]
         buf, meta = self.pp.restore_pandas(data)
-        dtype = meta.get('dtype', None)
+        dtype = meta.get("dtype", None)
         name_bundle = {
-            'name': (tuple if v is not None else lambda x: x)(v)  # type: ignore[misc]
+            "name": (tuple if v is not None else lambda x: x)(v)  # type: ignore[misc]
             for k, v in meta.items()
-            if k in {'name', 'names'}
+            if k in {"name", "names"}
         }
         idx = self.index_constructor(decode(buf), dtype=dtype, **name_bundle)  # type: ignore[arg-type]
         return idx
@@ -398,21 +398,21 @@ class PandasPeriodIndexHandler(PandasIndexHandler):
 class PandasMultiIndexHandler(PandasIndexHandler):
     # sequence is technically the type pd.core.indexes.frozen.FrozenList
     def name_bundler(self, obj: pd.MultiIndex) -> Dict[str, Sequence[Optional[Hashable]]]:  # type: ignore[override]
-        return {'names': obj.names}
+        return {"names": obj.names}
 
 
 class PandasTimestampHandler(BaseHandler):
     pp: PandasProcessor = PandasProcessor()
 
     def flatten(self, obj: pd.Timestamp, data: Dict[str, Any]) -> Dict[str, Any]:
-        meta = {'isoformat': obj.isoformat()}
-        buf = ''
+        meta = {"isoformat": obj.isoformat()}
+        buf = ""
         data = self.pp.flatten_pandas(buf, data, meta)
         return data
 
     def restore(self, data: Dict[str, Any]) -> pd.Timestamp:
         _, meta = self.pp.restore_pandas(data)
-        isoformat = meta['isoformat']
+        isoformat = meta["isoformat"]
         obj = pd.Timestamp(isoformat)
         return obj
 
@@ -422,17 +422,17 @@ class PandasPeriodHandler(BaseHandler):
 
     def flatten(self, obj: pd.Period, data: Dict[str, Any]) -> Dict[str, Any]:
         meta = {
-            'start_time': encode(obj.start_time),
-            'freqstr': obj.freqstr,
+            "start_time": encode(obj.start_time),
+            "freqstr": obj.freqstr,
         }
-        buf = ''
+        buf = ""
         data = self.pp.flatten_pandas(buf, data, meta)
         return data
 
     def restore(self, data: Dict[str, Any]) -> pd.Period:
         _, meta = self.pp.restore_pandas(data)
-        start_time = decode(meta['start_time'])
-        freqstr = meta['freqstr']
+        start_time = decode(meta["start_time"])
+        freqstr = meta["freqstr"]
         obj = pd.Period(start_time, freqstr)
         return obj
 
@@ -442,19 +442,19 @@ class PandasIntervalHandler(BaseHandler):
 
     def flatten(self, obj: pd.Interval, data: Dict[str, Any]) -> Dict[str, Any]:  # type: ignore[type-arg]
         meta = {
-            'left': encode(obj.left),
-            'right': encode(obj.right),
-            'closed': obj.closed,
+            "left": encode(obj.left),
+            "right": encode(obj.right),
+            "closed": obj.closed,
         }
-        buf = ''
+        buf = ""
         data = self.pp.flatten_pandas(buf, data, meta)
         return data
 
     def restore(self, data: Dict[str, Any]) -> pd.Interval:  # type: ignore[type-arg]
         _, meta = self.pp.restore_pandas(data)
-        left = decode(meta['left'])
-        right = decode(meta['right'])
-        closed: Literal['both', 'neither', 'left', 'right'] = str(meta['closed'])  # type: ignore[assignment]
+        left = decode(meta["left"])
+        right = decode(meta["right"])
+        closed: Literal["both", "neither", "left", "right"] = str(meta["closed"])  # type: ignore[assignment]
         obj = pd.Interval(left, right, closed=closed)
         return obj
 

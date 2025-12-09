@@ -17,7 +17,7 @@ class JSONBackend:
         """Ensures that we've loaded at least one JSON backend."""
         if self._verified:
             return
-        raise AssertionError('jsonpickle could not load any json modules')
+        raise AssertionError("jsonpickle could not load any json modules")
 
     def encode(
         self, obj: Any, indent: Optional[int] = None, separators: Optional[Any] = None
@@ -95,17 +95,17 @@ class JSONBackend:
         # Whether we've loaded any backends successfully
         self._verified = False
 
-        self.load_backend('simplejson')
-        self.load_backend('json')
-        self.load_backend('ujson')
+        self.load_backend("simplejson")
+        self.load_backend("json")
+        self.load_backend("ujson")
 
         # Defaults for various encoders
-        json_opts = ((), {'sort_keys': False})
+        json_opts = ((), {"sort_keys": False})
         self._encoder_options = {
-            'ujson': ((), {'sort_keys': False, 'escape_forward_slashes': False}),
-            'json': json_opts,
-            'simplejson': json_opts,
-            'django.util.simplejson': json_opts,
+            "ujson": ((), {"sort_keys": False, "escape_forward_slashes": False}),
+            "json": json_opts,
+            "simplejson": json_opts,
+            "django.util.simplejson": json_opts,
         }
 
     def enable_fallthrough(self, enable: bool) -> None:
@@ -138,8 +138,8 @@ class JSONBackend:
     def load_backend(
         self,
         name: str,
-        dumps: str = 'dumps',
-        loads: str = 'loads',
+        dumps: str = "dumps",
+        loads: str = "loads",
         loads_exc: Union[str, Type[Exception]] = ValueError,
     ) -> bool:
         """Load a JSON backend by name.
@@ -170,7 +170,7 @@ class JSONBackend:
 
         # Handle submodules, e.g. django.utils.simplejson
         try:
-            for attr in name.split('.')[1:]:
+            for attr in name.split(".")[1:]:
                 mod = getattr(mod, attr)
         except AttributeError:
             return False
@@ -220,9 +220,9 @@ class JSONBackend:
         optargs, optkwargs = self._encoder_options.get(name, ([], {}))
         encoder_kwargs = optkwargs.copy()
         if indent is not None:
-            encoder_kwargs['indent'] = indent  # type: ignore[assignment]
+            encoder_kwargs["indent"] = indent  # type: ignore[assignment]
         if separators is not None:
-            encoder_kwargs['separators'] = separators  # type: ignore[assignment]
+            encoder_kwargs["separators"] = separators  # type: ignore[assignment]
         encoder_args = (obj,) + tuple(optargs)
         return self._encoders[name](*encoder_args, **encoder_kwargs)  # type: ignore[no-any-return]
 

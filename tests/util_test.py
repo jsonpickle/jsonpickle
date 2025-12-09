@@ -76,14 +76,14 @@ def test_is_primitive_None():
 
 
 def test_is_primitive_bytes():
-    assert not util._is_primitive(b'hello')
-    assert not util._is_primitive(b'foo')
-    assert util._is_primitive('foo')
+    assert not util._is_primitive(b"hello")
+    assert not util._is_primitive(b"foo")
+    assert util._is_primitive("foo")
 
 
 def test_is_primitive_unicode():
-    assert util._is_primitive('')
-    assert util._is_primitive('hello')
+    assert util._is_primitive("")
+    assert util._is_primitive("hello")
 
 
 def test_is_primitive_list():
@@ -92,7 +92,7 @@ def test_is_primitive_list():
 
 
 def test_is_primitive_dict():
-    assert not util._is_primitive({'key': 'value'})
+    assert not util._is_primitive({"key": "value"})
     assert not util._is_primitive({})
 
 
@@ -106,7 +106,7 @@ def test_is_primitive_set():
 
 
 def test_is_primitive_object():
-    assert not util._is_primitive(Thing('test'))
+    assert not util._is_primitive(Thing("test"))
 
 
 def test_is_dictionary_subclass_dict():
@@ -126,12 +126,12 @@ def test_is_sequence_subclass_list():
 
 
 def test_is_noncomplex_time_struct():
-    t = time.struct_time('123456789')
+    t = time.struct_time("123456789")
     assert util._is_noncomplex(t)
 
 
 def test_is_noncomplex_other():
-    assert not util._is_noncomplex('a')
+    assert not util._is_noncomplex("a")
 
 
 def test_is_function_builtins():
@@ -162,8 +162,8 @@ def test_is_function_instance_method():
 
 
 def test_itemgetter():
-    expect = '0'
-    actual = util.itemgetter((0, 'zero'))
+    expect = "0"
+    actual = util.itemgetter((0, "zero"))
     assert expect == actual
 
 
@@ -172,37 +172,37 @@ def test_has_method():
     x = 1
     has_method = util.has_method
     # no attribute
-    assert not has_method(instance, 'foo')
+    assert not has_method(instance, "foo")
     # builtin method type
-    assert not has_method(int, '__getnewargs__')
-    assert has_method(x, '__getnewargs__')
+    assert not has_method(int, "__getnewargs__")
+    assert has_method(x, "__getnewargs__")
     # staticmethod
-    assert has_method(instance, 'static_method')
-    assert has_method(MethodTestClass, 'static_method')
+    assert has_method(instance, "static_method")
+    assert has_method(MethodTestClass, "static_method")
     # not a method
-    assert not has_method(instance, 'variable')
-    assert not has_method(MethodTestClass, 'variable')
+    assert not has_method(instance, "variable")
+    assert not has_method(MethodTestClass, "variable")
     # classmethod
-    assert has_method(instance, 'class_method')
-    assert has_method(MethodTestClass, 'class_method')
+    assert has_method(instance, "class_method")
+    assert has_method(MethodTestClass, "class_method")
     # bound method
-    assert has_method(instance, 'bound_method')
-    assert not has_method(MethodTestClass, 'bound_method')
+    assert has_method(instance, "bound_method")
+    assert not has_method(MethodTestClass, "bound_method")
     # subclass bound method
     sub_instance = MethodTestSubclass()
-    assert has_method(sub_instance, 'bound_method')
-    assert not has_method(MethodTestSubclass, 'bound_method')
+    assert has_method(sub_instance, "bound_method")
+    assert not has_method(MethodTestSubclass, "bound_method")
     # old style object
     old_instance = MethodTestOldStyle()
-    assert has_method(old_instance, 'bound_method')
-    assert not has_method(MethodTestOldStyle, 'bound_method')
+    assert has_method(old_instance, "bound_method")
+    assert not has_method(MethodTestOldStyle, "bound_method")
 
 
 def test_importable_name():
     func_being_tested_obj = util.importable_name
-    io_method_obj = io.BytesIO(b'bytes').readline
+    io_method_obj = io.BytesIO(b"bytes").readline
     assert (
-        util.importable_name(func_being_tested_obj) == 'jsonpickle.util.importable_name'
+        util.importable_name(func_being_tested_obj) == "jsonpickle.util.importable_name"
     )
-    assert util.importable_name(io_method_obj) == '_io.BytesIO.readline'
-    assert util.importable_name(dict) == 'builtins.dict'
+    assert util.importable_name(io_method_obj) == "_io.BytesIO.readline"
+    assert util.importable_name(dict) == "builtins.dict"

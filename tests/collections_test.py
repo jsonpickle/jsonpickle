@@ -62,7 +62,7 @@ class Group:
         self.elements = []
 
     def __repr__(self):
-        return f'Group({self.name})'
+        return f"Group({self.name})"
 
 
 class C:
@@ -79,14 +79,14 @@ class C:
         self.plain_default[key] = (key, value)
 
     def __hash__(self):
-        return hash(self.v) if hasattr(self, 'v') else id(self)
+        return hash(self.v) if hasattr(self, "v") else id(self)
 
     def __repr__(self):
-        return f'C({self.v})'
+        return f"C({self.v})"
 
 
 def c_factory():
-    return (C(0), '_')
+    return (C(0), "_")
 
 
 class D:
@@ -99,10 +99,10 @@ class D:
         self.plain.add(item)
 
     def __hash__(self):
-        return hash(self.v) if hasattr(self, 'v') else id(self)
+        return hash(self.v) if hasattr(self, "v") else id(self)
 
     def __repr__(self):
-        return f'D({self.v})'
+        return f"D({self.v})"
 
 
 def pickle_and_unpickle(obj):
@@ -111,12 +111,12 @@ def pickle_and_unpickle(obj):
 
 
 def test_dict_no_cycle():
-    g = Group('group')
+    g = Group("group")
     c1 = C(42)
     g.elements.append(c1)
     c2 = C(67)
     g.elements.append(c2)
-    c1.add(c2, 'a')  # points to c2, which does not point to anything
+    c1.add(c2, "a")  # points to c2, which does not point to anything
 
     assert c2 in c1.plain
     assert c2 in c1.plain_ordered
@@ -149,13 +149,13 @@ def test_dict_no_cycle():
 
 
 def test_dict_self_cycle():
-    g = Group('group')
+    g = Group("group")
     c1 = C(42)
     g.elements.append(c1)
     c2 = C(67)
     g.elements.append(c2)
-    c1.add(c1, 'a')  # cycle to itself
-    c1.add(c2, 'b')  # c2 does not point to itself nor c1
+    c1.add(c1, "a")  # cycle to itself
+    c1.add(c2, "b")  # c2 does not point to itself nor c1
 
     assert c1 in c1.plain
     assert c1 in c1.plain_ordered
@@ -217,14 +217,14 @@ def test_dict_self_cycle():
 
 
 def test_dict_mutual_cycle():
-    g = Group('group')
+    g = Group("group")
     c1 = C(42)
     g.elements.append(c1)
     c2 = C(67)
     g.elements.append(c2)
 
-    c1.add(c2, 'a')  # points to c2, which points to c1, forming cycle
-    c2.add(c1, 'a')  # points to c1 in order to form cycle
+    c1.add(c2, "a")  # points to c2, which points to c1, forming cycle
+    c2.add(c1, "a")  # points to c1 in order to form cycle
 
     assert c2 in c1.plain
     assert c2 in c1.plain_ordered
@@ -289,7 +289,7 @@ def test_dict_mutual_cycle():
 
 
 def test_set_no_cycle():
-    g = Group('group')
+    g = Group("group")
     d1 = D(42)
     g.elements.append(d1)
     d2 = D(67)
@@ -309,7 +309,7 @@ def test_set_no_cycle():
 
 
 def test_set_self_cycle():
-    g = Group('group')
+    g = Group("group")
     d1 = D(42)
     g.elements.append(d1)
     d2 = D(67)
@@ -333,7 +333,7 @@ def test_set_self_cycle():
 
 
 def test_set_mutual_cycle():
-    g = Group('group')
+    g = Group("group")
     d1 = D(42)
     g.elements.append(d1)
     d2 = D(67)

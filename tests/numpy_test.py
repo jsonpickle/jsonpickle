@@ -8,17 +8,17 @@ try:
     import numpy.testing as npt
     from numpy.testing import assert_equal
 except ImportError:
-    pytest.skip('numpy is not available', allow_module_level=True)
+    pytest.skip("numpy is not available", allow_module_level=True)
 
 import jsonpickle
 import jsonpickle.ext.numpy
 from jsonpickle import handlers
 
 
-@pytest.fixture(scope='module', autouse=True)
+@pytest.fixture(scope="module", autouse=True)
 def numpy_extension():
     """Initialize the numpy extension for this test module"""
-    jsonpickle.ext.numpy.register_handlers(ndarray_mode='warn')
+    jsonpickle.ext.numpy.register_handlers(ndarray_mode="warn")
     yield  # control to the test function.
     jsonpickle.ext.numpy.unregister_handlers()
 
@@ -38,34 +38,34 @@ def test_dtype_roundtrip():
         np.dtype(np.void),
         np.dtype(np.int32),
         np.dtype(np.float32),
-        np.dtype('f4,i4,f2,i1'),
-        np.dtype(('f4', 'i4'), ('f2', 'i1')),
-        np.dtype('i4', align=True),
-        np.dtype('M8[7D]'),
+        np.dtype("f4,i4,f2,i1"),
+        np.dtype(("f4", "i4"), ("f2", "i1")),
+        np.dtype("i4", align=True),
+        np.dtype("M8[7D]"),
         np.dtype(
             {
-                'names': ['f0', 'f1', 'f2'],
-                'formats': ['<u4', '<u2', '<u2'],
-                'offsets': [0, 0, 2],
+                "names": ["f0", "f1", "f2"],
+                "formats": ["<u4", "<u2", "<u2"],
+                "offsets": [0, 0, 2],
             },
             align=True,
         ),
-        np.dtype([('f0', 'i4'), ('f2', 'i1')]),
+        np.dtype([("f0", "i4"), ("f2", "i1")]),
         np.dtype(
             [
                 (
-                    'top',
+                    "top",
                     [
-                        ('tiles', ('>f4', (64, 64)), (1,)),
-                        ('rtile', '>f4', (64, 36)),
+                        ("tiles", (">f4", (64, 64)), (1,)),
+                        ("rtile", ">f4", (64, 36)),
                     ],
                     (3,),
                 ),
                 (
-                    'bottom',
+                    "bottom",
                     [
-                        ('bleft', ('>f4', (8, 64)), (1,)),
-                        ('bright', '>f4', (8, 36)),
+                        ("bleft", (">f4", (8, 64)), (1,)),
+                        ("bright", ">f4", (8, 36)),
                     ],
                 ),
             ]
@@ -86,9 +86,9 @@ def test_generic_roundtrip():
         np.nan,
         -np.inf,
         np.inf,
-        np.datetime64('2014-01-01'),
-        np.str_('foo'),
-        np.object_({'a': 'b'}),
+        np.datetime64("2014-01-01"),
+        np.str_("foo"),
+        np.object_({"a": "b"}),
         np.complex128(1 - 2j),
     ]
     for value in values:
@@ -101,31 +101,31 @@ def test_ndarray_roundtrip():
     arrays = [
         np.random.random((10, 20)),
         np.array([[True, False, True]]),
-        np.array(['foo', 'bar']),
-        np.array([b'baz']),
-        np.array(['2010', 'NaT', '2030']).astype('M'),
-        np.rec.array(b'abcdefg' * 100, formats='i2,a3,i4', shape=3),
+        np.array(["foo", "bar"]),
+        np.array([b"baz"]),
+        np.array(["2010", "NaT", "2030"]).astype("M"),
+        np.rec.array(b"abcdefg" * 100, formats="i2,a3,i4", shape=3),
         np.rec.array(
             [
-                (1, 11, 'a'),
-                (2, 22, 'b'),
-                (3, 33, 'c'),
-                (4, 44, 'd'),
-                (5, 55, 'ex'),
-                (6, 66, 'f'),
-                (7, 77, 'g'),
+                (1, 11, "a"),
+                (2, 22, "b"),
+                (3, 33, "c"),
+                (4, 44, "d"),
+                (5, 55, "ex"),
+                (6, 66, "f"),
+                (7, 77, "g"),
             ],
-            formats='u1,f4,a1',
+            formats="u1,f4,a1",
         ),
-        np.array(['1960-03-12', datetime.date(1960, 3, 12)], dtype='M8[D]'),
-        np.array([0, 1, -1, np.inf, -np.inf, np.nan], dtype='f2'),
+        np.array(["1960-03-12", datetime.date(1960, 3, 12)], dtype="M8[D]"),
+        np.array([0, 1, -1, np.inf, -np.inf, np.nan], dtype="f2"),
     ]
 
     arrays.extend(
         [
             np.rec.array(
-                [('NGC1001', 11), ('NGC1002', 1.0), ('NGC1003', 1.0)],
-                dtype=[('target', 'S20'), ('V_mag', 'f4')],
+                [("NGC1001", 11), ("NGC1002", 1.0), ("NGC1003", 1.0)],
+                dtype=[("target", "S20"), ("V_mag", "f4")],
             )
         ]
     )
@@ -259,7 +259,7 @@ def test_fortran_base():
 
 def test_buffer():
     """test behavior with memoryviews which are not ndarrays"""
-    bstring = b'abcdefgh'
+    bstring = b"abcdefgh"
     a = np.frombuffer(bstring, dtype=np.byte)
     warn_count = 1
     with warnings.catch_warnings(record=True) as w:
@@ -330,13 +330,13 @@ def test_zero_dimensional_array():
 
 def test_nested_data_list_of_dict_with_list_keys():
     """Ensure we can handle numpy arrays within a nested structure"""
-    expect = [{'key': [np.array(0)]}]
+    expect = [{"key": [np.array(0)]}]
     actual = roundtrip(expect)
-    npt.assert_array_equal(expect[0]['key'][0], actual[0]['key'][0])
+    npt.assert_array_equal(expect[0]["key"][0], actual[0]["key"][0])
 
-    expect = [{'key': [np.array([1.0])]}]
+    expect = [{"key": [np.array([1.0])]}]
     actual = roundtrip(expect)
-    npt.assert_array_equal(expect[0]['key'][0], actual[0]['key'][0])
+    npt.assert_array_equal(expect[0]["key"][0], actual[0]["key"][0])
 
 
 def test_size_threshold_None():
@@ -349,12 +349,12 @@ def test_size_threshold_None():
 
 
 def test_ndarray_dtype_object():
-    a = np.array(['F' + str(i) for i in range(30)], dtype=object)
+    a = np.array(["F" + str(i) for i in range(30)], dtype=object)
     buf = jsonpickle.encode(a)
     # This is critical for reproducing the numpy segfault issue when
     # restoring ndarray of dtype object.
     del a
-    expect = np.array(['F' + str(i) for i in range(30)], dtype=object)
+    expect = np.array(["F" + str(i) for i in range(30)], dtype=object)
     actual = jsonpickle.decode(buf)
     npt.assert_array_equal(expect, actual)
 
@@ -377,30 +377,30 @@ def test_np_poly1d():
 
 def test_np_datetime64_units():
     """Ensure that we can roundtrip a numpy datetime64 with varying precisions"""
-    obj = np.datetime64('2000', 'ns')
+    obj = np.datetime64("2000", "ns")
     encoded = jsonpickle.encode(obj)
     assert obj == jsonpickle.decode(encoded)
 
-    obj = np.datetime64('2001', 'ms')
+    obj = np.datetime64("2001", "ms")
     encoded = jsonpickle.encode(obj)
     assert obj == jsonpickle.decode(encoded)
 
-    obj = np.datetime64('2002', 's')
+    obj = np.datetime64("2002", "s")
     encoded = jsonpickle.encode(obj)
     assert obj == jsonpickle.decode(encoded)
 
-    obj = np.datetime64('2003', 'm')
+    obj = np.datetime64("2003", "m")
     encoded = jsonpickle.encode(obj)
     assert obj == jsonpickle.decode(encoded)
 
-    obj = np.datetime64('2004', 'h')
+    obj = np.datetime64("2004", "h")
     encoded = jsonpickle.encode(obj)
     assert obj == jsonpickle.decode(encoded)
 
-    obj = np.datetime64('2005', 'D')
+    obj = np.datetime64("2005", "D")
     encoded = jsonpickle.encode(obj)
     assert obj == jsonpickle.decode(encoded)
 
-    obj = np.datetime64('2006', 'Y')
+    obj = np.datetime64("2006", "Y")
     encoded = jsonpickle.encode(obj)
     assert obj == jsonpickle.decode(encoded)

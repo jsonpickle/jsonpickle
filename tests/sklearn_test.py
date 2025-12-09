@@ -6,13 +6,13 @@ try:
     from sklearn.linear_model import LogisticRegression
     from sklearn.tree import DecisionTreeClassifier
 except ImportError:
-    pytest.skip('sklearn is not available', allow_module_level=True)
+    pytest.skip("sklearn is not available", allow_module_level=True)
 
 import jsonpickle
 import jsonpickle.ext.numpy
 
 
-@pytest.fixture(scope='module', autouse=True)
+@pytest.fixture(scope="module", autouse=True)
 def numpy_extension():
     """Initialize the numpy extension for this test module"""
     jsonpickle.ext.numpy.register_handlers()
@@ -38,7 +38,7 @@ def test_decision_tree():
     actual = unpickler.restore(pickler.flatten(classifier))
 
     assert isinstance(actual, classifier.__class__)
-    if hasattr(classifier, 'tree_'):
+    if hasattr(classifier, "tree_"):
         assert isinstance(actual.tree_, classifier.tree_.__class__)
 
     # predict from thawed
@@ -49,7 +49,7 @@ def test_decision_tree():
 
     assert actual.max_depth == classifier.max_depth
     assert actual.score(x, y) == classifier.score(x, y)
-    if hasattr(classifier, 'get_depth'):
+    if hasattr(classifier, "get_depth"):
         assert actual.get_depth() == classifier.get_depth()
 
 

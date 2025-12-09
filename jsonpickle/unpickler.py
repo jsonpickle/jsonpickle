@@ -41,7 +41,7 @@ def decode(
     safe: bool = True,
     classes: Optional[ClassesType] = None,
     v1_decode: bool = False,
-    on_missing: MissingHandler = 'ignore',
+    on_missing: MissingHandler = "ignore",
     handle_readonly: bool = False,
 ) -> Any:
     """Convert a JSON string into a Python object.
@@ -220,16 +220,16 @@ def loadclass(
         except KeyError:
             # maybe they didn't provide a fully qualified path
             try:
-                return classes[module_and_name.rsplit('.', 1)[-1]]
+                return classes[module_and_name.rsplit(".", 1)[-1]]
             except KeyError:
                 pass
     # Otherwise, load classes from globally-accessible imports
-    names = module_and_name.split('.')
+    names = module_and_name.split(".")
     # First assume that everything up to the last dot is the module name,
     # then try other splits to handle classes that are defined within
     # classes
     for up_to in range(len(names) - 1, 0, -1):
-        module = util.untranslate_module_name('.'.join(names[:up_to]))
+        module = util.untranslate_module_name(".".join(names[:up_to]))
         try:
             __import__(module)
             obj = sys.modules[module]
@@ -265,7 +265,7 @@ def getargs(obj: Dict[str, Any], classes: Optional[Dict[str, Type[Any]]] = None)
     """Return arguments suitable for __new__()"""
     # Let saved newargs take precedence over everything
     if has_tag(obj, tags.NEWARGSEX):
-        raise ValueError('__newargs_ex__ returns both args and kwargs')
+        raise ValueError("__newargs_ex__ returns both args and kwargs")
 
     if has_tag(obj, tags.NEWARGS):
         return obj[tags.NEWARGS]
@@ -281,7 +281,7 @@ def getargs(obj: Dict[str, Any], classes: Optional[Dict[str, Type[Any]]] = None)
     typeref = loadclass(obj_dict, classes=classes)
     if not typeref:
         return []
-    if hasattr(typeref, '_fields'):
+    if hasattr(typeref, "_fields"):
         if len(typeref._fields) == len(seq_list):
             return seq_list
     return []
@@ -317,11 +317,11 @@ def loadrepr(reprstr: str) -> Any:
     'datetime'
 
     """
-    module, evalstr = reprstr.split('/')
+    module, evalstr = reprstr.split("/")
     mylocals = locals()
     localname = module
-    if '.' in localname:
-        localname = module.split('.', 1)[0]
+    if "." in localname:
+        localname = module.split(".", 1)[0]
     mylocals[localname] = __import__(module)
     return eval(evalstr, mylocals)
 
@@ -334,14 +334,14 @@ def _loadmodule(module_str: str) -> Optional[Any]:
     'fromtimestamp'
 
     """
-    module, identifier = module_str.split('/')
+    module, identifier = module_str.split("/")
     try:
         result = __import__(module)
     except ImportError:
         return None
-    identifier_parts = identifier.split('.')
+    identifier_parts = identifier.split(".")
     first_identifier = identifier_parts[0]
-    if first_identifier != module and not module.startswith(f'{first_identifier}.'):
+    if first_identifier != module and not module.startswith(f"{first_identifier}."):
         return None
     for name in identifier_parts[1:]:
         try:
@@ -380,7 +380,7 @@ class Unpickler:
         keys: bool = False,
         safe: bool = True,
         v1_decode: bool = False,
-        on_missing: MissingHandler = 'ignore',
+        on_missing: MissingHandler = "ignore",
         handle_readonly: bool = False,
     ) -> None:
         self.backend = backend or json
@@ -470,15 +470,15 @@ class Unpickler:
 
     def _restore_base64(self, obj: Dict[str, Any]) -> bytes:
         try:
-            return util.b64decode(obj[tags.B64].encode('utf-8'))
+            return util.b64decode(obj[tags.B64].encode("utf-8"))
         except (AttributeError, UnicodeEncodeError):
-            return b''
+            return b""
 
     def _restore_base85(self, obj: Dict[str, Any]) -> bytes:
         try:
-            return util.b85decode(obj[tags.B85].encode('utf-8'))
+            return util.b85decode(obj[tags.B85].encode("utf-8"))
         except (AttributeError, UnicodeEncodeError):
-            return b''
+            return b""
 
     def _refname(self) -> str:
         """Calculates the name of the current location in the JSON stack.
@@ -502,7 +502,7 @@ class Unpickler:
         True
 
         """
-        return '/' + '/'.join(self._namestack)
+        return "/" + "/".join(self._namestack)
 
     def _mkref(self, obj: Any) -> Any:
         obj_id = id(obj)
@@ -566,7 +566,7 @@ class Unpickler:
             reduce_val.extend([None] * (5 - len(reduce_val)))
         f, args, state, listitems, dictitems = reduce_val
 
-        if f == tags.NEWOBJ or getattr(f, '__name__', '') == '__newobj__':
+        if f == tags.NEWOBJ or getattr(f, "__name__", "") == "__newobj__":
             # mandated special case
             cls = args[0]
             if not isinstance(cls, type):
@@ -655,21 +655,21 @@ class Unpickler:
 
     def _loadfactory(self, obj: Dict[str, Any]) -> Optional[Any]:
         try:
-            default_factory = obj['default_factory']
+            default_factory = obj["default_factory"]
         except KeyError:
             return None
-        del obj['default_factory']
+        del obj["default_factory"]
         return self._restore(default_factory)
 
     def _process_missing(self, class_name: str) -> None:
         # most common case comes first
-        if self.on_missing == 'ignore':
+        if self.on_missing == "ignore":
             pass
-        elif self.on_missing == 'warn':
-            warnings.warn('Unpickler._restore_object could not find %s!' % class_name)
-        elif self.on_missing == 'error':
+        elif self.on_missing == "warn":
+            warnings.warn("Unpickler._restore_object could not find %s!" % class_name)
+        elif self.on_missing == "error":
             raise errors.ClassNotFoundError(
-                'Unpickler.restore_object could not find %s!' % class_name  # type: ignore[arg-type]
+                "Unpickler.restore_object could not find %s!" % class_name  # type: ignore[arg-type]
             )
         elif util._is_function(self.on_missing):
             self.on_missing(class_name)  # type: ignore[operator]
@@ -734,25 +734,25 @@ class Unpickler:
                 value = v
             if util._is_noncomplex(instance) or util._is_dictionary_subclass(instance):
                 try:
-                    if k == '__dict__':
+                    if k == "__dict__":
                         setattr(instance, k, value)
                     else:
                         instance[k] = value
                 except TypeError:
                     # Immutable object, must be constructed in one shot
-                    if k != '__dict__':
+                    if k != "__dict__":
                         deferred[k] = value
                     self._namestack.pop()
                     continue
             else:
-                if not k.startswith('__'):
+                if not k.startswith("__"):
                     try:
                         setattr(instance, k, value)
                     except KeyError:
                         # certain numpy objects require us to prepend a _ to the var
                         # this should go in the np handler but I think this could be
                         # useful for other code
-                        setattr(instance, f'_{k}', value)
+                        setattr(instance, f"_{k}", value)
                     except dataclasses.FrozenInstanceError:
                         # issue #240
                         # i think this is the only way to set frozen dataclass attrs
@@ -760,7 +760,7 @@ class Unpickler:
                     except AttributeError as e:
                         # some objects raise this for read-only attributes (#422) (#478)
                         if (
-                            hasattr(instance, '__slots__')
+                            hasattr(instance, "__slots__")
                             and not len(instance.__slots__)
                             # we have to handle this separately because of +483
                             and issubclass(instance.__class__, (int, str))
@@ -769,7 +769,7 @@ class Unpickler:
                             continue
                         raise e
                 else:
-                    setattr(instance, f'_{instance.__class__.__name__}{k}', value)
+                    setattr(instance, f"_{instance.__class__.__name__}{k}", value)
 
             # This instance has an instance variable named `k` that is
             # currently a proxy and must be replaced
@@ -791,7 +791,7 @@ class Unpickler:
             isinstance(state, tuple) and len(state) == 2 and isinstance(state[1], dict)
         )
         has_slots_and_dict = has_slots and isinstance(state[0], dict)
-        if hasattr(instance, '__setstate__'):
+        if hasattr(instance, "__setstate__"):
             instance.__setstate__(state)
         elif isinstance(state, dict):
             # implements described default handling
@@ -808,8 +808,8 @@ class Unpickler:
                 instance = self._restore_from_dict(
                     state[0], instance, ignorereserved=False, restore_dict_items=False
                 )
-        elif not hasattr(instance, '__getnewargs__') and not hasattr(
-            instance, '__getnewargs_ex__'
+        elif not hasattr(instance, "__getnewargs__") and not hasattr(
+            instance, "__getnewargs_ex__"
         ):
             # __setstate__ is not implemented so that means that the best
             # we can do is return the result of __getstate__() rather than
@@ -825,10 +825,10 @@ class Unpickler:
 
         # Handle list and set subclasses
         if has_tag(obj, tags.SEQ):
-            if hasattr(instance, 'append'):
+            if hasattr(instance, "append"):
                 for v in obj[tags.SEQ]:
                     instance.append(self._restore(v))
-            elif hasattr(instance, 'add'):
+            elif hasattr(instance, "add"):
                 for v in obj[tags.SEQ]:
                     instance.add(self._restore(v))
 
@@ -838,7 +838,7 @@ class Unpickler:
         return instance
 
     def _restore_object_instance(
-        self, obj: Dict[str, Any], cls: Type[Any], class_name: str = ''
+        self, obj: Dict[str, Any], cls: Type[Any], class_name: str = ""
     ) -> Any:
         # This is a placeholder proxy object which allows child objects to
         # reference the parent object before it has been instantiated.
@@ -859,9 +859,9 @@ class Unpickler:
         if kwargs:
             kwargs = self._restore(kwargs)
 
-        is_oldstyle = not (isinstance(cls, type) or getattr(cls, '__meta__', None))
+        is_oldstyle = not (isinstance(cls, type) or getattr(cls, "__meta__", None))
         try:
-            if not is_oldstyle and hasattr(cls, '__new__'):
+            if not is_oldstyle and hasattr(cls, "__new__"):
                 # new style classes
                 if factory:
                     instance = cls.__new__(cls, factory, *args, **kwargs)
@@ -891,7 +891,7 @@ class Unpickler:
 
         instance = self._restore_object_instance_variables(obj, instance)
 
-        if _safe_hasattr(instance, 'default_factory') and isinstance(
+        if _safe_hasattr(instance, "default_factory") and isinstance(
             instance.default_factory, _Proxy
         ):
             instance.default_factory = instance.default_factory.get()
