@@ -111,6 +111,7 @@ def decode(
         )
 
     backend = backend or json
+    is_ephemeral_context = context is None
     context = context or Unpickler(
         keys=keys,
         backend=backend,
@@ -120,7 +121,12 @@ def decode(
         handle_readonly=handle_readonly,
     )
     data = backend.decode(string)
-    return context.restore(data, reset=reset, classes=classes)
+    result = context.restore(data, reset=reset, classes=classes)
+    if is_ephemeral_context:
+        # Avoid holding onto references to external objects, which can
+        # prevent garbage collection from occuring.
+        context.reset()
+    return result
 
 
 def _safe_hasattr(obj: Any, attr: str) -> bool:

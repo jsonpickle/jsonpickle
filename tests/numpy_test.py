@@ -404,3 +404,33 @@ def test_np_datetime64_units():
     obj = np.datetime64("2006", "Y")
     encoded = jsonpickle.encode(obj)
     assert obj == jsonpickle.decode(encoded)
+
+
+class ThingWithDel:
+    def __init__(self, data):
+        self.data = data
+        self.fn = None
+
+    def __del__(self):
+        if self.fn is not None:
+            self.fn()
+
+
+def test_no_external_references():
+    """Ensure that no external references are held"""
+    state = {'count': 0}  # How many times has the destructor been called?
+
+    def destructor():
+        state['count'] += 1
+
+    obj = ThingWithDel(data=np.array([1, 2, 3]))
+
+    obj_encoded = jsonpickle.encode(obj)
+    obj.fn = destructor
+    del obj
+
+    obj2 = jsonpickle.decode(obj_encoded)
+    obj2.fn = destructor
+    del obj2
+
+    assert state['count'] == 2

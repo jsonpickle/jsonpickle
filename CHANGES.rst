@@ -16,6 +16,8 @@ v5.0.0
     * Add support for the ``types`` module in ``util.importable_name`` (#574) (+575)
     * Fix roundtrip for method objects (#576) (+577)
     * More test cases were added to cover reported use cases. (#503) (#573)
+    * jsonpickle now avoids holding onto external references when decoding, which can
+      improve memory deallocation behavior. (#579) (+580)
 
 v4.1.1
 ======
