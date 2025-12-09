@@ -33,7 +33,7 @@ class Thing:
 
 
 class DictSubclass(dict):
-    name = 'Test'
+    name = "Test"
 
 
 class ListSubclass(list):
@@ -42,7 +42,7 @@ class ListSubclass(list):
 
 class BrokenReprThing(Thing):
     def __repr__(self):
-        raise Exception('%s has a broken repr' % self.name)
+        raise Exception("%s has a broken repr" % self.name)
 
     def __str__(self):
         return '<BrokenReprThing "%s">' % self.name
@@ -95,12 +95,12 @@ class ListSubclassWithInit(list):
         super().__init__()
 
 
-NamedTuple = collections.namedtuple('NamedTuple', 'a, b, c')
+NamedTuple = collections.namedtuple("NamedTuple", "a, b, c")
 
 
 class ObjWithJsonPickleRepr:
     def __init__(self):
-        self.data = {'a': self}
+        self.data = {"a": self}
 
     def __repr__(self):
         return jsonpickle.encode(self)
@@ -132,7 +132,7 @@ class ThingWithQueue:
 
 
 class ThingWithSlots:
-    __slots__ = ('a', 'b')
+    __slots__ = ("a", "b")
 
     def __init__(self, a, b):
         self.a = a
@@ -140,7 +140,7 @@ class ThingWithSlots:
 
 
 class ThingWithInheritedSlots(ThingWithSlots):
-    __slots__ = ('c',)
+    __slots__ = ("c",)
 
     def __init__(self, a, b, c):
         ThingWithSlots.__init__(self, a, b)
@@ -148,7 +148,7 @@ class ThingWithInheritedSlots(ThingWithSlots):
 
 
 class ThingWithIterableSlots:
-    __slots__ = iter('ab')
+    __slots__ = iter("ab")
 
     def __init__(self, a, b):
         self.a = a
@@ -156,7 +156,7 @@ class ThingWithIterableSlots:
 
 
 class ThingWithStringSlots:
-    __slots__ = 'ab'
+    __slots__ = "ab"
 
     def __init__(self, a, b):
         self.ab = a + b
@@ -207,8 +207,8 @@ class IntEnumTest(enum.IntEnum):
 
 
 class StringEnumTest(enum.Enum):
-    A = 'a'
-    B = 'b'
+    A = "a"
+    B = "b"
 
 
 class SubEnum(enum.Enum):
@@ -223,17 +223,17 @@ class EnumClass:
 
 
 class MessageTypes(enum.Enum):
-    STATUS = ('STATUS',)
-    CONTROL = 'CONTROL'
+    STATUS = ("STATUS",)
+    CONTROL = "CONTROL"
 
 
 class MessageStatus(enum.Enum):
-    OK = ('OK',)
-    ERROR = 'ERROR'
+    OK = ("OK",)
+    ERROR = "ERROR"
 
 
 class MessageCommands(enum.Enum):
-    STATUS_ALL = 'STATUS_ALL'
+    STATUS_ALL = "STATUS_ALL"
 
 
 class Message:
@@ -258,9 +258,9 @@ class ThingWithTimedeltaAttribute:
 class FailSafeTestCase(SkippableTest):
     class BadClass:
         def __getstate__(self):
-            raise ValueError('Intentional error')
+            raise ValueError("Intentional error")
 
-    good = 'good'
+    good = "good"
 
     to_pickle = [BadClass(), good]
 
@@ -268,7 +268,7 @@ class FailSafeTestCase(SkippableTest):
         encoded = jsonpickle.encode(self.to_pickle, fail_safe=lambda e: None)
         decoded = jsonpickle.decode(encoded)
         assert decoded[0] is None
-        assert decoded[1] == 'good'
+        assert decoded[1] == "good"
 
     def test_error_recorded(self):
         exceptions = []
@@ -281,7 +281,7 @@ class FailSafeTestCase(SkippableTest):
         assert isinstance(exceptions[0], Exception)
 
     def test_custom_err_msg(self):
-        CUSTOM_ERR_MSG = 'custom err msg'
+        CUSTOM_ERR_MSG = "custom err msg"
         encoded = jsonpickle.encode(self.to_pickle, fail_safe=lambda e: CUSTOM_ERR_MSG)
         decoded = jsonpickle.decode(encoded)
         assert decoded[0] == CUSTOM_ERR_MSG
@@ -297,7 +297,7 @@ class IntKeysObject:
 
 class ExceptionWithArguments(Exception):
     def __init__(self, value):
-        super().__init__('test')
+        super().__init__("test")
         self.value = value
 
 
@@ -330,8 +330,8 @@ def test_list_subclass(pickler, unpickler):
 
 
 def test_list_subclass_with_init(pickler, unpickler):
-    obj = ListSubclassWithInit('foo')
-    assert obj.attr == 'foo'
+    obj = ListSubclassWithInit("foo")
+    assert obj.attr == "foo"
     flattened = pickler.flatten(obj)
     inflated = unpickler.restore(flattened)
     assert type(inflated) is ListSubclassWithInit
@@ -374,7 +374,7 @@ def test_set_subclass_with_data(pickler, unpickler):
 
 
 def test_decimal(pickler, unpickler):
-    obj = decimal.Decimal('0.5')
+    obj = decimal.Decimal("0.5")
     flattened = pickler.flatten(obj)
     inflated = unpickler.restore(flattened)
     assert isinstance(inflated, decimal.Decimal)
@@ -384,75 +384,75 @@ def test_oldstyleclass(pickler, unpickler):
     obj = OldStyleClass()
     obj.value = 1234
     flattened = pickler.flatten(obj)
-    assert flattened['value'] == 1234
+    assert flattened["value"] == 1234
     inflated = unpickler.restore(flattened)
     assert inflated.value == 1234
 
 
 def test_dictsubclass(pickler, unpickler):
     obj = DictSubclass()
-    obj['key1'] = 1
+    obj["key1"] = 1
     expect = {
-        tags.OBJECT: 'object_test.DictSubclass',
-        'key1': 1,
-        '__dict__': {},
+        tags.OBJECT: "object_test.DictSubclass",
+        "key1": 1,
+        "__dict__": {},
     }
     flattened = pickler.flatten(obj)
     assert expect == flattened
     inflated = unpickler.restore(flattened)
     assert type(inflated) is DictSubclass
-    assert inflated['key1'] == 1
-    assert inflated.name == 'Test'
+    assert inflated["key1"] == 1
+    assert inflated.name == "Test"
 
 
 def test_dictsubclass_notunpickable(pickler, unpickler):
     pickler.unpicklable = False
     obj = DictSubclass()
-    obj['key1'] = 1
+    obj["key1"] = 1
     flattened = pickler.flatten(obj)
-    assert flattened['key1'] == 1
+    assert flattened["key1"] == 1
     assert tags.OBJECT not in flattened
     inflated = unpickler.restore(flattened)
-    assert inflated['key1'] == 1
+    assert inflated["key1"] == 1
 
 
 def test_getstate_dict_subclass_structure(pickler):
-    obj = GetstateDict('test')
-    obj['key1'] = 1
+    obj = GetstateDict("test")
+    obj["key1"] = 1
     flattened = pickler.flatten(obj)
     assert tags.OBJECT in flattened
-    assert 'object_test.GetstateDict' == flattened[tags.OBJECT]
+    assert "object_test.GetstateDict" == flattened[tags.OBJECT]
     assert tags.STATE in flattened
     assert tags.TUPLE in flattened[tags.STATE]
-    assert ['test' == {'key1': 1}], flattened[tags.STATE][tags.TUPLE]
+    assert ["test" == {"key1": 1}], flattened[tags.STATE][tags.TUPLE]
 
 
 def test_getstate_dict_subclass_roundtrip_simple(pickler, unpickler):
-    obj = GetstateDict('test')
-    obj['key1'] = 1
+    obj = GetstateDict("test")
+    obj["key1"] = 1
     flattened = pickler.flatten(obj)
     inflated = unpickler.restore(flattened)
-    assert inflated['key1'] == 1
-    assert inflated.name == 'test'
+    assert inflated["key1"] == 1
+    assert inflated.name == "test"
 
 
 def test_getstate_dict_subclass_roundtrip_cyclical(pickler, unpickler):
-    obj = GetstateDict('test')
-    obj['key1'] = 1
+    obj = GetstateDict("test")
+    obj["key1"] = 1
     # The "name" field of obj2 points to obj (reference)
     obj2 = GetstateDict(obj)
     # The "obj2" key in obj points to obj2 (cyclical reference)
-    obj['obj2'] = obj2
+    obj["obj2"] = obj2
     flattened = pickler.flatten(obj)
     inflated = unpickler.restore(flattened)
     # The dict must be preserved
-    assert inflated['key1'] == 1
+    assert inflated["key1"] == 1
     # __getstate__/__setstate__ must have been run
-    assert inflated.name == 'test'
+    assert inflated.name == "test"
     assert inflated.active is True
-    assert inflated['obj2'].active is True
+    assert inflated["obj2"].active is True
     # The reference must be preserved
-    assert inflated is inflated['obj2'].name
+    assert inflated is inflated["obj2"].name
 
 
 def test_getstate_list_simple(pickler, unpickler):
@@ -477,8 +477,8 @@ def test_getstate_list_inside_list(pickler, unpickler):
 
 def test_getstate_with_getstate_only(pickler, unpickler):
     obj = GetstateOnly()
-    a = obj.a = 'this object implements'
-    b = obj.b = '__getstate__ but not __setstate__'
+    a = obj.a = "this object implements"
+    b = obj.b = "__getstate__ but not __setstate__"
     expect = [a, b]
     flat = pickler.flatten(obj)
     actual = flat[tags.STATE]
@@ -504,20 +504,20 @@ def test_thing_with_func(pickler, unpickler):
     flattened = pickler.flatten(obj)
     restored = unpickler.restore(flattened)
     assert restored.fn is obj.fn
-    expect = 'success'
+    expect = "success"
     actual1 = restored.fn(expect)
     assert expect == actual1
     assert restored is restored.ref
 
 
 def test_thing_with_compiled_regex(pickler, unpickler):
-    rgx = re.compile(r'(.*)(cat)')
+    rgx = re.compile(r"(.*)(cat)")
     obj = Thing(rgx)
     flattened = pickler.flatten(obj)
     restored = unpickler.restore(flattened)
-    match = restored.name.match('fatcat')
-    assert 'fat' == match.group(1)
-    assert 'cat' == match.group(2)
+    match = restored.name.match("fatcat")
+    assert "fat" == match.group(1)
+    assert "cat" == match.group(2)
 
 
 def test_base_object_roundrip(pickler, unpickler):
@@ -539,9 +539,9 @@ def test_enum34(pickler, unpickler):
 
 
 def test_bytes_unicode(pickler, unpickler):
-    b1 = b'foo'
-    b2 = b'foo\xff'
-    u1 = 'foo'
+    b1 = b"foo"
+    b2 = b"foo\xff"
+    u1 = "foo"
     # unicode strings get encoded/decoded as is
     encoded = pickler.flatten(u1)
     assert encoded == u1
@@ -552,7 +552,7 @@ def test_bytes_unicode(pickler, unpickler):
     # bytestrings are wrapped in py 3
     encoded = pickler.flatten(b1)
     assert encoded != u1
-    encoded_ustr = util.b64encode(b'foo')
+    encoded_ustr = util.b64encode(b"foo")
     assert {tags.B64: encoded_ustr} == encoded
     assert isinstance(encoded[tags.B64], str)
     decoded = unpickler.restore(encoded)
@@ -561,7 +561,7 @@ def test_bytes_unicode(pickler, unpickler):
     # bytestrings that we can't decode to UTF-8 will always be wrapped
     encoded = pickler.flatten(b2)
     assert encoded != b2
-    encoded_ustr = util.b64encode(b'foo\xff')
+    encoded_ustr = util.b64encode(b"foo\xff")
     assert {tags.B64: encoded_ustr} == encoded
     assert isinstance(encoded[tags.B64], str)
     decoded = unpickler.restore(encoded)
@@ -577,7 +577,7 @@ def test_nested_objects(pickler, unpickler):
 
 
 def test_threading_lock(pickler, unpickler):
-    obj = Thing('lock')
+    obj = Thing("lock")
     obj.lock = threading.Lock()
     lock_class = obj.lock.__class__
     # Roundtrip and make sure we get a lock object.
@@ -609,7 +609,7 @@ def _test_array_roundtrip(pickler, unpickler, obj):
 
 def test_array_handler_numeric(pickler, unpickler):
     """Test numeric array.array typecodes that work in Python2+3"""
-    typecodes = ('b', 'B', 'h', 'H', 'i', 'I', 'l', 'L', 'f', 'd')
+    typecodes = ("b", "B", "h", "H", "i", "I", "l", "L", "f", "d")
     for typecode in typecodes:
         obj = array.array(typecode, (1, 2, 3))
         _test_array_roundtrip(pickler, unpickler, obj)
@@ -617,7 +617,7 @@ def test_array_handler_numeric(pickler, unpickler):
 
 def test_exceptions_with_arguments(pickler, unpickler):
     """Ensure that we can roundtrip Exceptions that take arguments"""
-    obj = ExceptionWithArguments('example')
+    obj = ExceptionWithArguments("example")
     json = pickler.flatten(obj)
     clone = unpickler.restore(json)
     assert obj.value == clone.value
@@ -638,16 +638,16 @@ def test_defaultdict_roundtrip():
     # setup
     defaultdict = collections.defaultdict
     defdict = defaultdict(list)
-    defdict['a'] = 1
-    defdict['b'].append(2)
-    defdict['c'] = defaultdict(dict)
+    defdict["a"] = 1
+    defdict["b"].append(2)
+    defdict["c"] = defaultdict(dict)
     # jsonpickle work your magic
     encoded = jsonpickle.encode(defdict)
     newdefdict = jsonpickle.decode(encoded)
     # jsonpickle never fails
-    assert newdefdict['a'] == 1
-    assert newdefdict['b'] == [2]
-    assert type(newdefdict['c']) is defaultdict
+    assert newdefdict["a"] == 1
+    assert newdefdict["b"] == [2]
+    assert type(newdefdict["c"]) is defaultdict
     assert defdict.default_factory == list
     assert newdefdict.default_factory == list
 
@@ -670,15 +670,15 @@ def test_defaultdict_roundtrip_simple_lambda():
     # setup a sparse collections.defaultdict with simple lambdas
     defaultdict = collections.defaultdict
     defdict = defaultdict(lambda: defaultdict(int))
-    defdict[0] = 'zero'
+    defdict[0] = "zero"
     defdict[1] = defaultdict(lambda: defaultdict(dict))
-    defdict[1][0] = 'zero'
+    defdict[1][0] = "zero"
     # roundtrip
     encoded = jsonpickle.encode(defdict, keys=True)
     newdefdict = jsonpickle.decode(encoded, keys=True)
-    assert newdefdict[0] == 'zero'
+    assert newdefdict[0] == "zero"
     assert type(newdefdict[1]) is defaultdict
-    assert newdefdict[1][0] == 'zero'
+    assert newdefdict[1][0] == "zero"
     assert newdefdict[1][1] == {}  # inner defaultdict
     assert newdefdict[2][0] == 0  # outer defaultdict
     assert type(newdefdict[3]) is defaultdict
@@ -689,18 +689,18 @@ def test_defaultdict_roundtrip_simple_lambda():
 def test_defaultdict_roundtrip_simple_lambda2():
     """Serialize a defaultdict that contains a lambda"""
     defaultdict = collections.defaultdict
-    payload = {'a': defaultdict(lambda: 0)}
+    payload = {"a": defaultdict(lambda: 0)}
     defdict = defaultdict(lambda: 0, payload)
     # roundtrip
     encoded = jsonpickle.encode(defdict, keys=True)
     decoded = jsonpickle.decode(encoded, keys=True)
     assert type(decoded) is defaultdict
-    assert type(decoded['a']) is defaultdict
+    assert type(decoded["a"]) is defaultdict
 
 
 def test_defaultdict_and_things_roundtrip_simple_lambda():
     """Serialize a default dict that contains a lambda and objects"""
-    thing = Thing('a')
+    thing = Thing("a")
     defaultdict = collections.defaultdict
     defdict = defaultdict(lambda: 0)
     obj = [defdict, thing, thing]
@@ -712,26 +712,26 @@ def test_defaultdict_and_things_roundtrip_simple_lambda():
 
 
 def _test_defaultdict_tree(tree, cls):
-    tree['A']['B'] = 1
-    tree['A']['C'] = 2
+    tree["A"]["B"] = 1
+    tree["A"]["C"] = 2
     # roundtrip
     encoded = jsonpickle.encode(tree)
     newtree = jsonpickle.decode(encoded)
     # make sure we didn't lose anything
     assert type(newtree) is cls
-    assert type(newtree['A']) is cls
-    assert newtree['A']['B'] == 1
-    assert newtree['A']['C'] == 2
+    assert type(newtree["A"]) is cls
+    assert newtree["A"]["B"] == 1
+    assert newtree["A"]["C"] == 2
     # ensure that the resulting default_factory is callable and creates
     # a new instance of cls.
-    assert type(newtree['A'].default_factory()) == cls
+    assert type(newtree["A"].default_factory()) == cls
     # we've never seen 'D' before so the reconstructed defaultdict tree
     # should create an instance of cls.
-    assert type(newtree['A']['D']) is cls
+    assert type(newtree["A"]["D"]) is cls
     # ensure that proxies do not escape into user code
     assert type(newtree.default_factory) is not jsonpickle.unpickler._Proxy
-    assert type(newtree['A'].default_factory) is not jsonpickle.unpickler._Proxy
-    assert type(newtree['A']['Z'].default_factory) is not jsonpickle.unpickler._Proxy
+    assert type(newtree["A"].default_factory) is not jsonpickle.unpickler._Proxy
+    assert type(newtree["A"]["Z"].default_factory) is not jsonpickle.unpickler._Proxy
     return newtree
 
 
@@ -740,10 +740,10 @@ def test_defaultdict_subclass_with_self_as_default_factory():
     cls = ThingWithSelfAsDefaultFactory
     tree = cls()
     newtree = _test_defaultdict_tree(tree, cls)
-    assert type(newtree['A'].default_factory) is cls
+    assert type(newtree["A"].default_factory) is cls
     assert newtree.default_factory is newtree
-    assert newtree['A'].default_factory is newtree['A']
-    assert newtree['Z'].default_factory is newtree['Z']
+    assert newtree["A"].default_factory is newtree["A"]
+    assert newtree["Z"].default_factory is newtree["Z"]
 
 
 def test_defaultdict_subclass_with_class_as_default_factory():
@@ -752,8 +752,8 @@ def test_defaultdict_subclass_with_class_as_default_factory():
     tree = cls()
     newtree = _test_defaultdict_tree(tree, cls)
     assert newtree.default_factory is cls
-    assert newtree['A'].default_factory is cls
-    assert newtree['Z'].default_factory is cls
+    assert newtree["A"].default_factory is cls
+    assert newtree["Z"].default_factory is cls
 
 
 def test_posix_stat_result():
@@ -782,7 +782,7 @@ def test_broken_repr_dict_key():
     """Tests that we can pickle dictionaries with keys that have
     broken __repr__ implementations.
     """
-    br = BrokenReprThing('test')
+    br = BrokenReprThing("test")
     obj = {br: True}
     pickler = jsonpickle.pickler.Pickler()
     flattened = pickler.flatten(obj)
@@ -793,16 +793,16 @@ def test_broken_repr_dict_key():
 def test_ordered_dict_python3():
     """Ensure that we preserve dict order on python3"""
     # Python3.6+ preserves dict order.
-    obj = {'z': 'Z', 'x': 'X', 'y': 'Y'}
+    obj = {"z": "Z", "x": "X", "y": "Y"}
     clone = jsonpickle.decode(jsonpickle.encode(obj))
-    expect = ['z', 'x', 'y']
+    expect = ["z", "x", "y"]
     actual = list(clone.keys())
     assert expect == actual
 
 
 def test_ordered_dict():
     """Serialize an OrderedDict"""
-    d = collections.OrderedDict([('c', 3), ('a', 1), ('b', 2)])
+    d = collections.OrderedDict([("c", 3), ("a", 1), ("b", 2)])
     encoded = jsonpickle.encode(d)
     decoded = jsonpickle.decode(encoded)
     assert d == decoded
@@ -810,7 +810,7 @@ def test_ordered_dict():
 
 def test_ordered_dict_unpicklable():
     """Serialize an OrderedDict with unpicklable=False"""
-    d = collections.OrderedDict([('c', 3), ('a', 1), ('b', 2)])
+    d = collections.OrderedDict([("c", 3), ("a", 1), ("b", 2)])
     encoded = jsonpickle.encode(d, unpicklable=False)
     decoded = jsonpickle.decode(encoded)
     assert d == decoded
@@ -818,7 +818,7 @@ def test_ordered_dict_unpicklable():
 
 def test_ordered_dict_reduces():
     """Ensure that OrderedDict is reduce()-able"""
-    d = collections.OrderedDict([('c', 3), ('a', 1), ('b', 2)])
+    d = collections.OrderedDict([("c", 3), ("a", 1), ("b", 2)])
     has_reduce, has_reduce_ex = util.has_reduce(d)
     assert util._is_reducible(d)
     assert has_reduce or has_reduce_ex
@@ -851,9 +851,9 @@ def test_ordered_dict_int_keys():
 
 def test_ordered_dict_nested():
     """Serialize nested dicts with OrderedDict values"""
-    bottom = collections.OrderedDict([('z', 1), ('a', 2)])
-    middle = collections.OrderedDict([('c', bottom)])
-    top = collections.OrderedDict([('b', middle)])
+    bottom = collections.OrderedDict([("z", 1), ("a", 2)])
+    middle = collections.OrderedDict([("c", bottom)])
+    top = collections.OrderedDict([("b", middle)])
     encoded = jsonpickle.encode(top)
     decoded = jsonpickle.decode(encoded)
     assert top == decoded
@@ -868,7 +868,7 @@ def test_deque_roundtrip():
     old_deque = collections.deque([0, 1, 2], maxlen=5)
     encoded = jsonpickle.encode(old_deque)
     new_deque = jsonpickle.decode(encoded)
-    assert encoded != 'nil'
+    assert encoded != "nil"
     assert old_deque[0] == 0
     assert new_deque[0] == 0
     assert old_deque[1] == 1
@@ -900,7 +900,7 @@ def test_counter_roundtrip():
     decoded = jsonpickle.decode(encoded)
     assert type(decoded) is collections.Counter
     # the integer key becomes a string when keys=False
-    assert decoded.get('1') == 2
+    assert decoded.get("1") == 2
 
 
 def test_counter_roundtrip_with_keys():
@@ -950,10 +950,10 @@ def test_dict_with_fd():
 
 def _test_dict_with_fd(fd):
     """Serialize a dict with a file descriptor"""
-    obj = {'fd': fd}
+    obj = {"fd": fd}
     jsonstr = jsonpickle.encode(obj)
     newobj = jsonpickle.decode(jsonstr)
-    assert newobj['fd'] is None
+    assert newobj["fd"] is None
 
 
 def test_thing_with_lamda():
@@ -961,7 +961,7 @@ def test_thing_with_lamda():
     obj = Thing(lambda: True)
     jsonstr = jsonpickle.encode(obj)
     newobj = jsonpickle.decode(jsonstr)
-    assert not hasattr(newobj, 'name')
+    assert not hasattr(newobj, "name")
 
 
 def test_newstyleslots():
@@ -991,43 +991,43 @@ def test_newstyleslots_inherited_deleted_attr():
     newobj = jsonpickle.decode(jsonstr)
     assert newobj.a
     assert not newobj.b
-    assert not hasattr(newobj, 'c')
+    assert not hasattr(newobj, "c")
 
 
 def test_newstyleslots_with_children():
     """Serialize an object with slots containing objects"""
-    obj = ThingWithSlots(Thing('a'), Thing('b'))
+    obj = ThingWithSlots(Thing("a"), Thing("b"))
     jsonstr = jsonpickle.encode(obj)
     newobj = jsonpickle.decode(jsonstr)
-    assert newobj.a.name == 'a'
-    assert newobj.b.name == 'b'
+    assert newobj.a.name == "a"
+    assert newobj.b.name == "b"
 
 
 def test_newstyleslots_with_children_inherited():
     """Serialize an object with inherited slots containing objects"""
-    obj = ThingWithInheritedSlots(Thing('a'), Thing('b'), Thing('c'))
+    obj = ThingWithInheritedSlots(Thing("a"), Thing("b"), Thing("c"))
     jsonstr = jsonpickle.encode(obj)
     newobj = jsonpickle.decode(jsonstr)
-    assert newobj.a.name == 'a'
-    assert newobj.b.name == 'b'
-    assert newobj.c.name == 'c'
+    assert newobj.a.name == "a"
+    assert newobj.b.name == "b"
+    assert newobj.c.name == "c"
 
 
 def test_newstyleslots_iterable():
     """Seriazlie an object with iterable slots"""
-    obj = ThingWithIterableSlots('alpha', 'bravo')
+    obj = ThingWithIterableSlots("alpha", "bravo")
     jsonstr = jsonpickle.encode(obj)
     newobj = jsonpickle.decode(jsonstr)
-    assert newobj.a == 'alpha'
-    assert newobj.b == 'bravo'
+    assert newobj.a == "alpha"
+    assert newobj.b == "bravo"
 
 
 def test_newstyleslots_string_slot():
     """Serialize an object with string slots"""
-    obj = ThingWithStringSlots('a', 'b')
+    obj = ThingWithStringSlots("a", "b")
     jsonstr = jsonpickle.encode(obj)
     newobj = jsonpickle.decode(jsonstr)
-    assert newobj.ab == 'ab'
+    assert newobj.ab == "ab"
 
 
 def test_enum34_nested():
@@ -1054,45 +1054,45 @@ def test_enum_unpicklable():
     obj = Message(MessageTypes.STATUS, MessageCommands.STATUS_ALL)
     encoded = jsonpickle.encode(obj, unpicklable=False)
     decoded = jsonpickle.decode(encoded)
-    assert 'message_type' in decoded
-    assert 'command' in decoded
+    assert "message_type" in decoded
+    assert "command" in decoded
 
 
 def test_enum_int_key_and_value():
     """Serialize Integer enums as dict keys and values"""
-    thing = Thing('test')
+    thing = Thing("test")
     value = IntEnumTest.X
     value2 = IntEnumTest.Y
     expect = {
-        '__first__': thing,
-        'thing': thing,
+        "__first__": thing,
+        "thing": thing,
         value: value,
         value2: value2,
     }
     string = jsonpickle.encode(expect, keys=True)
     actual = jsonpickle.decode(string, keys=True)
-    assert 'test' == actual['__first__'].name
+    assert "test" == actual["__first__"].name
     assert value == actual[value]
     assert value2 == actual[value2]
 
-    actual_first = actual['__first__']
-    actual_thing = actual['thing']
+    actual_first = actual["__first__"]
+    actual_thing = actual["thing"]
     assert actual_first is actual_thing
 
 
 def test_enum_string_key_and_value():
     """Encode enums dict keys and values"""
-    thing = Thing('test')
+    thing = Thing("test")
     value = StringEnumTest.A
     value2 = StringEnumTest.B
     expect = {
         value: value,
-        '__first__': thing,
+        "__first__": thing,
         value2: value2,
     }
     string = jsonpickle.encode(expect, keys=True)
     actual = jsonpickle.decode(string, keys=True)
-    assert 'test' == actual['__first__'].name
+    assert "test" == actual["__first__"].name
     assert value == actual[value]
     assert value2 == actual[value2]
 
@@ -1117,8 +1117,8 @@ def test_multiple_string_enums_when_make_refs_is_false():
     # This test ensures that enums do not trigger cycles and are properly
     # encoded under make_refs=False.
     expect = {
-        'a': StringEnumTest.A,
-        'aa': StringEnumTest.A,
+        "a": StringEnumTest.A,
+        "aa": StringEnumTest.A,
     }
     string = jsonpickle.encode(expect, make_refs=False)
     actual = jsonpickle.decode(string)
@@ -1139,17 +1139,17 @@ class UnicodeMixin(str, Mixin):
 
 class UnicodeMixinHandler(handlers.BaseHandler):
     def flatten(self, obj, data):
-        data['value'] = obj
+        data["value"] = obj
         return data
 
     def restore(self, obj):
-        return UnicodeMixin(obj['value'])
+        return UnicodeMixin(obj["value"])
 
 
 def test_unicode_mixin():
-    obj = UnicodeMixin('test')
+    obj = UnicodeMixin("test")
     assert isinstance(obj, UnicodeMixin)
-    assert obj == 'test'
+    assert obj == "test"
 
     # Encode into JSON
     handlers.register(UnicodeMixin, UnicodeMixinHandler)
@@ -1159,9 +1159,9 @@ def test_unicode_mixin():
     new_obj = jsonpickle.decode(content)
     handlers.unregister(UnicodeMixin)
 
-    new_obj += ' passed'
+    new_obj += " passed"
 
-    assert new_obj == 'test passed'
+    assert new_obj == "test passed"
     assert isinstance(new_obj, UnicodeMixin)
     assert new_obj.ok()
 
@@ -1181,17 +1181,17 @@ def test_datetime_with_tz_copies_refs():
 
 def test_with_exclude():
     """Does the _jsonpickle_exclude work"""
-    obj = ThingWithExclusion('baz')
+    obj = ThingWithExclusion("baz")
     encoded = jsonpickle.encode(obj)
     decoded = jsonpickle.decode(encoded)
-    assert decoded.bar == 'baz'
-    assert not hasattr(decoded, 'foo')
+    assert decoded.bar == "baz"
+    assert not hasattr(decoded, "foo")
 
 
 def test_contained_exclusion():
     """_jsonpickle_exclude should work only on the class it is defined in"""
-    obj = ThingWithExcludeSubclass('alpha')
+    obj = ThingWithExcludeSubclass("alpha")
     encoded = jsonpickle.encode(obj)
     decoded = jsonpickle.decode(encoded)
-    assert decoded.foo == 'alpha'
-    assert not hasattr(decoded.thing, 'foo')
+    assert decoded.foo == "alpha"
+    assert not hasattr(decoded.thing, "foo")

@@ -18,14 +18,7 @@ import sys
 import time
 import types
 from collections.abc import Iterator as abc_iterator
-from typing import (
-    Any,
-    Callable,
-    Iterable,
-    Iterator,
-    TypeVar,
-    Union,
-)
+from typing import Any, Callable, Iterable, Iterator, TypeVar, Union
 
 from . import tags
 
@@ -36,7 +29,7 @@ V = TypeVar("V")
 # type
 T = TypeVar("T")
 
-_ITERATOR_TYPE: type = type(iter(''))
+_ITERATOR_TYPE: type = type(iter(""))
 SEQUENCES: tuple[type] = (list, set, tuple)  # type: ignore[assignment]
 SEQUENCES_SET: set[type] = {list, set, tuple}
 PRIMITIVES: set[type] = {str, bool, int, float, type(None)}
@@ -127,9 +120,9 @@ def has_method(obj: Any, name: str) -> bool:
         return True
 
     # at this point, the method has to be an instancemthod or a classmethod
-    if not hasattr(func, '__self__'):
+    if not hasattr(func, "__self__"):
         return False
-    bound_to = getattr(func, '__self__')
+    bound_to = getattr(func, "__self__")
 
     # class methods
     if isinstance(original, classmethod):
@@ -178,7 +171,7 @@ def _is_primitive(obj: Any) -> bool:
 
 def _is_enum(obj: Any) -> bool:
     """Is the object an enum?"""
-    return 'enum' in sys.modules and isinstance(obj, sys.modules['enum'].Enum)
+    return "enum" in sys.modules and isinstance(obj, sys.modules["enum"].Enum)
 
 
 def _is_dictionary_subclass(obj: Any) -> bool:
@@ -191,7 +184,7 @@ def _is_dictionary_subclass(obj: Any) -> bool:
     """
     # TODO: add UserDict
     return (
-        hasattr(obj, '__class__')
+        hasattr(obj, "__class__")
         and issubclass(obj.__class__, dict)
         and type(obj) is not dict
     )
@@ -208,7 +201,7 @@ def _is_sequence_subclass(obj: Any) -> bool:
     True
     """
     return (
-        hasattr(obj, '__class__')
+        hasattr(obj, "__class__")
         and issubclass(obj.__class__, SEQUENCES)
         and type(obj) not in SEQUENCES_SET
     )
@@ -255,11 +248,11 @@ def _is_module_function(obj: Any) -> bool:
     """
 
     return (
-        hasattr(obj, '__class__')
+        hasattr(obj, "__class__")
         and isinstance(obj, (types.FunctionType, types.BuiltinFunctionType))
-        and hasattr(obj, '__module__')
-        and hasattr(obj, '__name__')
-        and obj.__name__ != '<lambda>'
+        and hasattr(obj, "__module__")
+        and hasattr(obj, "__name__")
+        and obj.__name__ != "<lambda>"
     ) or _is_cython_function(obj)
 
 
@@ -300,7 +293,7 @@ def _is_installed(module: str) -> bool:
 
 
 def _is_list_like(obj: Any) -> bool:
-    return hasattr(obj, '__getitem__') and hasattr(obj, 'append')
+    return hasattr(obj, "__getitem__") and hasattr(obj, "append")
 
 
 def _is_iterator(obj: Any) -> bool:
@@ -309,13 +302,13 @@ def _is_iterator(obj: Any) -> bool:
 
 def _is_collections(obj: Any) -> bool:
     try:
-        return type(obj).__module__ == 'collections'
+        return type(obj).__module__ == "collections"
     except Exception:
         return False
 
 
 def _is_reducible_sequence_subclass(obj: Any) -> bool:
-    return hasattr(obj, '__class__') and issubclass(obj.__class__, SEQUENCES)
+    return hasattr(obj, "__class__") and issubclass(obj.__class__, SEQUENCES)
 
 
 def _is_reducible(obj: Any) -> bool:
@@ -333,8 +326,8 @@ def _is_reducible(obj: Any) -> bool:
         or isinstance(obj, types.ModuleType)
         or _is_reducible_sequence_subclass(obj)
         or _is_list_like(obj)
-        or isinstance(getattr(obj, '__slots__', None), _ITERATOR_TYPE)
-        or (_is_type(obj) and obj.__module__ == 'datetime')
+        or isinstance(getattr(obj, "__slots__", None), _ITERATOR_TYPE)
+        or (_is_type(obj) and obj.__module__ == "datetime")
     ):
         return False
     return True
@@ -344,8 +337,8 @@ def _is_cython_function(obj: Any) -> bool:
     """Returns true if the object is a reference to a Cython function"""
     return (
         callable(obj)
-        and hasattr(obj, '__repr__')
-        and repr(obj).startswith('<cyfunction ')
+        and hasattr(obj, "__repr__")
+        and repr(obj).startswith("<cyfunction ")
     )
 
 
@@ -368,7 +361,7 @@ def in_dict(obj: Any, key: str, default: bool = False) -> bool:
     Returns true if key exists in obj.__dict__; false if not in.
     If obj.__dict__ is absent, return default
     """
-    return (key in obj.__dict__) if getattr(obj, '__dict__', None) else default
+    return (key in obj.__dict__) if getattr(obj, "__dict__", None) else default
 
 
 def in_slots(obj: Any, key: str, default: bool = False) -> bool:
@@ -376,7 +369,7 @@ def in_slots(obj: Any, key: str, default: bool = False) -> bool:
     Returns true if key exists in obj.__slots__; false if not in.
     If obj.__slots__ is absent, return default
     """
-    return (key in obj.__slots__) if getattr(obj, '__slots__', None) else default
+    return (key in obj.__slots__) if getattr(obj, "__slots__", None) else default
 
 
 def has_reduce(obj: Any) -> tuple[bool, bool]:
@@ -399,8 +392,8 @@ def has_reduce(obj: Any) -> tuple[bool, bool]:
     has_reduce = False
     has_reduce_ex = False
 
-    REDUCE = '__reduce__'
-    REDUCE_EX = '__reduce_ex__'
+    REDUCE = "__reduce__"
+    REDUCE_EX = "__reduce_ex__"
 
     # For object instance
     has_reduce = in_dict(obj, REDUCE) or in_slots(obj, REDUCE)
@@ -447,7 +440,7 @@ def translate_module_name(module: str) -> str:
 
     See untranslate_module_name() for the reverse operation.
     """
-    lookup = dict(__builtin__='builtins', exceptions='builtins')
+    lookup = dict(__builtin__="builtins", exceptions="builtins")
     return lookup.get(module, module)
 
 
@@ -455,7 +448,7 @@ def _0_9_6_compat_untranslate(module: str) -> str:
     """Provide compatibility for pickles created with jsonpickle 0.9.6 and
     earlier, remapping `exceptions` and `__builtin__` to `builtins`.
     """
-    lookup = dict(__builtin__='builtins', exceptions='builtins')
+    lookup = dict(__builtin__="builtins", exceptions="builtins")
     return lookup.get(module, module)
 
 
@@ -495,22 +488,22 @@ def importable_name(cls: Union[type, Callable[..., Any]]) -> str:
         return types_importable_name
 
     # Use the fully-qualified name if available (Python >= 3.3)
-    name = getattr(cls, '__qualname__', cls.__name__)
+    name = getattr(cls, "__qualname__", cls.__name__)
     module = translate_module_name(cls.__module__)
     if not module:
-        if hasattr(cls, '__self__'):
-            if hasattr(cls.__self__, '__module__'):
+        if hasattr(cls, "__self__"):
+            if hasattr(cls.__self__, "__module__"):
                 module = cls.__self__.__module__
             else:
                 module = cls.__self__.__class__.__module__
-    return f'{module}.{name}'
+    return f"{module}.{name}"
 
 
 def b64encode(data: bytes) -> str:
     """
     Encode binary data to ascii text in base64. Data must be bytes.
     """
-    return base64.b64encode(data).decode('ascii')
+    return base64.b64encode(data).decode("ascii")
 
 
 def b64decode(payload: str) -> bytes:
@@ -520,14 +513,14 @@ def b64decode(payload: str) -> bytes:
     try:
         return base64.b64decode(payload)
     except (TypeError, binascii.Error):
-        return b''
+        return b""
 
 
 def b85encode(data: bytes) -> str:
     """
     Encode binary data to ascii text in base85. Data must be bytes.
     """
-    return base64.b85encode(data).decode('ascii')
+    return base64.b85encode(data).decode("ascii")
 
 
 def b85decode(payload: bytes) -> bytes:
@@ -537,13 +530,13 @@ def b85decode(payload: bytes) -> bytes:
     try:
         return base64.b85decode(payload)
     except (TypeError, ValueError):
-        return b''
+        return b""
 
 
 def itemgetter(
     obj: Any,
     getter: Callable[[Any], Any] = operator.itemgetter(0),
-) -> str:  # type: ignore[assignment]
+) -> str:
     return str(getter(obj))
 
 

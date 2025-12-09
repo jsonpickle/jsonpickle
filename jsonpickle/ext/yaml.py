@@ -14,5 +14,5 @@ def register(backend: Optional[JSONBackend] = None) -> bool:
     if backend is None:
         backend = jsonpickle_backend
     return backend.load_backend(
-        'yaml', dumps='dump', loads='safe_load', loads_exc='YAMLError'
+        "yaml", dumps="dump", loads="safe_load", loads_exc="YAMLError"
     )

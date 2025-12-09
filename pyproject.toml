@@ -93,7 +93,7 @@ packages = [
 include-package-data = true
 
 [tool.black]
-skip-string-normalization = true
+target-version = ["py39"]
 
 [tool.setuptools_scm]
 

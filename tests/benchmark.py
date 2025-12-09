@@ -26,23 +26,23 @@ if doc['feed']['title'] != unpickled['feed']['title']:
 """
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.path.insert(1, os.getcwd())
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '-n',
-        '--number',
+        "-n",
+        "--number",
         type=int,
         default=500,
-        help='number of iterations to benchmark',
+        help="number of iterations to benchmark",
     )
-    parser.add_argument('mod', nargs='?', default='json', help='json module')
+    parser.add_argument("mod", nargs="?", default="json", help="json module")
 
     args = parser.parse_args()
     mod = args.mod
     number = args.number
 
-    print('Using %s' % mod)
+    print("Using %s" % mod)
     json_test = timeit.Timer(stmt=json % mod)
     print("%.9f sec/pass " % (json_test.timeit(number=number) / number))

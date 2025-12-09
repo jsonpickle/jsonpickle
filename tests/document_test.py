@@ -64,13 +64,13 @@ def test_cyclical():
     This makes sure that we handle this case correctly.
 
     """
-    document = Document('My Document')
-    section1 = Section('Section 1')
-    section2 = Section('Section 2')
-    question1 = Question('Question 1')
-    question2 = Question('Question 2')
-    question3 = Question('Question 3')
-    question4 = Question('Question 4')
+    document = Document("My Document")
+    section1 = Section("Section 1")
+    section2 = Section("Section 2")
+    question1 = Question("Question 1")
+    question2 = Question("Question 2")
+    question3 = Question("Question 3")
+    question4 = Question("Question 4")
     document.add_child(section1)
     document.add_child(section2)
     section1.add_child(question1)

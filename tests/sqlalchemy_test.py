@@ -17,13 +17,13 @@ except ImportError:
 if HAS_SQA:
     # sqlalchemy.ext.declarative.declarative_base() was deprecated in SQLAlchemy 2.0
     # and replaced by sqlalchemy.orm.declarative_base().
-    if hasattr(orm, 'declarative_base'):
+    if hasattr(orm, "declarative_base"):
         Base = orm.declarative_base()
     else:
         Base = declarative.declarative_base()
 
     class Table(Base):
-        __tablename__ = 'table'
+        __tablename__ = "table"
         id = sqa.Column(sqa.Integer, primary_key=True)
         name = sqa.Column(sqa.Text)
         value = sqa.Column(sqa.Float)
@@ -34,7 +34,7 @@ class SQLAlchemyTestCase(SkippableTest):
     def setUp(self):
         """Create a new sqlalchemy engine for the test"""
         if HAS_SQA:
-            url = 'sqlite:///:memory:'
+            url = "sqlite:///:memory:"
             self.engine = sqa.create_engine(url)
             Base.metadata.drop_all(self.engine)
             Base.metadata.create_all(self.engine)
@@ -45,8 +45,8 @@ class SQLAlchemyTestCase(SkippableTest):
     def test_sqlalchemy_roundtrip_with_detached_session(self):
         """Test cloned SQLAlchemy objects detached from any session"""
         if self.should_skip:
-            return self.skip('sqlalchemy is not installed')
-        expect = Table(name='coolness', value=11.0)
+            return self.skip("sqlalchemy is not installed")
+        expect = Table(name="coolness", value=11.0)
         session = Session(bind=self.engine, expire_on_commit=False)
         session.add(expect)
         session.commit()
@@ -63,8 +63,8 @@ class SQLAlchemyTestCase(SkippableTest):
     def test_sqlalchemy_roundtrip_with_two_sessions(self):
         """Test cloned SQLAlchemy objects attached to a secondary session"""
         if self.should_skip:
-            return self.skip('sqlalchemy is not installed')
-        expect = Table(name='coolness', value=11.0)
+            return self.skip("sqlalchemy is not installed")
+        expect = Table(name="coolness", value=11.0)
         session = Session(bind=self.engine, expire_on_commit=False)
         session.add(expect)
         session.commit()
@@ -81,13 +81,13 @@ class SQLAlchemyTestCase(SkippableTest):
     def test_sqlalchemy_with_dynamic_table(self):
         """Test creating a table dynamically, per #180"""
         if self.should_skip:
-            return self.skip('sqlalchemy is not installed')
+            return self.skip("sqlalchemy is not installed")
         meta = sqa.MetaData()
         expect = sqa.Table(
-            'test',
+            "test",
             meta,
-            sqa.Column('id', sqa.Integer()),
-            sqa.Column('text', sqa.Text()),
+            sqa.Column("id", sqa.Integer()),
+            sqa.Column("text", sqa.Text()),
         )
         jsonstr = jsonpickle.dumps(expect)
         actual = jsonpickle.loads(jsonstr)

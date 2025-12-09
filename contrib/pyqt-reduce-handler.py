@@ -12,7 +12,7 @@ from qtpy import QtCore
 import jsonpickle
 from jsonpickle import handlers
 
-text_type = eval('unicode') if str is bytes else str
+text_type = eval("unicode") if str is bytes else str
 
 
 class QReduceHandler(handlers.BaseHandler):
@@ -21,13 +21,13 @@ class QReduceHandler(handlers.BaseHandler):
         if not pickler.unpicklable:
             return text_type(obj)
         flatten = pickler.flatten
-        data['__reduce__'] = [flatten(i, reset=False) for i in obj.__reduce__()[1]]
+        data["__reduce__"] = [flatten(i, reset=False) for i in obj.__reduce__()[1]]
         return data
 
     def restore(self, data):
         unpickler = self.context
         restore = unpickler.restore
-        reduced = [restore(i, reset=False) for i in data['__reduce__']]
+        reduced = [restore(i, reset=False) for i in data["__reduce__"]]
         modulename = reduced[0]
         classname = reduced[1]
         args = reduced[2]

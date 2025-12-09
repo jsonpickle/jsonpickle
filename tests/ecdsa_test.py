@@ -6,7 +6,7 @@ from helper import SkippableTest
 import jsonpickle
 
 
-@pytest.fixture(scope='module', autouse=True)
+@pytest.fixture(scope="module", autouse=True)
 def gmpy_extension():
     """Initialize the gmpy extension for this test module"""
     try:
@@ -33,9 +33,9 @@ class EcdsaTestCase(SkippableTest):
 
     def test_roundtrip(self):
         if self.should_skip:
-            return self.skip('ecdsa module is not installed')
+            return self.skip("ecdsa module is not installed")
 
-        message = b'test'
+        message = b"test"
         key_pair = self.SigningKey.generate(curve=self.NIST384p)
         sig = key_pair.sign(message)
         serialized = jsonpickle.dumps(key_pair.get_verifying_key())

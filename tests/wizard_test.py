@@ -26,28 +26,28 @@ class Wizard:
         for (ka, va), (kb, vb) in zip(self.spells.items(), other.spells.items()):
             cmp_name = cmp(ka.name, kb.name)  # noqa: F821
             if cmp_name != 0:
-                print(f'Wizards cmp: {ka.name} != {kb.name}')
+                print(f"Wizards cmp: {ka.name} != {kb.name}")
                 return cmp_name
             for sa, sb in zip(va, vb):
                 cmp_spell = cmp(sa, sb)  # noqa: F821
                 if cmp_spell != 0:
-                    print(f'Spells cmp: {sa.name} != {sb.name}')
+                    print(f"Spells cmp: {sa.name} != {sb.name}")
                     return cmp_spell
         return cmp(self.name, other.name)  # noqa: F821
 
     def __eq__(self, other):
         for (ka, va), (kb, vb) in zip(self.spells.items(), other.spells.items()):
             if ka.name != kb.name:
-                print(f'Wizards differ: {ka.name} != {kb.name}')
+                print(f"Wizards differ: {ka.name} != {kb.name}")
                 return False
             for sa, sb in zip(va, vb):
                 if sa != sb:
-                    print(f'Spells differ: {sa.name} != {sb.name}')
+                    print(f"Spells differ: {sa.name} != {sb.name}")
                     return False
         return self.name == other.name
 
     def __hash__(self):
-        return hash('Wizard %s' % self.name)
+        return hash("Wizard %s" % self.name)
 
 
 class Spell:
@@ -76,7 +76,7 @@ class Spell:
         )
 
     def __hash__(self):
-        return hash(f'Spell {self.name} by {self.caster.name} on {self.target.name}')
+        return hash(f"Spell {self.name} by {self.caster.name} on {self.target.name}")
 
 
 def hashsum(items):
@@ -86,26 +86,26 @@ def hashsum(items):
 def compare_spells(a, b):
     for (ka, va), (kb, vb) in zip(a.items(), b.items()):
         if ka != kb:
-            print(f'Keys differ: {ka} != {kb}')
+            print(f"Keys differ: {ka} != {kb}")
             return False
     return True
 
 
 def test_without_pickling():
     world = World()
-    wizard_merlin = Wizard(world, 'Merlin')
-    wizard_morgana = Wizard(world, 'Morgana')
-    spell_a = Spell(wizard_merlin, wizard_morgana, 'magic-missile')
-    spell_b = Spell(wizard_merlin, wizard_merlin, 'stone-skin')
-    spell_c = Spell(wizard_morgana, wizard_merlin, 'geas')
+    wizard_merlin = Wizard(world, "Merlin")
+    wizard_morgana = Wizard(world, "Morgana")
+    spell_a = Spell(wizard_merlin, wizard_morgana, "magic-missile")
+    spell_b = Spell(wizard_merlin, wizard_merlin, "stone-skin")
+    spell_c = Spell(wizard_morgana, wizard_merlin, "geas")
     assert wizard_merlin.spells[wizard_morgana][0] == spell_a
     assert wizard_merlin.spells[wizard_merlin][0] == spell_b
     assert wizard_morgana.spells[wizard_merlin][0] == spell_c
     # Merlin has cast Magic Missile on Morgana, and Stone Skin on himself
-    assert wizard_merlin.spells[wizard_morgana][0].name == 'magic-missile'
-    assert wizard_merlin.spells[wizard_merlin][0].name == 'stone-skin'
+    assert wizard_merlin.spells[wizard_morgana][0].name == "magic-missile"
+    assert wizard_merlin.spells[wizard_merlin][0].name == "stone-skin"
     # Morgana has cast Geas on Merlin
-    assert wizard_morgana.spells[wizard_merlin][0].name == 'geas'
+    assert wizard_morgana.spells[wizard_merlin][0].name == "geas"
     # Merlin's first target was Morgana
     merlin_spells = wizard_merlin.spells
     merlin_spells_keys = list(merlin_spells.keys())
@@ -131,14 +131,14 @@ def test_without_pickling():
 
 def test_with_pickling():
     world = World()
-    wizard_merlin = Wizard(world, 'Merlin')
-    wizard_morgana = Wizard(world, 'Morgana')
-    wizard_morgana_prime = Wizard(world, 'Morgana')
+    wizard_merlin = Wizard(world, "Merlin")
+    wizard_morgana = Wizard(world, "Morgana")
+    wizard_morgana_prime = Wizard(world, "Morgana")
     assert wizard_morgana.__dict__ == wizard_morgana_prime.__dict__
 
-    spell_a = Spell(wizard_merlin, wizard_morgana, 'magic-missile')
-    spell_b = Spell(wizard_merlin, wizard_merlin, 'stone-skin')
-    spell_c = Spell(wizard_morgana, wizard_merlin, 'geas')
+    spell_a = Spell(wizard_merlin, wizard_morgana, "magic-missile")
+    spell_b = Spell(wizard_merlin, wizard_merlin, "stone-skin")
+    spell_c = Spell(wizard_morgana, wizard_merlin, "geas")
     assert wizard_merlin.spells[wizard_morgana][0] == spell_a
     assert wizard_merlin.spells[wizard_merlin][0] == spell_b
     assert wizard_morgana.spells[wizard_merlin][0] == spell_c
@@ -158,10 +158,10 @@ def test_with_pickling():
     assert wizard_morgana.spells == morgana_decoded.spells
     # Merlin has cast Magic Missile on Morgana, and Stone Skin on himself
     merlin_spells = u_wizard_merlin.spells
-    assert merlin_spells[u_wizard_morgana][0].name == 'magic-missile'
-    assert merlin_spells[u_wizard_merlin][0].name == 'stone-skin'
+    assert merlin_spells[u_wizard_morgana][0].name == "magic-missile"
+    assert merlin_spells[u_wizard_merlin][0].name == "stone-skin"
     # Morgana has cast Geas on Merlin
-    assert u_wizard_morgana.spells[u_wizard_merlin][0].name == 'geas'
+    assert u_wizard_morgana.spells[u_wizard_merlin][0].name == "geas"
     # Merlin's first target was Morgana
     merlin_spells_keys = list(u_wizard_merlin.spells.keys())
     assert merlin_spells_keys[0] in u_wizard_merlin.spells
