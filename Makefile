@@ -4,6 +4,7 @@ DATEANDTIME=$(shell date +%Y-%m-%dT%T%z)
 
 # External commands
 BLACK ?= black
+ISORT ?= isort
 CTAGS ?= ctags
 FIND ?= find
 PYTHON ?= python3
@@ -147,5 +148,6 @@ clean::
 .PHONY: clean
 
 format::
-	$(BLACK) --skip-string-normalization --target-version py310 $(PYTHON_DIRS)
+	$(BLACK) $(PYTHON_DIRS)
+	$(ISORT) --profile=black $(PYTHON_DIRS)
 .PHONY: format
