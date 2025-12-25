@@ -499,10 +499,7 @@ def importable_name(cls: Union[type, Callable[..., Any]]) -> str:
 
     # Use the fully-qualified name if available (Python >= 3.3)
     name = getattr(cls, "__qualname__", cls.__name__)
-    module_name: str = getattr(cls, "__module__", "") or getattr(
-        type(cls), "__module__", ""
-    )
-    module = translate_module_name(module_name)
+    module = translate_module_name(cls.__module__)
     if not module:
         if hasattr(cls, "__self__"):
             if hasattr(cls.__self__, "__module__"):

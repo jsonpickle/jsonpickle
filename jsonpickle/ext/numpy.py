@@ -24,7 +24,7 @@ else:
 
 
 from ..handlers import BaseHandler, register, unregister
-from ..util import b64decode, b64encode, importable_name, loadclass
+from ..util import b64decode, b64encode, loadclass
 
 __all__ = ["register_handlers", "unregister_handlers"]
 
@@ -379,7 +379,13 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
 
 class NumpyUfuncHandler(BaseHandler):
     def flatten(self, obj: np.ufunc, data: dict[str, Any]) -> dict[str, Any]:
-        data["importable_name"] = importable_name(obj)
+        # we can use util.importable_name here once we stop supporting python 3.9
+        mod = getattr(obj, "__module__", None) or getattr(type(obj), "__module__", None)
+        if mod:
+            data["importable_name"] = f"{mod}.{obj.__name__}"
+        else:
+            # fallback for older numpy versions where there's no __module__
+            data["importable_name"] = f"numpy.{obj.__name__}"
         return data
 
     def restore(self, obj: dict[str, Any]) -> np.ufunc:
