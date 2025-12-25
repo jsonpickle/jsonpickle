@@ -586,16 +586,16 @@ def loadclass(
         except KeyError:
             # maybe they didn't provide a fully qualified path
             try:
-                return classes[module_and_name.rsplit('.', 1)[-1]]
+                return classes[module_and_name.rsplit(".", 1)[-1]]
             except KeyError:
                 pass
     # Otherwise, load classes from globally-accessible imports
-    names = module_and_name.split('.')
+    names = module_and_name.split(".")
     # First assume that everything up to the last dot is the module name,
     # then try other splits to handle classes that are defined within
     # classes
     for up_to in range(len(names) - 1, 0, -1):
-        module = untranslate_module_name('.'.join(names[:up_to]))
+        module = untranslate_module_name(".".join(names[:up_to]))
         try:
             __import__(module)
             obj = sys.modules[module]
