@@ -406,6 +406,12 @@ def test_np_datetime64_units():
     assert obj == jsonpickle.decode(encoded)
 
 
+def test_np_ufuncs():
+    obj = np.log1p
+    encoded = jsonpickle.encode(obj)
+    assert obj is jsonpickle.decode(encoded)
+
+
 class ThingWithDel:
     def __init__(self, data):
         self.data = data

@@ -18,6 +18,7 @@ v5.0.0
     * More test cases were added to cover reported use cases. (#503) (#573)
     * jsonpickle now avoids holding onto external references when decoding, which can
       improve memory deallocation behavior. (#579) (+580)
+    * Fix bug with ``numpy`` ufuncs not being roundtripped properly. (#584) (+585)
 
 v4.1.1
 ======

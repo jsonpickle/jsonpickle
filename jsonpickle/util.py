@@ -18,7 +18,17 @@ import sys
 import time
 import types
 from collections.abc import Iterator as abc_iterator
-from typing import Any, Callable, Iterable, Iterator, TypeVar, Union
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    Iterator,
+    Optional,
+    Type,
+    TypeVar,
+    Union,
+)
 
 from . import tags
 
@@ -552,3 +562,49 @@ def items(
         if k in exclude:
             continue
         yield k, v
+
+
+def loadclass(
+    module_and_name: str, classes: Optional[Dict[str, Type[Any]]] = None
+) -> Optional[Any]:
+    """Loads the module and returns the class.
+
+    >>> cls = loadclass('datetime.datetime')
+    >>> cls.__name__
+    'datetime'
+
+    >>> loadclass('does.not.exist')
+
+    >>> loadclass('builtins.int')()
+    0
+
+    """
+    # Check if the class exists in a caller-provided scope
+    if classes:
+        try:
+            return classes[module_and_name]
+        except KeyError:
+            # maybe they didn't provide a fully qualified path
+            try:
+                return classes[module_and_name.rsplit(".", 1)[-1]]
+            except KeyError:
+                pass
+    # Otherwise, load classes from globally-accessible imports
+    names = module_and_name.split(".")
+    # First assume that everything up to the last dot is the module name,
+    # then try other splits to handle classes that are defined within
+    # classes
+    for up_to in range(len(names) - 1, 0, -1):
+        module = untranslate_module_name(".".join(names[:up_to]))
+        try:
+            __import__(module)
+            obj = sys.modules[module]
+            for class_name in names[up_to:]:
+                obj = getattr(obj, class_name)
+            return obj
+        except (AttributeError, ImportError, ValueError):
+            continue
+    # NoneType is a special case and can not be imported/created
+    if module_and_name == "builtins.NoneType":
+        return type(None)
+    return None

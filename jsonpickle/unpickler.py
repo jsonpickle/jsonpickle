@@ -5,9 +5,7 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 import dataclasses
-import sys
 import warnings
-from types import ModuleType
 from typing import (
     Any,
     Callable,
@@ -204,52 +202,6 @@ def _obj_setvalue(obj: Any, idx: Any, proxy: _Proxy) -> None:
     obj[idx] = proxy.get()
 
 
-def loadclass(
-    module_and_name: str, classes: Optional[Dict[str, Type[Any]]] = None
-) -> Optional[Union[Type[Any], ModuleType]]:
-    """Loads the module and returns the class.
-
-    >>> cls = loadclass('datetime.datetime')
-    >>> cls.__name__
-    'datetime'
-
-    >>> loadclass('does.not.exist')
-
-    >>> loadclass('builtins.int')()
-    0
-
-    """
-    # Check if the class exists in a caller-provided scope
-    if classes:
-        try:
-            return classes[module_and_name]
-        except KeyError:
-            # maybe they didn't provide a fully qualified path
-            try:
-                return classes[module_and_name.rsplit(".", 1)[-1]]
-            except KeyError:
-                pass
-    # Otherwise, load classes from globally-accessible imports
-    names = module_and_name.split(".")
-    # First assume that everything up to the last dot is the module name,
-    # then try other splits to handle classes that are defined within
-    # classes
-    for up_to in range(len(names) - 1, 0, -1):
-        module = util.untranslate_module_name(".".join(names[:up_to]))
-        try:
-            __import__(module)
-            obj = sys.modules[module]
-            for class_name in names[up_to:]:
-                obj = getattr(obj, class_name)
-            return obj
-        except (AttributeError, ImportError, ValueError):
-            continue
-    # NoneType is a special case and can not be imported/created
-    if module_and_name == "builtins.NoneType":
-        return type(None)
-    return None
-
-
 def has_tag(obj: Any, tag: str) -> bool:
     """Helper class that tests to see if the obj is a dictionary
     and contains a particular key/tag.
@@ -284,7 +236,7 @@ def getargs(obj: Dict[str, Any], classes: Optional[Dict[str, Type[Any]]] = None)
         obj_dict = obj[tags.OBJECT]
     except KeyError:
         return []
-    typeref = loadclass(obj_dict, classes=classes)
+    typeref = util.loadclass(obj_dict, classes=classes)
     if not typeref:
         return []
     if hasattr(typeref, "_fields"):
@@ -642,7 +594,7 @@ class Unpickler:
             return None
 
     def _restore_type(self, obj: Dict[str, Any]) -> Any:
-        typeref = loadclass(obj[tags.TYPE], classes=self._classes)
+        typeref = util.loadclass(obj[tags.TYPE], classes=self._classes)
         if typeref is None:
             return obj
         return typeref
@@ -906,7 +858,7 @@ class Unpickler:
 
     def _restore_object(self, obj: Dict[str, Any]) -> Any:
         class_name = obj[tags.OBJECT]
-        cls = loadclass(class_name, classes=self._classes)
+        cls = util.loadclass(class_name, classes=self._classes)
         handler = handlers.get(cls, handlers.get(class_name))  # type: ignore[arg-type]
         if handler is not None:  # custom handler
             proxy = _Proxy()
@@ -920,10 +872,10 @@ class Unpickler:
             self._process_missing(class_name)
             return self._mkref(obj)
 
-        return self._restore_object_instance(obj, cls, class_name)  # type: ignore[arg-type]
+        return self._restore_object_instance(obj, cls, class_name)
 
     def _restore_function(self, obj: Dict[str, Any]) -> Any:
-        return loadclass(obj[tags.FUNCTION], classes=self._classes)
+        return util.loadclass(obj[tags.FUNCTION], classes=self._classes)
 
     def _restore_set(self, obj: Dict[str, Any]) -> Set[Any]:
         try:
