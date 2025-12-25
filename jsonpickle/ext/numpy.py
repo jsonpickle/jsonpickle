@@ -6,7 +6,7 @@ import sys
 import warnings
 import zlib
 from types import ModuleType
-from typing import Any, NoReturn
+from typing import Any, NoReturn, cast
 
 import numpy as np
 
@@ -24,7 +24,7 @@ else:
 
 
 from ..handlers import BaseHandler, register, unregister
-from ..util import b64decode, b64encode
+from ..util import b64decode, b64encode, importable_name, loadclass
 
 __all__ = ["register_handlers", "unregister_handlers"]
 
@@ -377,6 +377,17 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
         return arr
 
 
+class NumpyUfuncHandler(BaseHandler):
+    def flatten(self, obj: np.ufunc, data: dict[str, Any]) -> dict[str, Any]:
+        data["importable_name"] = importable_name(obj)
+        return data
+
+    def restore(self, obj: dict[str, Any]) -> np.ufunc:
+        # it seems proper practice to make mypy happy that it can't return None here
+        # is to use the cast
+        return cast(np.ufunc, loadclass(obj["importable_name"]))
+
+
 def register_handlers(
     ndarray_mode: str = "warn",
     ndarray_size_threshold: int = 16,
@@ -402,6 +413,8 @@ def register_handlers(
     register(np.dtype(np.int32).__class__, NumpyDTypeHandler, base=True)
     register(np.dtype(np.datetime64).__class__, NumpyDTypeHandler, base=True)
     register(np.datetime64, NumpyDatetimeHandler, base=True)
+    # other handlers
+    register(np.ufunc, NumpyUfuncHandler, base=True)
 
 
 def unregister_handlers() -> None:
@@ -414,3 +427,5 @@ def unregister_handlers() -> None:
     unregister(np.dtype(np.float32).__class__)
     unregister(np.dtype(np.int32).__class__)
     unregister(np.dtype(np.datetime64).__class__)
+    # other handlers
+    unregister(np.ufunc)
