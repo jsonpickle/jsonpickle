@@ -168,9 +168,10 @@ issues when developing.
 
 Related Links and Projects
 ==========================
+
 * `jsonpickleJS <https://github.com/cuthbertLab/jsonpickleJS/>`_ was a sister
-project of jsonpickle for implementing similar functionality but in Javascript.
-The last release was in August 2025.
+  project of jsonpickle for implementing similar functionality but in Javascript.
+  The last release was in August 2025.
 
 
 GPG Signing
