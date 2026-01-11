@@ -19,6 +19,8 @@ v5.0.0
     * jsonpickle now avoids holding onto external references when decoding, which can
       improve memory deallocation behavior. (#579) (+580)
     * Fix bug with ``numpy`` ufuncs not being roundtripped properly. (#584) (+585)
+    * Fix bug where classes with ``__slots__`` or a ``__getstate__`` method using
+      ``__slots__`` wouldn't respect the ``_jsonpickle_exclude`` attribute. (#586) (+587)
 
 v4.1.1
 ======
