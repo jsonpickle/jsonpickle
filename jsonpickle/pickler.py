@@ -720,7 +720,6 @@ class Pickler:
             data[tags.ITERATOR] = list(map(self._flatten, islice(obj, self._max_iter)))
             return data
 
-        print(2)
         if has_dict:
             # Support objects that subclasses list and set
             if util._is_sequence_subclass(obj):
@@ -730,7 +729,6 @@ class Pickler:
             getattr(obj, "_", None)
             return self._flatten_dict_obj(obj.__dict__, data, exclude=exclude)
 
-        print(3)
         if has_slots:
             return self._flatten_newstyle_with_slots(obj, data, exclude=exclude)
 
