@@ -473,11 +473,18 @@ class Pickler:
         return data
 
     def _flatten_obj_attrs(
-        self, obj: Any, attrs: Iterable[str], data: Dict[str, Any]
+        self,
+        obj: Any,
+        attrs: Iterable[str],
+        data: Dict[str, Any],
+        exclude: Iterable[str] = (),
     ) -> bool:
         flatten = self._flatten_key_value_pair
         ok = False
+        exclude = set(exclude)
         for k in attrs:
+            if k in exclude:
+                continue
             try:
                 if not k.startswith("__"):
                     value = getattr(obj, k)
@@ -524,7 +531,10 @@ class Pickler:
         return data
 
     def _flatten_newstyle_with_slots(
-        self, obj: Any, data: Dict[str, Any]
+        self,
+        obj: Any,
+        data: Dict[str, Any],
+        exclude: Iterable[str] = (),
     ) -> Dict[str, Any]:
         """Return a json-friendly dict for new-style objects with __slots__."""
         allslots = [
@@ -536,11 +546,11 @@ class Pickler:
         if self.include_properties:
             data = self._flatten_properties(obj, data, allslots)
 
-        if not self._flatten_obj_attrs(obj, chain(*allslots), data):
+        if not self._flatten_obj_attrs(obj, chain(*allslots), data, exclude):
             attrs = [
                 x for x in dir(obj) if not x.startswith("__") and not x.endswith("__")
             ]
-            self._flatten_obj_attrs(obj, attrs, data)
+            self._flatten_obj_attrs(obj, attrs, data, exclude)
 
         return data
 
@@ -684,6 +694,8 @@ class Pickler:
                 self._pickle_warning(obj)
                 return None
             else:
+                if exclude and isinstance(state, dict):
+                    state = {k: v for k, v in util.items(state, exclude=exclude)}
                 if state:
                     return self._getstate(state, data)
 
@@ -708,6 +720,7 @@ class Pickler:
             data[tags.ITERATOR] = list(map(self._flatten, islice(obj, self._max_iter)))
             return data
 
+        print(2)
         if has_dict:
             # Support objects that subclasses list and set
             if util._is_sequence_subclass(obj):
@@ -717,8 +730,9 @@ class Pickler:
             getattr(obj, "_", None)
             return self._flatten_dict_obj(obj.__dict__, data, exclude=exclude)
 
+        print(3)
         if has_slots:
-            return self._flatten_newstyle_with_slots(obj, data)
+            return self._flatten_newstyle_with_slots(obj, data, exclude=exclude)
 
         # catchall return for data created above without a return
         # (e.g. __getnewargs__ is not supposed to be the end of the story)

@@ -315,6 +315,27 @@ class ThingWithExcludeSubclass:
         self.thing = ThingWithExclusion(3)
 
 
+class SlotsThing:
+    __slots__ = ("foo", "secret")
+    _jsonpickle_exclude = {"secret"}
+
+    def __init__(self, foo, secret):
+        self.foo = foo
+        self.secret = secret
+
+
+class SlotsGetstateThing:
+    __slots__ = ("foo", "secret")
+    _jsonpickle_exclude = {"secret"}
+
+    def __init__(self, foo, secret):
+        self.foo = foo
+        self.secret = secret
+
+    def __getstate__(self):
+        return {"foo": self.foo, "secret": self.secret}
+
+
 def test_list_subclass(pickler, unpickler):
     obj = ListSubclass()
     obj.extend([1, 2, 3])
@@ -1195,3 +1216,21 @@ def test_contained_exclusion():
     decoded = jsonpickle.decode(encoded)
     assert decoded.foo == "alpha"
     assert not hasattr(decoded.thing, "foo")
+
+
+def test_exclude_slots():
+    # GH issue #586
+    obj = SlotsThing("value", "hidden")
+    encoded = jsonpickle.encode(obj)
+    assert "secret" not in encoded
+    decoded = jsonpickle.decode(encoded)
+    assert decoded.foo == "value"
+    assert not hasattr(decoded, "secret")
+
+
+def test_exclude_getstate_from_slots(pickler):
+    # GH issue #586
+    obj = SlotsGetstateThing("value", "hidden")
+    flattened = pickler.flatten(obj)
+    assert tags.STATE in flattened
+    assert flattened[tags.STATE] == {"foo": "value"}
