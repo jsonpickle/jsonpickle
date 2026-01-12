@@ -839,6 +839,11 @@ class Pickler:
         # the collections.defaultdict protocol
         if hasattr(obj, "default_factory") and callable(obj.default_factory):
             factory = obj.default_factory
+            # i know that this string could be turned into a variable to reduce
+            # string duplication but mypy 1.18.2 complains and i don't want to use
+            # even more type: ignores
+            if "default_factory" in data:
+                store_key = tags.DEFAULT_FACTORY
             if util._is_type(factory):
                 # Reference the class/type
                 # in this case it's Dict[str, str]
@@ -856,7 +861,7 @@ class Pickler:
                     # Break the cycle by emitting a reference.
                     # in this case it's Dict[str, int]
                     value: Dict[str, int] = self._getref(factory)  # type: ignore[no-redef]
-            data["default_factory"] = value
+            data[store_key] = value
 
         # Sub-classes of dict
         if hasattr(obj, "__dict__") and self.unpicklable and obj != obj.__dict__:

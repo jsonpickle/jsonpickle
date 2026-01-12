@@ -22,6 +22,7 @@ NEWOBJ: str = "py/newobj"
 OBJECT: str = "py/object"
 PROPERTY: str = "py/property"
 REDUCE: str = "py/reduce"
+DEFAULT_FACTORY: str = "py/default_factory"
 REF: str = "py/ref"
 REPR: str = "py/repr"
 SEQ: str = "py/seq"
@@ -44,6 +45,7 @@ RESERVED: set[str] = {
     OBJECT,
     PROPERTY,
     REDUCE,
+    DEFAULT_FACTORY,
     REF,
     REPR,
     SEQ,

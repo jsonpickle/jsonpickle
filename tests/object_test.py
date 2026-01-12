@@ -673,6 +673,21 @@ def test_defaultdict_roundtrip():
     assert newdefdict.default_factory == list
 
 
+def test_defaultdict_preserves_default_factory_key():
+    """defaultdict should roundtrip keys that collide with default_factory attr"""
+    defdict = collections.defaultdict(int)
+    defdict["default_factory"] = 42
+    defdict["other_key"] = 100
+
+    encoded = jsonpickle.encode(defdict)
+    decoded = jsonpickle.decode(encoded)
+
+    assert isinstance(decoded, collections.defaultdict)
+    assert decoded.default_factory is int
+    assert decoded["default_factory"] == 42
+    assert decoded["other_key"] == 100
+
+
 def test_default_factory_initialization():
     """Ensure that ThingWithDefaultFactory()'s constructor is called"""
     thing = ThingWithDefaultFactory()
