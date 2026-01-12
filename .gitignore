@@ -35,3 +35,5 @@ monkeytype.sqlite3
 .python-version
 # type checking config
 .pyre*
+# vscode workspaces
+*.code-workspace
