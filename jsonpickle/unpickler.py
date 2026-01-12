@@ -41,6 +41,7 @@ def decode(
     v1_decode: bool = False,
     on_missing: MissingHandler = "ignore",
     handle_readonly: bool = False,
+    handler_context: Any = None,
 ) -> Any:
     """Convert a JSON string into a Python object.
 
@@ -94,6 +95,10 @@ def decode(
         with 'handle_readonly' properly. Do not set this flag for objects not encoded
         with 'handle_readonly' set to True.
 
+    :param handler_context:
+        Pass custom context to a custom handler. This can be used to customize
+        behavior at runtime based off data. Defaults to ``None``. An example can
+        be found in the examples/ directory on GitHub.
 
     >>> decode('"my string"') == 'my string'
     True
@@ -108,6 +113,14 @@ def decode(
             "Unpickler.on_missing must be a string or a function! It will be ignored!"
         )
 
+    if (
+        handler_context is None
+        and context is not None
+        and not isinstance(context, Unpickler)
+    ):
+        handler_context = context
+        context = None
+
     backend = backend or json
     is_ephemeral_context = context is None
     context = context or Unpickler(
@@ -117,7 +130,10 @@ def decode(
         v1_decode=v1_decode,
         on_missing=on_missing,
         handle_readonly=handle_readonly,
+        handler_context=handler_context,
     )
+    if handler_context is not None:
+        context.handler_context = handler_context
     data = backend.decode(string)
     result = context.restore(data, reset=reset, classes=classes)
     if is_ephemeral_context:
@@ -340,6 +356,7 @@ class Unpickler:
         v1_decode: bool = False,
         on_missing: MissingHandler = "ignore",
         handle_readonly: bool = False,
+        handler_context: Any = None,
     ) -> None:
         self.backend = backend or json
         self.keys = keys
@@ -347,6 +364,8 @@ class Unpickler:
         self.v1_decode = v1_decode
         self.on_missing = on_missing
         self.handle_readonly = handle_readonly
+        # Custom context passed through to custom handlers, see #452
+        self.handler_context = handler_context
 
         self.reset()
 
@@ -867,7 +886,8 @@ class Unpickler:
         if handler is not None:  # custom handler
             proxy = _Proxy()
             self._mkref(proxy)
-            instance = handler(self).restore(obj)
+            handler_instance = handler(self)
+            instance = self._call_handler_restore(handler_instance, obj)
             proxy.reset(instance)
             self._swapref(proxy, instance)
             return instance
@@ -987,3 +1007,14 @@ class Unpickler:
         else:
             restore = _passthrough  # type: ignore[assignment]
         return restore
+
+    def _call_handler_restore(
+        self, handler: handlers.BaseHandler, obj: Dict[str, Any]
+    ) -> Any:
+        kwargs: dict[str, Any] = {}
+        if (
+            self.handler_context is not None
+            and handlers.handler_accepts_handler_context(handler.restore)
+        ):
+            kwargs["handler_context"] = self.handler_context
+        return handler.restore(obj, **kwargs)
