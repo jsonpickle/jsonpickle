@@ -839,10 +839,11 @@ class Pickler:
         # the collections.defaultdict protocol
         if hasattr(obj, "default_factory") and callable(obj.default_factory):
             factory = obj.default_factory
-            # i know that this string could be turned into a variable to reduce
+            # i know that this string could be moved above the hasattr to reduce
             # string duplication but mypy 1.18.2 complains and i don't want to use
             # even more type: ignores
-            if "default_factory" in data:
+            store_key = "default_factory"
+            if store_key in data:
                 store_key = tags.DEFAULT_FACTORY
             if util._is_type(factory):
                 # Reference the class/type
