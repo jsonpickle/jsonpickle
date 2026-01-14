@@ -9,7 +9,6 @@ from typing import (
     List,
     Literal,
     Optional,
-    Sequence,
     Tuple,
     Type,
     Union,
@@ -19,7 +18,7 @@ import numpy as np
 import pandas as pd
 
 from .. import decode, encode
-from ..handlers import BaseHandler, ContextType, RestoreType, register, unregister
+from ..handlers import BaseHandler, RestoreType, register, unregister
 from ..tags_pd import REVERSE_TYPE_MAP, TYPE_MAP
 from ..util import b64decode, b64encode
 from .numpy import register_handlers as register_numpy_handlers
@@ -368,7 +367,7 @@ class PandasIndexHandler(BaseHandler):
     pp: PandasProcessor = PandasProcessor()
     index_constructor: Type[pd.Index] = pd.Index
 
-    def name_bundler(self, obj: pd.Index) -> Dict[str, Optional[Hashable]]:
+    def name_bundler(self, obj: pd.Index) -> Dict[str, Any]:
         return {"name": obj.name}
 
     def flatten(self, obj: pd.Index, data: Dict[str, Any]) -> Dict[str, Any]:
@@ -395,8 +394,9 @@ class PandasPeriodIndexHandler(PandasIndexHandler):
 
 
 class PandasMultiIndexHandler(PandasIndexHandler):
-    # sequence is technically the type pd.core.indexes.frozen.FrozenList
-    def name_bundler(self, obj: pd.MultiIndex) -> Dict[str, Sequence[Optional[Hashable]]]:  # type: ignore[override]
+    def name_bundler(self, obj: pd.Index) -> Dict[str, Any]:
+        if not isinstance(obj, pd.MultiIndex):
+            return super().name_bundler(obj)
         return {"names": obj.names}
 
 
