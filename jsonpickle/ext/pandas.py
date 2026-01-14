@@ -19,7 +19,7 @@ import numpy as np
 import pandas as pd
 
 from .. import decode, encode
-from ..handlers import BaseHandler, ContextType, register, unregister
+from ..handlers import BaseHandler, ContextType, RestoreType, register, unregister
 from ..tags_pd import REVERSE_TYPE_MAP, TYPE_MAP
 from ..util import b64decode, b64encode
 from .numpy import register_handlers as register_numpy_handlers
@@ -121,11 +121,10 @@ class PandasProcessor:
 
 
 def make_read_csv_params(
-    # we can remove the valid-type ignore once we convert ContextType to a Type Alias when 3.9 is dropped
     meta: Dict[str, Any],
-    context: ContextType,  # type: ignore[valid-type]
+    context: RestoreType,
 ) -> Tuple[Dict[str, Any], List[str], Dict[str, str]]:
-    meta_dtypes = context.restore(meta.get("dtypes", {}), reset=False)  # type: ignore[attr-defined]
+    meta_dtypes = context.restore(meta.get("dtypes", {}), reset=False)
     # The header is used to select the rows of the csv from which
     # the columns names are retrieved
     header = meta.get("header", [0])
@@ -266,7 +265,7 @@ class PandasDfHandler(BaseHandler):
         columns_decoded = decode(meta["columns"], keys=True)
         if meta.get("is_multicolumns", False):
             columns = pd.MultiIndex.from_tuples(
-                columns_decoded, names=meta.get("column_names")  # type: ignore[arg-type]
+                columns_decoded, names=meta.get("column_names")
             )
         else:
             columns = columns_decoded
@@ -308,7 +307,7 @@ class PandasDfHandler(BaseHandler):
         index_values = decode(meta["index"], keys=True)
         if meta.get("is_multiindex", False):
             index = pd.MultiIndex.from_tuples(
-                index_values, names=meta.get("index_names")  # type: ignore[arg-type]
+                index_values, names=meta.get("index_names")
             )
         else:
             index = pd.Index(index_values, name=meta.get("index_names"))
@@ -349,7 +348,7 @@ class PandasDfHandler(BaseHandler):
 class PandasSeriesHandler(BaseHandler):
     pp: PandasProcessor = PandasProcessor()
 
-    def flatten(self, obj: pd.Series, data: Dict[str, Any]) -> Dict[str, Any]:  # type: ignore[type-arg]
+    def flatten(self, obj: pd.Series, data: Dict[str, Any]) -> Dict[str, Any]:
         """Flatten the index and values for reconstruction"""
         data["name"] = obj.name
         # This relies on the numpy handlers for the inner guts.
@@ -357,29 +356,29 @@ class PandasSeriesHandler(BaseHandler):
         data["values"] = self.context.flatten(obj.values, reset=False)
         return data
 
-    def restore(self, data: Dict[str, Any]) -> pd.Series:  # type: ignore[type-arg]
+    def restore(self, data: Dict[str, Any]) -> pd.Series:
         """Restore the flattened data"""
         name = data["name"]
         index = self.context.restore(data["index"], reset=False)
         values = self.context.restore(data["values"], reset=False)
-        return pd.Series(values, index=index, name=name)  # type: ignore[no-any-return]
+        return pd.Series(values, index=index, name=name)
 
 
 class PandasIndexHandler(BaseHandler):
     pp: PandasProcessor = PandasProcessor()
-    index_constructor: Type[pd.Index] = pd.Index  # type: ignore[type-arg]
+    index_constructor: Type[pd.Index] = pd.Index
 
-    def name_bundler(self, obj: pd.Index) -> Dict[str, Optional[Hashable]]:  # type: ignore[type-arg]
+    def name_bundler(self, obj: pd.Index) -> Dict[str, Optional[Hashable]]:
         return {"name": obj.name}
 
-    def flatten(self, obj: pd.Index, data: Dict[str, Any]) -> Dict[str, Any]:  # type: ignore[type-arg]
+    def flatten(self, obj: pd.Index, data: Dict[str, Any]) -> Dict[str, Any]:
         name_bundle = self.name_bundler(obj)
         meta = dict(dtype=str(obj.dtype), **name_bundle)
         buf = encode(obj.tolist())
         data = self.pp.flatten_pandas(buf, data, meta)
         return data
 
-    def restore(self, data: Dict[str, Any]) -> pd.Index:  # type: ignore[type-arg]
+    def restore(self, data: Dict[str, Any]) -> pd.Index:
         buf, meta = self.pp.restore_pandas(data)
         dtype = meta.get("dtype", None)
         name_bundle = {
@@ -440,7 +439,7 @@ class PandasPeriodHandler(BaseHandler):
 class PandasIntervalHandler(BaseHandler):
     pp: PandasProcessor = PandasProcessor()
 
-    def flatten(self, obj: pd.Interval, data: Dict[str, Any]) -> Dict[str, Any]:  # type: ignore[type-arg]
+    def flatten(self, obj: pd.Interval, data: Dict[str, Any]) -> Dict[str, Any]:
         meta = {
             "left": encode(obj.left),
             "right": encode(obj.right),
@@ -450,7 +449,7 @@ class PandasIntervalHandler(BaseHandler):
         data = self.pp.flatten_pandas(buf, data, meta)
         return data
 
-    def restore(self, data: Dict[str, Any]) -> pd.Interval:  # type: ignore[type-arg]
+    def restore(self, data: Dict[str, Any]) -> pd.Interval:
         _, meta = self.pp.restore_pandas(data)
         left = decode(meta["left"])
         right = decode(meta["right"])
