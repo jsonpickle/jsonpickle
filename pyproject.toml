@@ -52,7 +52,6 @@ testing = [
     "pytest-enabler >= 1.0.1",
     "pytest-ruff >= 0.2.1",
     # local
-    "bson",
     "ecdsa",
     "feedparser",
     "gmpy2",
