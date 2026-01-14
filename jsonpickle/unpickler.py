@@ -612,11 +612,15 @@ class Unpickler:
         return self._mkref(obj)
 
     def _loadfactory(self, obj: Dict[str, Any]) -> Optional[Any]:
-        try:
-            default_factory = obj["default_factory"]
-        except KeyError:
+        default_factory = None
+        for key in (tags.DEFAULT_FACTORY, "default_factory"):
+            try:
+                default_factory = obj.pop(key)
+                break
+            except KeyError:
+                continue
+        if default_factory is None:
             return None
-        del obj["default_factory"]
         return self._restore(default_factory)
 
     def _process_missing(self, class_name: str) -> None:

@@ -21,6 +21,8 @@ v5.0.0
     * Fix bug with ``numpy`` ufuncs not being roundtripped properly. (#584) (+585)
     * Fix bug where classes with ``__slots__`` or a ``__getstate__`` method using
       ``__slots__`` wouldn't respect the ``_jsonpickle_exclude`` attribute. (#586) (+587)
+    * Fix bug where encoding a defaultdict would overwrite existing keys named
+      "default_factory". (#572) (+588)
 
 v4.1.1
 ======
