@@ -16,18 +16,29 @@ import queue
 import re
 import threading
 import uuid
-from typing import Any, Callable, Dict, NoReturn, Optional, Type, TypeVar, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    NoReturn,
+    Optional,
+    Type,
+    TypeAlias,
+    TypeVar,
+    Union,
+)
 
 from . import util
 
 T = TypeVar("T")
 
-# Nb. we can't import the below types directly from pickler/unpickler
-# without introducing a circular import dependency.
-ContextType = Union[  # type: ignore[valid-type]
-    TypeVar("Pickler", bound="Pickler"),  # noqa: F821
-    TypeVar("Unpickler", bound="Unpickler"),  # noqa: F821
-]
+if TYPE_CHECKING:
+    from .pickler import Pickler  # noqa: F401
+    from .unpickler import Unpickler  # noqa: F401
+
+ContextType: TypeAlias = Union["Pickler", "Unpickler"]
+RestoreType: TypeAlias = "Unpickler"
 HandlerType = Type[Any]
 KeyType = Union[Type[Any], str]
 HandlerReturn = Optional[Union[dict[str, Any], str]]
@@ -147,9 +158,7 @@ class BaseHandler:
         registry.register(cls, self)
         return cls
 
-    def __call__(
-        self, context: ContextType  # type: ignore[valid-type]
-    ) -> "BaseHandler":
+    def __call__(self, context: ContextType) -> "BaseHandler":
         """This permits registering either Handler instances or classes
 
         :Parameters:

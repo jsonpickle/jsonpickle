@@ -14,12 +14,12 @@ jobs:
 
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.13"
 
       - name: Run black check
         uses: psf/black@stable
         with:
-          options: "--check --diff"
+          options: "--check --diff --target-version=py310"
 
       - name: Run isort check
         uses: isort/isort-action@master

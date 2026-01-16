@@ -15,13 +15,13 @@ classifiers = [
     "Intended Audience :: Developers",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Python :: 3.9",
     "Python :: 3.10",
     "Python :: 3.11",
     "Python :: 3.12",
     "Python :: 3.13",
+    "Python :: 3.14",
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
 ]
 dynamic = ["version"]
@@ -52,7 +52,7 @@ testing = [
     "pytest-enabler >= 1.0.1",
     "pytest-ruff >= 0.2.1",
     # local
-    "bson",
+    "bson; python_version < '3.14'",
     "ecdsa",
     "feedparser",
     "gmpy2",
@@ -93,7 +93,7 @@ packages = [
 include-package-data = true
 
 [tool.black]
-target-version = ["py39"]
+target-version = ["py310"]
 
 [tool.setuptools_scm]
 
@@ -103,7 +103,7 @@ addopts = "--ruff"
 [tool.ruff]
 # Make it agree with black
 line-length = 88
-target-version = "py39"
+target-version = "py310"
 # For temporary git-ignored local files for testing issues
 extend-exclude = [
   "*no_lint*.py",
