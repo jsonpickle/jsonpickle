@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "jsonpickle"
 license = { text = "BSD-3-Clause" }
 authors = [
-    { name = "Theelx" },
+    { name = "Theelx", email = "jsonpickle@all-i-do-is.win" },
     { name = "David Aguilar", email = "davvid+jsonpickle@gmail.com" },
 ]
 description = "jsonpickle encodes/decodes any Python object to/from JSON"
