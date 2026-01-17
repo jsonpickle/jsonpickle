@@ -36,6 +36,7 @@ def encode(
     separators: Optional[Any] = None,
     include_properties: bool = False,
     handle_readonly: bool = False,
+    handler_context: Any = None,
 ) -> str:
     """Return a JSON formatted representation of value, a Python object.
 
@@ -135,6 +136,10 @@ def encode(
         basically prevents jsonpickle from raising an exception for such objects.
         You MUST set ``handle_readonly=True`` for the decoding if you encode with
         this flag set to ``True``.
+    :param handler_context:
+        Pass custom context to a custom handler. This can be used to customize
+        behavior at runtime based off data. Defaults to ``None``. An example can
+        be found in the examples/ directory on GitHub.
 
     >>> encode('my string') == '"my string"'
     True
@@ -146,6 +151,15 @@ def encode(
     '{"foo": "[1, 2, [3, 4]]"}'
 
     """
+    # if a non-pickler is provided to context we can treat it as custom handler context
+    if (
+        handler_context is None
+        and context is not None
+        and not isinstance(context, Pickler)
+    ):
+        handler_context = context
+        context = None
+
     backend = backend or json
     context = context or Pickler(
         unpicklable=unpicklable,
@@ -162,7 +176,10 @@ def encode(
         include_properties=include_properties,
         handle_readonly=handle_readonly,
         original_object=value,
+        handler_context=handler_context,
     )
+    if handler_context is not None:
+        context.handler_context = handler_context
     return backend.encode(
         context.flatten(value, reset=reset), indent=indent, separators=separators
     )
@@ -213,6 +230,7 @@ class Pickler:
         include_properties: bool = False,
         handle_readonly: bool = False,
         original_object: Optional[Any] = None,
+        handler_context: Any = None,
     ) -> None:
         self.unpicklable = unpicklable
         self.make_refs = make_refs
@@ -237,6 +255,8 @@ class Pickler:
         self._flattened = {}
         # Used for util._is_readonly, see +483
         self.handle_readonly = handle_readonly
+        # Custom context passed through to custom handlers, see #452
+        self.handler_context = handler_context
 
         if self.use_base85:
             self._bytes_tag = tags.B85
@@ -472,6 +492,17 @@ class Pickler:
         data[k] = self._flatten(v)
         return data
 
+    def _call_handler_flatten(
+        self, handler: handlers.BaseHandler, obj: Any, data: Dict[str, Any]
+    ) -> Any:
+        kwargs: dict[str, Any] = {}
+        if (
+            self.handler_context is not None
+            and handlers.handler_accepts_handler_context(handler.flatten)
+        ):
+            kwargs["handler_context"] = self.handler_context
+        return handler.flatten(obj, data, **kwargs)
+
     def _flatten_obj_attrs(
         self,
         obj: Any,
@@ -589,7 +620,8 @@ class Pickler:
         if handler is not None:
             if self.unpicklable:
                 data[tags.OBJECT] = class_name
-            result = handler(self).flatten(obj, data)
+            handler_instance = handler(self)
+            result = self._call_handler_flatten(handler_instance, obj, data)
             if result is None:
                 self._pickle_warning(obj)
             return result

@@ -11,6 +11,7 @@ A handler can be bound to other types by calling
 import array
 import copy
 import datetime
+import inspect
 import io
 import queue
 import re
@@ -113,6 +114,26 @@ registry = Registry()
 register = registry.register
 unregister = registry.unregister
 get = registry.get
+
+
+def handler_accepts_handler_context(fn: Callable[..., Any]) -> bool:
+    """
+    Check if the handler function has a handler_context parameter.
+    """
+    try:
+        params = inspect.signature(fn).parameters
+    except (TypeError, ValueError):
+        return False
+
+    param = params.get("handler_context")
+    if param is None:
+        return False
+
+    return param.kind in (
+        inspect.Parameter.POSITIONAL_OR_KEYWORD,
+        inspect.Parameter.KEYWORD_ONLY,
+        inspect.Parameter.VAR_KEYWORD,
+    )
 
 
 class BaseHandler:

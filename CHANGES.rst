@@ -4,7 +4,8 @@ v5.0.0
       You can re-enable yaml support using ``jsonpickle.ext.yaml.register()``.
       (#550) (+551)
     * **Breaking Change**: Support for CPython 3.7 3.8, and 3.9 was dropped, and support for
-      CPython 3.13 and 3.14 was added. (#561) (+563)
+      CPython 3.13 and 3.14 was added. If corporate or community support is still needed for
+      dropped versions, contact Theelx over email to make arrangements. (#561) (+563) (+589)
     * **Breaking Change**: Changed ``is_*`` functions in jsonpickle.util to the private API
       rather than the public one by adding a single underscore to their names. (+563)
     * **Breaking Change**: Removed the deprecated functions deprecated in 4.1.0 with commit

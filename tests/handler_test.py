@@ -31,6 +31,10 @@ class CustomB(CustomA):
     pass
 
 
+class ContextObject(CustomObject):
+    pass
+
+
 class NullHandler(jsonpickle.handlers.BaseHandler):
     def flatten(self, obj, data):
         data["name"] = obj.name
@@ -60,6 +64,15 @@ class SithHandler(jsonpickle.handlers.BaseHandler):
         data["name"] = obj.name
         data["py/object"] = "sith.lord"
         return data
+
+
+class ContextAwareHandler(jsonpickle.handlers.BaseHandler):
+    def flatten(self, obj, data, handler_context):
+        data["name"] = f"{obj.name}-{handler_context['suffix']}"
+        return data
+
+    def restore(self, data, handler_context):
+        return ContextObject(f"{data['name']}-{handler_context['suffix']}")
 
 
 class HandlerTestCase(unittest.TestCase):
@@ -138,3 +151,22 @@ class HandlerTestCase(unittest.TestCase):
         assert len(data) == 2
         assert data["name"] == "jarjar"
         assert data["py/object"] == "sith.lord"
+
+    def test_custom_handler_with_context(self):
+        jsonpickle.handlers.register(ContextObject, ContextAwareHandler)
+        obj = ContextObject("hello")
+        encoded_a = jsonpickle.encode(obj, context={"suffix": "a"})
+        encoded_b = jsonpickle.encode(obj, context={"suffix": "b"})
+
+        decoded_a = jsonpickle.decode(encoded_a, context={"suffix": "x"})
+        decoded_b = jsonpickle.decode(encoded_b, context={"suffix": "y"})
+
+        assert decoded_a.name == "hello-a-x"
+        assert decoded_b.name == "hello-b-y"
+
+    def test_custom_handler_without_context(self):
+        obj = CustomObject("alpha")
+        encoded = jsonpickle.encode(obj, context={"suffix": "ignored"})
+        decoded = jsonpickle.decode(encoded, context={"suffix": "ignored"})
+
+        assert decoded.name == "alpha"
