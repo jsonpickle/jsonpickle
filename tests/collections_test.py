@@ -31,6 +31,7 @@
 """
 Unit tests for collections
 """
+
 from collections import OrderedDict, defaultdict
 
 import jsonpickle

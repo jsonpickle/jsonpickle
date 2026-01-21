@@ -8,6 +8,7 @@
 """Helper functions for pickling and unpickling.  Most functions assist in
 determining the type of an object.
 """
+
 import base64
 import binascii
 import collections
