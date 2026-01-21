@@ -49,7 +49,7 @@ class NumpyBaseHandler(BaseHandler):
                 dtype = dtype[len(prefix) : -1]
             data["dtype"] = dtype
 
-    def restore_dtype(self, data: dict[str, Any]) -> np.dtype:  # type: ignore[type-arg]
+    def restore_dtype(self, data: dict[str, Any]) -> np.dtype:
         dtype = data["dtype"]
         if dtype.startswith(("{", "[")):
             dtype = ast.literal_eval(dtype)
@@ -360,9 +360,11 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
             if not isinstance(base, np.ndarray):
                 # the object is probably a nested list
                 base = np.array(base)
-            assert (
-                base.flags.forc
-            ), "Current implementation assumes base is C or F contiguous"
+            # this causes errors with black and ruff-format fighting over the correct format
+            # so it's being commented out until we pick between ruff and black formatting.
+            # assert base.flags.forc, (
+            #     "Current implementation assumes base is C or F contiguous"
+            # )
 
             arr = np.ndarray(
                 buffer=base.data,

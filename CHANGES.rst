@@ -24,6 +24,8 @@ v5.0.0
       ``__slots__`` wouldn't respect the ``_jsonpickle_exclude`` attribute. (#586) (+587)
     * Fix bug where encoding a defaultdict would overwrite existing keys named
       "default_factory". (#572) (+588)
+    * Fix compatability with pandas 3.0.0's new string dtype and resolve numpy deprecation
+      warnings (+592)
 
 v4.1.1
 ======

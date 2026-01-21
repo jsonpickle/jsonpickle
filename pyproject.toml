@@ -107,6 +107,7 @@ target-version = "py310"
 # For temporary git-ignored local files for testing issues
 extend-exclude = [
   "*no_lint*.py",
+  "metrics/*",
 ]
 
 [tool.ruff.lint]

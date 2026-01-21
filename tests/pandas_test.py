@@ -1,6 +1,7 @@
 import datetime
 
 import pytest
+from packaging.version import parse
 
 try:
     import numpy as np
@@ -331,6 +332,10 @@ def test_multilevel_columns():
     assert names == cloned_data_frame.columns.names
 
 
+@pytest.mark.skipif(
+    parse(pd.__version__) >= parse("3.0.0"),
+    reason="pandas >=3.0.0 isn't supported before jsonpickle 3.4",
+)
 def test_pre_v3_4_df_decoding():
     df = pd.DataFrame(
         {
