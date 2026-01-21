@@ -1,3 +1,5 @@
+import warnings
+
 import pytest
 
 try:
@@ -35,7 +37,16 @@ def test_decision_tree():
     # freeze and thaw
     pickler = jsonpickle.pickler.Pickler()
     unpickler = jsonpickle.unpickler.Unpickler()
-    actual = unpickler.restore(pickler.flatten(classifier))
+    # this warning is expected and we can't do anything about it afaik
+    with warnings.catch_warnings():
+        warnings.filterwarnings(
+            "ignore",
+            message=(
+                "ndarray is defined by reference to an object we do not know how to serialize.*"
+            ),
+            category=UserWarning,
+        )
+        actual = unpickler.restore(pickler.flatten(classifier))
 
     assert isinstance(actual, classifier.__class__)
     if hasattr(classifier, "tree_"):

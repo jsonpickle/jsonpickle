@@ -49,7 +49,7 @@ class NumpyBaseHandler(BaseHandler):
                 dtype = dtype[len(prefix) : -1]
             data["dtype"] = dtype
 
-    def restore_dtype(self, data: dict[str, Any]) -> np.dtype:
+    def restore_dtype(self, data: dict[str, Any]) -> np.dtype:  # type: ignore[type-arg]
         dtype = data["dtype"]
         if dtype.startswith(("{", "[")):
             dtype = ast.literal_eval(dtype)
@@ -297,6 +297,7 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
     def flatten(self, obj: NDArray[Any], data: dict[str, Any]) -> dict[str, Any]:
         """encode numpy to json"""
         base = obj.base
+        deepcopy_failed = False
         if base is None and obj.flags.forc:
             # store by value
             data = super().flatten(obj, data)
@@ -328,7 +329,54 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
                 # not used in restore since base is present, but
                 # include values for human-readability
                 super(NumpyNDArrayHandlerBinary, self).flatten(obj, data)
+        elif base is not None:
+            try:
+                base_buf = np.frombuffer(base, dtype=np.uint8)
+            except (TypeError, ValueError):
+                base_buf = None
+
+            allow_buffer_base = False
+            if base_buf is not None and base_buf.flags.forc:
+                if isinstance(base, (bytes, bytearray)):
+                    allow_buffer_base = obj.dtype.fields is not None
+                else:
+                    allow_buffer_base = True
+
+            if allow_buffer_base:
+                assert base_buf is not None
+                if isinstance(base, (bytes, bytearray)):
+                    base_store = base
+                elif isinstance(base, memoryview):
+                    base_store = base.tobytes()
+                else:
+                    base_store = base_buf.tobytes()
+
+                data["base"] = self.context.flatten(base_store, reset=False)
+
+                offset = obj.ctypes.data - base_buf.ctypes.data
+                if offset:
+                    data["offset"] = offset
+
+                if not obj.flags.c_contiguous:
+                    data["strides"] = obj.strides
+
+                data["shape"] = obj.shape
+                self.flatten_dtype(obj.dtype.newbyteorder("N"), data)
+                self.flatten_flags(obj, data)
+
+                if get_byteorder(obj) != "|":
+                    data["byteorder"] = get_byteorder(obj)
+
+                if self.size_threshold is None or self.size_threshold >= obj.size:
+                    # not used in restore since base is present, but
+                    # include values for human-readability
+                    super(NumpyNDArrayHandlerBinary, self).flatten(obj, data)
+            else:
+                deepcopy_failed = True
         else:
+            deepcopy_failed = True
+
+        if deepcopy_failed:
             # store a deepcopy or fail
             if self.mode == "warn":
                 msg = (
@@ -357,9 +405,15 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
         else:
             # decode array view, which references the data of another array
             base = self.context.restore(base, reset=False)
-            if not isinstance(base, np.ndarray):
+            buffer: Any
+            if isinstance(base, np.ndarray):
+                buffer = base.data
+            elif isinstance(base, (bytes, bytearray, memoryview)):
+                buffer = base
+            else:
                 # the object is probably a nested list
                 base = np.array(base)
+                buffer = base.data
             # this causes errors with black and ruff-format fighting over the correct format
             # so it's being commented out until we pick between ruff and black formatting.
             # assert base.flags.forc, (
@@ -367,7 +421,7 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
             # )
 
             arr = np.ndarray(
-                buffer=base.data,
+                buffer=buffer,
                 dtype=self.restore_dtype(data).newbyteorder(data.get("byteorder", "|")),
                 shape=data.get("shape"),  # type: ignore[arg-type]
                 offset=data.get("offset", 0),
