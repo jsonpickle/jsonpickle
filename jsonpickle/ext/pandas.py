@@ -292,7 +292,7 @@ class PandasDfHandler(BaseHandler):
         for col in df.columns:
             dtype_str = dtypes.get(col, "object")
             try:
-                dtype = np.dtype(dtype_str)
+                dtype = pd.api.types.pandas_dtype(dtype_str)
                 df[col] = df[col].astype(dtype)
             except Exception:
                 msg = (

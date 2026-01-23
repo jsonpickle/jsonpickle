@@ -39,7 +39,7 @@ def test_dtype_roundtrip():
         np.dtype(np.int32),
         np.dtype(np.float32),
         np.dtype("f4,i4,f2,i1"),
-        np.dtype(("f4", "i4"), ("f2", "i1")),
+        np.dtype([("f0", "f4", (2,)), ("f1", "i4", (2,))]),
         np.dtype("i4", align=True),
         np.dtype("M8[7D]"),
         np.dtype(
@@ -104,7 +104,7 @@ def test_ndarray_roundtrip():
         np.array(["foo", "bar"]),
         np.array([b"baz"]),
         np.array(["2010", "NaT", "2030"]).astype("M"),
-        np.rec.array(b"abcdefg" * 100, formats="i2,a3,i4", shape=3),
+        np.rec.array(b"abcdefg" * 100, formats="i2,S3,i4", shape=3),
         np.rec.array(
             [
                 (1, 11, "a"),
@@ -115,7 +115,7 @@ def test_ndarray_roundtrip():
                 (6, 66, "f"),
                 (7, 77, "g"),
             ],
-            formats="u1,f4,a1",
+            formats="u1,f4,S1",
         ),
         np.array(["1960-03-12", datetime.date(1960, 3, 12)], dtype="M8[D]"),
         np.array([0, 1, -1, np.inf, -np.inf, np.nan], dtype="f2"),
@@ -186,9 +186,9 @@ def test_strides():
 
 def test_weird_arrays():
     """Test references to arrays that do not effectively own their memory"""
-    a = np.arange(9)
+    base = np.arange(9)
+    a = np.lib.stride_tricks.as_strided(base, shape=(9,), strides=(1,))
     b = a[5:]
-    a.strides = 1
 
     # this is kinda fishy; a has overlapping memory, _a does not
     warn_count = 1
@@ -226,8 +226,7 @@ def test_transpose():
     npt.assert_array_equal(b, _b)
 
     # view an f-contiguous array
-    a = a.copy()
-    a.strides = a.strides[::-1]
+    a = np.asfortranarray(np.arange(9).reshape(3, 3))
     b = a[1:, 1:]
     assert b.base is a
     _a, _b = roundtrip([a, b])
@@ -236,9 +235,13 @@ def test_transpose():
     npt.assert_array_equal(b, _b)
 
     # now a.data.contiguous is False; we have to make a deepcopy to make
-    # this work note that this is a pretty contrived example though!
-    a = np.arange(8).reshape(2, 2, 2).copy()
-    a.strides = a.strides[0], a.strides[2], a.strides[1]
+    # this work. note that this is a pretty contrived example though!
+    base = np.arange(8).reshape(2, 2, 2).copy()
+    a = np.lib.stride_tricks.as_strided(
+        base,
+        shape=base.shape,
+        strides=(base.strides[0], base.strides[2], base.strides[1]),
+    )
     b = a[1:, 1:]
     assert b.base is a
 

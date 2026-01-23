@@ -219,6 +219,14 @@ def get_all_pandas_dtype_strings() -> List[DTypeRepr]:
     # use the class object for things that np.dtype can't reconstruct
     dtypes.extend([pd.Timestamp, pd.Timedelta, pd.Period, pd.Interval])
 
+    # include parameterized extension dtypes with storage-specific names
+    # this is required for pandas 3.0.0
+    for storage in ["python", "pyarrow"]:
+        try:
+            dtypes.append(str(pd.StringDtype(storage=storage)).lower())  # type: ignore[call-overload]
+        except Exception:
+            pass
+
     return list(dict.fromkeys(dtypes))
 
 
