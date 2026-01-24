@@ -77,7 +77,7 @@ class BackendBase(SkippableTest):
             "a": 1,
             "b": 2,
         }
-        expect = "{\n" '    "a": 1,\n' '    "b": 2\n' "}"
+        expect = '{\n    "a": 1,\n    "b": 2\n}'
         actual = jsonpickle.encode(obj, indent=4, separators=(",", ": "))
         assert expect == actual
 
@@ -154,7 +154,7 @@ def has_module(module):
     try:
         __import__(module)
     except ImportError:
-        warn(module + " module not available for testing, " "consider installing")
+        warn(module + " module not available for testing, consider installing")
         return False
     return True
 
