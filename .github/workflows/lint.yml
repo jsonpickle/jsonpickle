@@ -17,7 +17,7 @@ jobs:
           python-version: "3.13"
 
       - name: Run ruff check 
-      - uses: astral-sh/ruff-action@v3
+        uses: astral-sh/ruff-action@v3
         with:
           args: "format --check --diff"
 
