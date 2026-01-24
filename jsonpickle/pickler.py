@@ -877,10 +877,11 @@ class Pickler:
             store_key = "default_factory"
             if store_key in data:
                 store_key = tags.DEFAULT_FACTORY
+            value: Any
             if util._is_type(factory):
                 # Reference the class/type
                 # in this case it's Dict[str, str]
-                value: Dict[str, str] = _mktyperef(factory)
+                value = _mktyperef(factory)
             else:
                 # The factory is not a type and could reference e.g. functions
                 # or even the object instance itself, which creates a cycle.
@@ -888,12 +889,12 @@ class Pickler:
                     # We've never seen this object before so pickle it in-place.
                     # Create an instance from the factory and assume that the
                     # resulting instance is a suitable exemplar.
-                    value: Dict[str, Any] = self._flatten_obj_instance(handlers.CloneFactory(factory()))  # type: ignore[no-redef]
+                    value = self._flatten_obj_instance(handlers.CloneFactory(factory()))
                 else:
                     # We've seen this object before.
                     # Break the cycle by emitting a reference.
                     # in this case it's Dict[str, int]
-                    value: Dict[str, int] = self._getref(factory)  # type: ignore[no-redef]
+                    value = self._getref(factory)
             data[store_key] = value
 
         # Sub-classes of dict

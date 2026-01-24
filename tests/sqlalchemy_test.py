@@ -30,7 +30,6 @@ if HAS_SQA:
 
 
 class SQLAlchemyTestCase(SkippableTest):
-
     def setUp(self):
         """Create a new sqlalchemy engine for the test"""
         if HAS_SQA:
