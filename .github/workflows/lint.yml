@@ -16,10 +16,10 @@ jobs:
         with:
           python-version: "3.13"
 
-      - name: Run black check
-        uses: psf/black@stable
+      - name: Run ruff check 
+      - uses: astral-sh/ruff-action@v3
         with:
-          options: "--check --diff --target-version=py310"
+          args: "format --check --diff"
 
       - name: Run isort check
         uses: isort/isort-action@master

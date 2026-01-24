@@ -40,7 +40,6 @@ cov = [
     "pytest-cov",
 ]
 dev = [
-    "black",
     "pyupgrade",
 ]
 testing = [
@@ -91,9 +90,6 @@ packages = [
     "jsonpickle.ext",
 ]
 include-package-data = true
-
-[tool.black]
-target-version = ["py310"]
 
 [tool.setuptools_scm]
 
