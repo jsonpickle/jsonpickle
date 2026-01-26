@@ -41,7 +41,8 @@ trees:
         ${activate} python3 -m sphinx docs pages
       fmt: |
         ${activate}
-        black "$@" jsonpickle tests fuzzing/fuzz-targets
+        ruff check --fix "$@"
+        ruff format "$@"
         isort --profile=black "$@" jsonpickle tests fuzzing/fuzz-targets
       setup: |
         test -d env3 || python3 -m venv env3

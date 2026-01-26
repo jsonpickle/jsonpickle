@@ -1,20 +1,10 @@
 repos:
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.14.13
+  rev: v0.14.14
   hooks:
-    # linter
     - id: ruff-check
-      args: [ --fix ]
-    # formatter
+      args: [--fix]
     - id: ruff-format
-
-- repo: https://github.com/psf/black
-  rev: 26.1.0
-  hooks:
-  - id: black
-    args:
-      - --skip-string-normalization
-      - --target-version=py310
 
 - repo: https://github.com/asottile/blacken-docs
   rev: v1.12.1

@@ -414,11 +414,10 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
                 # the object is probably a nested list
                 base = np.array(base)
                 buffer = base.data
-            # this causes errors with black and ruff-format fighting over the correct format
-            # so it's being commented out until we pick between ruff and black formatting.
-            # assert base.flags.forc, (
-            #     "Current implementation assumes base is C or F contiguous"
-            # )
+            if isinstance(base, np.ndarray):
+                assert base.flags.forc, (
+                    "Current implementation assumes base is C or F contiguous"
+                )
 
             arr = np.ndarray(
                 buffer=buffer,

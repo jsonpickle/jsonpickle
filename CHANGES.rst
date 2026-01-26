@@ -25,7 +25,8 @@ v5.0.0
     * Fix bug where encoding a defaultdict would overwrite existing keys named
       "default_factory". (#572) (+588)
     * Fix compatability with pandas 3.0.0's new string dtype and resolve numpy deprecation
-      warnings (+592)
+      warnings. (+592)
+    * Switch code styling and formatting from black to ruff. (+593)
 
 v4.1.1
 ======
