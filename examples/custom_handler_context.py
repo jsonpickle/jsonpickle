@@ -21,12 +21,12 @@ class AHandler(jsonpickle.handlers.BaseHandler):
 a0 = A("first")
 a1 = A("second")
 
-encoded0 = jsonpickle.encode(a0, context={"foo": "bar"})
-encoded1 = jsonpickle.encode(a1, context={"foo": "baz"})
+encoded0 = jsonpickle.encode(a0, handler_context={"foo": "bar"})
+encoded1 = jsonpickle.encode(a1, handler_context={"foo": "baz"})
 
 print(encoded0)
 print(encoded1)
 
-decoded = jsonpickle.decode(encoded0, context={"foo": "qux"})
+decoded = jsonpickle.decode(encoded0, handler_context={"foo": "qux"})
 assert decoded.identity == "bar:first-qux"
 print("Context has been propagated through the handler!")

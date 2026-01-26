@@ -113,14 +113,6 @@ def decode(
             "Unpickler.on_missing must be a string or a function! It will be ignored!"
         )
 
-    if (
-        handler_context is None
-        and context is not None
-        and not isinstance(context, Unpickler)
-    ):
-        handler_context = context
-        context = None
-
     backend = backend or json
     is_ephemeral_context = context is None
     context = context or Unpickler(
