@@ -2,31 +2,47 @@ import jsonpickle
 import jsonpickle.handlers
 
 
-class A:
-    def __init__(self, identity: str):
-        self.identity = identity
+class RideTicket:
+    def __init__(self, route: str, base_price: float, currency: str | None = None):
+        self.route = route
+        self.base_price = base_price
+        self.currency = currency
+
+    def __repr__(self) -> str:
+        return (
+            f"RideTicket(route={self.route!r}, base_price={self.base_price}, "
+            f"currency={self.currency})"
+        )
 
 
-@jsonpickle.handlers.register(A)
-class AHandler(jsonpickle.handlers.BaseHandler):
-    def flatten(self, obj: A, data: dict, handler_context: dict) -> dict:
-        data["payload"] = f"{handler_context['foo']}:{obj.identity}"
+@jsonpickle.handlers.register(RideTicket)
+class RideTicketHandler(jsonpickle.handlers.BaseHandler):
+    # if either flatten or restore have an argument called handler_context
+    # then it will be passed through encode/decode into the handler
+    # handler_context doesn't need to be a dict, but it's recommended that it be
+    def flatten(self, obj: RideTicket, data: dict, handler_context: dict) -> dict:
+        currency = handler_context["currency"]
+        data["route"] = obj.route
+        data["base_price"] = obj.base_price
+        data["price_label"] = f"{currency} {obj.base_price}"
         return data
 
     def restore(self, data: dict, handler_context: dict) -> object:
-        payload = data["payload"]
-        return A(f"{payload}-{handler_context['foo']}")
+        return RideTicket(
+            route=data["route"],
+            base_price=data["base_price"],
+            currency=handler_context["currency"],
+        )
 
 
-a0 = A("first")
-a1 = A("second")
+local_commute = RideTicket("city bus", 1.50)
+encoded_local = jsonpickle.encode(local_commute, handler_context={"currency": "USD"})
 
-encoded0 = jsonpickle.encode(a0, handler_context={"foo": "bar"})
-encoded1 = jsonpickle.encode(a1, handler_context={"foo": "baz"})
+print("Encoded:")
+print(encoded_local)
 
-print(encoded0)
-print(encoded1)
-
-decoded = jsonpickle.decode(encoded0, handler_context={"foo": "qux"})
-assert decoded.identity == "bar:first-qux"
-print("Context has been propagated through the handler!")
+decoded = jsonpickle.decode(encoded_local, handler_context={"currency": "EUR"})
+print("Decoded with different currency context:")
+print(decoded)
+assert decoded.currency == "EUR"
+print("Context changed how the handler interpreted the ticket!")
