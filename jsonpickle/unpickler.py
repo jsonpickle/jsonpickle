@@ -78,7 +78,8 @@ def decode(
         will be provided to jsonpickle to deserialize the class name into.
         This can be used to give jsonpickle access to local classes that are not
         available through the global module import scope, and the dict method can
-        be used to deserialize encoded objects into a new class.
+        be used to deserialize encoded objects into a new class. An example of using
+        this argument can be found in examples/changing_class_path.py on GitHub.
 
     :param v1_decode: If set to True it enables you to decode objects serialized in
         jsonpickle v1. Please do not attempt to re-encode the objects in the v1 format!
