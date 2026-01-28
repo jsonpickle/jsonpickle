@@ -62,7 +62,7 @@ Contact
 =======
 
 Please join our `mailing list <https://groups.google.com/group/jsonpickle>`_.
-You can send email to *jsonpickle@googlegroups.com*.
+You can send email to *jsonpickle@googlegroups.com*, though you may get a faster response by emailing David or Theelx directly..
 
 Check https://github.com/jsonpickle/jsonpickle for project updates.
 
@@ -70,9 +70,9 @@ Check https://github.com/jsonpickle/jsonpickle for project updates.
 Authors
 =======
 
- * John Paulett - john -at- paulett.org - https://github.com/johnpaulett
  * David Aguilar - davvid -at- gmail.com - https://github.com/davvid
- * Theelx - https://github.com/Theelx
+ * Theelx - jsonpickle -at- all.idois.win - https://github.com/Theelx
+ * John Paulett - john -at- paulett.org - https://github.com/johnpaulett
  * Dan Buch - https://github.com/meatballhat
  * Ian Schenck - https://github.com/ianschenck
  * David K. Hess - https://github.com/davidkhess
@@ -96,4 +96,4 @@ jsonpickle is provided under a
 `New BSD license <https://github.com/jsonpickle/jsonpickle/raw/main/COPYING>`_,
 
 Copyright (C) 2008-2011 John Paulett (john -at- paulett.org)
-Copyright (C) 2009-2021 David Aguilar (davvid -at- gmail.com)
+Copyright (C) 2009-2026 David Aguilar (davvid -at- gmail.com)

@@ -1,6 +1,8 @@
 ## Purpose
-This directory exists to provide examples of how to use jsonpickle to achieve simple goals, such as:
+This directory exists to provide examples of how to use jsonpickle to achieve simple goals and of how certain options are used, such as:
 - Saving instances of a class to a file
+- Passing a custom context to a user-defined handler
+- Decoding an object if the path to its class has changed since it was decoded
 - And more to come!
 
 ## Running the code
