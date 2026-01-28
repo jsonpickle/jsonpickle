@@ -24,9 +24,12 @@ v5.0.0
       ``__slots__`` wouldn't respect the ``_jsonpickle_exclude`` attribute. (#586) (+587)
     * Fix bug where encoding a defaultdict would overwrite existing keys named
       "default_factory". (#572) (+588)
+    * Add handler_context parameter to encode and decode to provide custom context data to
+      user-defined handlers. (#452) (+590)
     * Fix compatability with pandas 3.0.0's new string dtype and resolve numpy deprecation
       warnings. (+592)
     * Switch code styling and formatting from black to ruff. (+593)
+    * Updated outdated documentation and added more usage examples (+594)
 
 v4.1.1
 ======
