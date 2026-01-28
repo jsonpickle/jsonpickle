@@ -35,14 +35,21 @@ class RideTicketHandler(jsonpickle.handlers.BaseHandler):
         )
 
 
-local_commute = RideTicket("city bus", 1.50)
-encoded_local = jsonpickle.encode(local_commute, handler_context={"currency": "USD"})
+def main():
+    local_commute = RideTicket("city bus", 1.50)
+    encoded_local = jsonpickle.encode(
+        local_commute, handler_context={"currency": "USD"}
+    )
 
-print("Encoded:")
-print(encoded_local)
+    print("Encoded:")
+    print(encoded_local)
 
-decoded = jsonpickle.decode(encoded_local, handler_context={"currency": "EUR"})
-print("Decoded with different currency context:")
-print(decoded)
-assert decoded.currency == "EUR"
-print("Context changed how the handler interpreted the ticket!")
+    decoded = jsonpickle.decode(encoded_local, handler_context={"currency": "EUR"})
+    print("Decoded with different currency context:")
+    print(decoded)
+    assert decoded.currency == "EUR"
+    print("Context changed how the handler interpreted the ticket!")
+
+
+if __name__ == "__main__":
+    main()
