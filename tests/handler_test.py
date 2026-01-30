@@ -155,18 +155,18 @@ class HandlerTestCase(unittest.TestCase):
     def test_custom_handler_with_context(self):
         jsonpickle.handlers.register(ContextObject, ContextAwareHandler)
         obj = ContextObject("hello")
-        encoded_a = jsonpickle.encode(obj, context={"suffix": "a"})
-        encoded_b = jsonpickle.encode(obj, context={"suffix": "b"})
+        encoded_a = jsonpickle.encode(obj, handler_context={"suffix": "a"})
+        encoded_b = jsonpickle.encode(obj, handler_context={"suffix": "b"})
 
-        decoded_a = jsonpickle.decode(encoded_a, context={"suffix": "x"})
-        decoded_b = jsonpickle.decode(encoded_b, context={"suffix": "y"})
+        decoded_a = jsonpickle.decode(encoded_a, handler_context={"suffix": "x"})
+        decoded_b = jsonpickle.decode(encoded_b, handler_context={"suffix": "y"})
 
         assert decoded_a.name == "hello-a-x"
         assert decoded_b.name == "hello-b-y"
 
     def test_custom_handler_without_context(self):
         obj = CustomObject("alpha")
-        encoded = jsonpickle.encode(obj, context={"suffix": "ignored"})
-        decoded = jsonpickle.decode(encoded, context={"suffix": "ignored"})
+        encoded = jsonpickle.encode(obj, handler_context={"suffix": "ignored"})
+        decoded = jsonpickle.decode(encoded, handler_context={"suffix": "ignored"})
 
         assert decoded.name == "alpha"

@@ -151,14 +151,6 @@ def encode(
     '{"foo": "[1, 2, [3, 4]]"}'
 
     """
-    # if a non-pickler is provided to context we can treat it as custom handler context
-    if (
-        handler_context is None
-        and context is not None
-        and not isinstance(context, Pickler)
-    ):
-        handler_context = context
-        context = None
 
     backend = backend or json
     context = context or Pickler(
