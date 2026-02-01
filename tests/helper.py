@@ -1,8 +1,6 @@
-import unittest
+import pytest
 
 
-class SkippableTest(unittest.TestCase):
-    def skip(self, msg):
-        if hasattr(self, "skipTest"):
-            return self.skipTest(msg)
-        return None
+class SkippableTest:
+    def skip(self, msg: str):
+        pytest.skip(msg)

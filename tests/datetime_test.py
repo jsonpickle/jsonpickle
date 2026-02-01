@@ -6,9 +6,7 @@
 # you should have received as part of this distribution.
 
 import datetime
-import sys
 import time
-import unittest
 
 import jsonpickle
 from jsonpickle import tags
@@ -153,7 +151,6 @@ def test_object_with_datetime():
     assert test_obj_decoded.data["ts"] == test_obj_decoded.data_ref["ts"]
 
 
-@unittest.skipIf(sys.version_info < (3, 9), "only tested for python >= 3.9")
 def test_datetime_with_zoneinfo():
     """Roundtrip datetime objects with ZoneInfo tzinfo"""
     from zoneinfo import ZoneInfo
