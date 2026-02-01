@@ -5,7 +5,6 @@ Qt's QPointF class jsonpickle using qtpy.
 """
 
 import sys
-import unittest
 
 from qtpy import QtCore
 
@@ -41,7 +40,7 @@ class QReduceHandler(handlers.BaseHandler):
 handlers.register(QtCore.QPointF, QReduceHandler)
 
 
-class QtTestCase(unittest.TestCase):
+class QtTestCase:
     def test_QPointF_roundtrip(self):
         expect = QtCore.QPointF(1.0, 2.0)
         json = jsonpickle.encode(expect)

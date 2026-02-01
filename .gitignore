@@ -3,6 +3,11 @@
 /dist
 /docs/build
 /images/benchmark-*.svg
+/images/benchmark-data
+/images/benchmark-compare*.png
+/benchmarking/*_old*.py
+/benchmarking/images/
+/metrics/
 /.eggs
 /env*
 /htmlcov
@@ -37,3 +42,6 @@ monkeytype.sqlite3
 .pyre*
 # vscode workspaces
 *.code-workspace
+# benchmarking code
+.bench-venvs/
+.bench-worktrees/
