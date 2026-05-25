@@ -74,7 +74,7 @@ def encode(
         This flag is not typically used outside of a custom handler or
         `__getstate__` implementation.
     :param backend: If set to an instance of jsonpickle.backend.JSONBackend,
-        jsonpickle will use that backend for deserialization.
+        jsonpickle will use that backend for serialization.
     :param warn: If set to True then jsonpickle will warn when it
         returns None for an object which it cannot pickle
         (e.g. file descriptors).
