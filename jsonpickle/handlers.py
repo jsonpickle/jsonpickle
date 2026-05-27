@@ -225,9 +225,9 @@ class DatetimeHandler(BaseHandler):
             else:
                 result = str(obj)
             return result
-        cls, args = obj.__reduce__()  # type: ignore[misc]
+        cls, args = obj.__reduce__()  # type: ignore[str-unpack]
         flatten = pickler.flatten
-        payload = util.b64encode(args[0])
+        payload = util.b64encode(args[0]) # type: ignore[arg-type]
         args = [payload] + [flatten(i, reset=False) for i in args[1:]]
         data["__reduce__"] = (flatten(cls, reset=False), args)
         return data
