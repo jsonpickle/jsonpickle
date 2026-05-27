@@ -4,7 +4,6 @@ from io import StringIO
 from types import ModuleType
 from typing import (
     Any,
-    cast,
     Dict,
     Hashable,
     List,
@@ -13,6 +12,7 @@ from typing import (
     Tuple,
     Type,
     Union,
+    cast,
 )
 
 import numpy as np
