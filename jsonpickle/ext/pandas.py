@@ -12,6 +12,7 @@ from typing import (
     Tuple,
     Type,
     Union,
+    cast,
 )
 
 import numpy as np
@@ -341,7 +342,9 @@ class PandasDfHandler(BaseHandler):
         # restore the column level(s) name(s)
         if column_level_names:
             df.columns.names = column_level_names
-        return df
+        # here we cast before returning. this has a small runtime perf cost
+        # in the tens of nanoseconds, but it only runs once per decode so it's fine
+        return cast(pd.DataFrame, df)
 
 
 class PandasSeriesHandler(BaseHandler):
@@ -381,7 +384,7 @@ class PandasIndexHandler(BaseHandler):
         buf, meta = self.pp.restore_pandas(data)
         dtype = meta.get("dtype", None)
         name_bundle = {
-            "name": (tuple if v is not None else lambda x: x)(v)  # type: ignore[misc]
+            "name": (tuple if v is not None else lambda x: x)(v)
             for k, v in meta.items()
             if k in {"name", "names"}
         }
