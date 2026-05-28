@@ -31,6 +31,12 @@ v5.0.0
     * Switch code styling and formatting from black to ruff. (+593)
     * Updated outdated documentation and added more usage examples (+594)
 
+v4.1.2
+======
+    * Add deprecation warnings for the pending removal of the ``safe``, ``numeric_keys``, and
+      ``use_decimal`` arguments, as well as the pending change of ``keys`` parameter to default
+      to ``True``. (+600)
+
 v4.1.1
 ======
     * Maintenance release to omit upcoming breaking changes.
