@@ -83,6 +83,20 @@ def decode(
     36
     """
 
+    # use stacklevel=2 to only warn on top-level user calls
+    if context is None:
+        if not keys:
+            warnings.warn(
+                "keys will default to True in jsonpickle 5.0.0",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+        if not safe:
+            warnings.warn(
+                "safe=False is deprecated and will be removed in jsonpickle 5.0.0",
+                DeprecationWarning,
+                stacklevel=2,
+            )
     if isinstance(on_missing, str):
         on_missing = on_missing.lower()
     elif not util.is_function(on_missing):

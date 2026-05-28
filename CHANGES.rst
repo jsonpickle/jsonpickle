@@ -4,6 +4,12 @@ Upcoming
       You can re-enable yaml support using ``jsonpickle.ext.yaml.register()``.
       (#550) (+551)
 
+v4.1.2
+======
+    * Add deprecation warnings for the pending removal of the ``safe``, ``numeric_keys``, and
+      ``use_decimal`` arguments, as well as the pending change of ``keys`` parameter to default
+      to ``True``. (+600)
+
 v4.1.1
 ======
     * Maintenance release to omit upcoming breaking changes.

@@ -145,6 +145,26 @@ def encode(
     '{"foo": "[1, 2, [3, 4]]"}'
 
     """
+    # use stacklevel=2 to only warn on top-level user calls
+    if context is None:
+        if not keys:
+            warnings.warn(
+                "keys will default to True in jsonpickle 5.0.0",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+        if numeric_keys:
+            warnings.warn(
+                "numeric_keys is deprecated, use keys=True (will remove in 5.0.0)",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+        if use_decimal:
+            warnings.warn(
+                "use_decimal is deprecated and will be removed in jsonpickle 5.0.0",
+                DeprecationWarning,
+                stacklevel=2,
+            )
     backend = backend or json
     context = context or Pickler(
         unpicklable=unpicklable,
@@ -840,9 +860,9 @@ class Pickler:
             if not self.unpicklable:
                 return self._list_recurse
             return lambda obj: {
-                tags.TUPLE if type(obj) is tuple else tags.SET: [
-                    self._flatten(v) for v in obj
-                ]
+                tags.TUPLE
+                if type(obj) is tuple
+                else tags.SET: [self._flatten(v) for v in obj]
             }
 
         elif util.is_module_function(obj):
