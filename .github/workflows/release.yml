@@ -20,6 +20,11 @@ jobs:
   # from building the release so that we only create the release once.
   create-release:
     name: create-release
+    # only run the release flow if a maintainer pushed the tag. these two IDs
+    # are immutable and tied to the GH account, so username changes will still be fine
+    # davvid: 13196
+    # theelx: 43764914
+    if: github.actor_id == '13196' || github.actor_id == '43764914'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -42,6 +47,7 @@ jobs:
 
   build:
     name: Build distribution
+    if: github.actor_id == '13196' || github.actor_id == '43764914'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -62,6 +68,7 @@ jobs:
 
   publish-to-pypi:
     name: Publish to PyPI
+    if: github.actor_id == '13196' || github.actor_id == '43764914'
     needs: build
     runs-on: ubuntu-latest
     environment:
