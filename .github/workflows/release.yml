@@ -20,6 +20,11 @@ jobs:
   # from building the release so that we only create the release once.
   create-release:
     name: create-release
+    # only run the release flow if a maintainer pushed the tag. these two IDs
+    # are immutable and tied to the GH account, so username changes will still be fine
+    # davvid: 13196
+    # theelx: 43764914
+    if: github.actor_id == '13196' || github.actor_id == '43764914'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -39,3 +44,44 @@ jobs:
     outputs:
       version: ${{ env.VERSION }}
       version_number: ${{ env.VERSION_NUMBER }}
+
+  build:
+    name: Build distribution
+    if: github.actor_id == '13196' || github.actor_id == '43764914'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - name: Install build
+        run: python -m pip install --upgrade build
+      - name: Build sdist and wheel
+        run: python -m build
+      - name: Upload distribution artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: dist
+          path: dist/
+
+  publish-to-pypi:
+    name: Publish to PyPI
+    if: github.actor_id == '13196' || github.actor_id == '43764914'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/jsonpickle
+    permissions:
+      id-token: write
+    steps:
+      - name: Download distribution artifacts
+        uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist/
+      - name: Publish to PyPI
+        # this tag is v1.14.0, PyPi wants us to pin to their SHA for security in case they get hijacked or something
+        uses: pypa/gh-action-pypi-publish@cef221092ed1bacb1cc03d23a2d87d1d172e277b
