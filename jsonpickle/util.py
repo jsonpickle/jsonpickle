@@ -18,18 +18,8 @@ import operator
 import sys
 import time
 import types
-from collections.abc import Iterator as abc_iterator
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    Iterable,
-    Iterator,
-    Optional,
-    Type,
-    TypeVar,
-    Union,
-)
+from collections.abc import Callable, Iterable, Iterator
+from typing import Any, TypeVar
 
 from . import tags
 
@@ -72,7 +62,7 @@ NON_CLASS_TYPES: set[type] = {
     tuple,
     bytes,
 } | PRIMITIVES
-_TYPES_IMPORTABLE_NAMES: dict[Union[type, Callable[..., Any]], str] = {
+_TYPES_IMPORTABLE_NAMES: dict[type | Callable[..., Any], str] = {
     getattr(types, name): f"types.{name}"
     for name in types.__all__
     if name.endswith("Type")
@@ -308,7 +298,7 @@ def _is_list_like(obj: Any) -> bool:
 
 
 def _is_iterator(obj: Any) -> bool:
-    return isinstance(obj, abc_iterator) and not isinstance(obj, io.IOBase)
+    return isinstance(obj, Iterator) and not isinstance(obj, io.IOBase)
 
 
 def _is_collections(obj: Any) -> bool:
@@ -473,7 +463,7 @@ def untranslate_module_name(module: str) -> str:
     return _0_9_6_compat_untranslate(module)
 
 
-def importable_name(cls: Union[type, Callable[..., Any]]) -> str:
+def importable_name(cls: type | Callable[..., Any]) -> str:
     """
     >>> class Example(object):
     ...     pass
@@ -566,8 +556,8 @@ def items(
 
 
 def loadclass(
-    module_and_name: str, classes: Optional[Dict[str, Type[Any]]] = None
-) -> Optional[Any]:
+    module_and_name: str, classes: dict[str, type] | None = None
+) -> Any | None:
     """Loads the module and returns the class.
 
     >>> cls = loadclass('datetime.datetime')

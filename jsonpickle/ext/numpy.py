@@ -6,21 +6,24 @@ import sys
 import warnings
 import zlib
 from types import ModuleType
-from typing import Any, NoReturn, cast
+from typing import TYPE_CHECKING, Any, NoReturn, cast
 
 import numpy as np
 
 # do the annotations import so python doesn't complain about numpy type hints missing if numpy isn't installed
 
 
-_np_version: tuple[int, ...] = tuple(int(x) for x in np.__version__.split(".")[:3])
-# numpy.typing was introduced in 1.20.0
-if _np_version >= (1, 20, 0):
+if TYPE_CHECKING:
     from numpy.typing import ArrayLike, DTypeLike, NDArray
 else:
-    NDArray = Any  # type: ignore[assignment,misc]
-    ArrayLike = Any  # type: ignore[assignment,misc]
-    DTypeLike = Any  # type: ignore[assignment,misc]
+    _np_version: tuple[int, ...] = tuple(int(x) for x in np.__version__.split(".")[:3])
+    # numpy.typing was introduced in 1.20.0
+    if _np_version >= (1, 20, 0):
+        from numpy.typing import ArrayLike, DTypeLike, NDArray
+    else:
+        NDArray = Any
+        ArrayLike = Any
+        DTypeLike = Any
 
 
 from ..handlers import BaseHandler, register, unregister
@@ -49,7 +52,7 @@ class NumpyBaseHandler(BaseHandler):
                 dtype = dtype[len(prefix) : -1]
             data["dtype"] = dtype
 
-    def restore_dtype(self, data: dict[str, Any]) -> np.dtype:  # type: ignore[type-arg]
+    def restore_dtype(self, data: dict[str, Any]) -> np.dtype[Any]:
         dtype = data["dtype"]
         if dtype.startswith(("{", "[")):
             dtype = ast.literal_eval(dtype)

@@ -6,38 +6,27 @@
 # you should have received as part of this distribution.
 import dataclasses
 import warnings
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    Iterator,
-    List,
-    Optional,
-    Sequence,
-    Set,
-    Tuple,
-    Type,
-    Union,
-)
+from collections.abc import Callable, Iterator, Sequence
+from typing import Any, TypeAlias
 
 from . import errors, handlers, tags, util
 from .backend import JSONBackend, json
 
 # class names to class objects (or sequence of classes)
-ClassesType = Optional[Union[Type[Any], Dict[str, Type[Any]], Sequence[Type[Any]]]]
+ClassesType: TypeAlias = type | dict[str, type] | Sequence[type] | None
 # handler for missing classes: either a policy name or a callback
-MissingHandler = Union[str, Callable[[str], Any]]
+MissingHandler: TypeAlias = str | Callable[[str], Any]
 
 
 def decode(
     string: str,
-    backend: Optional[JSONBackend] = None,
+    backend: JSONBackend | None = None,
     # we get a lot of errors when typing with TypeVar
-    context: Optional["Unpickler"] = None,
+    context: "Unpickler | None" = None,
     keys: bool = False,
     reset: bool = True,
     safe: bool = True,
-    classes: Optional[ClassesType] = None,
+    classes: ClassesType | None = None,
     v1_decode: bool = False,
     on_missing: MissingHandler = "ignore",
     handle_readonly: bool = False,
@@ -190,7 +179,7 @@ class _Proxy:
 
 
 class _IDProxy(_Proxy):
-    def __init__(self, objs: List[Any], index: int) -> None:
+    def __init__(self, objs: list[Any], index: int) -> None:
         self._index = index
         self._objs = objs
 
@@ -228,7 +217,7 @@ def has_tag(obj: Any, tag: str) -> bool:
     return type(obj) is dict and tag in obj
 
 
-def getargs(obj: Dict[str, Any], classes: Optional[Dict[str, Type[Any]]] = None) -> Any:
+def getargs(obj: dict[str, Any], classes: dict[str, type] | None = None) -> Any:
     """Return arguments suitable for __new__()"""
     # Let saved newargs take precedence over everything
     if has_tag(obj, tags.NEWARGSEX):
@@ -260,7 +249,7 @@ class _trivialclassic:
     """
 
 
-def make_blank_classic(cls: Type[Any]) -> Any:
+def make_blank_classic(cls: type) -> Any:
     """
     Implement the mandated strategy for dealing with classic classes
     which cannot be instantiated without __getinitargs__ because they
@@ -293,7 +282,7 @@ def loadrepr(reprstr: str) -> Any:
     return eval(evalstr, mylocals)
 
 
-def _loadmodule(module_str: str) -> Optional[Any]:
+def _loadmodule(module_str: str) -> Any | None:
     """Returns a reference to a module.
 
     >>> fn = _loadmodule('datetime/datetime.datetime.fromtimestamp')
@@ -343,7 +332,7 @@ def _passthrough(value: Any) -> Any:
 class Unpickler:
     def __init__(
         self,
-        backend: Optional[JSONBackend] = None,
+        backend: JSONBackend | None = None,
         keys: bool = False,
         safe: bool = True,
         v1_decode: bool = False,
@@ -396,7 +385,7 @@ class Unpickler:
         return restore(obj)
 
     def restore(
-        self, obj: Any, reset: bool = True, classes: Optional[ClassesType] = None
+        self, obj: Any, reset: bool = True, classes: ClassesType | None = None
     ) -> Any:
         """Restores a flattened object to its original python state.
 
@@ -438,13 +427,13 @@ class Unpickler:
         else:
             self._classes[util.importable_name(classes)] = classes  # type: ignore[arg-type]
 
-    def _restore_base64(self, obj: Dict[str, Any]) -> bytes:
+    def _restore_base64(self, obj: dict[str, Any]) -> bytes:
         try:
             return util.b64decode(obj[tags.B64].encode("utf-8"))
         except (AttributeError, UnicodeEncodeError):
             return b""
 
-    def _restore_base85(self, obj: Dict[str, Any]) -> bytes:
+    def _restore_base85(self, obj: dict[str, Any]) -> bytes:
         try:
             return util.b85decode(obj[tags.B85].encode("utf-8"))
         except (AttributeError, UnicodeEncodeError):
@@ -486,7 +475,7 @@ class Unpickler:
             self._namedict[self._refname()] = obj
         return obj
 
-    def _restore_list(self, obj: List[Any]) -> List[Any]:
+    def _restore_list(self, obj: list[Any]) -> list[Any]:
         parent = []
         self._mkref(parent)
         children = [self._restore(v) for v in obj]
@@ -500,7 +489,7 @@ class Unpickler:
         self._proxies.extend(proxies)
         return parent
 
-    def _restore_iterator(self, obj: Dict[str, Any]) -> Iterator[Any]:
+    def _restore_iterator(self, obj: dict[str, Any]) -> Iterator[Any]:
         try:
             return iter(self._restore_list(obj[tags.ITERATOR]))
         except TypeError:
@@ -517,7 +506,7 @@ class Unpickler:
         self._objs[instance_index] = instance
         self._namedict[self._refname()] = instance
 
-    def _restore_reduce(self, obj: Dict[str, Any]) -> Any:
+    def _restore_reduce(self, obj: dict[str, Any]) -> Any:
         """
         Supports restoring with all elements of __reduce__ as per pep 307.
         Assumes that iterator items (the last two) are represented as lists
@@ -596,7 +585,7 @@ class Unpickler:
         self._swapref(proxy, stage1)
         return stage1
 
-    def _restore_id(self, obj: Dict[str, Any]) -> Any:
+    def _restore_id(self, obj: dict[str, Any]) -> Any:
         try:
             idx = obj[tags.ID]
             return self._objs[idx]
@@ -605,25 +594,25 @@ class Unpickler:
         except TypeError:
             return None
 
-    def _restore_type(self, obj: Dict[str, Any]) -> Any:
+    def _restore_type(self, obj: dict[str, Any]) -> Any:
         typeref = util.loadclass(obj[tags.TYPE], classes=self._classes)
         if typeref is None:
             return obj
         return typeref
 
-    def _restore_module(self, obj: Dict[str, Any]) -> Any:
+    def _restore_module(self, obj: dict[str, Any]) -> Any:
         new_obj = _loadmodule(obj[tags.MODULE])
         return self._mkref(new_obj)
 
-    def _restore_repr_safe(self, obj: Dict[str, Any]) -> Any:
+    def _restore_repr_safe(self, obj: dict[str, Any]) -> Any:
         new_obj = _loadmodule(obj[tags.REPR])
         return self._mkref(new_obj)
 
-    def _restore_repr(self, obj: Dict[str, Any]) -> Any:
+    def _restore_repr(self, obj: dict[str, Any]) -> Any:
         obj = loadrepr(obj[tags.REPR])
         return self._mkref(obj)
 
-    def _loadfactory(self, obj: Dict[str, Any]) -> Optional[Any]:
+    def _loadfactory(self, obj: dict[str, Any]) -> Any | None:
         default_factory = None
         for key in (tags.DEFAULT_FACTORY, "default_factory"):
             try:
@@ -643,7 +632,7 @@ class Unpickler:
             warnings.warn("Unpickler._restore_object could not find %s!" % class_name)
         elif self.on_missing == "error":
             raise errors.ClassNotFoundError(
-                "Unpickler.restore_object could not find %s!" % class_name  # type: ignore[arg-type]
+                "Unpickler.restore_object could not find %s!" % class_name
             )
         elif util._is_function(self.on_missing):
             self.on_missing(class_name)  # type: ignore[operator]
@@ -682,7 +671,7 @@ class Unpickler:
 
     def _restore_from_dict(
         self,
-        obj: Dict[str, Any],
+        obj: dict[str, Any],
         instance: Any,
         ignorereserved: bool = True,
         restore_dict_items: bool = True,
@@ -759,7 +748,7 @@ class Unpickler:
 
         return instance
 
-    def _restore_state(self, obj: Dict[str, Any], instance: Any) -> Any:
+    def _restore_state(self, obj: dict[str, Any], instance: Any) -> Any:
         state = self._restore(obj[tags.STATE])
         has_slots = (
             isinstance(state, tuple) and len(state) == 2 and isinstance(state[1], dict)
@@ -793,7 +782,7 @@ class Unpickler:
         return instance
 
     def _restore_object_instance_variables(
-        self, obj: Dict[str, Any], instance: Any
+        self, obj: dict[str, Any], instance: Any
     ) -> Any:
         instance = self._restore_from_dict(obj, instance)
 
@@ -812,7 +801,7 @@ class Unpickler:
         return instance
 
     def _restore_object_instance(
-        self, obj: Dict[str, Any], cls: Type[Any], class_name: str = ""
+        self, obj: dict[str, Any], cls: type, class_name: str = ""
     ) -> Any:
         # This is a placeholder proxy object which allows child objects to
         # reference the parent object before it has been instantiated.
@@ -872,7 +861,7 @@ class Unpickler:
 
         return instance
 
-    def _restore_object(self, obj: Dict[str, Any]) -> Any:
+    def _restore_object(self, obj: dict[str, Any]) -> Any:
         class_name = obj[tags.OBJECT]
         cls = util.loadclass(class_name, classes=self._classes)
         handler = handlers.get(cls, handlers.get(class_name))  # type: ignore[arg-type]
@@ -891,16 +880,16 @@ class Unpickler:
 
         return self._restore_object_instance(obj, cls, class_name)
 
-    def _restore_function(self, obj: Dict[str, Any]) -> Any:
+    def _restore_function(self, obj: dict[str, Any]) -> Any:
         return util.loadclass(obj[tags.FUNCTION], classes=self._classes)
 
-    def _restore_set(self, obj: Dict[str, Any]) -> Set[Any]:
+    def _restore_set(self, obj: dict[str, Any]) -> set[Any]:
         try:
             return {self._restore(v) for v in obj[tags.SET]}
         except TypeError:
             return set()
 
-    def _restore_dict(self, obj: Dict[str, Any]) -> Dict[str, Any]:
+    def _restore_dict(self, obj: dict[str, Any]) -> dict[str, Any]:
         data = {}
         if not self.v1_decode:
             self._mkref(data)
@@ -950,7 +939,7 @@ class Unpickler:
                 self._namestack.pop()
         return data
 
-    def _restore_tuple(self, obj: Dict[str, Any]) -> Tuple[Any, ...]:
+    def _restore_tuple(self, obj: dict[str, Any]) -> tuple[Any, ...]:
         try:
             return tuple(self._restore(v) for v in obj[tags.TUPLE])
         except TypeError:
@@ -1002,7 +991,7 @@ class Unpickler:
         return restore
 
     def _call_handler_restore(
-        self, handler: handlers.BaseHandler, obj: Dict[str, Any]
+        self, handler: handlers.BaseHandler, obj: dict[str, Any]
     ) -> Any:
         kwargs: dict[str, Any] = {}
         if (

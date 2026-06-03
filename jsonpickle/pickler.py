@@ -10,8 +10,9 @@ import itertools
 import sys
 import types
 import warnings
+from collections.abc import Callable, Iterable, Sequence
 from itertools import chain, islice
-from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Type, Union
+from typing import Any
 
 from . import handlers, tags, util
 from .backend import JSONBackend, json
@@ -22,18 +23,18 @@ def encode(
     unpicklable: bool = True,
     make_refs: bool = True,
     keys: bool = False,
-    max_depth: Optional[int] = None,
+    max_depth: int | None = None,
     reset: bool = True,
-    backend: Optional[JSONBackend] = None,
+    backend: JSONBackend | None = None,
     warn: bool = False,
-    context: Optional["Pickler"] = None,
-    max_iter: Optional[int] = None,
+    context: "Pickler | None" = None,
+    max_iter: int | None = None,
     use_decimal: bool = False,
     numeric_keys: bool = False,
     use_base85: bool = False,
-    fail_safe: Optional[Callable[[Exception], Any]] = None,
-    indent: Optional[int] = None,
-    separators: Optional[Any] = None,
+    fail_safe: Callable[[Exception], Any] | None = None,
+    indent: int | None = None,
+    separators: Any | None = None,
     include_properties: bool = False,
     handle_readonly: bool = False,
     handler_context: Any = None,
@@ -178,7 +179,7 @@ def encode(
 
 
 def _in_cycle(
-    obj: Any, objs: Dict[int, int], max_reached: bool, make_refs: bool
+    obj: Any, objs: dict[int, int], max_reached: bool, make_refs: bool
 ) -> bool:
     """Detect cyclic structures that would lead to infinite recursion"""
     return (
@@ -188,7 +189,7 @@ def _in_cycle(
     )
 
 
-def _mktyperef(obj: Type[Any]) -> Dict[str, str]:
+def _mktyperef(obj: type) -> dict[str, str]:
     """Return a typeref dictionary
 
     >>> _mktyperef(AssertionError) == {'py/type': 'builtins.AssertionError'}
@@ -198,7 +199,7 @@ def _mktyperef(obj: Type[Any]) -> Dict[str, str]:
     return {tags.TYPE: util.importable_name(obj)}
 
 
-def _wrap_string_slot(string: Union[str, Sequence[str]]) -> Sequence[str]:
+def _wrap_string_slot(string: str | Sequence[str]) -> Sequence[str]:
     """Converts __slots__ = 'a' into __slots__ = ('a',)"""
     if isinstance(string, str):
         return (string,)
@@ -210,18 +211,18 @@ class Pickler:
         self,
         unpicklable: bool = True,
         make_refs: bool = True,
-        max_depth: Optional[int] = None,
-        backend: Optional[JSONBackend] = None,
+        max_depth: int | None = None,
+        backend: JSONBackend | None = None,
         keys: bool = False,
         warn: bool = False,
-        max_iter: Optional[int] = None,
+        max_iter: int | None = None,
         numeric_keys: bool = False,
         use_decimal: bool = False,
         use_base85: bool = False,
-        fail_safe: Optional[Callable[[Exception], Any]] = None,
+        fail_safe: Callable[[Exception], Any] | None = None,
         include_properties: bool = False,
         handle_readonly: bool = False,
-        original_object: Optional[Any] = None,
+        original_object: Any | None = None,
         handler_context: Any = None,
     ) -> None:
         self.unpicklable = unpicklable
@@ -332,7 +333,7 @@ class Pickler:
         pretend_new = not self.unpicklable or not self.make_refs
         return pretend_new or is_new
 
-    def _getref(self, obj: Any) -> Dict[str, int]:
+    def _getref(self, obj: Any) -> dict[str, int]:
         """Return a "py/id" entry for the specified object"""
         return {tags.ID: self._objs.get(id(obj))}  # type: ignore[dict-item]
 
@@ -381,7 +382,7 @@ class Pickler:
             obj = self._sort_attrs(obj)
         return self._flatten(obj)
 
-    def _flatten_bytestring(self, obj: bytes) -> Dict[str, str]:
+    def _flatten_bytestring(self, obj: bytes) -> dict[str, str]:
         return {self._bytes_tag: self._bytes_encoder(obj)}
 
     def _flatten_impl(self, obj: Any) -> Any:
@@ -416,11 +417,12 @@ class Pickler:
 
         try:
             in_cycle = _in_cycle(obj, self._objs, max_reached, self.make_refs)
+            flatten_func: Callable[[Any], str] | None
             if in_cycle:
                 # break the cycle
                 flatten_func = repr
             else:
-                flatten_func = self._get_flattener(obj)  # type: ignore[assignment]
+                flatten_func = self._get_flattener(obj)
 
             if flatten_func is None:
                 self._pickle_warning(obj)
@@ -436,10 +438,10 @@ class Pickler:
             else:
                 return self.fail_safe(e)
 
-    def _list_recurse(self, obj: Iterable[Any]) -> List[Any]:
+    def _list_recurse(self, obj: Iterable[Any]) -> list[Any]:
         return [self._flatten(v) for v in obj]
 
-    def _flatten_function(self, obj: Callable[..., Any]) -> Optional[Dict[str, str]]:
+    def _flatten_function(self, obj: Callable[..., Any]) -> dict[str, str] | None:
         if self.unpicklable:
             data = {tags.FUNCTION: util.importable_name(obj)}
         else:
@@ -447,7 +449,7 @@ class Pickler:
 
         return data
 
-    def _getstate(self, obj: Any, data: Dict[str, Any]) -> Dict[str, Any]:
+    def _getstate(self, obj: Any, data: dict[str, Any]) -> dict[str, Any]:
         state = self._flatten(obj)
         if self.unpicklable:
             data[tags.STATE] = state
@@ -456,8 +458,8 @@ class Pickler:
         return data
 
     def _flatten_key_value_pair(
-        self, k: Any, v: Any, data: Dict[Union[str, Any], Any]
-    ) -> Dict[Union[str, Any], Any]:
+        self, k: Any, v: Any, data: dict[str | Any, Any]
+    ) -> dict[str | Any, Any]:
         """Flatten a key/value pair into the passed-in dictionary."""
         if not util._is_picklable(k, v):
             return data
@@ -485,7 +487,7 @@ class Pickler:
         return data
 
     def _call_handler_flatten(
-        self, handler: handlers.BaseHandler, obj: Any, data: Dict[str, Any]
+        self, handler: handlers.BaseHandler, obj: Any, data: dict[str, Any]
     ) -> Any:
         kwargs: dict[str, Any] = {}
         if (
@@ -499,7 +501,7 @@ class Pickler:
         self,
         obj: Any,
         attrs: Iterable[str],
-        data: Dict[str, Any],
+        data: dict[str, Any],
         exclude: Iterable[str] = (),
     ) -> bool:
         flatten = self._flatten_key_value_pair
@@ -523,9 +525,9 @@ class Pickler:
     def _flatten_properties(
         self,
         obj: Any,
-        data: Dict[str, Any],
-        allslots: Optional[Iterable[Sequence[str]]] = None,
-    ) -> Dict[str, Any]:
+        data: dict[str, Any],
+        allslots: Iterable[Sequence[str]] | None = None,
+    ) -> dict[str, Any]:
         if allslots is None:
             # setting a list as a default argument can lead to some weird errors
             allslots = []
@@ -556,9 +558,9 @@ class Pickler:
     def _flatten_newstyle_with_slots(
         self,
         obj: Any,
-        data: Dict[str, Any],
+        data: dict[str, Any],
         exclude: Iterable[str] = (),
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Return a json-friendly dict for new-style objects with __slots__."""
         allslots = [
             _wrap_string_slot(getattr(cls, "__slots__", tuple()))
@@ -579,11 +581,11 @@ class Pickler:
 
     def _flatten_obj_instance(
         self, obj: Any
-    ) -> Optional[Union[Dict[str, Any], List[Any], Any]]:
+    ) -> dict[str, Any] | list[Any] | Any | None:
         """Recursively flatten an instance and return a json-friendly dict"""
         # we're generally not bothering to annotate parts that aren't part of the public API
         # but this annotation alone saves us 3 mypy "errors"
-        data: Dict[str, Any] = {}
+        data: dict[str, Any] = {}
         has_class = hasattr(obj, "__class__")
         has_dict = hasattr(obj, "__dict__")
         has_slots = not has_dict and hasattr(obj, "__slots__")
@@ -764,7 +766,7 @@ class Pickler:
         self._pickle_warning(obj)
         return None
 
-    def _ref_obj_instance(self, obj: Any) -> Optional[Union[Dict[str, Any], List[Any]]]:
+    def _ref_obj_instance(self, obj: Any) -> dict[str, Any] | list[Any] | None:
         """Reference an existing object or flatten if new"""
         if self.unpicklable:
             if self._mkref(obj):
@@ -796,8 +798,8 @@ class Pickler:
         )
 
     def _flatten_non_string_key_value_pair(
-        self, k: Any, v: Any, data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, k: Any, v: Any, data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Flatten only non-string key/value pairs"""
         if not util._is_picklable(k, v):
             return data
@@ -807,8 +809,8 @@ class Pickler:
         return data
 
     def _flatten_string_key_value_pair(
-        self, k: str, v: Any, data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, k: str, v: Any, data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Flatten string key/value pairs only."""
         if not util._is_picklable(k, v):
             return data
@@ -835,9 +837,9 @@ class Pickler:
     def _flatten_dict_obj(
         self,
         obj: dict[Any, Any],
-        data: Optional[Dict[Any, Any]] = None,
+        data: dict[Any, Any] | None = None,
         exclude: Iterable[Any] = (),
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Recursively call flatten() and return json-friendly dict"""
         if data is None:
             data = obj.__class__()
@@ -872,7 +874,7 @@ class Pickler:
             value: Any
             if util._is_type(factory):
                 # Reference the class/type
-                # in this case it's Dict[str, str]
+                # in this case it's dict[str, str]
                 value = _mktyperef(factory)
             else:
                 # The factory is not a type and could reference e.g. functions
@@ -885,7 +887,7 @@ class Pickler:
                 else:
                     # We've seen this object before.
                     # Break the cycle by emitting a reference.
-                    # in this case it's Dict[str, int]
+                    # in this case it's dict[str, int]
                     value = self._getref(factory)
             data[store_key] = value
 
@@ -900,7 +902,7 @@ class Pickler:
 
         return data
 
-    def _get_flattener(self, obj: Any) -> Optional[Callable[[Any], Any]]:
+    def _get_flattener(self, obj: Any) -> Callable[[Any], Any] | None:
         if type(obj) in (list, dict):
             if self._mkref(obj):
                 return (
@@ -933,8 +935,8 @@ class Pickler:
         return None
 
     def _flatten_sequence_obj(
-        self, obj: Iterable[Any], data: Dict[str, Any]
-    ) -> Union[Dict[str, Any], List[Any]]:
+        self, obj: Iterable[Any], data: dict[str, Any]
+    ) -> dict[str, Any] | list[Any]:
         """Return a json-friendly dict for a sequence subclass."""
         if hasattr(obj, "__dict__"):
             self._flatten_dict_obj(obj.__dict__, data)
