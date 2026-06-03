@@ -19,6 +19,7 @@ trees:
         - check/fmt
         - check/mypy
         - check/pyupgrade
+        - check/ruff
         - doc
       check/fmt: "garden fmt ${GARDEN_CMD_VERBOSE} -- --check"
       check/mypy: |
@@ -33,6 +34,9 @@ trees:
         then
             pyupgrade --py38-plus jsonpickle/*.py jsonpickle/*/*.py tests/*.py fuzzing/fuzz-targets/*.py
         fi
+      check/ruff: |
+        ${activate}
+        ruff check --fix "$@"
       clean: |
         rm -fr build dist jsonpickle.egg-info
         find . -type d -name __pycache__ -print0 | xargs -0 rm -fr
@@ -41,7 +45,6 @@ trees:
         ${activate} python3 -m sphinx docs pages
       fmt: |
         ${activate}
-        ruff check --fix "$@"
         ruff format "$@"
         isort --profile=black "$@" jsonpickle tests fuzzing/fuzz-targets
       setup: |
