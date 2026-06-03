@@ -5,7 +5,7 @@ In order for us to merge your PR, please confirm that all of these boxes are tru
 - [ ] If this PR changes any non-documentation portion of the codebase, I have updated the ``CHANGES.rst`` file for this change.
 - [ ] If this PR fixes a bug or adds a feature, I have added appropriate tests.
 - [ ] I have run the tests with ``pytest`` and run formatting with ``black``.
-- [ ] If generative AI of any kind was used in creating this PR, I have followed the these guideliens:
+- [ ] If generative AI of any kind was used in creating this PR, I have followed the these guidelines:
    - [ ] I ensured that this PR is not entirely written by any generative AI model.
    - [ ] I ensured that any portions of the code written by any generative AI model are free from copyrighted code.
    - [ ] I ensured that I included a Co-authored-by or Assisted-by tag in the footer containing the name of all generative AI models used.
