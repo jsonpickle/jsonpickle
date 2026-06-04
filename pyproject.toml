@@ -55,6 +55,7 @@ testing = [
     "ecdsa",
     "feedparser",
     "gmpy2",
+    "isort",
     "numpy",
     "pandas",
     "pymongo",

@@ -30,6 +30,8 @@ v5.0.0
       warnings. (+592)
     * Switch code styling and formatting from black to ruff. (+593)
     * Updated outdated documentation and added more usage examples (+594)
+    * ``isort`` is now an optional "testing" dependency in ``pyproject.toml``.
+    * The ``garden check`` command was corrected. (+604)
 
 v4.1.2
 ======
