@@ -44,7 +44,7 @@ class JSONBackend:
                 if idx == len(self._backend_names) - 1:
                     raise e
 
-    # def dumpsscipy
+    # def dumps
     dumps = encode
 
     def decode(self, string: str) -> Any:
