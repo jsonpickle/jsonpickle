@@ -1,5 +1,5 @@
 from types import ModuleType
-from typing import Any, Dict, Optional, Type, Union
+from typing import Any
 
 
 class JSONBackend:
@@ -20,7 +20,7 @@ class JSONBackend:
         raise AssertionError("jsonpickle could not load any json modules")
 
     def encode(
-        self, obj: Any, indent: Optional[int] = None, separators: Optional[Any] = None
+        self, obj: Any, indent: int | None = None, separators: Any | None = None
     ) -> str:
         """
         Attempt to encode an object into JSON.
@@ -126,7 +126,7 @@ class JSONBackend:
         self._fallthrough = enable
 
     def _store(
-        self, dct: Dict[str, Any], backend: str, obj: ModuleType, name: str
+        self, dct: dict[str, Any], backend: str, obj: ModuleType, name: str
     ) -> bool:
         try:
             dct[backend] = getattr(obj, name)
@@ -140,7 +140,7 @@ class JSONBackend:
         name: str,
         dumps: str = "dumps",
         loads: str = "loads",
-        loads_exc: Union[str, Type[Exception]] = ValueError,
+        loads_exc: str | type[Exception] = ValueError,
     ) -> bool:
         """Load a JSON backend by name.
 
@@ -214,8 +214,8 @@ class JSONBackend:
         self,
         name: str,
         obj: Any,
-        indent: Optional[int] = None,
-        separators: Optional[str] = None,
+        indent: int | None = None,
+        separators: str | None = None,
     ) -> str:
         optargs, optkwargs = self._encoder_options.get(name, ([], {}))
         encoder_kwargs = optkwargs.copy()

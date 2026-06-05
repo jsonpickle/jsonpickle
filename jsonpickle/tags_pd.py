@@ -3,17 +3,18 @@ This file exists to automatically generate tags for numpy/pandas extensions. Bec
 """
 
 import re
-from typing import Any, Dict, Iterable, List, Tuple, Type, Union
+from collections.abc import Iterable
+from typing import Any, TypeAlias
 
 import numpy as np
 import pandas as pd
 from pandas.api.extensions import ExtensionDtype
 
-DTypeRepr = Union[str, type]
+DTypeRepr: TypeAlias = str | type
 
 
 # TODO: add tests for this module
-def split_letters_numbers_brackets(s: str) -> Tuple[str, str, str]:
+def split_letters_numbers_brackets(s: str) -> tuple[str, str, str]:
     """
     Split the string into letters, numbers, and brackets (with their content).
     This is a helper function for getting the smallest unique substring, for determining tags.
@@ -38,7 +39,7 @@ def split_letters_numbers_brackets(s: str) -> Tuple[str, str, str]:
 
 def get_smallest_unique_substrings(
     strings: Iterable[Any], prefix: str = "np"
-) -> Dict[Any, str]:
+) -> dict[Any, str]:
     used_substrings = set()
     used_letters_parts = set()
     result = {}
@@ -121,7 +122,7 @@ def get_smallest_unique_substrings(
     return result
 
 
-def all_subclasses(cls: Type[Any]) -> List[Type[Any]]:
+def all_subclasses(cls: type) -> list[type]:
     # use a set to avoid adding duplicates
     subclasses = set()
     for subclass in cls.__subclasses__():
@@ -130,7 +131,7 @@ def all_subclasses(cls: Type[Any]) -> List[Type[Any]]:
     return list(subclasses)
 
 
-def get_all_numpy_dtype_strings() -> List[str]:
+def get_all_numpy_dtype_strings() -> list[str]:
     dtypes = []
 
     # sctypeDict is the dict of all possible numpy dtypes + some invalid dtypes too
@@ -201,7 +202,7 @@ def get_all_numpy_dtype_strings() -> List[str]:
     return list(dict.fromkeys(dtypes))
 
 
-def get_all_pandas_dtype_strings() -> List[DTypeRepr]:
+def get_all_pandas_dtype_strings() -> list[DTypeRepr]:
     dtypes = []
 
     # get all pandas dtypes since it doesnt have a built-in api
@@ -230,20 +231,20 @@ def get_all_pandas_dtype_strings() -> List[DTypeRepr]:
     return list(dict.fromkeys(dtypes))
 
 
-np_dtypes: List[str] = list(
+np_dtypes: list[str] = list(
     dict.fromkeys(
         [dtype for dtype in get_all_numpy_dtype_strings() if isinstance(dtype, str)]
     )
 )
 
-pd_dtypes: List[str] = list(
+pd_dtypes: list[str] = list(
     dict.fromkeys(
         [dtype for dtype in get_all_pandas_dtype_strings() if isinstance(dtype, str)]
     )
 )
 
 
-TYPE_MAP: Dict[Any, str] = get_smallest_unique_substrings(np_dtypes, prefix="np")
+TYPE_MAP: dict[Any, str] = get_smallest_unique_substrings(np_dtypes, prefix="np")
 TYPE_MAP.update(get_smallest_unique_substrings(pd_dtypes, prefix="pd"))
 
-REVERSE_TYPE_MAP: Dict[str, Any] = {v: k for k, v in TYPE_MAP.items()}
+REVERSE_TYPE_MAP: dict[str, Any] = {v: k for k, v in TYPE_MAP.items()}

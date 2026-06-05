@@ -2,18 +2,7 @@ import warnings
 import zlib
 from io import StringIO
 from types import ModuleType
-from typing import (
-    Any,
-    Dict,
-    Hashable,
-    List,
-    Literal,
-    Optional,
-    Tuple,
-    Type,
-    Union,
-    cast,
-)
+from typing import Any, Hashable, Literal, cast
 
 import numpy as np
 import pandas as pd
@@ -30,7 +19,7 @@ __all__ = ["register_handlers", "unregister_handlers"]
 
 # unused, TODO deprecate then remove
 # it's suggested that this return str instead of Any, but i'm not sure bc of obj.item()
-def pd_encode(obj: Any, **kwargs: Dict[str, Any]) -> Any:
+def pd_encode(obj: Any, **kwargs: dict[str, Any]) -> Any:
     if isinstance(obj, np.generic):
         # convert pandas/numpy scalar to native Python type
         return obj.item()
@@ -38,11 +27,11 @@ def pd_encode(obj: Any, **kwargs: Dict[str, Any]) -> Any:
 
 
 # unused, TODO deprecate then remove
-def pd_decode(s: str, **kwargs: Dict[str, Any]) -> Any:
+def pd_decode(s: str, **kwargs: dict[str, Any]) -> Any:
     return decode(s, **kwargs)  # type: ignore[arg-type]
 
 
-def rle_encode(types_list: List[str]) -> List[List[object]]:
+def rle_encode(types_list: list[str]) -> list[list[object]]:
     """
     Encodes a list of type codes using Run-Length Encoding (RLE). This allows for object columns in dataframes to contain items of different types without massively bloating the encoded representation.
     """
@@ -65,7 +54,7 @@ def rle_encode(types_list: List[str]) -> List[List[object]]:
     return encoded
 
 
-def rle_decode(encoded_list: List[Tuple[str, int]]) -> List[str]:
+def rle_decode(encoded_list: list[tuple[str, int]]) -> list[str]:
     """
     Decodes a Run-Length Encoded (RLE) list back into the original list of type codes.
     """
@@ -92,8 +81,8 @@ class PandasProcessor:
         self.compression = compression
 
     def flatten_pandas(
-        self, buf: str, data: Dict[str, Any], meta: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, Any]:
+        self, buf: str, data: dict[str, Any], meta: dict[str, Any] | None = None
+    ) -> dict[str, Any]:
         if self.size_threshold is not None and len(buf) > self.size_threshold:
             if self.compression:
                 buf = self.compression.compress(buf.encode())
@@ -108,7 +97,7 @@ class PandasProcessor:
         data["meta"] = meta
         return data
 
-    def restore_pandas(self, data: Dict[str, Any]) -> Tuple[str, Dict[str, Any]]:
+    def restore_pandas(self, data: dict[str, Any]) -> tuple[str, dict[str, Any]]:
         if data.get("txt", True):
             # It's just text...
             buf = data["values"]
@@ -121,9 +110,9 @@ class PandasProcessor:
 
 
 def make_read_csv_params(
-    meta: Dict[str, Any],
+    meta: dict[str, Any],
     context: RestoreType,
-) -> Tuple[Dict[str, Any], List[str], Dict[str, str]]:
+) -> tuple[dict[str, Any], list[str], dict[str, str]]:
     meta_dtypes = context.restore(meta.get("dtypes", {}), reset=False)
     # The header is used to select the rows of the csv from which
     # the columns names are retrieved
@@ -158,16 +147,16 @@ def make_read_csv_params(
 class PandasDfHandler(BaseHandler):
     pp: PandasProcessor = PandasProcessor()
 
-    def flatten(self, obj: pd.DataFrame, data: Dict[str, Any]) -> Dict[str, Any]:
+    def flatten(self, obj: pd.DataFrame, data: dict[str, Any]) -> dict[str, Any]:
         pp = PandasProcessor()
         # handle multiindex columns
         if isinstance(obj.columns, pd.MultiIndex):
-            columns: Union[List[Tuple[Any, ...]], List[str]] = [
+            columns: list[tuple[Any, ...]] | list[str] = [
                 tuple(col) for col in obj.columns
             ]
-            column_names: Union[
-                List[List[object]], List[Hashable], List[str], Hashable
-            ] = obj.columns.names
+            column_names: list[list[object]] | list[Hashable] | list[str] | Hashable = (
+                obj.columns.names
+            )
             is_multicolumns = True
         else:
             columns = obj.columns.tolist()
@@ -177,7 +166,7 @@ class PandasDfHandler(BaseHandler):
         # handle multiindex index
         if isinstance(obj.index, pd.MultiIndex):
             index_values = [tuple(idx) for idx in obj.index.values]
-            index_names: Union[List[Hashable], List[str], Hashable] = obj.index.names
+            index_names: list[Hashable] | list[str] | Hashable = obj.index.names
             is_multiindex = True
         else:
             index_values = obj.index.tolist()
@@ -230,7 +219,7 @@ class PandasDfHandler(BaseHandler):
         data = pp.flatten_pandas(data_encoded, data, meta)
         return data
 
-    def restore(self, obj: Dict[str, Any]) -> pd.DataFrame:
+    def restore(self, obj: dict[str, Any]) -> pd.DataFrame:
         data_encoded, meta = self.pp.restore_pandas(obj)
         try:
             data_columns = decode(data_encoded, keys=True)
@@ -323,7 +312,7 @@ class PandasDfHandler(BaseHandler):
 
         return df
 
-    def restore_v3_3(self, data: Dict[str, Any]) -> pd.DataFrame:
+    def restore_v3_3(self, data: dict[str, Any]) -> pd.DataFrame:
         csv, meta = self.pp.restore_pandas(data)
         params, timedeltas, parse_datetime_v2 = make_read_csv_params(meta, self.context)
         # None makes it compatible with objects serialized before
@@ -350,7 +339,7 @@ class PandasDfHandler(BaseHandler):
 class PandasSeriesHandler(BaseHandler):
     pp: PandasProcessor = PandasProcessor()
 
-    def flatten(self, obj: pd.Series, data: Dict[str, Any]) -> Dict[str, Any]:
+    def flatten(self, obj: pd.Series, data: dict[str, Any]) -> dict[str, Any]:
         """Flatten the index and values for reconstruction"""
         data["name"] = obj.name
         # This relies on the numpy handlers for the inner guts.
@@ -358,7 +347,7 @@ class PandasSeriesHandler(BaseHandler):
         data["values"] = self.context.flatten(obj.values, reset=False)
         return data
 
-    def restore(self, data: Dict[str, Any]) -> pd.Series:
+    def restore(self, data: dict[str, Any]) -> pd.Series:
         """Restore the flattened data"""
         name = data["name"]
         index = self.context.restore(data["index"], reset=False)
@@ -368,19 +357,19 @@ class PandasSeriesHandler(BaseHandler):
 
 class PandasIndexHandler(BaseHandler):
     pp: PandasProcessor = PandasProcessor()
-    index_constructor: Type[pd.Index] = pd.Index
+    index_constructor: type[pd.Index] = pd.Index
 
-    def name_bundler(self, obj: pd.Index) -> Dict[str, Any]:
+    def name_bundler(self, obj: pd.Index) -> dict[str, Any]:
         return {"name": obj.name}
 
-    def flatten(self, obj: pd.Index, data: Dict[str, Any]) -> Dict[str, Any]:
+    def flatten(self, obj: pd.Index, data: dict[str, Any]) -> dict[str, Any]:
         name_bundle = self.name_bundler(obj)
         meta = dict(dtype=str(obj.dtype), **name_bundle)
         buf = encode(obj.tolist())
         data = self.pp.flatten_pandas(buf, data, meta)
         return data
 
-    def restore(self, data: Dict[str, Any]) -> pd.Index:
+    def restore(self, data: dict[str, Any]) -> pd.Index:
         buf, meta = self.pp.restore_pandas(data)
         dtype = meta.get("dtype", None)
         name_bundle = {
@@ -393,11 +382,11 @@ class PandasIndexHandler(BaseHandler):
 
 
 class PandasPeriodIndexHandler(PandasIndexHandler):
-    index_constructor: Type[pd.PeriodIndex] = pd.PeriodIndex
+    index_constructor: type[pd.PeriodIndex] = pd.PeriodIndex
 
 
 class PandasMultiIndexHandler(PandasIndexHandler):
-    def name_bundler(self, obj: pd.Index) -> Dict[str, Any]:
+    def name_bundler(self, obj: pd.Index) -> dict[str, Any]:
         if not isinstance(obj, pd.MultiIndex):
             return super().name_bundler(obj)
         return {"names": obj.names}
@@ -406,13 +395,13 @@ class PandasMultiIndexHandler(PandasIndexHandler):
 class PandasTimestampHandler(BaseHandler):
     pp: PandasProcessor = PandasProcessor()
 
-    def flatten(self, obj: pd.Timestamp, data: Dict[str, Any]) -> Dict[str, Any]:
+    def flatten(self, obj: pd.Timestamp, data: dict[str, Any]) -> dict[str, Any]:
         meta = {"isoformat": obj.isoformat()}
         buf = ""
         data = self.pp.flatten_pandas(buf, data, meta)
         return data
 
-    def restore(self, data: Dict[str, Any]) -> pd.Timestamp:
+    def restore(self, data: dict[str, Any]) -> pd.Timestamp:
         _, meta = self.pp.restore_pandas(data)
         isoformat = meta["isoformat"]
         obj = pd.Timestamp(isoformat)
@@ -422,7 +411,7 @@ class PandasTimestampHandler(BaseHandler):
 class PandasPeriodHandler(BaseHandler):
     pp: PandasProcessor = PandasProcessor()
 
-    def flatten(self, obj: pd.Period, data: Dict[str, Any]) -> Dict[str, Any]:
+    def flatten(self, obj: pd.Period, data: dict[str, Any]) -> dict[str, Any]:
         meta = {
             "start_time": encode(obj.start_time),
             "freqstr": obj.freqstr,
@@ -431,7 +420,7 @@ class PandasPeriodHandler(BaseHandler):
         data = self.pp.flatten_pandas(buf, data, meta)
         return data
 
-    def restore(self, data: Dict[str, Any]) -> pd.Period:
+    def restore(self, data: dict[str, Any]) -> pd.Period:
         _, meta = self.pp.restore_pandas(data)
         start_time = decode(meta["start_time"])
         freqstr = meta["freqstr"]
@@ -442,7 +431,7 @@ class PandasPeriodHandler(BaseHandler):
 class PandasIntervalHandler(BaseHandler):
     pp: PandasProcessor = PandasProcessor()
 
-    def flatten(self, obj: pd.Interval, data: Dict[str, Any]) -> Dict[str, Any]:
+    def flatten(self, obj: pd.Interval, data: dict[str, Any]) -> dict[str, Any]:
         meta = {
             "left": encode(obj.left),
             "right": encode(obj.right),
@@ -452,7 +441,7 @@ class PandasIntervalHandler(BaseHandler):
         data = self.pp.flatten_pandas(buf, data, meta)
         return data
 
-    def restore(self, data: Dict[str, Any]) -> pd.Interval:
+    def restore(self, data: dict[str, Any]) -> pd.Interval:
         _, meta = self.pp.restore_pandas(data)
         left = decode(meta["left"])
         right = decode(meta["right"])
