@@ -79,6 +79,7 @@ Authors
  * Alec Thomas - https://github.com/alecthomas
  * jaraco - https://github.com/jaraco
  * Marcin Tustin - https://github.com/marcintustin
+ * Joren Hammudoglu - https://github.com/jorenham
 
 
 Change Log
