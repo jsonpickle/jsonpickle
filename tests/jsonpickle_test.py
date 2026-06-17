@@ -250,6 +250,70 @@ def test_decode_invalid_b64(value, unpickler):
     assert unpickler.restore(pickled) == expected
 
 
+def test_bytearray_roundtrip():
+    """bytearray must roundtrip with its content preserved (like bytes)"""
+    data = bytearray(b"\x00\x01\xff hello")
+    decoded = jsonpickle.decode(jsonpickle.encode(data))
+    assert decoded == data
+    assert isinstance(decoded, bytearray)
+
+
+def test_bytearray_empty_roundtrip():
+    """An empty bytearray must roundtrip"""
+    data = bytearray()
+    decoded = jsonpickle.decode(jsonpickle.encode(data))
+    assert decoded == data
+    assert isinstance(decoded, bytearray)
+
+
+def test_bytearray_nested_roundtrip():
+    """bytearray nested inside a container must roundtrip"""
+    data = {"a": [bytearray(b"xyz")]}
+    decoded = jsonpickle.decode(jsonpickle.encode(data))
+    assert decoded == data
+    assert isinstance(decoded["a"][0], bytearray)
+
+
+def test_bytearray_base64_default(pickler):
+    """base64 must be used for bytearray by default"""
+    data = bytearray(os.urandom(16))
+    encoded = util.b64encode(bytes(data))
+    assert pickler.flatten(data) == {tags.BYTEARRAY: {tags.B64: encoded}}
+
+
+def test_bytearray_base85(b85_pickler):
+    """base85 is emitted for bytearray when the pickler is setup to do so"""
+    data = bytearray(os.urandom(16))
+    encoded = util.b85encode(bytes(data))
+    assert b85_pickler.flatten(data) == {tags.BYTEARRAY: {tags.B85: encoded}}
+
+
+def test_bytearray_base85_roundtrip():
+    """bytearray must roundtrip when base85 is in use"""
+    data = bytearray(b"\x00\x01\xff hello")
+    decoded = jsonpickle.decode(jsonpickle.encode(data, use_base85=True))
+    assert decoded == data
+    assert isinstance(decoded, bytearray)
+
+
+def test_decode_bytearray_base64(unpickler):
+    """base64 bytearray data must be restored"""
+    expected = bytearray("Pÿthöñ 3!".encode())
+    pickled = {tags.BYTEARRAY: {tags.B64: util.b64encode(bytes(expected))}}
+    restored = unpickler.restore(pickled)
+    assert restored == expected
+    assert isinstance(restored, bytearray)
+
+
+def test_decode_bytearray_base85(unpickler):
+    """base85 bytearray data must be restored"""
+    expected = bytearray("Pÿthöñ 3!".encode())
+    pickled = {tags.BYTEARRAY: {tags.B85: util.b85encode(bytes(expected))}}
+    restored = unpickler.restore(pickled)
+    assert restored == expected
+    assert isinstance(restored, bytearray)
+
+
 def test_string(pickler, unpickler):
     """Strings must roundtrip"""
     assert pickler.flatten("a string") == "a string"

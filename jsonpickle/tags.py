@@ -8,6 +8,7 @@ that need to be specially handled.
 """
 
 BYTES: str = "py/bytes"
+BYTEARRAY: str = "py/bytearray"
 B64: str = "py/b64"
 B85: str = "py/b85"
 FUNCTION: str = "py/function"
@@ -34,6 +35,7 @@ TYPE: str = "py/type"
 # All reserved tag names
 RESERVED: set[str] = {
     BYTES,
+    BYTEARRAY,
     FUNCTION,
     ID,
     INITARGS,

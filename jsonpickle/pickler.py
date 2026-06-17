@@ -389,14 +389,19 @@ class Pickler:
         #########################################
         # if obj is nonrecursive return immediately
         # for performance reasons we don't want to do recursive checks
-        if type(obj) is bytes:
+        typeof_obj = type(obj)
+        if typeof_obj is bytes:
             return self._flatten_bytestring(obj)
 
         # Decimal is a primitive when use_decimal is True
-        if type(obj) in (str, bool, int, float, type(None)) or (
+        if typeof_obj in (str, bool, int, float, type(None)) or (
             self._use_decimal and isinstance(obj, decimal.Decimal)
         ):
             return obj
+
+        # bytearray is list-like, so it is neither reducible nor atomic.
+        if typeof_obj is bytearray:
+            return {tags.BYTEARRAY: self._flatten_bytestring(bytes(obj))}
         #########################################
 
         self._push()
