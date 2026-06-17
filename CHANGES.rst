@@ -37,6 +37,8 @@ v5.0.0
       ``unpicklable=False``. They now fall back to a lossy representation. (#444)
     * Fix bug where dict keys equal to a reserved wire tag (e.g. ``py/object``,
       ``py/id``) were silently dropped when encoding with ``keys=True``. (+611)
+    * Fix ``bytearray`` losing its contents through encode/decode; it now
+      roundtrips like ``bytes``. (+606)
 
 v4.1.2
 ======
