@@ -250,6 +250,30 @@ def test_decode_invalid_b64(value, unpickler):
     assert unpickler.restore(pickled) == expected
 
 
+def test_bytearray_roundtrip():
+    """bytearray must roundtrip with its content preserved (like bytes)"""
+    data = bytearray(b"\x00\x01\xff hello")
+    decoded = jsonpickle.decode(jsonpickle.encode(data))
+    assert decoded == data
+    assert isinstance(decoded, bytearray)
+
+
+def test_bytearray_empty_roundtrip():
+    """An empty bytearray must roundtrip"""
+    data = bytearray()
+    decoded = jsonpickle.decode(jsonpickle.encode(data))
+    assert decoded == data
+    assert isinstance(decoded, bytearray)
+
+
+def test_bytearray_nested_roundtrip():
+    """bytearray nested inside a container must roundtrip"""
+    data = {"a": [bytearray(b"xyz")]}
+    decoded = jsonpickle.decode(jsonpickle.encode(data))
+    assert decoded == data
+    assert isinstance(decoded["a"][0], bytearray)
+
+
 def test_string(pickler, unpickler):
     """Strings must roundtrip"""
     assert pickler.flatten("a string") == "a string"

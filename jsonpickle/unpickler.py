@@ -439,6 +439,14 @@ class Unpickler:
         except (AttributeError, UnicodeEncodeError):
             return b""
 
+    def _restore_bytearray(self, obj: dict[str, Any]) -> bytearray:
+        payload = obj[tags.BYTEARRAY]
+        if isinstance(payload, dict) and tags.B85 in payload:
+            data = self._restore_base85(payload)
+        else:
+            data = self._restore_base64(payload)
+        return bytearray(data)
+
     def _refname(self) -> str:
         """Calculates the name of the current location in the JSON stack.
 
@@ -963,6 +971,8 @@ class Unpickler:
                 restore = self._restore_base64  # type: ignore[assignment]
             elif tags.B85 in obj:
                 restore = self._restore_base85  # type: ignore[assignment]
+            elif tags.BYTEARRAY in obj:
+                restore = self._restore_bytearray  # type: ignore[assignment]
             elif tags.ID in obj:
                 restore = self._restore_id
             elif tags.ITERATOR in obj:

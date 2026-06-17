@@ -392,6 +392,12 @@ class Pickler:
         if type(obj) is bytes:
             return self._flatten_bytestring(obj)
 
+        if type(obj) is bytearray:
+            # bytearray is not reducible (it is list-like) and is not bytes,
+            # so encode its contents like a bytestring and tag it so that it
+            # is restored as a bytearray rather than losing its data.
+            return {tags.BYTEARRAY: self._flatten_bytestring(bytes(obj))}
+
         # Decimal is a primitive when use_decimal is True
         if type(obj) in (str, bool, int, float, type(None)) or (
             self._use_decimal and isinstance(obj, decimal.Decimal)
