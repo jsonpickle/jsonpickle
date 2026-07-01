@@ -32,6 +32,9 @@ v5.0.0
     * Updated outdated documentation and added more usage examples (+594)
     * ``isort`` is now an optional "testing" dependency in ``pyproject.toml``.
     * The ``garden check`` command was corrected. (+604)
+    * Fix bug where objects whose state is only available through ``__reduce__``
+      (such as ``datetime.timedelta``) were encoded as ``null`` when
+      ``unpicklable=False``. They now fall back to a lossy representation. (#444)
 
 v4.1.2
 ======
