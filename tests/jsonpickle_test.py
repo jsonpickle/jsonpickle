@@ -1523,6 +1523,31 @@ class PickleProtocol2ReduceTupleSetState(PickleProtocol2ReduceTuple):
         self.bar = state["foo"]
 
 
+def protocol_5_state_setter(obj, state):
+    """A pickle protocol 5 ``state_setter`` (the sixth ``__reduce__`` element)"""
+    obj.__dict__.update(state)
+    obj.state_setter_called = True
+
+
+class PickleProtocol5ReduceTupleStateSetter(PickleProtocol2ReduceTuple):
+    """Reducible object whose ``__reduce__`` returns a six-element tuple
+
+    The sixth element is a ``state_setter`` callable, as allowed by pickle
+    protocol 5. It is invoked as ``state_setter(obj, state)`` in place of the
+    default state handling.
+    """
+
+    def __reduce__(self):
+        return (
+            PickleProtocol2ReduceTuple,  # callable
+            ("yam", 1),  # args
+            {"foo": 1},  # state
+            iter([]),  # listitems
+            iter([]),  # dictitems
+            protocol_5_state_setter,  # state_setter (protocol 5)
+        )
+
+
 class PickleProtocol2ReduceTupleStateSlots:
     """Reducible object with tuple ``__slots__``"""
 
@@ -1714,6 +1739,30 @@ def test_reduce_state_dict():
     assert decoded.argval == "yam"
     assert decoded.optional == 1
     assert decoded.foo == 1
+
+
+def test_reduce_state_setter():
+    """Objects with a protocol 5 ``state_setter`` (6-tuple) can roundtrip"""
+    instance = PickleProtocol5ReduceTupleStateSetter(5)
+    encoded = jsonpickle.encode(instance)
+    decoded = jsonpickle.decode(encoded)
+    assert decoded.argval == "yam"
+    assert decoded.optional == 1
+    # the state_setter applied the state and recorded that it ran
+    assert decoded.foo == 1
+    assert decoded.state_setter_called is True
+
+
+def test_reduce_six_element_payload_does_not_crash(unpickler):
+    """A six-element ``py/reduce`` payload must not raise ValueError
+
+    Regression test for a ``py/reduce`` list holding the sixth ``state_setter``
+    element (pickle protocol 5). The restorer previously padded short tuples
+    and then unpacked exactly five names, so a six-element reduce raised
+    ``ValueError: too many values to unpack (expected 5)``.
+    """
+    data = {tags.REDUCE: [None, None, None, None, None, None]}
+    assert unpickler.restore(data) == []
 
 
 def test_reduce_basic():
