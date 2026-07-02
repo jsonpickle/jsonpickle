@@ -537,6 +537,20 @@ def test_set_not_unpicklable(pickler):
     assert isinstance(flattened, list)
 
 
+def test_reduce_only_object_notunpicklable(pickler):
+    """__reduce__-only objects are lossily encoded rather than dropped to null
+    when unpicklable is False (issue #444)"""
+    import datetime
+
+    pickler.unpicklable = False
+    # timedelta exposes its state only through __reduce__ (no __dict__,
+    # __slots__ or __getstate__), so previously it flattened to None.
+    flattened = pickler.flatten(datetime.timedelta(days=3, seconds=1))
+    assert flattened is not None
+    # __reduce__ yields (timedelta, (days, seconds, microseconds))
+    assert flattened == [3, 1, 0]
+
+
 def test_thing_with_module(pickler, unpickler):
     """Objects with references to modules can roundtrip"""
     obj = Thing("with-module")

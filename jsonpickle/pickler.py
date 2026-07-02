@@ -579,6 +579,22 @@ class Pickler:
 
         return data
 
+    def _reduce(self, obj: Any, has_reduce: bool, has_reduce_ex: bool) -> Any:
+        """Return the object's __reduce__/__reduce_ex__ output, or None.
+
+        Many builtin types raise TypeError from these; treat that as
+        "no reduce available" rather than letting it propagate.
+        """
+        try:
+            if has_reduce and not has_reduce_ex:
+                return obj.__reduce__()
+            if has_reduce_ex:
+                # we're implementing protocol 2
+                return obj.__reduce_ex__(2)
+        except TypeError:
+            pass
+        return None
+
     def _flatten_obj_instance(
         self, obj: Any
     ) -> dict[str, Any] | list[Any] | Any | None:
@@ -620,32 +636,13 @@ class Pickler:
                 self._pickle_warning(obj)
             return result
 
-        reduce_val = None
-
         if self.include_properties:
             data = self._flatten_properties(obj, data)
 
         if self.unpicklable:
-            if has_reduce and not has_reduce_ex:
-                try:
-                    reduce_val = obj.__reduce__()
-                except TypeError:
-                    # A lot of builtin types have a reduce which
-                    # just raises a TypeError
-                    # we ignore those
-                    pass
-
             # test for a reduce implementation, and redirect before
             # doing anything else if that is what reduce requests
-            elif has_reduce_ex:
-                try:
-                    # we're implementing protocol 2
-                    reduce_val = obj.__reduce_ex__(2)
-                except TypeError:
-                    # A lot of builtin types have a reduce which
-                    # just raises a TypeError
-                    # we ignore those
-                    pass
+            reduce_val = self._reduce(obj, has_reduce, has_reduce_ex)
 
             if reduce_val and isinstance(reduce_val, str):
                 try:
@@ -762,6 +759,25 @@ class Pickler:
         # (e.g. __getnewargs__ is not supposed to be the end of the story)
         if data:
             return data
+
+        # Objects whose state is only reachable through __reduce__/__reduce_ex__
+        # (e.g. datetime.timedelta) have no __dict__, __slots__ or __getstate__
+        # for the branches above to read, so nothing has been produced and they
+        # would otherwise become null. Emit a lossy view built from the reduce
+        # output instead: its state if present, else the constructor args. The
+        # string form and the listitems/dictitems slots (append/update-based
+        # reconstruction) are not represented and keep the previous behaviour.
+        if not self.unpicklable:
+            reduce_val = self._reduce(obj, has_reduce, has_reduce_ex)
+            if reduce_val is not None and not isinstance(reduce_val, str):
+                # reduce tuple: (callable, args, state, listitems, dictitems)
+                rv_as_list = list(reduce_val)
+                state = rv_as_list[2] if len(rv_as_list) > 2 else None
+                if state:
+                    return self._flatten(state)
+                args = rv_as_list[1] if len(rv_as_list) > 1 else None
+                if args:
+                    return self._flatten(args)
 
         self._pickle_warning(obj)
         return None
