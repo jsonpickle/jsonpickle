@@ -828,13 +828,24 @@ class Pickler:
         self, k: str, v: Any, data: dict[str, Any]
     ) -> dict[str, Any]:
         """Flatten string key/value pairs only."""
+        if self.keys and isinstance(k, str) and (
+            k.startswith(tags.JSON_KEY) or k in tags.RESERVED
+        ):
+            # Escape a data key that collides with the json:// escape prefix or
+            # with a reserved wire tag (e.g. "py/object", "py/id"). This must run
+            # BEFORE the _is_picklable guard below: _is_picklable rejects any
+            # name in tags.RESERVED, which is correct for object attributes but
+            # would silently DROP a legitimate user dict key here. Without the
+            # escape the key is lost on encode, and on decode _restore_from_dict
+            # skips reserved keys and the node can be misrouted (e.g. treated as
+            # a py/id).
+            data[self._escape_key(k)] = self._flatten(v)
+            return data
         if not util._is_picklable(k, v):
             return data
         if self.keys:
             if not isinstance(k, str):
                 return data
-            elif k.startswith(tags.JSON_KEY):
-                k = self._escape_key(k)
         else:
             if k is None:
                 k = "null"  # for compatibility with common json encoders
