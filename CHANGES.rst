@@ -35,6 +35,10 @@ v5.0.0
     * Fix bug where objects whose state is only available through ``__reduce__``
       (such as ``datetime.timedelta``) were encoded as ``null`` when
       ``unpicklable=False``. They now fall back to a lossy representation. (#444)
+    * Fix ``ValueError: too many values to unpack (expected 5)`` when encoding or
+      decoding objects whose ``__reduce__``/``__reduce_ex__`` returns a
+      six-element tuple. The sixth ``state_setter`` element (added by pickle
+      protocol 5) is now honored. (#608)
 
 v4.1.2
 ======

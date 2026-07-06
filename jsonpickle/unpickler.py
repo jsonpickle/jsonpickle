@@ -523,7 +523,11 @@ class Unpickler:
             return result
         if len(reduce_val) < 5:
             reduce_val.extend([None] * (5 - len(reduce_val)))
-        f, args, state, listitems, dictitems = reduce_val
+        # A __reduce__/__reduce_ex__ result may contain a sixth ``state_setter``
+        # element (added by pickle protocol 5). When present it is called as
+        # ``state_setter(obj, state)`` in place of the default state handling.
+        f, args, state, listitems, dictitems = reduce_val[:5]
+        state_setter = reduce_val[5] if len(reduce_val) > 5 else None
 
         if f == tags.NEWOBJ or getattr(f, "__name__", "") == "__newobj__":
             # mandated special case
@@ -544,7 +548,11 @@ class Unpickler:
                 # __init__ since the state dict will set all attributes immediately afterwards
                 stage1 = f.__new__(f, *args)
 
-        if state:
+        if state and state_setter is not None:
+            # pickle protocol 5: a custom state setter takes full
+            # responsibility for applying the state to the object.
+            state_setter(stage1, state)
+        elif state:
             try:
                 stage1.__setstate__(state)
             except AttributeError:
