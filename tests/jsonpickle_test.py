@@ -938,12 +938,7 @@ def test_string_key_requiring_escape_dict_keys_with_keys_enabled():
 
 @pytest.mark.parametrize("reserved", sorted(tags.RESERVED))
 def test_reserved_tag_dict_keys_with_keys_enabled(reserved):
-    """A user dict key equal to a reserved wire tag round-trips verbatim.
-
-    Regression: keys such as "py/object" / "py/id" were silently dropped on
-    encode (util._is_picklable rejects any name in tags.RESERVED) and misrouted
-    on decode. They must be escaped like json:// keys under keys=True.
-    """
+    """A user dict key equal to a reserved wire tag round-trips verbatim."""
     data = {reserved: "user-value", "normal": 1}
     pickled = jsonpickle.encode(data, keys=True)
     unpickled = jsonpickle.decode(pickled, keys=True)
@@ -953,9 +948,9 @@ def test_reserved_tag_dict_keys_with_keys_enabled(reserved):
 def test_reserved_tag_dict_key_nested_in_object_with_keys_enabled():
     """A reserved-tag data key survives even inside a custom object's dict field."""
     thing = Thing("holder")
-    thing.child = {tags.OBJECT: "x", "k": 1}
+    thing.child = {tags.OBJECT: "x", "k": "cd"}
     restored = jsonpickle.decode(jsonpickle.encode(thing, keys=True), keys=True)
-    assert restored.child == {tags.OBJECT: "x", "k": 1}
+    assert restored.child == {tags.OBJECT: "x", "k": "cd"}
 
 
 def test_string_key_not_requiring_escape_dict_keys_with_keys_enabled():
