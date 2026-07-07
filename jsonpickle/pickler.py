@@ -828,13 +828,20 @@ class Pickler:
         self, k: str, v: Any, data: dict[str, Any]
     ) -> dict[str, Any]:
         """Flatten string key/value pairs only."""
+        if (
+            isinstance(k, str)
+            and (k.startswith(tags.JSON_KEY) or k in tags.RESERVED)
+            and self.keys
+        ):
+            # Escape data keys colliding with the json:// prefix or a reserved
+            # wire tag; must run before _is_picklable, which drops RESERVED keys.
+            data[self._escape_key(k)] = self._flatten(v)
+            return data
         if not util._is_picklable(k, v):
             return data
         if self.keys:
             if not isinstance(k, str):
                 return data
-            elif k.startswith(tags.JSON_KEY):
-                k = self._escape_key(k)
         else:
             if k is None:
                 k = "null"  # for compatibility with common json encoders
