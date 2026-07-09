@@ -37,6 +37,11 @@ v5.0.0
       ``unpicklable=False``. They now fall back to a lossy representation. (#444)
     * Fix bug where dict keys equal to a reserved wire tag (e.g. ``py/object``,
       ``py/id``) were silently dropped when encoding with ``keys=True``. (+611)
+    * Fix bug where round-tripping a non-contiguous numpy view whose base is
+      shared with another view raised ``ValueError: strides is incompatible ...``.
+      The decorative ``values`` emitted for a referenced array no longer consume a
+      ``py/id`` slot, keeping the encode and decode reference counters in sync.
+      (#449) (+612)
 
 v4.1.2
 ======
