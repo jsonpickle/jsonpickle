@@ -9,7 +9,7 @@ In order for us to merge your PR, please confirm that all of these boxes are tru
 - [ ] If generative AI of any kind was used in creating this PR, I have followed the these guidelines:
    - [ ] I ensured that this PR is not entirely written by any generative AI model.
    - [ ] I ensured that any portions of the code written by any generative AI model are free from copyrighted code.
-   - [ ] I ensured that I included a Co-authored-by or Assisted-by tag in the footer containing the name of all generative AI models used.
+   - [ ] I ensured that I included a Co-authored-by or Assisted-by tag in the footer of every commit where AI is used containing the name of all generative AI models used for that commit.
    - [ ] I ensured that all code in this PR submitted verbatim from generative AI output is limited to creating/fixing tests/documentation and/or fixing bugs in extensions, and does not impact the core code.
    - [ ] **I understand that if I used AI and the above checkmarks are not all true when I submit this PR, my PR will be closed.**
 - [ ] **I understand that if this checklist is deleted from the PR body, my PR will be closed.**
