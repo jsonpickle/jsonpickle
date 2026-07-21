@@ -288,6 +288,28 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
         super().__init__(size_threshold, compression)
         self.mode = mode
 
+    def _flatten_values_for_readability(
+        self, obj: npt.NDArray[Any], data: dict[str, Any]
+    ) -> None:
+        """Add a human-readable values entry without touching the
+        reference bookkeeping.
+
+        When an array is stored by reference to a base, the values entry is
+        purely decorative: restore reconstructs the array from base and
+        never reads it back. Flattening the values through self.context
+        would register additional py/id references that the restore step
+        does not mirror, desynchronizing the id counters and making later
+        py/id references resolve to the wrong object (see #449). Snapshot
+        and restore the reference state so the decorative flatten is a no-op as
+        far as py/id allocation is concerned.
+        """
+        context = self.context
+        saved_objs = dict(context._objs)
+        saved_flattened = dict(context._flattened)
+        super(NumpyNDArrayHandlerBinary, self).flatten(obj, data)
+        context._objs = saved_objs
+        context._flattened = saved_flattened
+
     def flatten(self, obj: npt.NDArray[Any], data: dict[str, Any]) -> dict[str, Any]:
         """encode numpy to json"""
         base = obj.base
@@ -322,7 +344,7 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
             if self.size_threshold is None or self.size_threshold >= obj.size:
                 # not used in restore since base is present, but
                 # include values for human-readability
-                super(NumpyNDArrayHandlerBinary, self).flatten(obj, data)
+                self._flatten_values_for_readability(obj, data)
         elif base is not None:
             try:
                 base_buf = np.frombuffer(base, dtype=np.uint8)
@@ -364,7 +386,7 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
                 if self.size_threshold is None or self.size_threshold >= obj.size:
                     # not used in restore since base is present, but
                     # include values for human-readability
-                    super(NumpyNDArrayHandlerBinary, self).flatten(obj, data)
+                    self._flatten_values_for_readability(obj, data)
             else:
                 deepcopy_failed = True
         else:

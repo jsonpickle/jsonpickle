@@ -184,6 +184,32 @@ def test_strides():
     assert new_view.base is new_arr
 
 
+def test_shared_base_after_referenced_object():
+    """Regression test for #449.
+
+    When an object flattened earlier registers a py/id reference that is
+    not mirrored during restore (e.g. a masked array, whose decorative
+    values were previously flattened through the pickler context), the id
+    counters used by encode and decode drift apart. A later view stored as a
+    py/id reference to a shared base then resolves to the wrong object and
+    raises a strides-incompatible ValueError.
+    """
+    masked = np.ma.MaskedArray(np.array([1, 3], dtype=np.int64), mask=[False, False])
+    base = np.arange(100, dtype=np.float64)
+    # Two non-contiguous views sharing base. The second is stored as a
+    # py/id reference to the base emitted by the first.
+    view1 = base[0::50]
+    view2 = base[1::50]
+    assert view1.base is base and view2.base is base
+
+    data = {"masked": masked, "view1": view1, "view2": view2}
+    actual = roundtrip(data)
+
+    npt.assert_array_equal(actual["masked"], masked)
+    npt.assert_array_equal(actual["view1"], view1)
+    npt.assert_array_equal(actual["view2"], view2)
+
+
 def test_weird_arrays():
     """Test references to arrays that do not effectively own their memory"""
     base = np.arange(9)
