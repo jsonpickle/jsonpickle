@@ -196,8 +196,8 @@ def test_shared_base_after_referenced_object():
     """
     masked = np.ma.MaskedArray(np.array([1, 3], dtype=np.int64), mask=[False, False])
     base = np.arange(100, dtype=np.float64)
-    # Two non-contiguous views sharing ``base``. The second is stored as a
-    # ``py/id`` reference to the base emitted by the first.
+    # Two non-contiguous views sharing base. The second is stored as a
+    # py/id reference to the base emitted by the first.
     view1 = base[0::50]
     view2 = base[1::50]
     assert view1.base is base and view2.base is base
