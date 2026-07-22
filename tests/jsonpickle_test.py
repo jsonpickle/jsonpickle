@@ -356,6 +356,73 @@ def test_reduce_with_invalid_data(value, unpickler):
     assert result == []
 
 
+def test_reduce_with_six_elements_all_none(unpickler):
+    """
+    Regression test for
+    https://github.com/jsonpickle/jsonpickle/issues/608
+
+    A 6-element py/reduce (protocol 5 adds a state_setter as the 6th
+    element) must not raise ValueError from the unpack; it should be
+    handled the same way a fully-None reduce already is.
+    """
+    data = {tags.REDUCE: [None, None, None, None, None, None]}
+    result = unpickler.restore(data)
+    assert result == []
+
+
+def _six_element_reduce_state_setter(obj, state):
+    """Module-level so it can be referenced by dotted path like a real
+    pickle protocol 5 state_setter callable."""
+    obj.doubled = state["value"] * 2
+
+
+def _six_element_reduce_rebuild(value):
+    return SixElementReduceObject(value)
+
+
+class SixElementReduceObject:
+    """A reducible object whose __reduce__ returns all six protocol 5
+    elements, including a state_setter callable."""
+
+    def __init__(self, value):
+        self.value = value
+        self.doubled = None
+
+    def __reduce__(self):
+        return (
+            _six_element_reduce_rebuild,
+            (self.value,),
+            {"value": self.value},
+            None,
+            None,
+            _six_element_reduce_state_setter,
+        )
+
+
+def test_reduce_with_six_elements_state_setter_is_invoked(unpickler):
+    """
+    Regression test for
+    https://github.com/jsonpickle/jsonpickle/issues/608
+
+    The 6th py/reduce element (state_setter) must actually be called
+    to apply state, taking precedence over the default __setstate__ /
+    __dict__ fallback chain.
+    """
+    data = {
+        tags.REDUCE: [
+            {tags.FUNCTION: f"{__name__}._six_element_reduce_rebuild"},
+            [21],
+            {"value": 21},
+            None,
+            None,
+            {tags.FUNCTION: f"{__name__}._six_element_reduce_state_setter"},
+        ]
+    }
+    result = unpickler.restore(data)
+    assert result.value == 21
+    assert result.doubled == 42
+
+
 @pytest.mark.parametrize("value", ["", "x", 1, True, [], {}])
 def test_restore_id_with_invalid_data(value, unpickler):
     """Invalid serialized ID data results in None"""
