@@ -521,9 +521,9 @@ class Unpickler:
             proxy.reset(result)
             self._swapref(proxy, result)
             return result
-        if len(reduce_val) < 5:
-            reduce_val.extend([None] * (5 - len(reduce_val)))
-        f, args, state, listitems, dictitems = reduce_val
+        if len(reduce_val) < 6:
+            reduce_val.extend([None] * (6 - len(reduce_val)))
+        f, args, state, listitems, dictitems, state_setter = reduce_val
 
         if f == tags.NEWOBJ or getattr(f, "__name__", "") == "__newobj__":
             # mandated special case
@@ -545,29 +545,35 @@ class Unpickler:
                 stage1 = f.__new__(f, *args)
 
         if state:
-            try:
-                stage1.__setstate__(state)
-            except AttributeError:
-                # it's fine - we'll try the prescribed default methods
+            if state_setter is not None:
+                # Protocol 5 / PEP 307's 6th reduce element: a callable
+                # that takes precedence over the default __setstate__
+                # fallback chain below.
+                state_setter(stage1, state)
+            else:
                 try:
-                    # we can't do a straight update here because we
-                    # need object identity of the state dict to be
-                    # preserved so that _swap_proxies works out
-                    for k, v in stage1.__dict__.items():
-                        state.setdefault(k, v)
-                    stage1.__dict__ = state
+                    stage1.__setstate__(state)
                 except AttributeError:
-                    # next prescribed default
+                    # it's fine - we'll try the prescribed default methods
                     try:
-                        for k, v in state.items():
-                            setattr(stage1, k, v)
-                    except Exception:
-                        dict_state, slots_state = state
-                        if dict_state:
-                            stage1.__dict__.update(dict_state)
-                        if slots_state:
-                            for k, v in slots_state.items():
+                        # we can't do a straight update here because we
+                        # need object identity of the state dict to be
+                        # preserved so that _swap_proxies works out
+                        for k, v in stage1.__dict__.items():
+                            state.setdefault(k, v)
+                        stage1.__dict__ = state
+                    except AttributeError:
+                        # next prescribed default
+                        try:
+                            for k, v in state.items():
                                 setattr(stage1, k, v)
+                        except Exception:
+                            dict_state, slots_state = state
+                            if dict_state:
+                                stage1.__dict__.update(dict_state)
+                            if slots_state:
+                                for k, v in slots_state.items():
+                                    setattr(stage1, k, v)
 
         if listitems:
             # should be lists if not None
