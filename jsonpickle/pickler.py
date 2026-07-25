@@ -670,9 +670,9 @@ class Pickler:
                     rv_as_list[0] = tags.NEWOBJ
 
                 # A __reduce__/__reduce_ex__ result may carry a sixth
-                # ``state_setter`` element (pickle protocol 5); ``rv_as_list``
-                # keeps every element so it round-trips, but only ``state`` is
-                # needed locally.
+                # state_setter element (pickle protocol 5); rv_as_list keeps
+                # every element so it round-trips, but only state is needed
+                # locally.
                 f, args, state, listitems, dictitems = rv_as_list[:5]
 
                 # check that getstate/setstate is sane

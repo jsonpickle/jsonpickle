@@ -1524,16 +1524,16 @@ class PickleProtocol2ReduceTupleSetState(PickleProtocol2ReduceTuple):
 
 
 def protocol_5_state_setter(obj, state):
-    """A pickle protocol 5 ``state_setter`` (the sixth ``__reduce__`` element)"""
+    """A pickle protocol 5 state_setter (the sixth __reduce__ element)"""
     obj.__dict__.update(state)
     obj.state_setter_called = True
 
 
-class PickleProtocol5ReduceTupleStateSetter(PickleProtocol2ReduceTuple):
-    """Reducible object whose ``__reduce__`` returns a six-element tuple
+class Protocol5StateSetter(PickleProtocol2ReduceTuple):
+    """Reducible object whose __reduce__ returns a six-element tuple
 
-    The sixth element is a ``state_setter`` callable, as allowed by pickle
-    protocol 5. It is invoked as ``state_setter(obj, state)`` in place of the
+    The sixth element is a state_setter callable, as allowed by pickle
+    protocol 5. It is invoked as state_setter(obj, state) in place of the
     default state handling.
     """
 
@@ -1742,8 +1742,8 @@ def test_reduce_state_dict():
 
 
 def test_reduce_state_setter():
-    """Objects with a protocol 5 ``state_setter`` (6-tuple) can roundtrip"""
-    instance = PickleProtocol5ReduceTupleStateSetter(5)
+    """Objects with a protocol 5 state_setter (6-tuple) can roundtrip"""
+    instance = Protocol5StateSetter(5)
     encoded = jsonpickle.encode(instance)
     decoded = jsonpickle.decode(encoded)
     assert decoded.argval == "yam"
@@ -1754,13 +1754,7 @@ def test_reduce_state_setter():
 
 
 def test_reduce_six_element_payload_does_not_crash(unpickler):
-    """A six-element ``py/reduce`` payload must not raise ValueError
-
-    Regression test for a ``py/reduce`` list holding the sixth ``state_setter``
-    element (pickle protocol 5). The restorer previously padded short tuples
-    and then unpacked exactly five names, so a six-element reduce raised
-    ``ValueError: too many values to unpack (expected 5)``.
-    """
+    """A six-element py/reduce payload must not raise ValueError"""
     data = {tags.REDUCE: [None, None, None, None, None, None]}
     assert unpickler.restore(data) == []
 

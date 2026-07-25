@@ -523,9 +523,9 @@ class Unpickler:
             return result
         if len(reduce_val) < 5:
             reduce_val.extend([None] * (5 - len(reduce_val)))
-        # A __reduce__/__reduce_ex__ result may contain a sixth ``state_setter``
+        # A __reduce__/__reduce_ex__ result may contain a sixth state_setter
         # element (added by pickle protocol 5). When present it is called as
-        # ``state_setter(obj, state)`` in place of the default state handling.
+        # state_setter(obj, state) in place of the default state handling.
         f, args, state, listitems, dictitems = reduce_val[:5]
         state_setter = reduce_val[5] if len(reduce_val) > 5 else None
 
