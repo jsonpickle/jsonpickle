@@ -42,6 +42,8 @@ v5.0.0
       The decorative ``values`` emitted for a referenced array no longer consume a
       ``py/id`` slot, keeping the encode and decode reference counters in sync.
       (#449) (+612)
+    * Fix bug where compiled regex objects lost their flags (e.g. ``re.IGNORECASE``)
+      when roundtripped through encode/decode. (+607)
 
 v4.1.2
 ======
