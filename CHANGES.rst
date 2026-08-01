@@ -1,5 +1,7 @@
 v5.0.0
 ======
+    * Fixed encoding of decorated functions whose module-level name is rebound
+      to a wrapper object, causing incorrect decoding. (#467)
     * **Breaking Change**: The ``yaml`` module is no longer registered by default.
       You can re-enable yaml support using ``jsonpickle.ext.yaml.register()``.
       (#550) (+551)

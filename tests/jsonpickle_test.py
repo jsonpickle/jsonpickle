@@ -668,6 +668,45 @@ def test_builtin_function():
     assert expect is actual
 
 
+class _FuncWrapper467:
+    """Helper for test_decorated_function_roundtrip (issue #467)."""
+
+    def __init__(self, func):
+        self.func = func
+
+    def __call__(self, *args, **kwargs):
+        return self.func(*args, **kwargs)
+
+
+def _wrapper_decorator_467(func):
+    return _FuncWrapper467(func)
+
+
+@_wrapper_decorator_467
+def _sample_func_467():
+    return "hello"
+
+
+def test_decorated_function_roundtrip():
+    """Decorated functions whose module-level name is rebound to a wrapper
+    should roundtrip correctly (issue #467)."""
+    obj = _sample_func_467
+
+    # Before roundtrip, obj.func is a plain function
+    assert type(obj) is _FuncWrapper467
+    assert callable(obj.func)
+    assert type(obj.func) is not _FuncWrapper467
+
+    encoded = jsonpickle.encode(obj)
+    decoded = jsonpickle.decode(encoded)
+
+    assert type(decoded) is _FuncWrapper467
+    # The critical assertion from #467: .func must NOT become another wrapper
+    assert type(decoded.func) is not _FuncWrapper467
+    assert callable(decoded.func)
+    assert decoded() == "hello"
+
+
 def test_restore_legacy_builtins():
     """Decoding is backwards compatible.
 

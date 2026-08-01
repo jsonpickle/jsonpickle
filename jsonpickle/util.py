@@ -497,7 +497,23 @@ def importable_name(cls: type | Callable[..., Any]) -> str:
                 module = cls.__self__.__module__
             else:
                 module = cls.__self__.__class__.__module__
-    return f"{module}.{name}"
+    result = f"{module}.{name}"
+
+    # Verify the name resolves back to the same object.  When a function has
+    # been replaced at module level by a decorator wrapper the simple qualname
+    # points to the wrapper, not the original function.  In that case, search
+    # the wrapper for an attribute that IS the original function and return the
+    # extended dotted path so that loadclass can reach the real function.
+    if isinstance(cls, (types.FunctionType, types.BuiltinFunctionType)):
+        mod = sys.modules.get(cls.__module__)
+        if mod is not None and "." not in name:
+            resolved = getattr(mod, name, None)
+            if resolved is not cls:
+                # Search common wrapper attribute names
+                for attr in ("__wrapped__", "func", "__func__"):
+                    if getattr(resolved, attr, None) is cls:
+                        return f"{module}.{name}.{attr}"
+    return result
 
 
 def b64encode(data: bytes) -> str:
