@@ -121,13 +121,13 @@ def has_method(obj: Any, name: str) -> bool:
         return True
 
     # at this point, the method has to be an instancemthod or a classmethod
-    if not hasattr(func, "__self__"):
+    if not isinstance(func, types.MethodType):
         return False
     bound_to = func.__self__
 
     # class methods
     if isinstance(original, classmethod):
-        return issubclass(base_type, bound_to)
+        return isinstance(bound_to, type) and issubclass(base_type, bound_to)
 
     # bound methods
     return isinstance(obj, type(bound_to))
