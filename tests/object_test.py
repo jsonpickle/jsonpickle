@@ -541,6 +541,14 @@ def test_thing_with_compiled_regex(pickler, unpickler):
     assert "cat" == match.group(2)
 
 
+def test_compiled_regex_flags_roundtrip(pickler, unpickler):
+    rgx = re.compile(r"\d+\.\d+", re.IGNORECASE | re.MULTILINE)
+    flattened = pickler.flatten(rgx)
+    restored = unpickler.restore(flattened)
+    assert rgx.pattern == restored.pattern
+    assert rgx.flags == restored.flags
+
+
 def test_base_object_roundrip(pickler, unpickler):
     roundtrip = unpickler.restore(pickler.flatten(object()))
     assert type(roundtrip) is object

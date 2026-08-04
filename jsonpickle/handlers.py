@@ -242,10 +242,11 @@ class RegexHandler(BaseHandler):
 
     def flatten(self, obj: re.Pattern[str], data: dict[str, Any]) -> HandlerReturn:
         data["pattern"] = obj.pattern
+        data["flags"] = obj.flags
         return data
 
     def restore(self, data: dict[str, Any]) -> re.Pattern[str]:
-        return re.compile(data["pattern"])
+        return re.compile(data["pattern"], data.get("flags", 0))
 
 
 RegexHandler.handles(type(re.compile("")))
