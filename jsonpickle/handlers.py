@@ -25,8 +25,8 @@ from . import util
 T = TypeVar("T")
 
 if TYPE_CHECKING:
-    from .pickler import Pickler  # noqa: F401
-    from .unpickler import Unpickler  # noqa: F401
+    from .pickler import Pickler
+    from .unpickler import Unpickler
 
 ContextType: TypeAlias = "Pickler | Unpickler"
 RestoreType: TypeAlias = "Unpickler"
@@ -146,14 +146,14 @@ class BaseHandler:
             json-friendly representation of `obj` once this method has
             finished.
         """
-        raise NotImplementedError("You must implement flatten() in %s" % self.__class__)
+        raise NotImplementedError(f"You must implement flatten() in {self.__class__}")
 
     def restore(self, data: dict[str, Any]) -> Any:
         """
         Restore an object of the registered type from the json-friendly
         representation `obj` and return it.
         """
-        raise NotImplementedError("You must implement restore() in %s" % self.__class__)
+        raise NotImplementedError(f"You must implement restore() in {self.__class__}")
 
     @classmethod
     def handles(self, cls: type) -> type:

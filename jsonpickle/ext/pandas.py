@@ -1,8 +1,9 @@
 import warnings
 import zlib
+from collections.abc import Hashable
 from io import StringIO
 from types import ModuleType
-from typing import Any, Hashable, Literal, cast
+from typing import Any, Literal, cast
 
 import numpy as np
 import pandas as pd
@@ -136,9 +137,9 @@ def make_read_csv_params(
             dtype[k] = v
 
     return (
-        dict(
-            dtype=dtype, header=header, parse_dates=parse_dates, converters=converters
-        ),
+        {
+            "dtype": dtype, "header": header, "parse_dates": parse_dates, "converters": converters
+        },
         timedeltas,
         parse_datetime_v2,
     )
@@ -223,7 +224,7 @@ class PandasDfHandler(BaseHandler):
         data_encoded, meta = self.pp.restore_pandas(obj)
         try:
             data_columns = decode(data_encoded, keys=True)
-        except Exception:
+        except Exception:  # ruff: ignore[BLE001]
             # this may be a specific type of jsondecode error for pre-v3.4 encoding schemes, but also might not be
             warnings.warn(
                 (
@@ -284,7 +285,7 @@ class PandasDfHandler(BaseHandler):
             try:
                 dtype = pd.api.types.pandas_dtype(dtype_str)
                 df[col] = df[col].astype(dtype)
-            except Exception:
+            except Exception:  # ruff: ignore[BLE001]
                 msg = (
                     f"jsonpickle was unable to properly deserialize "
                     f"the column {col} into its inferred dtype. "
@@ -373,7 +374,7 @@ class PandasIndexHandler(BaseHandler):
         buf, meta = self.pp.restore_pandas(data)
         dtype = meta.get("dtype", None)
         name_bundle = {
-            "name": (tuple if v is not None else lambda x: x)(v)
+            "name": (tuple if v is not None else lambda x: x)(v)  # ruff: ignore[B035]
             for k, v in meta.items()
             if k in {"name", "names"}
         }

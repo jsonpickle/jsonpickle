@@ -40,9 +40,9 @@ class JSONBackend:
                 return self.backend_encode(
                     name, obj, indent=indent, separators=separators
                 )
-            except Exception as e:
+            except Exception:
                 if idx == len(self._backend_names) - 1:
-                    raise e
+                    raise
 
     # def dumps
     dumps = encode
@@ -64,9 +64,9 @@ class JSONBackend:
         for idx, name in enumerate(self._backend_names):
             try:
                 return self.backend_decode(name, string)
-            except self._decoder_exceptions[name] as e:
+            except self._decoder_exceptions[name]:
                 if idx == len(self._backend_names) - 1:
-                    raise e
+                    raise
                 else:
                     pass  # and try a more forgiving encoder
 
@@ -253,7 +253,7 @@ class JSONBackend:
             self._backend_names.remove(name)
             self._backend_names.insert(0, name)
         else:
-            errmsg = 'The "%s" backend has not been loaded.' % name
+            errmsg = 'The "%s" backend has not been loaded.' % name  # ruff: ignore[UP031]
             raise AssertionError(errmsg)
 
     def set_encoder_options(self, name: str, *args: Any, **kwargs: Any) -> None:

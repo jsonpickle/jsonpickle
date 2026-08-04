@@ -116,8 +116,8 @@ def get_smallest_unique_substrings(
             result[s] = s
             used_substrings.add(s)
 
-    for key in result:
-        result[key] = f"{prefix}/" + result[key]
+    for key, value in result.items():
+        result[key] = f"{prefix}/" + value
 
     return result
 
@@ -214,7 +214,7 @@ def get_all_pandas_dtype_strings() -> list[DTypeRepr]:
             try:
                 dtype_name = dtype_cls.name
                 dtypes.append(dtype_name.lower())
-            except Exception:
+            except Exception:  # ruff: ignore[BLE001,S112]
                 continue
 
     # use the class object for things that np.dtype can't reconstruct
@@ -225,7 +225,7 @@ def get_all_pandas_dtype_strings() -> list[DTypeRepr]:
     for storage in ["python", "pyarrow"]:
         try:
             dtypes.append(str(pd.StringDtype(storage=storage)).lower())  # type: ignore[call-overload]
-        except Exception:
+        except Exception:  # ruff: ignore[BLE001,S110]
             pass
 
     return list(dict.fromkeys(dtypes))
