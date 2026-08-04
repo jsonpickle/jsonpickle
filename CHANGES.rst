@@ -47,6 +47,8 @@ v5.0.0
     * Fix bug where encoding or decoding objects whose ``__reduce__`` or ``__reduce_ex__``
       methods had six elements (as permitted by pickle protocol 5) would raise an error. (#608)
       (+616)
+    * Fix ``bytearray`` losing its contents through encode/decode; it now
+      roundtrips like ``bytes``. (+606)
 
 v4.1.2
 ======
