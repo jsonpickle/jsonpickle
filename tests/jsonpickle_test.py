@@ -36,12 +36,12 @@ class Thing:
 
     def __iter__(self):
         for attr in [
-            x for x in getattr(self.__class__, "__dict__") if not x.startswith("__")
+            x for x in self.__class__.__dict__ if not x.startswith("__")
         ]:
             yield attr, getattr(self, attr)
 
     def __repr__(self):
-        return 'Thing("%s")' % self.name
+        return 'Thing("%s")' % self.name  # ruff: ignore[UP031]
 
 
 class Capture:
@@ -78,12 +78,12 @@ class ThingWithProps:
         return self.identity == other.identity
 
     def __getstate__(self):
-        out = dict(
-            __identity__=self.identity,
-            nom=self.name,
-            dogs=self.dogs,
-            monkies=self.monkies,
-        )
+        out = {
+            "__identity__": self.identity,
+            "nom": self.name,
+            "dogs": self.dogs,
+            "monkies": self.monkies,
+        }
         return out
 
     def __setstate__(self, state_dict):
@@ -112,7 +112,7 @@ class Outer:
 
 
 class MySlots:
-    __slots__ = ("alpha", "__beta")
+    __slots__ = ("alpha", "__beta")  # ruff: ignore[RUF023]
 
     def __init__(self):
         self.alpha = 1
@@ -183,7 +183,7 @@ class KwargsSubclassTest(Exception):
 
 def on_missing_callback(class_name):
     # not actually a runtime problem but it doesn't matter
-    warnings.warn("The unpickler could not find %s" % class_name, RuntimeWarning)
+    warnings.warn(f"The unpickler could not find {class_name}", RuntimeWarning)
 
 
 @pytest.fixture
@@ -334,7 +334,7 @@ def test_tuple_with_invalid_data(value, unpickler):
     """Invalid serialized tuple data results in an empty tuple"""
     data = {tags.TUPLE: value}
     result = unpickler.restore(data)
-    assert result == tuple()
+    assert result == ()
 
 
 def test_iterator_with_invalid_data(unpickler):
@@ -643,7 +643,7 @@ def test_references_in_number_keyed_dict(pickler, unpickler):
         2: two,
         12: twelve,
     }
-    assert list(sorted(obj.keys())) != list(map(int, sorted(map(str, obj.keys()))))
+    assert list(sorted(obj.keys())) != list(map(int, sorted(map(str, obj.keys()))))  # ruff: ignore[C413]
     flattened = pickler.flatten(obj)
     inflated = unpickler.restore(flattened)
     assert len(inflated) == 3
@@ -829,7 +829,7 @@ def test_decode():
     """Validate that we can decode a known json payload"""
     expect = Thing("A name")
     expected_json = (
-        '{"%s": "jsonpickle_test.Thing", "name": "A name", "child": null}' % tags.OBJECT
+        '{"%s": "jsonpickle_test.Thing", "name": "A name", "child": null}' % tags.OBJECT  # ruff: ignore[UP031]
     )
     actual = jsonpickle.decode(expected_json)
     assert expect.name == actual.name
@@ -840,7 +840,7 @@ def test_json():
     """Validate the json representation"""
     expect = Thing("A name")
     expected_json = (
-        '{"%s": "jsonpickle_test.Thing", "name": "A name", "child": null}' % tags.OBJECT
+        '{"%s": "jsonpickle_test.Thing", "name": "A name", "child": null}' % tags.OBJECT  # ruff: ignore[UP031]
     )
     pickle = jsonpickle.encode(expect)
     actual = jsonpickle.decode(pickle)
@@ -1028,7 +1028,7 @@ def test_object_keys_to_list():
     object_dict = {j: [j, j]}
     pickle = jsonpickle.encode(object_dict, keys=True)
     actual = jsonpickle.decode(pickle, keys=True)
-    obj = list(actual.keys())[0]
+    obj = next(iter(actual.keys()))
     assert obj.name == j.name
     assert obj is actual[obj][0]
     assert obj is actual[obj][1]
@@ -1345,9 +1345,8 @@ class PickleProtocol2Thing:
         if self.__dict__ == other.__dict__ and dir(self) == dir(other):
             for prop in dir(self):
                 selfprop = getattr(self, prop)
-                if not callable(selfprop) and prop[0] != "_":
-                    if selfprop != getattr(other, prop):
-                        return False
+                if not callable(selfprop) and prop[0] != "_" and selfprop != getattr(other, prop):
+                    return False
             return True
         else:
             return False
@@ -1543,7 +1542,7 @@ class PickleProtocol2ReduceTupleSetState(PickleProtocol2ReduceTuple):
 class PickleProtocol2ReduceTupleStateSlots:
     """Reducible object with tuple ``__slots__``"""
 
-    __slots__ = ("argval", "optional", "foo")
+    __slots__ = ("argval", "foo", "optional")
 
     def __init__(self, argval, optional=None):
         self.argval = argval
@@ -1647,7 +1646,7 @@ def test_pickle_newargs_ex():
     Ensure we can pickle and unpickle an object whose class needs arguments
     to __new__ and get back the same type
     """
-    instance = PicklableNamedTupleEx(**{"a": "b", "n": 2})
+    instance = PicklableNamedTupleEx(a="b", n=2)
     encoded = jsonpickle.encode(instance)
     decoded = jsonpickle.decode(encoded)
     assert instance == decoded
@@ -1659,7 +1658,7 @@ def test_validate_reconstruct_by_newargs_ex():
     This is necessary to know whether the breakage exists
     in jsonpickle or not
     """
-    instance = PicklableNamedTupleEx(**{"a": "b", "n": 2})
+    instance = PicklableNamedTupleEx(a="b", n=2)
     args, kwargs = instance.__getnewargs_ex__()
     newinstance = PicklableNamedTupleEx.__new__(PicklableNamedTupleEx, *args, **kwargs)
     assert instance == newinstance
@@ -1668,7 +1667,7 @@ def test_validate_reconstruct_by_newargs_ex():
 def test_references_named_tuple():
     """Object references and identities are preserved inside a named tuple"""
     shared = Thing("shared")
-    instance = PicklableNamedTupleEx(**{"a": shared, "n": shared})
+    instance = PicklableNamedTupleEx(a=shared, n=shared)
     child = Thing("child")
     shared.child = child
     child.child = instance

@@ -47,7 +47,7 @@ class Wizard:
         return self.name == other.name
 
     def __hash__(self):
-        return hash("Wizard %s" % self.name)
+        return hash(f"Wizard {self.name}")
 
 
 class Spell:
@@ -66,7 +66,7 @@ class Spell:
             cmp(self.name, other.name)  # noqa: F821
             or cmp(self.caster.name, other.caster.name)  # noqa: F821
             or cmp(self.target.name, other.target.name)  # noqa: F821
-        )  # noqa: F821
+        )
 
     def __eq__(self, other):
         return (

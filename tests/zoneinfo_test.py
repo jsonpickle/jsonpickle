@@ -1,5 +1,3 @@
-import sys
-
 import jsonpickle
 
 
@@ -12,8 +10,6 @@ def _roundtrip(obj):
 
 def test_zoneinfo():
     """zoneinfo objects can roundtrip"""
-    if sys.version_info < (3, 9):
-        return
     from zoneinfo import ZoneInfo
 
     _roundtrip(ZoneInfo("Australia/Brisbane"))

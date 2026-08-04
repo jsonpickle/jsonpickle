@@ -42,10 +42,10 @@ class ListSubclass(list):
 
 class BrokenReprThing(Thing):
     def __repr__(self):
-        raise Exception("%s has a broken repr" % self.name)
+        raise Exception(f"{self.name} has a broken repr")  # ruff: ignore[TRY002]
 
     def __str__(self):
-        return '<BrokenReprThing "%s">' % self.name
+        return '<BrokenReprThing "%s">' % self.name  # ruff: ignore[UP031]
 
 
 class GetstateDict(dict):
@@ -156,7 +156,7 @@ class ThingWithIterableSlots:
 
 
 class ThingWithStringSlots:
-    __slots__ = "ab"
+    __slots__ = "ab"  # ruff: ignore[PLC0205]
 
     def __init__(self, a, b):
         self.ab = a + b
@@ -262,7 +262,7 @@ class FailSafeTestCase(SkippableTest):
 
     good = "good"
 
-    to_pickle = [BadClass(), good]
+    to_pickle = [BadClass(), good]  # ruff: ignore[RUF012]
 
     def test_no_error(self):
         encoded = jsonpickle.encode(self.to_pickle, fail_safe=lambda e: None)
@@ -302,7 +302,7 @@ class ExceptionWithArguments(Exception):
 
 
 class ThingWithExclusion:
-    _jsonpickle_exclude = ["foo"]
+    _jsonpickle_exclude = ["foo"]  # ruff: ignore[RUF012]
 
     def __init__(self, a):
         self.foo = 1
@@ -317,7 +317,7 @@ class ThingWithExcludeSubclass:
 
 class SlotsThing:
     __slots__ = ("foo", "secret")
-    _jsonpickle_exclude = {"secret"}
+    _jsonpickle_exclude = {"secret"}  # ruff: ignore[RUF012]
 
     def __init__(self, foo, secret):
         self.foo = foo
@@ -326,7 +326,7 @@ class SlotsThing:
 
 class SlotsGetstateThing:
     __slots__ = ("foo", "secret")
-    _jsonpickle_exclude = {"secret"}
+    _jsonpickle_exclude = {"secret"}  # ruff: ignore[RUF012]
 
     def __init__(self, foo, secret):
         self.foo = foo

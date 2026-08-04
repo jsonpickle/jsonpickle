@@ -14,9 +14,9 @@ from jsonpickle import tags
 
 class ObjWithDate:
     def __init__(self):
-        ts = datetime.datetime.now()
-        self.data = dict(a="a", ts=ts)
-        self.data_ref = dict(b="b", ts=ts)
+        ts = datetime.datetime.now()  # ruff: ignore[DTZ005]
+        self.data = {"a": "a", "ts": ts}
+        self.data_ref = {"b": "b", "ts": ts}
 
 
 # UTC implementation from Python 2.7 docs
@@ -66,10 +66,7 @@ class TimestampedVariable:
         dt_now = datetime.datetime.now(tz=datetime.timezone.utc)
         td_read = dt_now - self._dt_read
         td_write = dt_now - self._dt_write
-        s = "<TimestampedVariable>\n"
-        s += " value: " + str(self._value) + "\n"
-        s += " dt_read: " + str(self._dt_read) + " (%s ago)" % td_read + "\n"
-        s += " dt_write: " + str(self._dt_write) + " (%s ago)" % td_write + "\n"
+        s = f"<TimestampedVariable>\n value: {self._value}\n dt_read: {self._dt_read} ({td_read} ago)\n dt_write: {self._dt_write} ({td_write} ago)\n"
         return s
 
 
@@ -113,17 +110,17 @@ def _roundtrip(obj):
 
 def test_datetime():
     """Roundtrip datetime objects"""
-    _roundtrip(datetime.datetime.now())
+    _roundtrip(datetime.datetime.now())  # ruff: ignore[DTZ005]
 
 
 def test_date():
     """Roundtrip date objects"""
-    _roundtrip(datetime.datetime.today())
+    _roundtrip(datetime.datetime.today())  # ruff: ignore[DTZ002]
 
 
 def test_time():
     """Roundtrip time objects"""
-    _roundtrip(datetime.datetime.now().time())
+    _roundtrip(datetime.datetime.now().time())  # ruff: ignore[DTZ005]
 
 
 def test_timedelta():
@@ -138,7 +135,7 @@ def test_utc():
 
 def test_unpickleable():
     """Date objects are human-readable strings when unpicklable is False"""
-    obj = datetime.datetime.now()
+    obj = datetime.datetime.now()  # ruff: ignore[DTZ005]
     pickler = jsonpickle.pickler.Pickler(unpicklable=False)
     flattened = pickler.flatten(obj)
     assert obj.isoformat() == flattened
@@ -155,7 +152,7 @@ def test_datetime_with_zoneinfo():
     """Roundtrip datetime objects with ZoneInfo tzinfo"""
     from zoneinfo import ZoneInfo
 
-    now = datetime.datetime.now()
+    now = datetime.datetime.now()  # ruff: ignore[DTZ005]
     SaoPaulo = ZoneInfo("America/Sao_Paulo")
     NewYork = ZoneInfo("America/New_York")
     now_sp = now.replace(tzinfo=SaoPaulo)
@@ -184,7 +181,7 @@ def test_struct_time_chars():
 def test_datetime_structure():
     pickler = jsonpickle.pickler.Pickler()
     unpickler = jsonpickle.unpickler.Unpickler()
-    obj = datetime.datetime.now()
+    obj = datetime.datetime.now()  # ruff: ignore[DTZ005]
     flattened = pickler.flatten(obj)
     assert tags.OBJECT in flattened
     assert "__reduce__" in flattened
@@ -211,7 +208,7 @@ def test_datetime_inside_int_keys_with_keys_enabled():
 
 
 def test_datetime_repr_not_unpicklable():
-    obj = datetime.datetime.now()
+    obj = datetime.datetime.now()  # ruff: ignore[DTZ005]
     pickler = jsonpickle.pickler.Pickler(unpicklable=False)
     flattened = pickler.flatten(obj)
     assert tags.REPR not in flattened
@@ -222,7 +219,7 @@ def test_datetime_repr_not_unpicklable():
 
 def test_datetime_dict_keys_defaults():
     """Test that we handle datetime objects as keys."""
-    datetime_dict = {datetime.datetime(2008, 12, 31): True}
+    datetime_dict = {datetime.datetime(2008, 12, 31): True}  # ruff: ignore[DTZ001]
     pickled = jsonpickle.encode(datetime_dict)
     expect = {"datetime.datetime(2008, 12, 31, 0, 0)": True}
     actual = jsonpickle.decode(pickled)
@@ -231,7 +228,7 @@ def test_datetime_dict_keys_defaults():
 
 def test_datetime_dict_keys_with_keys_enabled():
     """Test that we handle datetime objects as keys."""
-    datetime_dict = {datetime.datetime(2008, 12, 31): True}
+    datetime_dict = {datetime.datetime(2008, 12, 31): True}  # ruff: ignore[DTZ001]
     pickled = jsonpickle.encode(datetime_dict, keys=True)
     expect = datetime_dict
     actual = jsonpickle.decode(pickled, keys=True)

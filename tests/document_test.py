@@ -22,7 +22,7 @@ class Document(Node):
         return str(self)
 
     def __str__(self):
-        ret_str = 'Document "%s"\n' % self._name
+        ret_str = 'Document "%s"\n' % self._name  # ruff: ignore[UP031]
         for c in self._children:
             ret_str += repr(c)
         return ret_str
