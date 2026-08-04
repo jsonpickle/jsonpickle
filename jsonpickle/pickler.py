@@ -660,16 +660,16 @@ class Pickler:
 
             elif reduce_val:
                 # at this point, reduce_val should be some kind of iterable
-                # pad out to len 5
+                # pad out to len 6, for pickle protocol 5 support
                 rv_as_list = list(reduce_val)
-                insufficiency = 5 - len(rv_as_list)
+                insufficiency = 6 - len(rv_as_list)
                 if insufficiency:
                     rv_as_list += [None] * insufficiency
 
                 if getattr(rv_as_list[0], "__name__", "") == "__newobj__":
                     rv_as_list[0] = tags.NEWOBJ
 
-                f, args, state, listitems, dictitems = rv_as_list
+                f, args, state, listitems, dictitems = rv_as_list[:5]
 
                 # check that getstate/setstate is sane
                 if not (

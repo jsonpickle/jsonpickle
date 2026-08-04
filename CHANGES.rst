@@ -44,6 +44,9 @@ v5.0.0
       (#449) (+612)
     * Fix bug where compiled regex objects lost their flags (e.g. ``re.IGNORECASE``)
       when roundtripped through encode/decode. (+607)
+    * Fix bug where encoding or decoding objects whose ``__reduce__`` or ``__reduce_ex__``
+      methods had six elements (as permitted by pickle protocol 5) would raise an error. (#608)
+      (+616)
 
 v4.1.2
 ======

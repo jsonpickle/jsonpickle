@@ -521,9 +521,9 @@ class Unpickler:
             proxy.reset(result)
             self._swapref(proxy, result)
             return result
-        if len(reduce_val) < 5:
-            reduce_val.extend([None] * (5 - len(reduce_val)))
-        f, args, state, listitems, dictitems = reduce_val
+        if len(reduce_val) < 6:
+            reduce_val.extend([None] * (6 - len(reduce_val)))
+        f, args, state, listitems, dictitems, state_setter = reduce_val
 
         if f == tags.NEWOBJ or getattr(f, "__name__", "") == "__newobj__":
             # mandated special case
@@ -544,7 +544,7 @@ class Unpickler:
                 # __init__ since the state dict will set all attributes immediately afterwards
                 stage1 = f.__new__(f, *args)
 
-        if state:
+        if state and state_setter is None:
             try:
                 stage1.__setstate__(state)
             except AttributeError:
@@ -568,6 +568,9 @@ class Unpickler:
                         if slots_state:
                             for k, v in slots_state.items():
                                 setattr(stage1, k, v)
+        elif state:
+            # pickle protocol 5's state_setter takes priority over __setstate__
+            state_setter(stage1, state)
 
         if listitems:
             # should be lists if not None

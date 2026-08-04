@@ -1616,6 +1616,32 @@ class PickleProtocol2ReduceDictitems:
         )
 
 
+def protocol_5_state_setter(obj, state):
+    """
+    A state setter for pickle protocol 5. Protocol 5 lets us have a sixth element.
+    """
+    obj.__dict__.update(state)
+    obj.state_setter_called = True
+
+
+class Protocol5StateSetter:
+    """A reducible object that returns the Protocol5StateSetter callable"""
+
+    def __init__(self, argval, optional=None):
+        self.argval = argval
+        self.optional = optional
+
+    def __reduce__(self):
+        return (
+            Protocol5StateSetter,  # callable
+            ("yam", 1),  # args
+            {"extra": "state"},  # state
+            iter([]),  # listitems
+            iter([]),  # dictitems
+            protocol_5_state_setter,  # state_setter
+        )
+
+
 def test_pickle_newargs_ex():
     """
     Ensure we can pickle and unpickle an object whose class needs arguments
@@ -1903,6 +1929,15 @@ def test_handles_nested_objects():
     assert PickleProtocol2Thing == decoded.args[0].__class__
     assert PickleProtocol2Thing == decoded.args[1].__class__
     assert decoded.args[0] is decoded.args[1]
+
+
+def test_reduce_state_setter():
+    """Ensure that protocol 5 objects can roundtrip."""
+    instance = Protocol5StateSetter(None)
+    decoded = jsonpickle.decode(jsonpickle.encode(instance))
+    assert decoded.argval == "yam"
+    assert decoded.optional == 1
+    assert decoded.state_setter_called is True
 
 
 def test_cyclical_objects():
