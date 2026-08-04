@@ -121,13 +121,13 @@ def has_method(obj: Any, name: str) -> bool:
         return True
 
     # at this point, the method has to be an instancemthod or a classmethod
-    if not hasattr(func, "__self__"):
+    if not isinstance(func, types.MethodType):
         return False
-    bound_to = getattr(func, "__self__")
+    bound_to = func.__self__
 
     # class methods
     if isinstance(original, classmethod):
-        return issubclass(base_type, bound_to)
+        return isinstance(bound_to, type) and issubclass(base_type, bound_to)
 
     # bound methods
     return isinstance(obj, type(bound_to))
@@ -304,7 +304,7 @@ def _is_iterator(obj: Any) -> bool:
 def _is_collections(obj: Any) -> bool:
     try:
         return type(obj).__module__ == "collections"
-    except Exception:
+    except Exception:  # ruff: ignore[BLE001]
         return False
 
 
@@ -320,7 +320,7 @@ def _is_reducible(obj: Any) -> bool:
     # defaultdicts may contain functions which we cannot serialise
     if _is_collections(obj) and not isinstance(obj, collections.defaultdict):
         return True
-    if (
+    return not (
         type(obj) in NON_REDUCIBLE_TYPES
         or obj is object
         or _is_dictionary_subclass(obj)
@@ -329,9 +329,7 @@ def _is_reducible(obj: Any) -> bool:
         or _is_list_like(obj)
         or isinstance(getattr(obj, "__slots__", None), _ITERATOR_TYPE)
         or (_is_type(obj) and obj.__module__ == "datetime")
-    ):
-        return False
-    return True
+    )
 
 
 def _is_cython_function(obj: Any) -> bool:
@@ -441,7 +439,7 @@ def translate_module_name(module: str) -> str:
 
     See untranslate_module_name() for the reverse operation.
     """
-    lookup = dict(__builtin__="builtins", exceptions="builtins")
+    lookup = {"__builtin__": "builtins", "exceptions": "builtins"}
     return lookup.get(module, module)
 
 
@@ -449,7 +447,7 @@ def _0_9_6_compat_untranslate(module: str) -> str:
     """Provide compatibility for pickles created with jsonpickle 0.9.6 and
     earlier, remapping `exceptions` and `__builtin__` to `builtins`.
     """
-    lookup = dict(__builtin__="builtins", exceptions="builtins")
+    lookup = {"__builtin__": "builtins", "exceptions": "builtins"}
     return lookup.get(module, module)
 
 
@@ -491,12 +489,11 @@ def importable_name(cls: type | Callable[..., Any]) -> str:
     # Use the fully-qualified name if available (Python >= 3.3)
     name = getattr(cls, "__qualname__", cls.__name__)
     module = translate_module_name(cls.__module__)
-    if not module:
-        if hasattr(cls, "__self__"):
-            if hasattr(cls.__self__, "__module__"):
-                module = cls.__self__.__module__
-            else:
-                module = cls.__self__.__class__.__module__
+    if not module and hasattr(cls, "__self__"):
+        if hasattr(cls.__self__, "__module__"):
+            module = cls.__self__.__module__
+        else:
+            module = cls.__self__.__class__.__module__
     return f"{module}.{name}"
 
 

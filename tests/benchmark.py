@@ -43,6 +43,6 @@ if __name__ == "__main__":
     mod = args.mod
     number = args.number
 
-    print("Using %s" % mod)
+    print(f"Using {mod}")
     json_test = timeit.Timer(stmt=json % mod)
     print("%.9f sec/pass " % (json_test.timeit(number=number) / number))

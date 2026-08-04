@@ -21,7 +21,7 @@ class A:
 
 
 class BSlots:
-    __slots__ = ["a2", "a1", "a3"]
+    __slots__ = ["a2", "a1", "a3"]  # ruff: ignore[RUF023]
 
     def __init__(self):
         self.a2 = A()  # set attribs not in alphabetical order
@@ -35,7 +35,7 @@ SAMPLE_DATA = {"things": [Thing("data")]}
 class BackendBase(SkippableTest):
     def _is_installed(self, backend):
         if not jsonpickle.util._is_installed(backend):
-            return self.skip("%s not available; please install" % backend)
+            return self.skip(f"{backend} not available; please install")
 
     def set_backend(self, *args):
         backend = args[0]
@@ -113,7 +113,7 @@ class SimpleJsonTestCase(BackendBase):
 
     def test_decimal(self):
         # Default behavior: Decimal is preserved
-        obj = decimal.Decimal(0.5)
+        obj = decimal.Decimal(0.5)  # ruff: ignore[RUF032]
         as_json = jsonpickle.dumps(obj)
         clone = jsonpickle.loads(as_json)
         assert isinstance(clone, decimal.Decimal)

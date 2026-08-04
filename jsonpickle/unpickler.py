@@ -237,9 +237,8 @@ def getargs(obj: dict[str, Any], classes: dict[str, type] | None = None) -> Any:
     typeref = util.loadclass(obj_dict, classes=classes)
     if not typeref:
         return []
-    if hasattr(typeref, "_fields"):
-        if len(typeref._fields) == len(seq_list):
-            return seq_list
+    if hasattr(typeref, "_fields") and len(typeref._fields) == len(seq_list):
+        return seq_list
     return []
 
 
@@ -561,7 +560,7 @@ class Unpickler:
                     try:
                         for k, v in state.items():
                             setattr(stage1, k, v)
-                    except Exception:
+                    except Exception:  # ruff: ignore[BLE001]
                         dict_state, slots_state = state
                         if dict_state:
                             stage1.__dict__.update(dict_state)
@@ -632,10 +631,10 @@ class Unpickler:
         if self.on_missing == "ignore":
             pass
         elif self.on_missing == "warn":
-            warnings.warn("Unpickler._restore_object could not find %s!" % class_name)
+            warnings.warn(f"Unpickler._restore_object could not find {class_name}!")
         elif self.on_missing == "error":
             raise errors.ClassNotFoundError(
-                "Unpickler.restore_object could not find %s!" % class_name
+                f"Unpickler.restore_object could not find {class_name}!"
             )
         elif util._is_function(self.on_missing):
             self.on_missing(class_name)  # type: ignore[operator]
@@ -723,7 +722,7 @@ class Unpickler:
                         # issue #240
                         # i think this is the only way to set frozen dataclass attrs
                         object.__setattr__(instance, k, value)
-                    except AttributeError as e:
+                    except AttributeError:
                         # some objects raise this for read-only attributes (#422) (#478)
                         if (
                             hasattr(instance, "__slots__")
@@ -733,7 +732,7 @@ class Unpickler:
                             and self.handle_readonly
                         ):
                             continue
-                        raise e
+                        raise
                 else:
                     setattr(instance, f"_{instance.__class__.__name__}{k}", value)
 
@@ -845,7 +844,7 @@ class Unpickler:
             except TypeError:  # fail gracefully
                 try:
                     instance = make_blank_classic(cls)
-                except Exception:  # fail gracefully
+                except Exception:  # ruff: ignore[BLE001]
                     self._process_missing(class_name)
                     return self._mkref(obj)
 

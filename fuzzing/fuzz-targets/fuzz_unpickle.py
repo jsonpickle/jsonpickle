@@ -64,7 +64,7 @@ def TestOneInput(data):
     except Exception as e:
         if is_expected_error(e, expected_errors):
             return 0
-        raise e
+        raise
 
 
 def main():

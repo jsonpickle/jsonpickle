@@ -101,7 +101,7 @@ class HandlerTestCase:
         """
         ob = CustomObject()
         # create a dictionary which contains several references to ob
-        subject = dict(a=ob, b=ob, c=ob)
+        subject = {"a": ob, "b": ob, "c": ob}
         # ensure the subject can be roundtripped
         new_subject = self.roundtrip(subject)
         assert new_subject["a"] == new_subject["b"]

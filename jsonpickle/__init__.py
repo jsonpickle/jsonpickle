@@ -67,17 +67,13 @@ added to JSON::
 """
 
 # Export other names not in __all__
-from .backend import JSONBackend  # noqa: F401
-from .backend import json
-from .handlers import register  # noqa: F401
-from .handlers import unregister  # noqa: F401
-from .pickler import Pickler  # noqa: F401
-from .pickler import encode
-from .unpickler import Unpickler  # noqa: F401
-from .unpickler import decode
+from .backend import JSONBackend, json  # noqa: F401
+from .handlers import register, unregister  # noqa: F401
+from .pickler import Pickler, encode  # noqa: F401
+from .unpickler import Unpickler, decode  # noqa: F401
 from .version import __version__  # noqa: F401
 
-__all__ = ("encode", "decode")
+__all__ = ("encode", "decode")  # ruff: ignore[RUF022]
 
 # register built-in handlers
 __import__("jsonpickle.handlers", level=0)

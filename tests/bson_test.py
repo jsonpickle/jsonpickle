@@ -54,7 +54,7 @@ def test_nested_objects():
 
 def test_datetime_with_fixed_offset():
     fo = bson.tz_util.FixedOffset(-60 * 5, "EST")
-    dt = datetime.datetime.now().replace(tzinfo=fo)
+    dt = datetime.datetime.now().replace(tzinfo=fo)  # ruff: ignore[DTZ005]
     serialized = jsonpickle.dumps(dt)
     restored = jsonpickle.loads(serialized)
     assert restored == dt

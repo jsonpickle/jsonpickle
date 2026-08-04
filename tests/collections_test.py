@@ -70,7 +70,7 @@ class C:
     def __init__(self, v):
         super().__init__()
         self.v = v
-        self.plain = dict()
+        self.plain = {}
         self.plain_ordered = OrderedDict()
         self.plain_default = defaultdict(c_factory)
 
@@ -128,9 +128,9 @@ def test_dict_no_cycle():
     c2u = gu.elements[1]
 
     # check existence of keys directly
-    assert c2u in c1u.plain.keys()
-    assert c2u in c1u.plain_ordered.keys()
-    assert c2u in c1u.plain_default.keys()
+    assert c2u in c1u.plain
+    assert c2u in c1u.plain_ordered
+    assert c2u in c1u.plain_default
 
     # check direct key-based lookup
     assert c2u == c1u.plain[c2u][0]
@@ -206,8 +206,8 @@ def test_dict_self_cycle():
     default_keys = list(c1u.plain_default.keys())
     value = 42
     assert value == c1u.plain[plain_keys[0]][0].v
-    42 == c1u.plain_ordered[ordered_keys[0]][0].v
-    42 == c1u.plain_default[default_keys[0]][0].v
+    assert 42 == c1u.plain_ordered[ordered_keys[0]][0].v
+    assert 42 == c1u.plain_default[default_keys[0]][0].v
 
     # key c2u
     # succeeds because c2u does not have a cycle to itself
@@ -241,9 +241,9 @@ def test_dict_mutual_cycle():
 
     # check existence of keys directly
     # key c2u
-    assert c2u in c1u.plain.keys()
-    assert c2u in c1u.plain_ordered.keys()
-    assert c2u in c1u.plain_default.keys()
+    assert c2u in c1u.plain
+    assert c2u in c1u.plain_ordered
+    assert c2u in c1u.plain_default
 
     # key c1u
     assert c1u in list(c2u.plain.keys())
@@ -306,7 +306,7 @@ def test_set_no_cycle():
     # check element directly
     assert d2u in d1u.plain
     # check element taken from elements
-    assert list(d1u.plain)[0] in d1u.plain
+    assert next(iter(d1u.plain)) in d1u.plain
 
 
 def test_set_self_cycle():
@@ -328,7 +328,7 @@ def test_set_self_cycle():
     # check element directly
     assert d1u in d1u.plain
     # check element taken from elements
-    assert list(d1u.plain)[0] in d1u.plain
+    assert list(d1u.plain)[0] in d1u.plain  # ruff: ignore[RUF015]
     # succeeds because d2u added to d1u after __setstate__
     assert list(d1u.plain)[1] in d1u.plain
 
@@ -355,5 +355,5 @@ def test_set_mutual_cycle():
     assert d1u in d2u.plain
     # check element taken from elements
     # succeeds because d2u added to d1u after __setstate__
-    assert list(d1u.plain)[0] in d1u.plain
-    assert list(d2u.plain)[0] in d2u.plain
+    assert next(iter(d1u.plain)) in d1u.plain
+    assert next(iter(d2u.plain)) in d2u.plain

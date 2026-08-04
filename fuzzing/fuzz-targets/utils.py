@@ -1,12 +1,11 @@
 import traceback  # pragma: no cover
-from typing import Dict, List, Tuple, Union  # pragma: no cover
 
 import atheris  # pragma: no cover
 
 
 @atheris.instrument_func
 def is_expected_error(
-    exception: Exception, expected_errors: Dict[str, List[Tuple[str, Union[int]]]]
+    exception: Exception, expected_errors: dict[str, list[tuple[str, int]]]
 ):  # pragma: no cover
     """Checks if a given exception matches any of the expected errors.
 

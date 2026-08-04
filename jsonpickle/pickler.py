@@ -407,8 +407,7 @@ class Pickler:
 
     def _pickle_warning(self, obj: Any) -> None:
         if self.warn:
-            msg = "jsonpickle cannot pickle %r: replaced with None" % obj
-            warnings.warn(msg)
+            warnings.warn(f"jsonpickle cannot pickle {obj}: replaced with None")
 
     def _flatten_obj(self, obj: Any) -> Any:
         self._seen.append(obj)
@@ -430,11 +429,11 @@ class Pickler:
 
             return flatten_func(obj)
 
-        except (KeyboardInterrupt, SystemExit) as e:
-            raise e
+        except (KeyboardInterrupt, SystemExit):
+            raise
         except Exception as e:
             if self.fail_safe is None:
-                raise e
+                raise
             else:
                 return self.fail_safe(e)
 
@@ -480,7 +479,7 @@ class Pickler:
         elif not isinstance(k, str):
             try:
                 k = repr(k)
-            except Exception:
+            except Exception:  # ruff: ignore[BLE001]
                 k = str(k)
 
         data[k] = self._flatten(v)
@@ -563,7 +562,7 @@ class Pickler:
     ) -> dict[str, Any]:
         """Return a json-friendly dict for new-style objects with __slots__."""
         allslots = [
-            _wrap_string_slot(getattr(cls, "__slots__", tuple()))
+            _wrap_string_slot(getattr(cls, "__slots__", ()))
             for cls in obj.__class__.mro()
         ]
 
@@ -669,7 +668,7 @@ class Pickler:
                 if getattr(rv_as_list[0], "__name__", "") == "__newobj__":
                     rv_as_list[0] = tags.NEWOBJ
 
-                f, args, state, listitems, dictitems = rv_as_list[:5]
+                _, args, state, _, _ = rv_as_list[:5]
 
                 # check that getstate/setstate is sane
                 if not (
@@ -724,7 +723,7 @@ class Pickler:
 
         if isinstance(obj, types.ModuleType):
             if self.unpicklable:
-                data[tags.MODULE] = "{name}/{name}".format(name=obj.__name__)
+                data[tags.MODULE] = f"{obj.__name__}/{obj.__name__}"
             else:
                 # TODO: this causes a mypy assignment error, figure out
                 # if it's actually an error or a false alarm
@@ -851,7 +850,7 @@ class Pickler:
             elif not isinstance(k, str):
                 try:
                     k = repr(k)
-                except Exception:
+                except Exception:  # ruff: ignore[BLE001]
                     k = str(k)
 
         data[k] = self._flatten(v)
