@@ -8,7 +8,7 @@ that need to be specially handled.
 """
 
 BYTES: str = "py/bytes"
-BYTEARRAY: str = "py/bytearray"
+BYTEARRAY: str = "py/bytea"
 B64: str = "py/b64"
 B85: str = "py/b85"
 FUNCTION: str = "py/function"
