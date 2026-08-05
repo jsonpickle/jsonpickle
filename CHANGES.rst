@@ -49,6 +49,10 @@ v5.0.0
       (+616)
     * Fix ``bytearray`` losing its contents through encode/decode; it now
       roundtrips like ``bytes``. (+606)
+    * Fix bug where ``datetime`` and ``time`` objects lost their PEP 495 ``fold``
+      flag when roundtripped, which changed the instant a tz-aware datetime in a
+      DST fall-back hour represented. Objects are now reduced at pickle protocol
+      4 instead of 2. (+618)
 
 v4.1.2
 ======
