@@ -31,6 +31,9 @@ V = TypeVar("V")
 T = TypeVar("T")
 
 _ITERATOR_TYPE: type = type(iter(""))
+# Protocol used when asking objects to reduce themselves. 4 is the lowest
+# protocol that encodes datetime's PEP 495 fold bit; 2 silently drops it.
+PICKLE_PROTOCOL: int = 4
 SEQUENCES: tuple[type] = (list, set, tuple)  # type: ignore[assignment]
 SEQUENCES_SET: set[type] = {list, set, tuple}
 PRIMITIVES: set[type] = {str, bool, int, float, type(None)}

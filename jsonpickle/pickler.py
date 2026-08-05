@@ -593,8 +593,7 @@ class Pickler:
             if has_reduce and not has_reduce_ex:
                 return obj.__reduce__()
             if has_reduce_ex:
-                # we're implementing protocol 2
-                return obj.__reduce_ex__(2)
+                return obj.__reduce_ex__(util.PICKLE_PROTOCOL)
         except TypeError:
             pass
         return None
