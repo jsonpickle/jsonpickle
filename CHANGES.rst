@@ -49,6 +49,10 @@ v5.0.0
       (+616)
     * Fix ``bytearray`` losing its contents through encode/decode; it now
       roundtrips like ``bytes``. (+606)
+    * Numpy scalars are now rebuilt from their declared dtype, so ``datetime64``
+      and ``timedelta64`` keep their unit instead of silently changing resolution
+      or failing to decode, and structured and extended-precision scalars
+      roundtrip. Generalizes the nanosecond fix from (#555). (+619)
 
 v4.1.2
 ======

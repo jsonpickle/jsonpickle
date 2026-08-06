@@ -404,35 +404,68 @@ def test_np_poly1d():
     assert obj == jsonpickle.decode(jsonpickle.encode(obj))
 
 
+TIME_UNITS = ("Y", "M", "W", "D", "h", "m", "s", "ms", "us", "ns", "ps", "fs", "as")
+
+
+def assert_scalar_roundtrip(obj):
+    """A numpy scalar must come back with its dtype intact.
+
+    Comparing datetime64/timedelta64 with == is not enough: numpy compares
+    those across units, so a lost unit still compares equal.
+    """
+    decoded = roundtrip(obj)
+    assert isinstance(decoded, np.generic), f"{type(decoded)} is not a scalar"
+    assert decoded.dtype == obj.dtype, f"{obj.dtype} became {decoded.dtype}"
+    assert_equal(decoded, obj)
+    return decoded
+
+
 def test_np_datetime64_units():
     """Ensure that we can roundtrip a numpy datetime64 with varying precisions"""
-    obj = np.datetime64("2000", "ns")
-    encoded = jsonpickle.encode(obj)
-    assert obj == jsonpickle.decode(encoded)
+    for unit in TIME_UNITS:
+        # int64 attoseconds only spans ~9.2s either side of the epoch, so the
+        # stamp has to stay close to it to convert into ps/fs/as without
+        # overflowing.
+        stamp = np.datetime64("1970-01-01T00:00:01.789123456")
+        assert_scalar_roundtrip(stamp.astype(f"datetime64[{unit}]"))
+        assert_scalar_roundtrip(np.datetime64("NaT", unit))
+    assert_scalar_roundtrip(np.datetime64("NaT"))
 
-    obj = np.datetime64("2001", "ms")
-    encoded = jsonpickle.encode(obj)
-    assert obj == jsonpickle.decode(encoded)
 
-    obj = np.datetime64("2002", "s")
-    encoded = jsonpickle.encode(obj)
-    assert obj == jsonpickle.decode(encoded)
+def test_np_datetime64_outside_datetime_range():
+    """Dates outside the range of datetime.datetime flatten to a bare int,
+    which cannot be restored without the declared unit"""
+    # ns has ~584 years of int64 range, entirely inside datetime's, so no
+    # date outside it can be expressed in ns.
+    for unit in ("Y", "M", "W", "D", "h", "m", "s", "ms", "us"):
+        assert_scalar_roundtrip(
+            np.datetime64("30000-01-01").astype(f"datetime64[{unit}]")
+        )
 
-    obj = np.datetime64("2003", "m")
-    encoded = jsonpickle.encode(obj)
-    assert obj == jsonpickle.decode(encoded)
 
-    obj = np.datetime64("2004", "h")
-    encoded = jsonpickle.encode(obj)
-    assert obj == jsonpickle.decode(encoded)
+def test_np_timedelta64_units():
+    """Ensure that we can roundtrip a numpy timedelta64 with varying precisions"""
+    for unit in TIME_UNITS:
+        assert_scalar_roundtrip(np.timedelta64(7, unit))
+        assert_scalar_roundtrip(np.timedelta64(10**15, unit))
+        assert_scalar_roundtrip(np.timedelta64("NaT", unit))
+    assert_scalar_roundtrip(np.timedelta64(5))
+    assert_scalar_roundtrip(np.timedelta64("NaT"))
 
-    obj = np.datetime64("2005", "D")
-    encoded = jsonpickle.encode(obj)
-    assert obj == jsonpickle.decode(encoded)
 
-    obj = np.datetime64("2006", "Y")
-    encoded = jsonpickle.encode(obj)
-    assert obj == jsonpickle.decode(encoded)
+def test_np_structured_scalar_roundtrip():
+    """A structured scalar carries its field layout in the dtype, not the value"""
+    dtype = [("a", "i4"), ("b", "f8"), ("c", "S3")]
+    decoded = assert_scalar_roundtrip(np.array([(1, 2.5, b"xy")], dtype=dtype)[0])
+    assert decoded["a"] == 1
+    assert decoded["c"] == b"xy"
+
+
+def test_np_extended_precision_scalar_roundtrip():
+    """longdouble has no Python counterpart, so tolist() returns the scalar
+    itself rather than a float"""
+    assert_scalar_roundtrip(np.longdouble("1.1"))
+    assert_scalar_roundtrip(np.clongdouble(complex(1.1, 2.0)))
 
 
 def test_np_ufuncs():
