@@ -28,9 +28,7 @@ class SlotPickleMixin:
         all_slots = itertools.chain.from_iterable(
             getattr(cls, "__slots__", []) for cls in self.__class__.__mro__
         )
-        return {
-            slot: getattr(self, slot) for slot in all_slots if hasattr(self, slot)
-        }
+        return {slot: getattr(self, slot) for slot in all_slots if hasattr(self, slot)}
 
     def __setstate__(self, state):
         for slot, value in dict(state).items():
