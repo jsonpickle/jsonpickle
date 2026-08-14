@@ -45,3 +45,4 @@ monkeytype.sqlite3
 # benchmarking code
 .bench-venvs/
 .bench-worktrees/
+/benchmarking/.bench-common-tests.json

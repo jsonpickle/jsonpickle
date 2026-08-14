@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import os
 import re
 import sys
@@ -131,35 +132,63 @@ def _ensure_min_pytest_config() -> Path:
     return MIN_PYTEST_CONFIG
 
 
-def _run_benchmarks(version: str, python: Path, worktree: Path) -> None:
+def _env_for(version: str, worktree: Path | None) -> dict[str, str]:
     env = os.environ.copy()
     env["JSONPICKLE_BENCH_TAG"] = version
     env["JSONPICKLE_EXPECT_VERSION"] = version
-    env["JSONPICKLE_EXPECT_PATH"] = str((worktree / "jsonpickle").resolve())
     env["JSONPICKLE_BENCH_OUTPUT_ROOT"] = str(ROOT)
-    env["JSONPICKLE_TESTS_DIR"] = str(worktree / "tests")
-    # avoid old pytest.ini options that require missing plugins
-    env["JSONPICKLE_PYTEST_CONFIG"] = str(_ensure_min_pytest_config())
-    env["JSONPICKLE_ROOTDIR"] = str(worktree / "tests")
-    env["PYTHONPATH"] = os.pathsep.join([str(worktree), str(worktree / "tests")])
     env["PYTHONNOUSERSITE"] = "1"
-    work_dir = str(ROOT / "benchmarking")
-    run([str(python), str(BENCH_SCRIPT)], check=False, cwd=work_dir, env=env)
+    if worktree is None:
+        env["JSONPICKLE_EXPECT_PATH"] = str((ROOT / "jsonpickle"))
+        env["JSONPICKLE_TESTS_DIR"] = str(ROOT / "tests")
+        env["JSONPICKLE_PYTEST_CONFIG"] = str(ROOT / "pytest.ini")
+        env["JSONPICKLE_ROOTDIR"] = tempfile.mkdtemp(prefix="jsonpickle-bench-root-")
+        env["PYTHONPATH"] = str(ROOT)
+    else:
+        env["JSONPICKLE_EXPECT_PATH"] = str((worktree / "jsonpickle").resolve())
+        env["JSONPICKLE_TESTS_DIR"] = str(worktree / "tests")
+        # avoid old pytest.ini options that require missing plugins
+        env["JSONPICKLE_PYTEST_CONFIG"] = str(_ensure_min_pytest_config())
+        env["JSONPICKLE_ROOTDIR"] = str(worktree / "tests")
+        env["PYTHONPATH"] = os.pathsep.join([str(worktree), str(worktree / "tests")])
+    return env
 
 
-def _run_benchmarks_local() -> None:
-    env = os.environ.copy()
-    env["JSONPICKLE_BENCH_TAG"] = "local"
-    env["JSONPICKLE_EXPECT_VERSION"] = "local"
-    env["JSONPICKLE_EXPECT_PATH"] = str((ROOT / "jsonpickle"))
-    env["JSONPICKLE_BENCH_OUTPUT_ROOT"] = str(ROOT)
-    env["JSONPICKLE_TESTS_DIR"] = str(ROOT / "tests")
-    env["JSONPICKLE_PYTEST_CONFIG"] = str(ROOT / "pytest.ini")
-    env["JSONPICKLE_ROOTDIR"] = tempfile.mkdtemp(prefix="jsonpickle-bench-root-")
-    env["PYTHONPATH"] = str(ROOT)
-    env["PYTHONNOUSERSITE"] = "1"
+def _collect_tests(version: str, python: Path, worktree: Path | None) -> set[str]:
+    """
+    Return the test keys this version's suite contains, without timing them.
+    This is useful for ensuring that all tested versions test the same tests.
+    """
+    interpreter = str(python) if worktree is not None else sys.executable
+    env = _env_for(version, worktree)
+    with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as handle:
+        target = Path(handle.name)
+    env["JSONPICKLE_BENCH_COLLECT"] = str(target)
+    result = run(
+        [interpreter, str(BENCH_SCRIPT)],
+        check=False,
+        cwd=str(ROOT / "benchmarking"),
+        env=env,
+    )
+    if result.returncode != 0:
+        print(f"Warning: collection for {version} exited with {result.returncode}")
+    try:
+        keys = set(json.loads(target.read_text(encoding="utf-8")))
+    except (OSError, ValueError):
+        print(f"Warning: no collected tests for {version}")
+        keys = set()
+    target.unlink(missing_ok=True)
+    return keys
+
+
+def _run_benchmarks(
+    version: str, python: Path | None, worktree: Path | None, only: Path
+) -> None:
+    interpreter = str(python) if worktree is not None else sys.executable
+    env = _env_for(version, worktree)
+    env["JSONPICKLE_BENCH_ONLY"] = str(only)
     run(
-        [sys.executable, str(BENCH_SCRIPT)],
+        [interpreter, str(BENCH_SCRIPT)],
         check=False,
         cwd=str(ROOT / "benchmarking"),
         env=env,
@@ -186,26 +215,48 @@ def _load_benchmarks_for(version: str) -> dict[str, dict[str, float]]:
     return per_file
 
 
+def _geometric_mean(values: list[float]) -> float:
+    """
+    Benchmark times are on the order of 1e-5 seconds, so multiplying a few
+    hundred of them together would flush to zero long before we took the root.
+    Therefore, we compute it in log-space.
+    """
+    return math.exp(math.fsum(math.log(value) for value in values) / len(values))
+
+
 def _compute_file_means(
-    baseline: str,
     versions: list[str],
     series: dict[str, dict[str, dict[str, float]]],
 ) -> dict[str, dict[str, float]]:
+    file_names: set[str] = set()
+    for version in versions:
+        file_names.update(series.get(version, {}))
+
     result: dict[str, dict[str, float]] = {}
-    baseline_files = series.get(baseline, {})
-    for file_name, baseline_tests in baseline_files.items():
-        baseline_set = set(baseline_tests.keys())
-        if not baseline_set:
+    for file_name in sorted(file_names):
+        per_version = [series.get(v, {}).get(file_name, {}) for v in versions]
+        missing = [v for v, tests in zip(versions, per_version) if not tests]
+        if missing:
+            print(f"Skipping {file_name}: no data for {', '.join(missing)}")
             continue
-        for version in versions:
-            tests = series.get(version, {}).get(file_name, {})
-            if not tests:
-                continue
-            common = baseline_set.intersection(tests.keys())
-            if not common:
-                continue
-            values = [tests[name] for name in common]
-            result.setdefault(version, {})[file_name] = sum(values) / len(values)
+        common = set(per_version[0])
+        for tests in per_version[1:]:
+            common &= set(tests)
+        # log() needs strictly positive input, and a zero-length timing is junk
+        # data anyway, so drop those tests rather than crashing on them
+        common = {
+            name for name in common if all(tests[name] > 0 for tests in per_version)
+        }
+        if not common:
+            print(f"Skipping {file_name}: no tests shared by every version")
+            continue
+        dropped = max(len(tests) for tests in per_version) - len(common)
+        if dropped:
+            print(f"{file_name}: comparing {len(common)} tests, ignoring {dropped}")
+        for version, tests in zip(versions, per_version):
+            result.setdefault(version, {})[file_name] = _geometric_mean(
+                [tests[name] for name in common]
+            )
     return result
 
 
@@ -239,7 +290,7 @@ def _plot_deltas(
     ax.axhline(1.0, color="black", linewidth=0.8)
     ax.set_xticks([i + width * (len(versions) / 2) for i in x])
     ax.set_xticklabels(labels, rotation=45, ha="right")
-    ax.set_ylabel("Time relative to baseline (baseline = 1.0)")
+    ax.set_ylabel("Geomean time relative to baseline (baseline = 1.0)")
     ax.set_title(f"jsonpickle benchmark time ratios vs {baseline}")
     ax.legend()
     fig.tight_layout()
@@ -272,16 +323,36 @@ def main() -> int:
     DATA_DIR.mkdir(exist_ok=True)
 
     tags = _git_tags()
-    _run_benchmarks_local()
+    targets: list[tuple[str, Path | None, Path | None]] = [("local", None, None)]
     for version in versions:
         tag = _resolve_tag(version, tags)
         worktree = _ensure_worktree(tag)
         python = _ensure_venv(version)
-        _run_benchmarks(version, python, worktree)
+        targets.append((version, python, worktree))
+
+    # benchmarking a test that only some versions have is wasted time,
+    # and averaging it in would skew the result
+    collected = {
+        version: _collect_tests(version, python, worktree)
+        for version, python, worktree in targets
+    }
+    common = set.intersection(*collected.values()) if collected else set()
+    if not common:
+        print("No tests are shared by every version under test!", file=sys.stderr)
+        return
+    for version, keys in collected.items():
+        if len(keys) > len(common):
+            print(f"{version}: benchmarking {len(common)} of {len(keys)} tests")
+
+    only = ROOT / "benchmarking" / ".bench-common-tests.json"
+    only.write_text(json.dumps(sorted(common)), encoding="utf-8")
+
+    for version, python, worktree in targets:
+        _run_benchmarks(version, python, worktree, only)
 
     versions_all = ["local", *versions]
     raw = {version: _load_benchmarks_for(version) for version in versions_all}
-    series = _compute_file_means("local", versions_all, raw)
+    series = _compute_file_means(versions_all, raw)
     output = _plot_deltas("local", versions_all, series)
 
     if args.output:

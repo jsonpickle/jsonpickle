@@ -8,6 +8,7 @@ JSONPICKLE_BENCH_JOBS to run several files concurrently.
 
 from __future__ import annotations
 
+import json
 import os
 import queue
 import re
@@ -25,7 +26,29 @@ _FILE_FLAG = "--jsonpickle-bench-file"
 _TIMESTAMP_FLAG = "--jsonpickle-bench-timestamp"
 
 
+def _item_key(item):
+    file_path = str(getattr(item, "path", "")) or item.nodeid.split("::", 1)[0]
+    return f"{Path(file_path).name}::{item.name}"
+
+
+class _CollectKeysPlugin:
+    def __init__(self):
+        self.keys = []
+
+    def pytest_collection_modifyitems(self, session, config, items):
+        self.keys.extend(_item_key(item) for item in items)
+
+
 class _BenchmarkAllTestsPlugin:
+    def __init__(self, allowed=None):
+        # for benchmark_versions we sometimes need to restrict the tests that run
+        self.allowed = allowed
+
+    def pytest_collection_modifyitems(self, session, config, items):
+        if self.allowed is None:
+            return
+        items[:] = [item for item in items if _item_key(item) in self.allowed]
+
     @pytest.hookimpl(hookwrapper=True)
     def pytest_runtest_call(self, item):
         if not isinstance(item, pytest.Function):
@@ -262,8 +285,7 @@ def _split_args(argv):
     return single_file, timestamp, extra_args
 
 
-def _run_one_file(test_file, timestamp, extra_args):
-    file_label = test_file.name
+def _pytest_config_args():
     args = []
     pytest_config = os.environ.get("JSONPICKLE_PYTEST_CONFIG")
     pytest_rootdir = os.environ.get("JSONPICKLE_ROOTDIR")
@@ -271,12 +293,36 @@ def _run_one_file(test_file, timestamp, extra_args):
         args.extend(["-c", pytest_config])
     if pytest_rootdir:
         args.extend(["--rootdir", pytest_rootdir])
+    return args
+
+
+def _load_allowed():
+    only = os.environ.get("JSONPICKLE_BENCH_ONLY")
+    if not only:
+        return None
+    with open(only, encoding="utf-8") as handle:
+        return set(json.load(handle))
+
+
+def _collect_keys(test_files):
+    plugin = _CollectKeysPlugin()
+    for test_file in test_files:
+        args = _pytest_config_args()
+        args.append(str(test_file))
+        args.extend(["--collect-only", "-q", "-p", "no:cacheprovider"])
+        pytest.main(args, plugins=[plugin])
+    return sorted(set(plugin.keys))
+
+
+def _run_one_file(test_file, timestamp, extra_args):
+    file_label = test_file.name
+    args = _pytest_config_args()
     args.append(str(test_file))
     args.extend(_default_benchmark_args(timestamp, file_label, extra_args))
     if file_label == "jsonpickle_test.py":
         extra_args = [arg for arg in extra_args if arg != "--benchmark-disable-gc"]
     args.extend(extra_args)
-    return pytest.main(args, plugins=[_BenchmarkAllTestsPlugin()])
+    return pytest.main(args, plugins=[_BenchmarkAllTestsPlugin(_load_allowed())])
 
 
 def _run_serial(test_files, timestamp, extra_args):
@@ -341,6 +387,17 @@ def main():
         if not _verify_expected_version():
             return 2
         return _run_one_file(Path(single_file), timestamp, extra_args)
+
+    # collect-only mode, so benchmark_versions.py can work out which tests every
+    # version has in common before any of them are actually benchmarked
+    collect_target = os.environ.get("JSONPICKLE_BENCH_COLLECT")
+    if collect_target:
+        if not _verify_expected_version():
+            return 2
+        tests_dir = Path(os.environ.get("JSONPICKLE_TESTS_DIR", "tests")).resolve()
+        keys = _collect_keys(sorted(tests_dir.rglob("*.py")))
+        Path(collect_target).write_text(json.dumps(keys), encoding="utf-8")
+        return 0
 
     jobs = _resolve_jobs(os.environ.get("JSONPICKLE_BENCH_JOBS", 1))
     cores = _benchmark_cores(jobs) if jobs > 1 else []
