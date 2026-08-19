@@ -5,6 +5,7 @@
 /images/benchmark-*.svg
 /images/benchmark-data
 /images/benchmark-compare*.png
+/images/benchmark-summary*.png
 /benchmarking/*_old*.py
 /benchmarking/images/
 /metrics/

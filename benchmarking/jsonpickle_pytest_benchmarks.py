@@ -1,6 +1,5 @@
 """
 Run the Pytest test suite through pytest-benchmark.
-This benchmarks every collected test and produces one histogram per file.
 
 Files are benchmarked one at a time by default, but you can set
 JSONPICKLE_BENCH_JOBS to run several files concurrently.
@@ -9,6 +8,7 @@ JSONPICKLE_BENCH_JOBS to run several files concurrently.
 from __future__ import annotations
 
 import json
+import math
 import os
 import queue
 import re
@@ -81,14 +81,25 @@ def _sanitize_tag(value):
     return re.sub(r"[^A-Za-z0-9_.-]+", "_", value)
 
 
+def _tag_suffix():
+    tag = os.environ.get("JSONPICKLE_BENCH_TAG")
+    return f"-{_sanitize_tag(tag)}" if tag else ""
+
+
+def _images_dir():
+    output_root = os.environ.get("JSONPICKLE_BENCH_OUTPUT_ROOT", ".")
+    return Path(output_root) / "images"
+
+
+def _data_dir():
+    return _images_dir() / "benchmark-data"
+
+
 def _default_benchmark_args(timestamp, file_label, extra_args):
     existing = set(arg.split("=", 1)[0] for arg in extra_args)
     defaults = []
-    tag = os.environ.get("JSONPICKLE_BENCH_TAG")
-    tag_suffix = f"-{_sanitize_tag(tag)}" if tag else ""
-    output_root = os.environ.get("JSONPICKLE_BENCH_OUTPUT_ROOT", ".")
-    images_dir = Path(output_root) / "images"
-    data_dir = images_dir / "benchmark-data"
+    tag_suffix = _tag_suffix()
+    data_dir = _data_dir()
     if file_label != "jsonpickle_test.py" and "--benchmark-disable-gc" not in existing:
         defaults.append("--benchmark-disable-gc")
     if "--benchmark-warmup" not in existing:
@@ -97,11 +108,7 @@ def _default_benchmark_args(timestamp, file_label, extra_args):
         defaults.append("--benchmark-warmup-iterations=1")
     if "--benchmark-min-rounds" not in existing:
         defaults.append("--benchmark-min-rounds=10000")
-    if "--benchmark-histogram" not in existing:
-        images_dir.mkdir(parents=True, exist_ok=True)
-        defaults.append(
-            f"--benchmark-histogram={images_dir}/benchmark-{timestamp}-{file_label}{tag_suffix}"
-        )
+    # no per-file histogram, the run ends with one summary plot over every file
     if "--benchmark-storage" not in existing:
         data_dir.mkdir(parents=True, exist_ok=True)
         defaults.append(f"--benchmark-storage={data_dir}")
@@ -380,6 +387,144 @@ def _run_parallel(test_files, timestamp, extra_args, cores):
     return exit_code
 
 
+def geometric_mean(values):
+    """
+    Benchmark times are on the order of 1e-5 seconds, so multiplying a few
+    hundred of them together would flush to zero long before we took the root.
+    Therefore, we compute it in log-space.
+    """
+    return math.exp(math.fsum(math.log(value) for value in values) / len(values))
+
+
+def _load_run_means(timestamp):
+    """
+    Return {file_label: [mean seconds per test]} for the saved runs of this
+    invocation. pytest-benchmark writes one JSON file per --benchmark-save,
+    under a machine-id subdirectory of the storage dir.
+    """
+    data_dir = _data_dir()
+    if not data_dir.exists():
+        return {}
+    per_file = {}
+    for path in sorted(data_dir.rglob("*.json")):
+        # every save name for this run is "<timestamp>-<file label><tag suffix>"
+        if timestamp not in path.name:
+            continue
+        try:
+            with path.open("r", encoding="utf-8") as handle:
+                payload = json.load(handle)
+        except (OSError, ValueError):
+            print(f"Ignoring unreadable benchmark data at {path}", file=sys.stderr)
+            continue
+        # strip the "0001_" counter pytest-benchmark prepends, then the run tags
+        fallback = path.stem.split("_", 1)[-1].split(f"{timestamp}-", 1)[-1]
+        for bench in payload.get("benchmarks", []):
+            label = bench.get("group") or fallback
+            mean = bench.get("stats", {}).get("mean")
+            # log() needs strictly positive input, and a zero-length timing is
+            # junk data anyway, so drop those tests rather than crashing on them
+            if mean is None or mean <= 0:
+                continue
+            per_file.setdefault(label, []).append(mean)
+    return per_file
+
+
+def plot_file_summary(per_file, title, output):
+    """
+    Draw a single box and whisker plot for a whole run: one box per test file
+    over that file's per-test mean times (in seconds), marked with the
+    geometric mean of those means. Returns the written path, or None if
+    matplotlib is unavailable.
+    """
+    try:
+        import matplotlib
+
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
+    except ImportError:
+        print(
+            "matplotlib is not installed, skipping the summary plot",
+            file=sys.stderr,
+        )
+        return None
+
+    # alphabetical, so the same file sits in the same spot across runs
+    labels = sorted(per_file)
+    # microseconds keep the tick labels readable for the fastest tests
+    data = [[mean * 1e6 for mean in per_file[name]] for name in labels]
+    geomeans = [geometric_mean(values) for values in data]
+
+    fig, ax = plt.subplots(figsize=(max(8, len(labels) * 0.7), 6))
+    ink = "#3b6fb0"
+    ax.boxplot(
+        data,
+        showfliers=True,
+        widths=0.55,
+        medianprops={"color": ink, "linewidth": 2},
+        boxprops={"color": "#5f6b7a", "linewidth": 1},
+        whiskerprops={"color": "#5f6b7a", "linewidth": 1},
+        capprops={"color": "#5f6b7a", "linewidth": 1},
+        flierprops={
+            "marker": "o",
+            "markersize": 3,
+            "markerfacecolor": "none",
+            "markeredgecolor": "#9aa4b1",
+        },
+    )
+    ax.plot(
+        range(1, len(labels) + 1),
+        geomeans,
+        linestyle="none",
+        marker="D",
+        markersize=8,
+        markerfacecolor=ink,
+        markeredgecolor="white",
+        label="geometric mean of per-test means",
+    )
+    # set the ticks by hand because boxplot renamed its label argument in 3.9
+    ax.set_xticks(range(1, len(labels) + 1))
+    ax.set_xticklabels(
+        [f"{name}\n({len(values)} tests)" for name, values in zip(labels, data)]
+    )
+    ax.set_yscale("log")
+    ax.set_ylabel("Mean time per test (microseconds, log scale)")
+    # the legend sits above the axes so that it can't cover a tall box
+    ax.set_title(title, pad=26)
+    ax.grid(axis="y", color="#d7dbe0", linewidth=0.6)
+    ax.set_axisbelow(True)
+    ax.legend(loc="lower left", bbox_to_anchor=(0, 1.005), frameon=False)
+    plt.setp(ax.get_xticklabels(), rotation=45, ha="right")
+    fig.tight_layout()
+
+    output = Path(output)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(output, dpi=150)
+    plt.close(fig)
+    return output
+
+
+def print_file_summary(per_file, header="benchmark summary"):
+    print(f"\n===== {header} (geometric mean of per-test means) =====")
+    for name in sorted(per_file):
+        values = per_file[name]
+        print(f"{name}: {geometric_mean(values) * 1e6:.3f}us over {len(values)} tests")
+
+
+def _report_summary(timestamp):
+    per_file = _load_run_means(timestamp)
+    if not per_file:
+        print("No benchmark data was saved, skipping the summary plot")
+        return
+    print_file_summary(per_file)
+    output = plot_file_summary(
+        per_file,
+        f"jsonpickle test suite benchmark summary ({timestamp})",
+        _images_dir() / f"benchmark-summary-{timestamp}{_tag_suffix()}.png",
+    )
+    if output is not None:
+        print(f"Saved summary plot to {output}")
+
+
 def main():
     single_file, timestamp, extra_args = _split_args(sys.argv[1:])
 
@@ -416,9 +561,16 @@ def main():
     test_files = sorted(tests_dir.rglob("*.py"))
     timestamp = datetime.now().astimezone().strftime("%Y-%m-%dT%H%M%S%z")
     if jobs <= 1:
-        return _run_serial(test_files, timestamp, extra_args)
-    print(f"Benchmarking {len(test_files)} files across cores {cores}")
-    return _run_parallel(test_files, timestamp, extra_args, cores)
+        exit_code = _run_serial(test_files, timestamp, extra_args)
+    else:
+        print(f"Benchmarking {len(test_files)} files across cores {cores}")
+        exit_code = _run_parallel(test_files, timestamp, extra_args, cores)
+
+    # benchmark_versions.py plots its own cross-version comparison, so a
+    # per-version summary plot there would just be noise
+    if not os.environ.get("JSONPICKLE_BENCH_ONLY"):
+        _report_summary(timestamp)
+    return exit_code
 
 
 if __name__ == "__main__":

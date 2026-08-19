@@ -1,5 +1,9 @@
 """
-Benchmark multiple jsonpickle versions and plot per-file performance deltas.
+Benchmark multiple jsonpickle versions and plot how they compare.
+
+Every version gets one box and whisker plot over its per-file timings, and the
+run ends with a single comparison plot of the whole suite's geometric mean for
+each version.
 
 Usage: python3 benchmarking/benchmark_versions.py 3.0.0,3.1.0,3.2.0
 
@@ -11,7 +15,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import math
 import os
 import re
 import sys
@@ -22,6 +25,14 @@ from subprocess import run
 from venv import EnvBuilder
 
 import matplotlib.pyplot as plt
+
+# the benchmark runner lives next to this file and owns the shared plotting code
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from jsonpickle_pytest_benchmarks import (
+    geometric_mean,
+    plot_file_summary,
+    print_file_summary,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 BENCH_SCRIPT = ROOT / "benchmarking" / "jsonpickle_pytest_benchmarks.py"
@@ -215,24 +226,15 @@ def _load_benchmarks_for(version: str) -> dict[str, dict[str, float]]:
     return per_file
 
 
-def _geometric_mean(values: list[float]) -> float:
-    """
-    Benchmark times are on the order of 1e-5 seconds, so multiplying a few
-    hundred of them together would flush to zero long before we took the root.
-    Therefore, we compute it in log-space.
-    """
-    return math.exp(math.fsum(math.log(value) for value in values) / len(values))
-
-
-def _compute_file_means(
+def _shared_tests(
     versions: list[str],
     series: dict[str, dict[str, dict[str, float]]],
-) -> dict[str, dict[str, float]]:
+) -> dict[str, dict[str, list[float]]]:
     file_names: set[str] = set()
     for version in versions:
         file_names.update(series.get(version, {}))
 
-    result: dict[str, dict[str, float]] = {}
+    result: dict[str, dict[str, list[float]]] = {version: {} for version in versions}
     for file_name in sorted(file_names):
         per_version = [series.get(v, {}).get(file_name, {}) for v in versions]
         missing = [v for v, tests in zip(versions, per_version) if not tests]
@@ -253,51 +255,90 @@ def _compute_file_means(
         dropped = max(len(tests) for tests in per_version) - len(common)
         if dropped:
             print(f"{file_name}: comparing {len(common)} tests, ignoring {dropped}")
+        ordered = sorted(common)
         for version, tests in zip(versions, per_version):
-            result.setdefault(version, {})[file_name] = _geometric_mean(
-                [tests[name] for name in common]
-            )
+            result[version][file_name] = [tests[name] for name in ordered]
     return result
 
 
-def _plot_deltas(
-    baseline: str, versions: list[str], series: dict[str, dict[str, float]]
+def _plot_version_summaries(
+    shared: dict[str, dict[str, list[float]]], timestamp: str
+) -> list[Path]:
+    outputs = []
+    for version, per_file in shared.items():
+        if not per_file:
+            print(f"Skipping the summary plot for {version}: no shared test data")
+            continue
+        print_file_summary(per_file, header=f"{version} benchmark summary")
+        output = plot_file_summary(
+            per_file,
+            f"jsonpickle {version} test suite benchmark summary",
+            IMAGES_DIR / f"benchmark-summary-{timestamp}-{_sanitize_tag(version)}.png",
+        )
+        if output is not None:
+            outputs.append(output)
+            print(f"Saved the {version} summary plot to {output}")
+    return outputs
+
+
+def _suite_geomeans(shared: dict[str, dict[str, list[float]]]) -> dict[str, float]:
+    """
+    Collapse every shared test in the suite down to one number per version.
+    """
+    result = {}
+    for version, per_file in shared.items():
+        values = [mean for means in per_file.values() for mean in means]
+        if values:
+            result[version] = geometric_mean(values)
+    return result
+
+
+def _plot_comparison(
+    baseline: str,
+    versions: list[str],
+    suite: dict[str, float],
+    test_count: int,
+    timestamp: str,
 ) -> Path:
-    files = sorted(series.get(baseline, {}).keys())
-    if not files:
+    labels = [version for version in versions if version in suite]
+    if not labels:
         raise RuntimeError("No benchmark data found to plot")
 
-    baseline_stats = series.get(baseline, {})
-    labels = files
-    x = range(len(labels))
-    width = 0.8 / max(len(versions), 1)
+    values = [suite[version] * 1e6 for version in labels]
+    base = suite.get(baseline)
 
-    fig, ax = plt.subplots(figsize=(max(8, len(labels) * 0.6), 5))
-    offset = 0
-    for version in versions:
-        values = []
-        for file_name in labels:
-            base = baseline_stats.get(file_name)
-            cur = series.get(version, {}).get(file_name)
-            if base is None or cur is None:
-                values.append(float("nan"))
-            else:
-                values.append(cur / base)
-        positions = [i + offset for i in x]
-        ax.bar(positions, values, width=width, label=version)
-        offset += width
+    fig, ax = plt.subplots(figsize=(max(6, len(labels) * 1.4), 5))
+    bars = ax.bar(range(len(labels)), values, width=0.6, color="#3b6fb0")
+    for version, value, bar in zip(labels, values, bars):
+        text = f"{value:.3f}us"
+        if base:
+            text += f"\n{suite[version] / base:.3f}x"
+        ax.annotate(
+            text,
+            (bar.get_x() + bar.get_width() / 2, bar.get_height()),
+            textcoords="offset points",
+            xytext=(0, 4),
+            ha="center",
+            fontsize=9,
+            color="#3c4450",
+        )
 
-    ax.axhline(1.0, color="black", linewidth=0.8)
-    ax.set_xticks([i + width * (len(versions) / 2) for i in x])
-    ax.set_xticklabels(labels, rotation=45, ha="right")
-    ax.set_ylabel("Geomean time relative to baseline (baseline = 1.0)")
-    ax.set_title(f"jsonpickle benchmark time ratios vs {baseline}")
-    ax.legend()
+    ax.set_xticks(range(len(labels)))
+    ax.set_xticklabels(labels)
+    ax.set_ylabel("Geometric mean time per test (microseconds)")
+    # two lines because one long title runs off the end of a narrow figure
+    subtitle = f"over {test_count} tests shared by every version"
+    if base:
+        subtitle += f" (x = ratio to {baseline})"
+    ax.set_title(f"jsonpickle suite-wide benchmark geomean\n{subtitle}")
+    ax.grid(axis="y", color="#d7dbe0", linewidth=0.6)
+    ax.set_axisbelow(True)
+    ax.margins(y=0.15)
     fig.tight_layout()
 
-    timestamp = datetime.now().astimezone().strftime("%Y-%m-%dT%H%M%S%z")
     output = IMAGES_DIR / f"benchmark-compare-{timestamp}.png"
-    fig.savefig(output)
+    fig.savefig(output, dpi=150)
+    plt.close(fig)
     return output
 
 
@@ -352,8 +393,17 @@ def main() -> int:
 
     versions_all = ["local", *versions]
     raw = {version: _load_benchmarks_for(version) for version in versions_all}
-    series = _compute_file_means(versions_all, raw)
-    output = _plot_deltas("local", versions_all, series)
+    shared = _shared_tests(versions_all, raw)
+    timestamp = datetime.now().astimezone().strftime("%Y-%m-%dT%H%M%S%z")
+    _plot_version_summaries(shared, timestamp)
+
+    suite = _suite_geomeans(shared)
+    test_count = sum(len(means) for means in shared[versions_all[0]].values())
+    print("\n===== suite-wide geomean =====")
+    for version in versions_all:
+        if version in suite:
+            print(f"{version}: {suite[version] * 1e6:.3f}us over {test_count} tests")
+    output = _plot_comparison("local", versions_all, suite, test_count, timestamp)
 
     if args.output:
         target = Path(args.output)
