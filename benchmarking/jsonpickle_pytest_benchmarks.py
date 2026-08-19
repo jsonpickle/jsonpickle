@@ -96,7 +96,7 @@ def _data_dir():
 
 
 def _default_benchmark_args(timestamp, file_label, extra_args):
-    existing = set(arg.split("=", 1)[0] for arg in extra_args)
+    existing = {arg.split("=", 1)[0] for arg in extra_args}
     defaults = []
     tag_suffix = _tag_suffix()
     data_dir = _data_dir()
@@ -108,6 +108,9 @@ def _default_benchmark_args(timestamp, file_label, extra_args):
         defaults.append("--benchmark-warmup-iterations=1")
     if "--benchmark-min-rounds" not in existing:
         defaults.append("--benchmark-min-rounds=10000")
+    if "--benchmark-min-rounds" not in existing:
+        # no more than 10 seconds
+        defaults.append("--benchmark-max-time=10")
     # no per-file histogram, the run ends with one summary plot over every file
     if "--benchmark-storage" not in existing:
         data_dir.mkdir(parents=True, exist_ok=True)
@@ -233,7 +236,7 @@ def _verify_expected_version():
         return True
     try:
         import jsonpickle  # type: ignore
-    except Exception as exc:
+    except Exception as exc:  # ruff: ignore[BLE001]
         print(f"Failed to import jsonpickle: {exc}", file=sys.stderr)
         return False
 
@@ -369,7 +372,7 @@ def _run_parallel(test_files, timestamp, extra_args, cores):
             )
             env = os.environ.copy()
             env["JSONPICKLE_TASKSET"] = "1"
-            result = run(command, env=env, capture_output=True, text=True)
+            result = run(command, env=env, capture_output=True, text=True, check=False)
         finally:
             available.put(core)
         with print_lock:
@@ -544,7 +547,7 @@ def main():
         Path(collect_target).write_text(json.dumps(keys), encoding="utf-8")
         return 0
 
-    jobs = _resolve_jobs(os.environ.get("JSONPICKLE_BENCH_JOBS", 1))
+    jobs = _resolve_jobs(int(os.environ.get("JSONPICKLE_BENCH_JOBS", "1")))
     cores = _benchmark_cores(jobs) if jobs > 1 else []
     if jobs > 1 and len(cores) < jobs:
         print(

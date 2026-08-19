@@ -150,7 +150,7 @@ def _env_for(version: str, worktree: Path | None) -> dict[str, str]:
     env["JSONPICKLE_BENCH_OUTPUT_ROOT"] = str(ROOT)
     env["PYTHONNOUSERSITE"] = "1"
     if worktree is None:
-        env["JSONPICKLE_EXPECT_PATH"] = str((ROOT / "jsonpickle"))
+        env["JSONPICKLE_EXPECT_PATH"] = str(ROOT / "jsonpickle")
         env["JSONPICKLE_TESTS_DIR"] = str(ROOT / "tests")
         env["JSONPICKLE_PYTEST_CONFIG"] = str(ROOT / "pytest.ini")
         env["JSONPICKLE_ROOTDIR"] = tempfile.mkdtemp(prefix="jsonpickle-bench-root-")
