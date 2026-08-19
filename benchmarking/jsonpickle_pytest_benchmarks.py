@@ -13,6 +13,7 @@ import os
 import queue
 import re
 import sys
+import time
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from pathlib import Path
@@ -106,11 +107,15 @@ def _default_benchmark_args(timestamp, file_label, extra_args):
         defaults.append("--benchmark-warmup=on")
     if "--benchmark-warmup-iterations" not in existing:
         defaults.append("--benchmark-warmup-iterations=1")
+    if "--benchmark-precision" not in existing:
+        # ensure that it benchmarks until the estimated mean is within 2% of the true mean
+        defaults.append("--benchmark-precision=0.02")
+    if "--benchmark-confidence" not in existing:
+        # make the 2% thing be with at least 98% confidence
+        defaults.append("--benchmark-confidence=0.98")
     if "--benchmark-min-rounds" not in existing:
-        defaults.append("--benchmark-min-rounds=10000")
-    if "--benchmark-min-rounds" not in existing:
-        # no more than 10 seconds
-        defaults.append("--benchmark-max-time=10")
+        # no more than 5 seconds regardless of the precision/confidence we want
+        defaults.append("--benchmark-max-time=5")
     # no per-file histogram, the run ends with one summary plot over every file
     if "--benchmark-storage" not in existing:
         data_dir.mkdir(parents=True, exist_ok=True)
@@ -324,7 +329,37 @@ def _collect_keys(test_files):
     return sorted(set(plugin.keys))
 
 
+_warmed_up = False
+
+
+def _warm_up_cpu():
+    """
+    Spin before the first measurement so that the core is already at its working clock.
+
+    On my (Theelx's) laptop, a core that has been idle starts around 40% slower and
+    takes a few hundred milliseconds to ramp up, which is long enough to inflate the
+    first test files of a run.
+    """
+    global _warmed_up
+    if _warmed_up:
+        return
+    _warmed_up = True
+    try:
+        seconds = float(os.environ.get("JSONPICKLE_BENCH_WARMUP_SECONDS", "1.0"))
+    except ValueError:
+        seconds = 1.0
+    if seconds <= 0:
+        return
+    deadline = time.perf_counter() + seconds
+    total = 0
+    while time.perf_counter() < deadline:
+        for i in range(20000):
+            total += i * i
+    return total
+
+
 def _run_one_file(test_file, timestamp, extra_args):
+    _warm_up_cpu()
     file_label = test_file.name
     args = _pytest_config_args()
     args.append(str(test_file))
@@ -401,13 +436,17 @@ def geometric_mean(values):
 
 def _load_run_means(timestamp):
     """
-    Return {file_label: [mean seconds per test]} for the saved runs of this
-    invocation. pytest-benchmark writes one JSON file per --benchmark-save,
-    under a machine-id subdirectory of the storage dir.
+    Return ({file_label: [mean seconds per test]}, unconverged) for the saved runs of
+    this invocation. pytest-benchmark writes one JSON file per --benchmark-save, under a
+    machine-id subdirectory of the storage dir.
+
+    ``unconverged`` lists the tests whose mean never reached --benchmark-precision, since
+    those are the points on the plot that the next run is least likely to reproduce.
     """
     data_dir = _data_dir()
     if not data_dir.exists():
-        return {}
+        return {}, []
+    unconverged = []
     per_file = {}
     for path in sorted(data_dir.rglob("*.json")):
         # every save name for this run is "<timestamp>-<file label><tag suffix>"
@@ -429,7 +468,15 @@ def _load_run_means(timestamp):
             if mean is None or mean <= 0:
                 continue
             per_file.setdefault(label, []).append(mean)
-    return per_file
+            precision = bench.get("precision")
+            if precision and not precision.get("converged", True):
+                achieved = precision.get("achieved")
+                achieved = "unknown" if achieved is None else f"{achieved:.2%}"
+                unconverged.append(
+                    f"{label}::{bench.get('name')} (+-{achieved}, "
+                    f"wanted +-{precision.get('target', 0):.2%})"
+                )
+    return per_file, unconverged
 
 
 def plot_file_summary(per_file, title, output):
@@ -514,11 +561,20 @@ def print_file_summary(per_file, header="benchmark summary"):
 
 
 def _report_summary(timestamp):
-    per_file = _load_run_means(timestamp)
+    per_file, unconverged = _load_run_means(timestamp)
     if not per_file:
         print("No benchmark data was saved, skipping the summary plot")
         return
     print_file_summary(per_file)
+    if unconverged:
+        print(
+            f"\n{len(unconverged)} benchmark(s) never reached --benchmark-precision, so "
+            f"the means will move between runs."
+        )
+        for entry in unconverged[:10]:
+            print(f"   {entry}")
+        if len(unconverged) > 10:
+            print(f"   ... and {len(unconverged) - 10} more")
     output = plot_file_summary(
         per_file,
         f"jsonpickle test suite benchmark summary ({timestamp})",
