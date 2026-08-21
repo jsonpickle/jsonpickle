@@ -45,9 +45,9 @@ dev = [
 testing = [
     # core
     "pytest >= 6.0, != 8.1.*",
-    # temporarily pin to adaptive rounds branch until it's merged into main
-    # credit to @akx for implementing this!
-    "pytest-benchmark @ git+https://github.com/Theelx/pytest-benchmark.git",
+    # until the adaptive benchmarking changes are merged,
+    # use dependency groups
+    # "pytest-benchmark",
     "pytest-benchmark[histogram]",
     "pytest-checkdocs >= 1.2.3",
     "pytest-enabler >= 1.0.1",
@@ -85,6 +85,14 @@ packaging = [
     "setuptools_scm[toml]>=6.0",
     "twine",
     "pypi-attestations",
+]
+
+[dependency-groups]
+benchmark = [
+    # temporarily pin to adaptive rounds branch until it's merged into main
+    # credit to @akx for implementing this!
+    # install with "pip install jsonpickle[testing] --group benchmark"
+    "pytest-benchmark[histogram] @ git+https://github.com/Theelx/pytest-benchmark.git",
 ]
 
 [tool.setuptools]

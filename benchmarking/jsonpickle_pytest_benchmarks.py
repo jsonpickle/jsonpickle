@@ -436,12 +436,8 @@ def geometric_mean(values):
 
 def _load_run_means(timestamp):
     """
-    Return ({file_label: [mean seconds per test]}, unconverged) for the saved runs of
-    this invocation. pytest-benchmark writes one JSON file per --benchmark-save, under a
-    machine-id subdirectory of the storage dir.
-
-    ``unconverged`` lists the tests whose mean never reached --benchmark-precision, since
-    those are the points on the plot that the next run is least likely to reproduce.
+    Since pytest-benchmark writes one JSON file for every --benchmark-save, we have to load
+    the means of that data off disk into a list.
     """
     data_dir = _data_dir()
     if not data_dir.exists():
@@ -456,7 +452,10 @@ def _load_run_means(timestamp):
             with path.open("r", encoding="utf-8") as handle:
                 payload = json.load(handle)
         except (OSError, ValueError):
-            print(f"Ignoring unreadable benchmark data at {path}", file=sys.stderr)
+            print(
+                f"WARNING: Ignoring unreadable benchmark data at {path}",
+                file=sys.stderr,
+            )
             continue
         # strip the "0001_" counter pytest-benchmark prepends, then the run tags
         fallback = path.stem.split("_", 1)[-1].split(f"{timestamp}-", 1)[-1]
