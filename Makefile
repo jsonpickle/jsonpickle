@@ -25,7 +25,13 @@ endif
 flags ?=
 
 # Capture extra arguments for the benchmark target
-EXTRA_BENCH_ARGS ?= 
+EXTRA_BENCH_ARGS ?=
+
+# Test files to benchmark concurrently in the benchmark_big target. Each job gets
+# its own physical core. Defaults to 1 because concurrent jobs still share L3 and
+# memory bandwidth, so their timings are only comparable to other parallel runs.
+# Values above half the machine's CPU count are clamped down to that.
+BENCH_JOBS ?= 1
 
 # Default job count -- this is used if "-j" is not present in MAKEFLAGS.
 nproc := $(shell sh -c '$(NPROC) 2>/dev/null || echo 4')
@@ -70,6 +76,8 @@ help::
 	@echo "make tox            - run unit tests using tox"
 	@echo "make clean          - remove cruft"
 	@echo "make benchmark      - run pytest benchmarking"
+	@echo "make benchmark_big  - run pytest benchmarking over the whole test suite"
+	@echo "                      (pass BENCH_JOBS=N to benchmark N files at once)"
 	@echo "make doc            - generate documentation using sphinx"
 .PHONY: help
 
@@ -134,6 +142,22 @@ benchmark::
 		echo "The 'benchmark' target has much less noise on Linux, try running it on there!"; \
 	fi
 .PHONY: benchmark
+
+# Benchmark every test in tests/ instead of the smaller suite in jsonpickle_benchmarks.py
+benchmark_big::
+	@cd $(CURDIR)/benchmarking && \
+	JSONPICKLE_BENCH_TAG=local \
+	JSONPICKLE_EXPECT_VERSION=local \
+	JSONPICKLE_EXPECT_PATH=$(CURDIR)/jsonpickle \
+	JSONPICKLE_BENCH_OUTPUT_ROOT=$(CURDIR) \
+	JSONPICKLE_TESTS_DIR=$(CURDIR)/tests \
+	JSONPICKLE_PYTEST_CONFIG=$(CURDIR)/pytest.ini \
+	JSONPICKLE_ROOTDIR=`mktemp -d` \
+	JSONPICKLE_BENCH_JOBS=$(BENCH_JOBS) \
+	PYTHONPATH=$(CURDIR) \
+	PYTHONNOUSERSITE=1 \
+	$(PYTHON) ./jsonpickle_pytest_benchmarks.py $(EXTRA_BENCH_ARGS)
+.PHONY: benchmark_big
 
 doc::
 	$(SPHINX) docs build/html

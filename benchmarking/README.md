@@ -21,3 +21,9 @@ This core tends to be one of the lesser-used ones on your system, assuming you h
 ### Actually running the code
 You can just run ``make benchmark`` in the root of the project, and it will automatically do as much as it can to ensure a reproducible setup, and easy-to-visualize results! It should output a histogram of the results in the images/ directory.
 Another thing you can do is ``cd benchmarking && ./analyze_benchmarks.sh``. This will compare the mean speed for each benchmark between the current branch that you're working on, and the main branch, so you can check improvements or regressions.
+
+### Benchmarking the whole test suite
+``make benchmark_big`` benchmarks every test in ``tests/`` instead of the smaller suite in ``jsonpickle_benchmarks.py``, one file at a time (pass ``BENCH_JOBS=N`` to run N files at once, each pinned to its own physical core).
+
+``python3 benchmarking/benchmark_versions.py 3.0.0,3.1.0`` benchmarks your working tree against released versions in their own venvs, using only the tests that every version has in common.
+It writes one box and whisker plot per version, plus ``images/benchmark-compare-<timestamp>.png``, which reduces every shared test in the suite down to one geometric mean per version so you can see the overall change at a glance.

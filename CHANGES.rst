@@ -53,6 +53,8 @@ v5.0.0
       and ``timedelta64`` keep their unit instead of silently changing resolution
       or failing to decode, and structured and extended-precision scalars
       roundtrip. Generalizes the nanosecond fix from (#555). (+619)
+    * The ability to run benchmarks over the entire pytest suite has been added
+      in order to cover a wider portion of the codebase with the benchmarks. (+620)
 
 v4.1.2
 ======
