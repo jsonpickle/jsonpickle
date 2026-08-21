@@ -36,6 +36,29 @@ class UTC(datetime.tzinfo):
 utc = UTC()
 
 
+# Payloads produced by jsonpickle before the fold flag was encoded.
+LEGACY_DATETIME = (
+    '{"py/object": "datetime.datetime", "__reduce__": '
+    '[{"py/type": "datetime.datetime"}, ["B+cLBQEeAAAAAA=="]]}'
+)
+LEGACY_DATE = (
+    '{"py/object": "datetime.date", "__reduce__": '
+    '[{"py/type": "datetime.date"}, ["B+cLBQ=="]]}'
+)
+LEGACY_TIME = (
+    '{"py/object": "datetime.time", "__reduce__": '
+    '[{"py/type": "datetime.time"}, ["AR4PAeJA"]]}'
+)
+
+
+class MyDatetime(datetime.datetime):
+    """datetime subclass; no handler is registered for it"""
+
+
+class MyTime(datetime.time):
+    """time subclass; no handler is registered for it"""
+
+
 class TimestampedVariable:
     def __init__(self, value=None):
         self._value = value
@@ -159,6 +182,77 @@ def test_datetime_with_zoneinfo():
     now_us = now.replace(tzinfo=NewYork)
     _roundtrip(now_sp)
     _roundtrip(now_us)
+
+
+def test_datetime_fold():
+    """Roundtrip preserves the PEP 495 fold flag"""
+    for obj in (
+        datetime.datetime(2023, 11, 5, 1, 30, fold=1),  # ruff: ignore[DTZ001]
+        datetime.datetime(2023, 11, 5, 1, 30, tzinfo=utc, fold=1),
+        datetime.time(1, 30, fold=1),
+        datetime.time(1, 30, tzinfo=utc, fold=1),
+    ):
+        assert jsonpickle.decode(jsonpickle.encode(obj)).fold == 1
+        assert jsonpickle.decode(jsonpickle.encode(obj.replace(fold=0))).fold == 0
+
+
+def test_datetime_fold_is_encoded():
+    """fold=0 and fold=1 do not encode to the same payload"""
+    obj = datetime.datetime(2023, 11, 5, 1, 30)  # ruff: ignore[DTZ001]
+    assert jsonpickle.encode(obj) != jsonpickle.encode(obj.replace(fold=1))
+    t = datetime.time(1, 30)
+    assert jsonpickle.encode(t) != jsonpickle.encode(t.replace(fold=1))
+
+
+def test_datetime_fold_ambiguous_time():
+    """During a DST fall-back the fold flag selects the actual instant"""
+    from zoneinfo import ZoneInfo
+
+    ambiguous = [
+        (
+            ZoneInfo("America/New_York"),
+            datetime.datetime(2023, 11, 5, 1, 30),  # ruff: ignore[DTZ001]
+        ),
+        (
+            ZoneInfo("Europe/Paris"),
+            datetime.datetime(2023, 10, 29, 2, 30),  # ruff: ignore[DTZ001]
+        ),
+    ]
+    for tz, naive in ambiguous:
+        for fold in (0, 1):
+            obj = naive.replace(tzinfo=tz, fold=fold)
+            unpickled = jsonpickle.decode(jsonpickle.encode(obj))
+            # __eq__ ignores fold for same-zone operands, so compare the instants
+            assert unpickled.utcoffset() == obj.utcoffset()
+            assert unpickled.tzname() == obj.tzname()
+            assert unpickled.astimezone(datetime.timezone.utc) == obj.astimezone(
+                datetime.timezone.utc
+            )
+
+
+def test_datetime_subclass_fold():
+    """Subclasses go through py/reduce instead of the handler, but keep fold"""
+    for obj in (
+        MyDatetime(2023, 11, 5, 1, 30, fold=1),
+        MyTime(1, 30, fold=1),
+    ):
+        unpickled = jsonpickle.decode(jsonpickle.encode(obj))
+        assert type(unpickled) is type(obj)
+        assert unpickled.fold == 1
+
+
+def test_datetime_legacy_payloads():
+    """Payloads written before fold was encoded still decode"""
+    legacy = [
+        (LEGACY_DATETIME, datetime.datetime(2023, 11, 5, 1, 30)),  # ruff: ignore[DTZ001]
+        (LEGACY_DATE, datetime.date(2023, 11, 5)),
+        (LEGACY_TIME, datetime.time(1, 30, 15, 123456)),
+    ]
+    for payload, expect in legacy:
+        actual = jsonpickle.decode(payload)
+        assert actual == expect
+        assert type(actual) is type(expect)
+        assert getattr(actual, "fold", 0) == 0
 
 
 def test_struct_time():

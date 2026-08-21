@@ -201,9 +201,9 @@ ArrayHandler.handles(array.array)
 class DatetimeHandler(BaseHandler):
     """Custom handler for datetime objects
 
-    Datetime objects use __reduce__, and they generate binary strings encoding
-    the payload. This handler encodes that payload to reconstruct the
-    object.
+    Datetime objects use __reduce_ex__, and they generate binary strings
+    encoding the payload. This handler encodes that payload to reconstruct
+    the object.
 
     """
 
@@ -215,7 +215,7 @@ class DatetimeHandler(BaseHandler):
             else:
                 result = str(obj)
             return result
-        cls, args = obj.__reduce__()  # type: ignore[str-unpack]
+        cls, args = obj.__reduce_ex__(util.PICKLE_PROTOCOL)  # type: ignore[str-unpack]
         flatten = pickler.flatten
         payload = util.b64encode(args[0])  # type: ignore[arg-type]
         args = [payload] + [flatten(i, reset=False) for i in args[1:]]
