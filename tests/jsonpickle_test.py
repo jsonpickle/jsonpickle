@@ -35,9 +35,7 @@ class Thing:
         self.child = None
 
     def __iter__(self):
-        for attr in [
-            x for x in self.__class__.__dict__ if not x.startswith("__")
-        ]:
+        for attr in [x for x in self.__class__.__dict__ if not x.startswith("__")]:
             yield attr, getattr(self, attr)
 
     def __repr__(self):
@@ -1409,7 +1407,11 @@ class PickleProtocol2Thing:
         if self.__dict__ == other.__dict__ and dir(self) == dir(other):
             for prop in dir(self):
                 selfprop = getattr(self, prop)
-                if not callable(selfprop) and prop[0] != "_" and selfprop != getattr(other, prop):
+                if (
+                    not callable(selfprop)
+                    and prop[0] != "_"
+                    and selfprop != getattr(other, prop)
+                ):
                     return False
             return True
         else:

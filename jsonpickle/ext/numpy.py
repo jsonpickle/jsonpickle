@@ -62,23 +62,25 @@ class NumpyDTypeHandler(NumpyBaseHandler):
 class NumpyGenericHandler(NumpyBaseHandler):
     def flatten(self, obj: npt.NDArray[Any], data: dict[str, Any]) -> dict[str, Any]:
         self.flatten_dtype(obj.dtype.newbyteorder("N"), data)
-        data["value"] = self.context.flatten(obj.tolist(), reset=False)
+        value = obj.tolist()
+        if isinstance(value, np.generic):
+            # extended-precision scalars have no Python counterpart, so
+            # tolist() hands back the scalar itself; store its text form
+            value = str(obj)
+        data["value"] = self.context.flatten(value, reset=False)
         return data
 
-    def restore(self, data: dict[str, Any]) -> dict[str, Any]:
+    def restore(self, data: dict[str, Any]) -> Any:
         value = self.context.restore(data["value"], reset=False)
-        return self.restore_dtype(data).type(value)  # type: ignore[no-any-return]
+        # rebuild through the dtype, not dtype.type(value): the scalar
+        # constructor ignores everything the dtype carries beyond its kind,
+        # such as the datetime64/timedelta64 unit and the field layout of a
+        # structured scalar
+        return np.array(value, dtype=self.restore_dtype(data))[()]
 
 
 class NumpyDatetimeHandler(NumpyGenericHandler):
-    """Extend NumpyGenericHandler to handle nanosecond-resolution datetime64"""
-
-    def restore(self, data: dict[str, Any]) -> dict[str, Any]:
-        value = self.context.restore(data["value"], reset=False)
-        dtype = data["dtype"]
-        if dtype.endswith("[ns]"):
-            return self.restore_dtype(data).type(value, "ns")  # type: ignore[no-any-return]
-        return self.restore_dtype(data).type(value)  # type: ignore[no-any-return]
+    """Retained for backwards compatibility; datetime64 needs no special case"""
 
 
 class UnpickleableNumpyGenericHandler(NumpyGenericHandler):

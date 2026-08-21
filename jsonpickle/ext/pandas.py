@@ -138,7 +138,10 @@ def make_read_csv_params(
 
     return (
         {
-            "dtype": dtype, "header": header, "parse_dates": parse_dates, "converters": converters
+            "dtype": dtype,
+            "header": header,
+            "parse_dates": parse_dates,
+            "converters": converters,
         },
         timedeltas,
         parse_datetime_v2,

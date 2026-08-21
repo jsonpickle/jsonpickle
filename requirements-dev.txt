@@ -1,1 +1,2 @@
 .[dev,docs,testing]
+. --group benchmark
