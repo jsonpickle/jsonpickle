@@ -677,6 +677,33 @@ def test_supports_getstate_setstate(pickler, unpickler):
     assert obj == inflated
 
 
+def test_getstate_empty_dict_is_not_dropped(pickler, unpickler):
+    """__getstate__() returning an empty dict must still be honored (issue #454)
+
+    A falsy state (an empty dict) was previously treated the same as "no
+    custom state", so the pickler fell through and flattened obj.__dict__
+    directly instead -- silently bypassing any filtering __getstate__() had
+    performed (e.g. excluding unpicklable attributes).
+    """
+
+    class ExcludesEverything:
+        def __init__(self):
+            self.unpicklable = object()
+
+        def __getstate__(self):
+            return {}
+
+        def __setstate__(self, state):
+            pass
+
+    obj = ExcludesEverything()
+    flattened = pickler.flatten(obj)
+    assert flattened[tags.STATE] == {}
+    assert "unpicklable" not in flattened
+    inflated = unpickler.restore(flattened)
+    assert not hasattr(inflated, "unpicklable")
+
+
 def test_references(pickler, unpickler):
     """References in lists can roundtrip"""
     obj_a = Thing("foo")

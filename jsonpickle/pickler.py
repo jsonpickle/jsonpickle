@@ -722,7 +722,7 @@ class Pickler:
             else:
                 if exclude and isinstance(state, dict):
                     state = {k: v for k, v in util.items(state, exclude=exclude)}
-                if state:
+                if state is not None:
                     return self._getstate(state, data)
 
         if isinstance(obj, types.ModuleType):
