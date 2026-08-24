@@ -1474,6 +1474,22 @@ class PickleProtocol2GetSetState(PickleProtocol2GetState):
             self.magic = False
 
 
+class SetStateOnlyThing:
+    """An object with __setstate__() but no custom __getstate__().
+
+    Regression fixture for GH #307: __setstate__() must still be called
+    on decode even when the class relies on the default state (its own
+    __dict__) rather than defining a custom __getstate__().
+    """
+
+    def __init__(self):
+        self.var = 55
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+        self.setstate_was_called = True
+
+
 class PickleProtocol2ChildThing:
     """Provides ``__getnewargs__`` for pickle protocol v2"""
 
@@ -1982,6 +1998,24 @@ def test_setstate():
     encoded = jsonpickle.encode(instance)
     decoded = jsonpickle.decode(encoded)
     assert decoded.magic
+
+
+def test_setstate_called_without_custom_getstate():
+    """__setstate__() must be called even without a custom __getstate__
+
+    Previously, the pickler only wrapped state in "py/state" (which the
+    unpickler uses to decide whether to call __setstate__()) when the
+    class also defined a custom __getstate__(). A class that implements
+    only __setstate__() -- relying on the default state, i.e. its own
+    __dict__ -- was flattened as a plain object instead, and its
+    __setstate__() was silently never invoked on decode. See GH #307.
+    """
+    instance = SetStateOnlyThing()
+    encoded = jsonpickle.encode(instance)
+    assert tags.STATE in encoded
+    decoded = jsonpickle.decode(encoded)
+    assert decoded.setstate_was_called is True
+    assert decoded.var == 55
 
 
 def test_handles_nested_objects():
