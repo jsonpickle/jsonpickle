@@ -59,6 +59,9 @@ v5.0.0
       roundtrip. Generalizes the nanosecond fix from (#555). (+619)
     * The ability to run benchmarks over the entire pytest suite has been added
       in order to cover a wider portion of the codebase with the benchmarks. (+620)
+    * Decoding a ``py/function`` tag whose name resolves to an existing
+      non-function binding now raises ``TypeError`` instead of returning
+      the object unchanged. (#467) (+623)
 
 v4.1.2
 ======

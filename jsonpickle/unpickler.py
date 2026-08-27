@@ -5,6 +5,7 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 import dataclasses
+import inspect
 import warnings
 from collections.abc import Callable, Iterator, Sequence
 from typing import Any, TypeAlias
@@ -891,7 +892,13 @@ class Unpickler:
         return self._restore_object_instance(obj, cls, class_name)
 
     def _restore_function(self, obj: dict[str, Any]) -> Any:
-        return util.loadclass(obj[tags.FUNCTION], classes=self._classes)
+        class_name = obj[tags.FUNCTION]
+        result = util.loadclass(class_name, classes=self._classes)
+        if inspect.isroutine(result) or inspect.isclass(result) or result is None:
+            return result
+        raise TypeError(
+            f"{class_name!r} resolves to a {type(result).__qualname__}, not a function"
+        )
 
     def _restore_set(self, obj: dict[str, Any]) -> set[Any]:
         try:
