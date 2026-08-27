@@ -42,6 +42,24 @@ class Thing:
         return 'Thing("%s")' % self.name  # ruff: ignore[UP031]
 
 
+class AmbiguousDecorator:
+    def __init__(self, func):
+        self.func = func
+
+    def __call__(self, *args, **kwargs):
+        return self.func(*args, **kwargs)
+
+
+def _ambiguous_factory(func):
+    return AmbiguousDecorator(func)
+
+
+# ambiguous_target is bound to the wrapper instance, shadowing the function
+@_ambiguous_factory
+def ambiguous_target():
+    return "Mate"
+
+
 class Capture:
     def __init__(self, *args, **kwargs):
         self.args = args
@@ -728,6 +746,20 @@ def test_builtin_function():
     actual = jsonpickle.decode(json)
     assert expect == actual
     assert expect is actual
+
+
+def test_ambiguous_function_reference_regression_issue467():
+    assert type(ambiguous_target.func).__name__ == "function"
+    encoded = jsonpickle.encode(ambiguous_target)
+    # the payload must come from encode(); hand-built wire tags get stripped
+    assert tags.FUNCTION in encoded
+    with pytest.raises(TypeError):
+        jsonpickle.decode(encoded)
+
+
+def test_function_reference_resolution_contract():
+    assert jsonpickle.decode('{"py/function": "builtins.dir"}') is dir
+    assert jsonpickle.decode('{"py/function": "no.such.module.attr"}') is None
 
 
 def test_restore_legacy_builtins():
