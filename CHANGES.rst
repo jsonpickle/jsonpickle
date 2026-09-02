@@ -1,5 +1,8 @@
 v5.0.0
 ======
+    * jsonpickle now warns instead of silently dropping a dict key that collides
+      with a reserved tag (e.g. ``"py/object"``) when encoding with the default
+      ``keys=False``; use ``keys=True`` to preserve such keys. (+624)
     * **Breaking Change**: The ``yaml`` module is no longer registered by default.
       You can re-enable yaml support using ``jsonpickle.ext.yaml.register()``.
       (#550) (+551)
