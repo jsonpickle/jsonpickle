@@ -465,6 +465,18 @@ class Pickler:
         self, k: Any, v: Any, data: dict[str | Any, Any]
     ) -> dict[str | Any, Any]:
         """Flatten a key/value pair into the passed-in dictionary."""
+        if isinstance(k, str) and k in tags.RESERVED:
+            # A plain-string dict key that collides with a reserved jsonpickle
+            # wire tag (e.g. "py/object") cannot be represented in the default
+            # keys=False output -- it would be misread as that tag on decode --
+            # so it is dropped here. Warn instead of losing the value silently;
+            # encode(..., keys=True) escapes and preserves such keys.
+            warnings.warn(
+                f"jsonpickle: dropping dict key {k!r} that collides with a "
+                "reserved tag; use keys=True to preserve it",
+                stacklevel=2,
+            )
+            return data
         if not util._is_picklable(k, v):
             return data
         # TODO: use inspect.getmembers_static on 3.11+ because it avoids dynamic

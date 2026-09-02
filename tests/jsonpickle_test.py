@@ -435,6 +435,25 @@ def test_dict(pickler, unpickler):
     assert unpickler.restore(dict_b) == dict_b
 
 
+def test_dict_reserved_key_warns_when_dropped():
+    """A dict key colliding with a reserved tag is dropped loudly, not silently.
+
+    In the default keys=False mode such a key cannot be represented (it would be
+    misread as that tag on decode), so it is dropped -- but it now emits a
+    warning instead of losing the value silently. keys=True preserves it.
+    """
+    data = {tags.OBJECT: "hello", "normal": 1}
+    with pytest.warns(UserWarning, match="reserved tag"):
+        encoded = jsonpickle.encode(data)
+    # Behaviour is unchanged (the colliding key is still dropped), only louder.
+    assert jsonpickle.decode(encoded) == {"normal": 1}
+    # keys=True escapes and preserves the key, and must not warn.
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        encoded_keys = jsonpickle.encode(data, keys=True)
+    assert jsonpickle.decode(encoded_keys, keys=True) == data
+
+
 def test_tuple(pickler, unpickler):
     """Validate the internal represntation for tuples"""
     # currently all collections are converted to lists
