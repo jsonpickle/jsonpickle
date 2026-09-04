@@ -549,6 +549,18 @@ def test_compiled_regex_flags_roundtrip(pickler, unpickler):
     assert rgx.flags == restored.flags
 
 
+def test_compiled_bytes_regex_roundtrip(pickler, unpickler):
+    # A bytes pattern must survive a full JSON encode/decode cycle: its
+    # payload is not a JSON string, so the handler has to preserve both the
+    # bytes and the pattern type rather than degrading it to a text pattern.
+    rgx = re.compile(rb"[a-z]+", re.IGNORECASE)
+    restored = jsonpickle.decode(jsonpickle.encode(rgx))
+    assert isinstance(restored.pattern, bytes)
+    assert rgx.pattern == restored.pattern
+    assert rgx.flags == restored.flags
+    assert restored.match(b"abc").group(0) == b"abc"
+
+
 def test_base_object_roundrip(pickler, unpickler):
     roundtrip = unpickler.restore(pickler.flatten(object()))
     assert type(roundtrip) is object

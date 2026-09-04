@@ -59,6 +59,11 @@ v5.0.0
       roundtrip. Generalizes the nanosecond fix from (#555). (+619)
     * The ability to run benchmarks over the entire pytest suite has been added
       in order to cover a wider portion of the codebase with the benchmarks. (+620)
+    * Fix bug where compiled ``bytes`` regex patterns (e.g. ``re.compile(b"...")``)
+      failed to roundtrip: encoding raised with the stdlib ``json`` backend and
+      silently degraded the pattern to text with ``simplejson``/``ujson``, so the
+      decoded object was a text pattern that could no longer match bytes input.
+      The pattern payload is now preserved as base64 and rebuilt as bytes.
 
 v4.1.2
 ======

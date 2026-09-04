@@ -240,13 +240,26 @@ DatetimeHandler.handles(datetime.time)
 class RegexHandler(BaseHandler):
     """Flatten _sre.SRE_Pattern (compiled regex) objects"""
 
-    def flatten(self, obj: re.Pattern[str], data: dict[str, Any]) -> HandlerReturn:
-        data["pattern"] = obj.pattern
+    def flatten(self, obj: re.Pattern[Any], data: dict[str, Any]) -> HandlerReturn:
+        pattern = obj.pattern
+        # A bytes pattern is not a JSON string. Storing it verbatim relies on
+        # the backend, which either raises (stdlib json) or silently coerces
+        # the bytes to text (simplejson/ujson), so that restore() rebuilds a
+        # text pattern instead of the original bytes pattern. Preserve the raw
+        # payload as base64 and remember that it was bytes.
+        if isinstance(pattern, bytes):
+            data["pattern"] = util.b64encode(pattern)
+            data["is_bytes"] = True
+        else:
+            data["pattern"] = pattern
         data["flags"] = obj.flags
         return data
 
-    def restore(self, data: dict[str, Any]) -> re.Pattern[str]:
-        return re.compile(data["pattern"], data.get("flags", 0))
+    def restore(self, data: dict[str, Any]) -> re.Pattern[Any]:
+        pattern = data["pattern"]
+        if data.get("is_bytes", False):
+            pattern = util.b64decode(pattern)
+        return re.compile(pattern, data.get("flags", 0))
 
 
 RegexHandler.handles(type(re.compile("")))
