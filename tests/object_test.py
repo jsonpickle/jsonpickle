@@ -395,10 +395,36 @@ def test_set_subclass_with_data(pickler, unpickler):
 
 
 def test_decimal(pickler, unpickler):
-    obj = decimal.Decimal("0.5")
-    flattened = pickler.flatten(obj)
-    inflated = unpickler.restore(flattened)
-    assert isinstance(inflated, decimal.Decimal)
+    # 2.1 cannot be represented as a floating point number.
+    expect = decimal.Decimal("2.1")
+    encoded = pickler.flatten(expect)
+    actual = unpickler.restore(encoded)
+    assert expect == actual
+    assert actual.as_tuple().digits == (2, 1)
+
+
+class PassthroughHandler:
+    def __init__(self, context):
+        self.context = context
+
+    def flatten(self, obj, data):
+        return obj
+
+
+def test_decimal_passthrough_handler():
+    """Arbitrary objects can pass-through the json encoder"""
+    obj = decimal.Decimal("2.1")
+
+    # jsonpickle's default representation serializes via __reduce__().
+    actual = jsonpickle.dumps(obj)
+    assert actual != "2.1"
+
+    # The passthrough encoder lets the stdlib json module convert the Decimal instance
+    # into a plain json number.
+    jsonpickle.handlers.register(decimal.Decimal, PassthroughHandler)
+    actual = jsonpickle.dumps(obj)
+    jsonpickle.handlers.unregister(decimal.Decimal)
+    assert actual == "2.1"
 
 
 def test_oldstyleclass(pickler, unpickler):
