@@ -11,6 +11,16 @@ v5.0.0
     * **Breaking Change**: Removed the deprecated functions deprecated in 4.1.0 with commit
       59dda25. Additionally, ``util.is_sequence`` was removed due to having only one caller,
       ``util.is_sequence_subclass``. (+563)
+    * **Breaking Change**: Removed the ``use_decimal`` argument for ``encode()``. As a
+      replacement, you can register the passthrough handler instead with this code::
+
+          jsonpickle.handlers.register(
+              decimal.Decimal, PassthroughHandler, base=True
+          )
+          jsonpickle.set_decoder_options("simplejson", use_decimal=True)
+          jsonpickle.set_preferred_backend("simplejson")
+
+      (+628)
     * Mypy-compatible typing has been added to the entire jsonpickle public API! (#561) (+563) (+603)
     * Fixed bug with pickling subclasses of Exception with keyword-only args. (#564) (+565)
     * Removed jsonpickleJS from the tree. (#568) (+569)

@@ -124,17 +124,10 @@ class SimpleJsonTestCase(BackendBase):
         assert obj == clone
 
         # Custom behavior: we want to use simplejson's Decimal support.
+        # Passing Decimal through to simplejson is done by registering PassthroughHandler
         jsonpickle.set_encoder_options("simplejson", use_decimal=True, sort_keys=True)
 
         jsonpickle.set_decoder_options("simplejson", use_decimal=True)
-
-        # use_decimal mode allows Decimal objects to pass-through to simplejson.
-        # The end result is we get a simple '0.5' value as our json string.
-        as_json = jsonpickle.dumps(obj, unpicklable=True, use_decimal=True)
-        assert as_json == "0.5"
-        # But when loading we get back a Decimal.
-        clone = jsonpickle.loads(as_json)
-        assert isinstance(clone, decimal.Decimal)
 
         # side-effect: floats become decimals too!
         obj = 0.5
@@ -228,8 +221,8 @@ def decimal_passthrough():
 
 def test_decimal_passthrough_handler(simplejson_use_decimal, decimal_passthrough):
     """
-    Ensure that PassthroughHandler reproduces use_decimal=True without needing the
-    encode() flag that was removed in jsonpickle v5.
+    Ensure that PassthroughHandler lets Decimal reach simplejson untouched, so it
+    is written as a plain json number rather than a py/reduce payload.
     """
     obj = decimal.Decimal("0.5")
 
@@ -246,27 +239,20 @@ def test_decimal_passthrough_handler(simplejson_use_decimal, decimal_passthrough
 
     shared = decimal.Decimal("2.1")
     values = [
-        decimal.Decimal("2.1"),
-        [decimal.Decimal("2.1"), decimal.Decimal("0.5")],
-        # ensure distinct instances of equal value are not deduplicated by either mode
-        [decimal.Decimal("2.1"), decimal.Decimal("2.1")],
+        (decimal.Decimal("2.1"), "2.1"),
+        ([decimal.Decimal("2.1"), decimal.Decimal("0.5")], "[2.1, 0.5]"),
+        # ensure distinct instances of equal value are not deduplicated
+        ([decimal.Decimal("2.1"), decimal.Decimal("2.1")], "[2.1, 2.1]"),
         # nor should the same instance be turned into a py/id reference
-        [shared, shared],
-        {"a": decimal.Decimal("2.1")},
-        {"a": {"b": [decimal.Decimal("2.1")]}},
-        {decimal.Decimal("2.1"): "a"},
-        DecimalSubclass("2.1"),
+        ([shared, shared], "[2.1, 2.1]"),
+        ({"a": decimal.Decimal("2.1")}, '{"a": 2.1}'),
+        ({"a": {"b": [decimal.Decimal("2.1")]}}, '{"a": {"b": [2.1]}}'),
+        # dict keys are still coerced via repr(), the handler only affects values
+        ({decimal.Decimal("2.1"): "a"}, '{"Decimal(\'2.1\')": "a"}'),
+        (DecimalSubclass("2.1"), "2.1"),
     ]
-    for value in values:
-        with_handler = jsonpickle.dumps(value)
-        jsonpickle.handlers.unregister(decimal.Decimal)
-        try:
-            with_flag = jsonpickle.dumps(value, use_decimal=True)
-        finally:
-            jsonpickle.handlers.register(
-                decimal.Decimal, jsonpickle.handlers.PassthroughHandler, base=True
-            )
-        assert with_handler == with_flag, value
+    for value, expect in values:
+        assert jsonpickle.dumps(value) == expect, value
 
 
 def test_decimal_passthrough_repeated_instance(
@@ -311,24 +297,3 @@ def test_contiguous_decimal_passthrough_ref_ids(
     # references still resolve to the same object, not a copy or None
     assert restored[4] is restored[1]
     assert restored[5] is restored[3]
-
-
-def test_decimal_passthrough_ref_ids(simplejson_use_decimal, decimal_passthrough):
-    """
-    Ensure that interleaving passthrough and referenced objects matches use_decimal
-    """
-
-    def build():
-        shared = decimal.Decimal("2.1")
-        thing = Thing("a")
-        return [shared, thing, shared, thing, {"t": thing, "d": shared}]
-
-    with_handler = jsonpickle.dumps(build())
-    jsonpickle.handlers.unregister(decimal.Decimal)
-    try:
-        with_flag = jsonpickle.dumps(build(), use_decimal=True)
-    finally:
-        jsonpickle.handlers.register(
-            decimal.Decimal, jsonpickle.handlers.PassthroughHandler, base=True
-        )
-    assert with_handler == with_flag
