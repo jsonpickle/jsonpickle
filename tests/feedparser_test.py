@@ -67,7 +67,7 @@ RSS_DOC = """<?xml version="1.0" encoding="utf-8"?>
 
 
 class FeedParserTestCase(SkippableTest):
-    def setUp(self):
+    def setup_method(self):
         try:
             import feedparser
 
@@ -77,7 +77,7 @@ class FeedParserTestCase(SkippableTest):
             self.should_skip = True
             return
 
-    def test(self):
+    def test_feedparser(self):
         if self.should_skip:
             return self.skip("feedparser module not available, please install")
         pickled = jsonpickle.encode(self.doc)

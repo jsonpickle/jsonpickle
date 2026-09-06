@@ -20,7 +20,7 @@ def gmpy_extension():
 
 
 class EcdsaTestCase(SkippableTest):
-    def setUp(self):
+    def setup_method(self):
         try:
             from ecdsa import NIST384p
             from ecdsa.keys import SigningKey

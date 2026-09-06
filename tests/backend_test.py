@@ -49,7 +49,7 @@ class BackendBase(SkippableTest):
         self._is_installed(backend)
         jsonpickle.set_preferred_backend(backend)
 
-    def tearDown(self):
+    def teardown_method(self):
         # always reset to default backend
         jsonpickle.set_preferred_backend("json")
 
@@ -83,7 +83,7 @@ class BackendBase(SkippableTest):
 
 
 class JsonTestCase(BackendBase):
-    def setUp(self):
+    def setup_method(self):
         self.set_preferred_backend("json")
 
     def test_backend(self):
@@ -98,7 +98,7 @@ class JsonTestCase(BackendBase):
 
 
 class SimpleJsonTestCase(BackendBase):
-    def setUp(self):
+    def setup_method(self):
         self.set_preferred_backend("simplejson")
 
     def test_backend(self):
@@ -160,7 +160,7 @@ def has_module(module):
 
 
 class UJsonTestCase(BackendBase):
-    def setUp(self):
+    def setup_method(self):
         self.set_preferred_backend("ujson")
 
     def test_backend(self):
@@ -174,9 +174,13 @@ class UJsonTestCase(BackendBase):
 
 
 class YamlTestCase(BackendBase):
-    def setUp(self):
+    def setup_method(self):
         jsonpickle.ext.yaml.register()
         self.set_preferred_backend("yaml")
+
+    def teardown_method(self):
+        jsonpickle.remove_backend("yaml")
+        super().teardown_method()
 
     def test_backend(self):
         expected_pickled = (
