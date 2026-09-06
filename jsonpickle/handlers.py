@@ -328,3 +328,38 @@ class TextIOHandler(BaseHandler):
 
 
 TextIOHandler.handles(io.TextIOWrapper)
+
+
+class PassthroughHandler(BaseHandler):
+    """
+    Hand objects to the backend untouched instead of flattening them.
+
+    Backends can support types that jsonpickle would otherwise flatten into a
+    py/object payload. simplejson in use_decimal mode, for example, writes
+    decimal.Decimal out as a plain json number. You will normally want to register
+    this using base=True.
+
+    This handler is not registered for any type by default. The backend must know
+    how to encode and decode the object, so ensure that it can before using this!
+
+    Example usage::
+
+        jsonpickle.handlers.register(
+            decimal.Decimal, PassthroughHandler, base=True
+        )
+
+    """
+
+    def flatten(self, obj: Any, data: dict[str, Any]) -> Any:
+        # the pickler logged a reference before dispatching here, but the
+        # backend writes obj as an opaque value that no py/id entry can
+        # point at. therefore, drop the reference so that a repeat of the
+        # same instance is encoded again instead of becoming a dangling reference
+        self.context._unlog_ref(obj)
+        return obj
+
+    def restore(self, data: dict[str, Any]) -> NoReturn:
+        """
+        Restore should never get called because flatten() returns obj
+        """
+        raise AssertionError("Restoring PassthroughHandler is not supported")

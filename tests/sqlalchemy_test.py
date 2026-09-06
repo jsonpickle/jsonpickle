@@ -30,7 +30,7 @@ if HAS_SQA:
 
 
 class SQLAlchemyTestCase(SkippableTest):
-    def setUp(self):
+    def setup_method(self):
         """Create a new sqlalchemy engine for the test"""
         if HAS_SQA:
             url = "sqlite:///:memory:"

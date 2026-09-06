@@ -4,7 +4,6 @@
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
-import decimal
 import inspect
 import itertools
 import sys
@@ -29,7 +28,6 @@ def encode(
     warn: bool = False,
     context: "Pickler | None" = None,
     max_iter: int | None = None,
-    use_decimal: bool = False,
     numeric_keys: bool = False,
     use_base85: bool = False,
     fail_safe: Callable[[Exception], Any] | None = None,
@@ -86,19 +84,6 @@ def encode(
         invoked by jsonpickle.
     :param max_iter: If set to a non-negative integer then jsonpickle will
         consume at most `max_iter` items when pickling iterators.
-    :param use_decimal: If set to True jsonpickle will allow Decimal
-        instances to pass-through, with the assumption that the simplejson
-        backend will be used in `use_decimal` mode.  In order to use this mode
-        you will need to configure simplejson::
-
-            jsonpickle.set_encoder_options('simplejson',
-                                           use_decimal=True, sort_keys=True)
-            jsonpickle.set_decoder_options('simplejson',
-                                           use_decimal=True)
-            jsonpickle.set_preferred_backend('simplejson')
-
-        NOTE: A side-effect of the above settings is that float values will be
-        converted to Decimal when converting to json.
     :param numeric_keys: Only use this option if the backend supports integer
         dict keys natively.  This flag tells jsonpickle to leave numeric keys
         as-is rather than conforming them to json-friendly strings.
@@ -163,7 +148,6 @@ def encode(
         warn=warn,
         max_iter=max_iter,
         numeric_keys=numeric_keys,
-        use_decimal=use_decimal,
         use_base85=use_base85,
         fail_safe=fail_safe,
         include_properties=include_properties,
@@ -217,7 +201,6 @@ class Pickler:
         warn: bool = False,
         max_iter: int | None = None,
         numeric_keys: bool = False,
-        use_decimal: bool = False,
         use_base85: bool = False,
         fail_safe: Callable[[Exception], Any] | None = None,
         include_properties: bool = False,
@@ -242,8 +225,6 @@ class Pickler:
         self._seen = []
         # maximum amount of items to take from a pickled iterator
         self._max_iter = max_iter
-        # Whether to allow decimals to pass-through
-        self._use_decimal = use_decimal
         # A cache of objects that have already been flattened.
         self._flattened = {}
         # Used for util._is_readonly, see +483
@@ -333,6 +314,15 @@ class Pickler:
         pretend_new = not self.unpicklable or not self.make_refs
         return pretend_new or is_new
 
+    def _unlog_ref(self, obj: Any) -> None:
+        """
+        Undo the most recent _log_ref(), making obj unreferenceable.
+        This was added to fix the bug described in
+        test_decimal_passthrough_repeated_instance. Only safe to call for
+        an object that was just logged, which basically limits it to handlers.
+        """
+        self._objs.pop(id(obj), None)
+
     def _getref(self, obj: Any) -> dict[str, int]:
         """Return a "py/id" entry for the specified object"""
         return {tags.ID: self._objs.get(id(obj))}  # type: ignore[dict-item]
@@ -393,10 +383,7 @@ class Pickler:
         if typeof_obj is bytes:
             return self._flatten_bytestring(obj)
 
-        # Decimal is a primitive when use_decimal is True
-        if typeof_obj in (str, bool, int, float, type(None)) or (
-            self._use_decimal and isinstance(obj, decimal.Decimal)
-        ):
+        if typeof_obj in (str, bool, int, float, type(None)):
             return obj
 
         # bytearray is list-like, so it is neither reducible nor atomic.

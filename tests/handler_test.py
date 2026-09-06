@@ -74,10 +74,10 @@ class ContextAwareHandler(jsonpickle.handlers.BaseHandler):
 
 
 class HandlerTestCase:
-    def setUp(self):
+    def setup_method(self):
         jsonpickle.handlers.register(CustomObject, NullHandler)
 
-    def tearDown(self):
+    def teardown_method(self):
         jsonpickle.handlers.unregister(CustomObject)
 
     def roundtrip(self, ob):
