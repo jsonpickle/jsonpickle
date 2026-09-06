@@ -333,6 +333,15 @@ class Pickler:
         pretend_new = not self.unpicklable or not self.make_refs
         return pretend_new or is_new
 
+    def _unlog_ref(self, obj: Any) -> None:
+        """
+        Undo the most recent _log_ref(), making obj unreferenceable.
+        This was added to fix the bug described in
+        test_decimal_passthrough_repeated_instance. Only safe to call for
+        an object that was just logged, which basically limits it to handlers.
+        """
+        self._objs.pop(id(obj), None)
+
     def _getref(self, obj: Any) -> dict[str, int]:
         """Return a "py/id" entry for the specified object"""
         return {tags.ID: self._objs.get(id(obj))}  # type: ignore[dict-item]
