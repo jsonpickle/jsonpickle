@@ -20,8 +20,11 @@ import re
 import sys
 import tempfile
 from datetime import datetime
+from importlib import metadata
 from pathlib import Path
 from subprocess import run
+from urllib.parse import urlparse
+from urllib.request import url2pathname
 from venv import EnvBuilder
 
 import matplotlib.pyplot as plt
@@ -57,6 +60,31 @@ def _venv_python(venv_dir: Path) -> Path:
     return venv_dir / "bin" / "python"
 
 
+def _pytest_benchmark_spec() -> str:
+    """
+    Install whichever pytest-benchmark this runner uses into the venvs too. This is
+    needed because options like --benchmark-precision don't exist outside of Theelx's
+    fork as of 8-21-26, and that fork isn't released on PyPi.
+    """
+    try:
+        raw = metadata.distribution("pytest-benchmark").read_text("direct_url.json")
+    except metadata.PackageNotFoundError:
+        raw = None
+    if not raw:
+        return "pytest-benchmark[histogram]"
+    info = json.loads(raw)
+    url = info.get("url", "")
+    vcs_info = info.get("vcs_info")
+    if vcs_info:
+        revision = vcs_info.get("commit_id") or vcs_info.get("requested_revision")
+        spec = f"{vcs_info.get('vcs', 'git')}+{url}"
+        return f"pytest-benchmark @ {spec}@{revision}" if revision else spec
+    if info.get("dir_info") is not None and url.startswith("file://"):
+        # a local checkout, which pip is happy to install straight from its path
+        return url2pathname(urlparse(url).path)
+    return url or "pytest-benchmark[histogram]"
+
+
 def _ensure_venv(version: str) -> Path:
     venv_dir = _venv_dir_for(version)
     if not venv_dir.exists():
@@ -70,7 +98,7 @@ def _ensure_venv(version: str) -> Path:
             "pip",
             "install",
             "pytest",
-            "pytest-benchmark[histogram]",
+            _pytest_benchmark_spec(),
             "pygal",
             "pygaljs",
             "matplotlib",
@@ -79,6 +107,7 @@ def _ensure_venv(version: str) -> Path:
             "pandas",
             "pymongo",
             "ecdsa",
+            "gmpy2",
         ],
         check=True,
     )
@@ -198,12 +227,19 @@ def _run_benchmarks(
     interpreter = str(python) if worktree is not None else sys.executable
     env = _env_for(version, worktree)
     env["JSONPICKLE_BENCH_ONLY"] = str(only)
-    run(
+    result = run(
         [interpreter, str(BENCH_SCRIPT)],
         check=False,
         cwd=str(ROOT / "benchmarking"),
         env=env,
     )
+    # a version that failed to run has no timings, which only turns into a confusing
+    # "no data" much later on, so say so here where the output above explains why
+    if result.returncode != 0:
+        print(
+            f"WARNING: benchmarking {version} exited with {result.returncode}",
+            file=sys.stderr,
+        )
 
 
 def _load_benchmarks_for(version: str) -> dict[str, dict[str, float]]:
@@ -352,19 +388,26 @@ def main() -> int:
         "--output",
         help="Output path for the comparison plot (PNG)",
     )
+    parser.add_argument(
+        "--bench-local",
+        action="store_true",
+        help="Benchmark the working tree alongside the released versions",
+    )
     args = parser.parse_args()
 
     versions = [v.strip() for v in args.versions.split(",") if v.strip()]
     if not versions:
         print("Please provide at least one version!", file=sys.stderr)
-        return
+        return 1
 
     (ROOT / ".bench-venvs").mkdir(exist_ok=True)
     IMAGES_DIR.mkdir(exist_ok=True)
     DATA_DIR.mkdir(exist_ok=True)
 
     tags = _git_tags()
-    targets: list[tuple[str, Path | None, Path | None]] = [("local", None, None)]
+    targets: list[tuple[str, Path | None, Path | None]] = []
+    if args.bench_local:
+        targets.append(("local", None, None))
     for version in versions:
         tag = _resolve_tag(version, tags)
         worktree = _ensure_worktree(tag)
@@ -380,7 +423,7 @@ def main() -> int:
     common = set.intersection(*collected.values()) if collected else set()
     if not common:
         print("No tests are shared by every version under test!", file=sys.stderr)
-        return
+        return 1
     for version, keys in collected.items():
         if len(keys) > len(common):
             print(f"{version}: benchmarking {len(common)} of {len(keys)} tests")
@@ -391,19 +434,28 @@ def main() -> int:
     for version, python, worktree in targets:
         _run_benchmarks(version, python, worktree, only)
 
-    versions_all = ["local", *versions]
+    versions_all = [version for version, _, _ in targets]
     raw = {version: _load_benchmarks_for(version) for version in versions_all}
     shared = _shared_tests(versions_all, raw)
     timestamp = datetime.now().astimezone().strftime("%Y-%m-%dT%H%M%S%z")
     _plot_version_summaries(shared, timestamp)
 
     suite = _suite_geomeans(shared)
+    if not suite:
+        print(
+            "None of the versions produced timings that every other version also has, so "
+            "there is nothing to compare. Check the benchmark output above for the "
+            "versions that failed to run.",
+            file=sys.stderr,
+        )
+        return 1
     test_count = sum(len(means) for means in shared[versions_all[0]].values())
     print("\n===== suite-wide geomean =====")
     for version in versions_all:
         if version in suite:
             print(f"{version}: {suite[version] * 1e6:.3f}us over {test_count} tests")
-    output = _plot_comparison("local", versions_all, suite, test_count, timestamp)
+    # the last version asked for is the one everything else is measured against
+    output = _plot_comparison(versions[-1], versions_all, suite, test_count, timestamp)
 
     if args.output:
         target = Path(args.output)

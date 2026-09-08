@@ -507,18 +507,12 @@ def plot_file_summary(per_file, title, output):
     ink = "#3b6fb0"
     ax.boxplot(
         data,
-        showfliers=True,
+        showfliers=False,
         widths=0.55,
         medianprops={"color": ink, "linewidth": 2},
         boxprops={"color": "#5f6b7a", "linewidth": 1},
         whiskerprops={"color": "#5f6b7a", "linewidth": 1},
         capprops={"color": "#5f6b7a", "linewidth": 1},
-        flierprops={
-            "marker": "o",
-            "markersize": 3,
-            "markerfacecolor": "none",
-            "markeredgecolor": "#9aa4b1",
-        },
     )
     ax.plot(
         range(1, len(labels) + 1),
