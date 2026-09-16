@@ -267,7 +267,7 @@ def test_decode_b64_rejects_non_alphabet_characters(unpickler):
     base64.b64decode() ignores them unless validate=True, which previously let
     a corrupted payload restore as if it were intact when validate was False.
     """
-    with pytest.warns(UserWarning, match="Non-base64 digit found"):
+    with pytest.warns(UserWarning, match="could not decode base64 payload"):
         assert unpickler.restore({tags.B64: "a!G!k!="}) == b""
 
 
