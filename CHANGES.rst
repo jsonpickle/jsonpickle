@@ -33,6 +33,11 @@ v5.0.0
     * **Breaking Change**: Removed the ``backend`` argument for ``encode()`` and
       ``decode()``. Select a backend with ``jsonpickle.set_preferred_backend()``
       instead. (+629)
+    * **Breaking Change**: Set ``validate=True`` for base64 decode. This will error
+      upon deserialization of invalid base-64 objects, however it avoids having the
+      output silently decode to something that seems invalid at first (found via OSS-Fuzz).
+      You should **never** encounter this error unless someone has manually modified the
+      base64 that jsonpickle encoded to. (+631)
     * Mypy-compatible typing has been added to the entire jsonpickle public API! (#561) (+563) (+603)
     * Fixed bug with pickling subclasses of Exception with keyword-only args. (#564) (+565)
     * Removed jsonpickleJS from the tree. (#568) (+569)
@@ -85,6 +90,8 @@ v5.0.0
     * Fixed a bug where decoding a dict with ``keys=True`` leaked an internal proxy
       object for values under ordinary string keys, instead of resolving the
       reference. This was previously only reachable under ``keys=True``. (+629)
+    * Add explicit error handling for the case where we encounter an unhashable key
+      in ``unpickler._restore_dict``. (+631)
 
 v4.1.2
 ======

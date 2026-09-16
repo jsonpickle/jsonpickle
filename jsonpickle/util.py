@@ -18,6 +18,7 @@ import operator
 import sys
 import time
 import types
+import warnings
 from collections.abc import Callable, Iterable, Iterator
 from typing import Any, TypeVar
 
@@ -512,8 +513,11 @@ def b64decode(payload: str) -> bytes:
     Decode payload - must be ascii text.
     """
     try:
-        return base64.b64decode(payload)
-    except (TypeError, binascii.Error):
+        return base64.b64decode(payload, validate=True)
+    except (TypeError, binascii.Error) as error:
+        # we can't tell the difference between an empty result and an empty payload
+        # so we warn rather than discarding the data silently
+        warnings.warn(f"jsonpickle could not decode base64 payload: {error}")
         return b""
 
 
@@ -530,7 +534,10 @@ def b85decode(payload: bytes) -> bytes:
     """
     try:
         return base64.b85decode(payload)
-    except (TypeError, ValueError):
+    except (TypeError, ValueError) as error:
+        # we can't tell the difference between an empty result and an empty payload
+        # so we warn rather than discarding the data silently
+        warnings.warn(f"jsonpickle could not decode base85 payload: {error}")
         return b""
 
 
