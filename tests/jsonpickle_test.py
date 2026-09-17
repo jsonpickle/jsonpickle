@@ -223,12 +223,13 @@ def test_decode_base85(unpickler):
     assert unpickler.restore(pickled) == expected
 
 
-@pytest.mark.parametrize("value", ["", "/", "\udc00", 1, True, False, None, [], {}])
+@pytest.mark.parametrize("value", ["/", "\udc00", 1, True, False, None, [], {}])
 def test_decode_invalid_b85(value, unpickler):
-    """Invalid base85 data restores to an empty string"""
+    """Invalid base85 data restores to an empty string and warns"""
     expected = b""
     pickled = {tags.B85: value}
-    assert unpickler.restore(pickled) == expected
+    with pytest.warns(UserWarning, match="could not decode base85 payload"):
+        assert unpickler.restore(pickled) == expected
 
 
 def test_base85_still_handles_base64(unpickler):
@@ -239,13 +240,35 @@ def test_base85_still_handles_base64(unpickler):
 
 
 @pytest.mark.parametrize(
-    "value", ["", "x", "!", "\udc00", 0, 1, True, False, None, [], {}]
+    "value", ["x", "!", "/", "\udc00", 0, 1, True, False, None, [], {}]
 )
 def test_decode_invalid_b64(value, unpickler):
-    """Invalid base85 data restores to an empty string"""
+    """Invalid base64 data restores to an empty string and warns"""
     expected = b""
     pickled = {tags.B64: value}
-    assert unpickler.restore(pickled) == expected
+    with pytest.warns(UserWarning, match="could not decode base64 payload"):
+        assert unpickler.restore(pickled) == expected
+
+
+@pytest.mark.parametrize("tag", [tags.B64, tags.B85])
+def test_decode_empty_bytes_doesnt_warn(tag, unpickler):
+    """
+    An empty payload is actually valid output of the encoder and shouldn't warn
+    """
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        assert unpickler.restore({tag: ""}) == b""
+
+
+def test_decode_b64_rejects_non_alphabet_characters(unpickler):
+    """
+    Ensure characters outside the base64 alphabet are rejected and not silently dropped.
+
+    base64.b64decode() ignores them unless validate=True, which previously let
+    a corrupted payload restore as if it were intact when validate was False.
+    """
+    with pytest.warns(UserWarning, match="could not decode base64 payload"):
+        assert unpickler.restore({tags.B64: "a!G!k!="}) == b""
 
 
 def test_bytearray_roundtrip():
@@ -968,6 +991,28 @@ def test_string_key_requiring_escape_dict_keys_with_keys_enabled():
     pickled = jsonpickle.encode(json_key_dict, keys=True)
     unpickled = jsonpickle.decode(pickled, keys=True)
     assert unpickled[tags.JSON_KEY + "6"] == [1, 2]
+
+
+@pytest.mark.parametrize(
+    "payload",
+    (
+        "[]",
+        '{"py/set": [1]}',
+        '{"py/tuple": [[1]]}',
+    ),
+)
+def test_unhashable_pickled_dict_key_falls_back(payload):
+    """
+    Ensure an unhashable json:// key is kept verbatim instead of raising a
+    TypeError.
+
+    The encoder cannot produce these (so they only arrive via hand-crafted
+    input) but decoding still shouldn't fail with an unhandled TypeError.
+    """
+    key = tags.JSON_KEY + payload
+    escaped = key.replace('"', r"\"")
+    unpickled = jsonpickle.decode(f'{{"{escaped}": 1}}', keys=True)
+    assert unpickled == {key: 1}
 
 
 @pytest.mark.parametrize("reserved", sorted(tags.RESERVED))

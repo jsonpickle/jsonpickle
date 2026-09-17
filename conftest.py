@@ -12,7 +12,9 @@ def pytest_ignore_collect(collection_path, config):
     if sys.version_info >= (3, 13):
         if "fuzzing" in p.parts:
             return True
-    return False
+    # pytest_ignore_collect is a firstresult hook, so returning False here would
+    # short-circuit pytest's own implementation and silently disable norecursedirs
+    return None
 
 
 def pytest_addoption(parser):

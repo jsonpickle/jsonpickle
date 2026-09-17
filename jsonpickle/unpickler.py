@@ -414,13 +414,15 @@ class Unpickler:
     def _restore_base64(self, obj: dict[str, Any]) -> bytes:
         try:
             return util.b64decode(obj[tags.B64].encode("utf-8"))
-        except (AttributeError, UnicodeEncodeError):
+        except (AttributeError, UnicodeEncodeError) as error:
+            warnings.warn(f"jsonpickle could not decode base64 payload: {error}")
             return b""
 
     def _restore_base85(self, obj: dict[str, Any]) -> bytes:
         try:
             return util.b85decode(obj[tags.B85].encode("utf-8"))
-        except (AttributeError, UnicodeEncodeError):
+        except (AttributeError, UnicodeEncodeError) as error:
+            warnings.warn(f"jsonpickle could not decode base85 payload: {error}")
             return b""
 
     def _restore_bytearray(self, obj: dict[str, Any]) -> bytearray:
@@ -913,8 +915,17 @@ class Unpickler:
                     continue
                 self._namestack.append(k)
 
-                k = self._restore_pickled_key(k)
-                data[k] = result = self._restore(v)
+                restored_key = self._restore_pickled_key(k)
+                result = self._restore(v)
+                try:
+                    data[restored_key] = result
+                except TypeError:  # fail gracefully
+                    # The encoder can never emit an unhashable key, so if this
+                    # is triggered then we're dealing with hand-crafted input.
+                    # Keep the raw json:// key rather than failing the whole decode
+                    data[k] = result
+                else:
+                    k = restored_key
                 # k is currently a proxy and must be replaced
                 if isinstance(result, _Proxy):
                     self._proxies.append((data, k, result, _obj_setvalue))
