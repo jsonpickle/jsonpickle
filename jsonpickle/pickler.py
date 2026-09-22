@@ -365,6 +365,12 @@ class Pickler:
         # bytearray is list-like, so it is neither reducible nor atomic.
         if typeof_obj is bytearray:
             return {tags.BYTEARRAY: self._flatten_bytestring(bytes(obj))}
+
+        # memoryview has no useful __reduce__, so the generic object path
+        # would otherwise serialize it as an empty, unrestorable stub,
+        # silently losing the underlying buffer's contents.
+        if typeof_obj is memoryview:
+            return {tags.MEMORYVIEW: self._flatten_bytestring(bytes(obj))}
         #########################################
 
         self._push()
