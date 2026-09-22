@@ -103,6 +103,8 @@ v5.0.0
     * Decoding pandas objects is now up to 60% faster by optimizing DataFrame
       casting and dtype parsing, avoiding unnecessary copies, and building the
       DataFrame differently. (+635)
+    * Fix bug where encoding a ``memoryview`` silently discarded its contents,
+      producing an empty and unrestorable ``py/object`` stub. (+636)
 
 v4.1.2
 ======

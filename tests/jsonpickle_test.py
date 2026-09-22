@@ -317,6 +317,57 @@ def test_bytearray_base85_roundtrip():
     assert isinstance(decoded, bytearray)
 
 
+def test_memoryview_roundtrip():
+    """memoryview must roundtrip with its content preserved (like bytes).
+
+    Previously this silently lost all data: memoryview has no useful
+    __reduce__, so the generic object path serialized it as an empty,
+    unrestorable ``{"py/object": "builtins.memoryview"}`` stub.
+    """
+    data = memoryview(b"\x00\x01\xff hello")
+    decoded = jsonpickle.decode(jsonpickle.encode(data))
+    assert decoded == data
+    assert isinstance(decoded, memoryview)
+
+
+def test_memoryview_empty_roundtrip():
+    """An empty memoryview must roundtrip"""
+    data = memoryview(b"")
+    decoded = jsonpickle.decode(jsonpickle.encode(data))
+    assert decoded == data
+    assert isinstance(decoded, memoryview)
+
+
+def test_memoryview_nested_roundtrip():
+    """memoryview nested inside a container must roundtrip"""
+    data = {"a": [memoryview(b"xyz")]}
+    decoded = jsonpickle.decode(jsonpickle.encode(data))
+    assert decoded == data
+    assert isinstance(decoded["a"][0], memoryview)
+
+
+def test_memoryview_base64_default(pickler):
+    """base64 must be used for memoryview by default"""
+    data = memoryview(os.urandom(16))
+    encoded = util.b64encode(bytes(data))
+    assert pickler.flatten(data) == {tags.MEMORYVIEW: {tags.B64: encoded}}
+
+
+def test_memoryview_base85(b85_pickler):
+    """base85 is emitted for memoryview when the pickler is setup to do so"""
+    data = memoryview(os.urandom(16))
+    encoded = util.b85encode(bytes(data))
+    assert b85_pickler.flatten(data) == {tags.MEMORYVIEW: {tags.B85: encoded}}
+
+
+def test_memoryview_base85_roundtrip():
+    """memoryview must roundtrip when base85 is in use"""
+    data = memoryview(b"\x00\x01\xff hello")
+    decoded = jsonpickle.decode(jsonpickle.encode(data, use_base85=True))
+    assert decoded == data
+    assert isinstance(decoded, memoryview)
+
+
 def test_decode_bytearray_base64(unpickler):
     """base64 bytearray data must be restored"""
     expected = bytearray("Pÿthöñ 3!".encode())
