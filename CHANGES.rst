@@ -92,6 +92,7 @@ v5.0.0
       reference. This was previously only reachable under ``keys=True``. (+629)
     * Add explicit error handling for the case where we encounter an unhashable key
       in ``unpickler._restore_dict``. (+631)
+    * Remove unused ``_namedict`` and ``_namestack`` from the unpickler path. (+633)
 
 v4.1.2
 ======

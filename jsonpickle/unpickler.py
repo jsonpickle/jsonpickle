@@ -337,12 +337,6 @@ class Unpickler:
 
     def reset(self) -> None:
         """Resets the object's internal state."""
-        # Map reference names to object instances
-        self._namedict = {}
-
-        # The stack of names traversed for child objects
-        self._namestack = []
-
         # Map of objects to their index in the _objs list
         self._obj_to_idx = {}
         self._objs = []
@@ -433,30 +427,6 @@ class Unpickler:
             data = self._restore_base64(payload)
         return bytearray(data)
 
-    def _refname(self) -> str:
-        """Calculates the name of the current location in the JSON stack.
-
-        This is called as jsonpickle traverses the object structure to
-        create references to previously-traversed objects.  This allows
-        cyclical data structures such as doubly-linked lists.
-        jsonpickle ensures that duplicate python references to the same
-        object results in only a single JSON object definition and
-        special reference tags to represent each reference.
-
-        >>> u = Unpickler()
-        >>> u._namestack = []
-        >>> u._refname() == '/'
-        True
-        >>> u._namestack = ['a']
-        >>> u._refname() == '/a'
-        True
-        >>> u._namestack = ['a', 'b']
-        >>> u._refname() == '/a/b'
-        True
-
-        """
-        return "/" + "/".join(self._namestack)
-
     def _mkref(self, obj: Any) -> Any:
         obj_id = id(obj)
         try:
@@ -464,9 +434,6 @@ class Unpickler:
         except KeyError:
             self._obj_to_idx[obj_id] = len(self._objs)
             self._objs.append(obj)
-            # Backwards compatibility: old versions of jsonpickle
-            # produced "py/ref" references.
-            self._namedict[self._refname()] = obj
         return obj
 
     def _restore_list(self, obj: list[Any]) -> list[Any]:
@@ -498,7 +465,6 @@ class Unpickler:
         del self._obj_to_idx[proxy_id]
 
         self._objs[instance_index] = instance
-        self._namedict[self._refname()] = instance
 
     def _restore_reduce(self, obj: dict[str, Any]) -> Any:
         """
@@ -680,14 +646,8 @@ class Unpickler:
             # ignore the reserved attribute
             if ignorereserved and k in tags.RESERVED:
                 continue
-            if isinstance(k, (int, float)):
-                str_k = k.__str__()
-            else:
-                str_k = k
-            self._namestack.append(str_k)
             if restore_dict_items:
                 k = restore_key(k)
-                # step into the namespace
                 value = self._restore(v)
             else:
                 value = v
@@ -701,7 +661,6 @@ class Unpickler:
                     # Immutable object, must be constructed in one shot
                     if k != "__dict__":
                         deferred[k] = value
-                    self._namestack.pop()
                     continue
             else:
                 if not k.startswith("__"):
@@ -734,9 +693,6 @@ class Unpickler:
             # currently a proxy and must be replaced
             if isinstance(value, _Proxy):
                 self._proxies.append((instance, k, value, method))
-
-            # step out
-            self._namestack.pop()
 
         if deferred:
             # SQLAlchemy Immutable mappings must be constructed in one shot
@@ -898,23 +854,14 @@ class Unpickler:
             for k, v in util.items(obj):
                 if _is_json_key(k):
                     continue
-                if isinstance(k, (int, float)):
-                    str_k = k.__str__()
-                else:
-                    str_k = k
-                self._namestack.append(str_k)
                 data[k] = result = self._restore(v)
                 if isinstance(result, _Proxy):
                     self._proxies.append((data, k, result, _obj_setvalue))
-
-                self._namestack.pop()
 
             # Phase 2: object keys only.
             for k, v in util.items(obj):
                 if not _is_json_key(k):
                     continue
-                self._namestack.append(k)
-
                 restored_key = self._restore_pickled_key(k)
                 result = self._restore(v)
                 try:
@@ -929,20 +876,12 @@ class Unpickler:
                 # k is currently a proxy and must be replaced
                 if isinstance(result, _Proxy):
                     self._proxies.append((data, k, result, _obj_setvalue))
-
-                self._namestack.pop()
         else:
             # No special keys, thus we don't need to restore the keys either.
             for k, v in util.items(obj):
-                if isinstance(k, (int, float)):
-                    str_k = k.__str__()
-                else:
-                    str_k = k
-                self._namestack.append(str_k)
                 data[k] = result = self._restore(v)
                 if isinstance(result, _Proxy):
                     self._proxies.append((data, k, result, _obj_setvalue))
-                self._namestack.pop()
         return data
 
     def _restore_tuple(self, obj: dict[str, Any]) -> tuple[Any, ...]:
