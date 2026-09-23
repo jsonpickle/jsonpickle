@@ -93,6 +93,13 @@ v5.0.0
     * Add explicit error handling for the case where we encounter an unhashable key
       in ``unpickler._restore_dict``. (+631)
     * Remove unused ``_namedict`` and ``_namestack`` from the unpickler path. (+633)
+    * Fix bug where a pandas DataFrame could be restored with narrower column dtypes
+      than it was saved with, silently wrapping integers and rounding floats. The
+      dtype codes generated in various different orders between processes, so a code
+      like ``pd/f`` meant ``float64`` in some processes and ``float32`` in others.
+      Codes should now be the same in every process and the ambiguous ``pd/f``,
+      ``pd/i`` and ``pd/u`` codes in older documents are now read as the widest dtype
+      they were ever used for. (+634)
 
 v4.1.2
 ======

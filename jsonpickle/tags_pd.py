@@ -128,7 +128,20 @@ def all_subclasses(cls: type) -> list[type]:
     for subclass in cls.__subclasses__():
         subclasses.add(subclass)
         subclasses.update(all_subclasses(subclass))
-    return list(subclasses)
+    # get_smallest_unique_substrings hands the shortest code to whichever dtype
+    # it sees first, so this order decides the codes. Classes hash by address, so
+    # iterating the set directly gave a different order and different codes in
+    # different processes. so, we have to sort it instead! the dtypes in pandas
+    # go first, so that importing a library that defines its own extension dtype
+    # can't take a prefix a pandas dtype's code depends on
+    return sorted(
+        subclasses,
+        key=lambda c: (
+            c.__module__.partition(".")[0] != "pandas",
+            c.__module__,
+            c.__qualname__,
+        ),
+    )
 
 
 def get_all_numpy_dtype_strings() -> list[str]:
@@ -247,4 +260,43 @@ pd_dtypes: list[str] = list(
 TYPE_MAP: dict[Any, str] = get_smallest_unique_substrings(np_dtypes, prefix="np")
 TYPE_MAP.update(get_smallest_unique_substrings(pd_dtypes, prefix="pd"))
 
+# jsonpickle <= 5.0.0rc2 generated the below codes in an order that varied from
+# process to process, so a code like "pd/f" meant float64 in some processes
+# and float32 in others, and a frame could be restored with a narrower dtype
+# than it was saved with. since every code suffixed with a width only had a single
+# meaning, we pin those codes so that the bare coees aren't written anymore
+_PINNED_CODES: dict[str, str] = {
+    "float32": "pd/f32",
+    "float64": "pd/f64",
+    "int8": "pd/i8",
+    "int16": "pd/i16",
+    "int32": "pd/i32",
+    "int64": "pd/i64",
+    "uint8": "pd/u8",
+    "uint16": "pd/u16",
+    "uint32": "pd/u32",
+    "uint64": "pd/u64",
+    "interval": "pd/in",
+}
+TYPE_MAP.update(
+    (dtype, code) for dtype, code in _PINNED_CODES.items() if dtype in TYPE_MAP
+)
+
+# documents from jsonpickle <=5.0.0rc2 can still contain the bare codes, and there is
+# no way to know which width a given one meant, so each is read as the widest
+# dtype it was ever used for. that can widen a column, but afaik it should never lose
+# or wrap anything
+_LEGACY_AMBIGUOUS_CODES: dict[str, str] = {
+    "pd/f": "float64",
+    "pd/i": "int64",
+    "pd/u": "uint64",
+}
+
 REVERSE_TYPE_MAP: dict[str, Any] = {v: k for k, v in TYPE_MAP.items()}
+for _code, _dtype in _LEGACY_AMBIGUOUS_CODES.items():
+    if _code in REVERSE_TYPE_MAP:
+        raise RuntimeError(
+            f"{_code!r} is reserved for legacy documents but was assigned to "
+            f"{REVERSE_TYPE_MAP[_code]!r}"
+        )
+    REVERSE_TYPE_MAP[_code] = _dtype
