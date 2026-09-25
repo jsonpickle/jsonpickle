@@ -100,6 +100,9 @@ v5.0.0
     * Add explicit error handling for the case where we encounter an unhashable key
       in ``unpickler._restore_dict``. (+631)
     * Remove unused ``_namedict`` and ``_namestack`` from the unpickler path. (+633)
+    * Decoding pandas objects is now up to 60% faster by optimizing DataFrame
+      casting and dtype parsing, avoiding unnecessary copies, and building the
+      DataFrame differently. (+635)
 
 v4.1.2
 ======

@@ -148,6 +148,60 @@ def make_read_csv_params(
     )
 
 
+# pandas_dtype() is slow (extension dtypes try every registered dtype), so
+# each dtype string is parsed once and cached
+_PANDAS_DTYPES: dict[str, Any] = {}
+
+
+def _pandas_dtype(dtype_str: str) -> Any:
+    try:
+        return _PANDAS_DTYPES[dtype_str]
+    except KeyError:
+        pass
+    dtype = pd.api.types.pandas_dtype(dtype_str)
+    # categoricals get their categories from data, string dtypes depend on pandas' options,
+    # and structured dtypes can be renamed in place. because of that, we can't cache them
+    if not (
+        isinstance(dtype, (pd.CategoricalDtype, pd.StringDtype))
+        or dtype.kind == "U"
+        or getattr(dtype, "names", None)
+    ):
+        # 256 is an arbitrary choice, might make it configurable later if needed
+        if len(_PANDAS_DTYPES) >= 256:
+            # documents choose these strings, so don't grow without bound
+            _PANDAS_DTYPES.clear()
+        _PANDAS_DTYPES[dtype_str] = dtype
+    return dtype
+
+
+def _apply_column_dtypes(df: pd.DataFrame, dtypes: dict[Any, str]) -> None:
+    """
+    Cast each column of the df to its saved dtype, skipping no-op casts.
+    Categorical columns are always cast, since an unparameterised
+    CategoricalDType compares equal to any categorical dtype.
+    """
+    current = df.dtypes.tolist()
+    for position, col in enumerate(df.columns):
+        dtype_str = dtypes.get(col, "object")
+        try:
+            dtype = _pandas_dtype(dtype_str)
+            existing = current[position]
+            if (
+                type(existing) is type(dtype)
+                and existing == dtype
+                and not isinstance(dtype, pd.CategoricalDtype)
+            ):
+                continue
+            df[col] = df[col].astype(dtype)
+        except Exception:  # ruff: ignore[BLE001]
+            msg = (
+                f"jsonpickle was unable to properly deserialize "
+                f"the column {col} into its inferred dtype. "
+                f"Please file a bug report on the jsonpickle GitHub! "
+            )
+            warnings.warn(msg)
+
+
 class PandasDfHandler(BaseHandler):
     pp: PandasProcessor = PandasProcessor()
 
@@ -278,23 +332,13 @@ class PandasDfHandler(BaseHandler):
                 dtype_str = REVERSE_TYPE_MAP.get(type_code, "object")
                 dtypes[col] = dtype_str
 
-        # turn dict into df
-        df = pd.DataFrame(df_data)
+        # turn dict into df. we key by position so pandas doesn't build
+        # an index from labels that get replaced right after
+        df = pd.DataFrame(dict(enumerate(df_data.values())), copy=False)
         df.columns = columns
 
         # apply dtypes
-        for col in df.columns:
-            dtype_str = dtypes.get(col, "object")
-            try:
-                dtype = pd.api.types.pandas_dtype(dtype_str)
-                df[col] = df[col].astype(dtype)
-            except Exception:  # ruff: ignore[BLE001]
-                msg = (
-                    f"jsonpickle was unable to properly deserialize "
-                    f"the column {col} into its inferred dtype. "
-                    f"Please file a bugreport on the jsonpickle GitHub! "
-                )
-                warnings.warn(msg)
+        _apply_column_dtypes(df, dtypes)
 
         # decode and set the index
         index_values = decode(meta["index"], keys=True)
@@ -381,7 +425,10 @@ class PandasIndexHandler(BaseHandler):
             for k, v in meta.items()
             if k in {"name", "names"}
         }
-        idx = self.index_constructor(decode(buf), dtype=dtype, **name_bundle)  # type: ignore[arg-type]
+        values = decode(buf)
+        if isinstance(dtype, str):
+            dtype = _pandas_dtype(dtype)
+        idx = self.index_constructor(values, dtype=dtype, **name_bundle)  # type: ignore[arg-type]
         return idx
 
 
