@@ -136,10 +136,11 @@ def all_subclasses(cls: type) -> list[type]:
     # can't take a prefix a pandas dtype's code depends on
     return sorted(
         subclasses,
-        key=lambda c: (
-            c.__module__.partition(".")[0] != "pandas",
-            c.__module__,
-            c.__qualname__,
+        # False sorts before True here
+        key=lambda cls: (
+            cls.__module__.partition(".")[0] != "pandas",
+            cls.__module__,
+            cls.__qualname__,
         ),
     )
 

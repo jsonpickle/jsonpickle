@@ -6,6 +6,7 @@ import json
 import os
 import subprocess
 import sys
+import textwrap
 import warnings
 from pathlib import Path
 
@@ -82,10 +83,12 @@ def test_subclasses_order_is_deterministic():
 
 
 def test_type_codes_are_identical_everywhere():
-    dump = (
-        "import json; from jsonpickle import tags_pd; "
-        "print(json.dumps({str(k): v for k, v in tags_pd.TYPE_MAP.items()}, "
-        "sort_keys=True))"
+    dump = textwrap.dedent(
+        """
+        import json
+        from jsonpickle import tags_pd
+        print(json.dumps({str(k): v for k, v in tags_pd.TYPE_MAP.items()}, sort_keys=True))
+        """
     )
     here = json.dumps({str(k): v for k, v in tags_pd.TYPE_MAP.items()}, sort_keys=True)
     assert _run_in_fresh_process(dump).strip() == here
@@ -94,13 +97,16 @@ def test_type_codes_are_identical_everywhere():
 def test_frame_encoded_in_other_process_preserves_dtypes():
     columns = {name: arr.tolist() for name, arr in NUMERIC_COLUMNS.items()}
     dtypes = {name: str(arr.dtype) for name, arr in NUMERIC_COLUMNS.items()}
-    encode = (
-        "import json, numpy as np, pandas as pd, jsonpickle, jsonpickle.ext.pandas\n"
-        "jsonpickle.ext.pandas.register_handlers()\n"
-        f"columns, dtypes = {columns!r}, {dtypes!r}\n"
-        "frame = pd.DataFrame({k: np.array(v, dtype=dtypes[k]) "
-        "for k, v in columns.items()})\n"
-        "print(jsonpickle.encode(frame))\n"
+    encode = textwrap.dedent(
+        f"""
+        import json, numpy as np, pandas as pd, jsonpickle, jsonpickle.ext.pandas
+        jsonpickle.ext.pandas.register_handlers()
+        columns, dtypes = {columns!r}, {dtypes!r}
+        frame = pd.DataFrame(
+            {{k: np.array(v, dtype=dtypes[k]) for k, v in columns.items()}}
+        )
+        print(jsonpickle.encode(frame))
+        """
     )
     restored = jsonpickle.decode(_run_in_fresh_process(encode))
     for name, expected in NUMERIC_COLUMNS.items():
@@ -119,7 +125,7 @@ def test_encoder_never_writes_ambiguous_codes():
     Only width-suffixed codes are unambiguous across jsonpickle versions
     """
     codes = _frame_codes(jsonpickle.encode(pd.DataFrame(NUMERIC_COLUMNS)))
-    assert not LEGACY_BARE_CODES & set(codes)
+    assert not LEGACY_BARE_CODES.intersection(set(codes))
     assert codes == [
         "pd/i8",
         "pd/i16",
@@ -214,15 +220,17 @@ def test_third_party_dtypes_cant_steal_pandas_codes():
     Ensure that an extension dtype defined before import
     can't steal a pandas prefix
     """
-    dump = (
-        "import json\n"
-        "from pandas.api.extensions import ExtensionDtype\n"
-        "class Rival(ExtensionDtype):\n"
-        "    name = 'boolean_rival'\n"
-        "    type = bool\n"
-        "Rival.__module__ = 'aaa_third_party'\n"
-        "from jsonpickle import tags_pd\n"
-        "print(json.dumps({str(k): v for k, v in tags_pd.TYPE_MAP.items()}))\n"
+    dump = textwrap.dedent(
+        """
+        import json
+        from pandas.api.extensions import ExtensionDtype
+        class Rival(ExtensionDtype):
+            name = 'boolean_rival'
+            type = bool
+        Rival.__module__ = 'aaa_third_party'
+        from jsonpickle import tags_pd
+        print(json.dumps({str(k): v for k, v in tags_pd.TYPE_MAP.items()}))
+        """
     )
     with_rival = json.loads(_run_in_fresh_process(dump))
     for dtype, code in tags_pd.TYPE_MAP.items():
