@@ -351,3 +351,70 @@ def test_pre_v3_4_df_decoding():
         new_df = jsonpickle.loads(encoded_df)
 
     assert_frame_equal(new_df, df)
+
+
+def test_df_catcols_keep_categories():
+    # "category" is the one dtype string whose parsed dtype is never reused
+    first = pd.DataFrame({"c": pd.Categorical(["x", "y", "x"]), "n": [1, 2, 3]})
+    second = pd.DataFrame({"c": pd.Categorical(["p", "q", "q"]), "n": [1, 2, 3]})
+    assert_frame_equal(roundtrip(first), first)
+    assert_frame_equal(roundtrip(second), second)
+
+
+def test_parsed_structured_dtypes_are_not_shared():
+    # numpy lets the fields of a structured dtype be renamed in place, so a
+    # cached instance would leak a rename into every later restore
+    first = jsonpickle.ext.pandas._pandas_dtype("i4,f8")
+    first.names = ("renamed", "fields")
+    assert jsonpickle.ext.pandas._pandas_dtype("i4,f8").names == ("f0", "f1")
+
+
+def test_parsed_dtype_cache_is_bounded():
+    # documents choose the dtype strings, so the cache shouldn't grow with them
+    for width in range(1, 1000):
+        jsonpickle.ext.pandas._pandas_dtype(f"S{width}")
+    assert len(jsonpickle.ext.pandas._PANDAS_DTYPES) <= 256
+
+
+@pytest.mark.parametrize(
+    "labels",
+    [
+        [2, 0, 1, 3],
+        [3, 2, 1, 0],
+        pd.MultiIndex.from_tuples([("b", 1), ("a", 0), ("a", 1), ("c", 2)]),
+    ],
+)
+def test_df_cols_keep_values_and_dtypes(labels):
+    # the decoder builds the frame keyed by column position and only then
+    # applies the labels, so labels that are positions, but not their own,
+    # shouldn't pull in another column's values or dtype
+    df = pd.DataFrame(
+        {
+            0: pd.Series([1, 2], dtype=object),  # decodes as int64 before the cast
+            1: np.array([0.5, 1.5], dtype="float32"),
+            2: pd.Series([1, "a"], dtype=object),  # decodes as object already
+            3: pd.Series(["x", "y"], dtype=object),
+        }
+    )
+    df.columns = labels
+    assert_frame_equal(roundtrip(df), df, check_exact=True)
+
+
+@pytest.mark.parametrize("dtype", ["str", "string"])
+def test_str_dtypes_respect_storage(dtype):
+    pytest.importorskip("pyarrow")
+    if not isinstance(pd.api.types.pandas_dtype(dtype), pd.StringDtype):
+        pytest.skip(f"{dtype} isn't a string dtype in this pandas version")
+    encoded_df = jsonpickle.encode(pd.DataFrame({"s": pd.array(["a"], dtype=dtype)}))
+    encoded_index = jsonpickle.encode(pd.Index(["a"], dtype=dtype))
+    for storage in ("python", "pyarrow", "python"):
+        with pd.option_context("mode.string_storage", storage):
+            assert jsonpickle.decode(encoded_df)["s"].dtype.storage == storage
+            assert jsonpickle.decode(encoded_index).dtype.storage == storage
+
+
+@pytest.mark.parametrize("dtype", ["str", "string"])
+def test_parsed_str_dtypes_arent_cached(dtype):
+    # what these parse to depends on pandas's options when they're parsed
+    jsonpickle.ext.pandas._pandas_dtype(dtype)
+    assert dtype not in jsonpickle.ext.pandas._PANDAS_DTYPES
