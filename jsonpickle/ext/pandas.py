@@ -197,7 +197,7 @@ def _apply_column_dtypes(df: pd.DataFrame, dtypes: dict[Any, str]) -> None:
             msg = (
                 f"jsonpickle was unable to properly deserialize "
                 f"the column {col} into its inferred dtype. "
-                f"Please file a bug report on the jsonpickle GitHub! "
+                f"Please file a bug report! "
             )
             warnings.warn(msg)
 
