@@ -16,6 +16,7 @@ ID: str = "py/id"
 INITARGS: str = "py/initargs"
 ITERATOR: str = "py/iterator"
 JSON_KEY: str = "json://"
+MEMORYVIEW: str = "py/memoryview"
 MODULE: str = "py/mod"
 NEWARGS: str = "py/newargs"
 NEWARGSEX: str = "py/newargsex"
@@ -40,6 +41,7 @@ RESERVED: set[str] = {
     ID,
     INITARGS,
     ITERATOR,
+    MEMORYVIEW,
     MODULE,
     NEWARGS,
     NEWARGSEX,
