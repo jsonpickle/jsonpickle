@@ -165,6 +165,19 @@ def encode(
                 DeprecationWarning,
                 stacklevel=2,
             )
+        if backend is not None:
+            warnings.warn(
+                "backend is deprecated and will be removed in jsonpickle 5.0.0, "
+                "use jsonpickle.set_preferred_backend() instead",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+        if max_iter is not None:
+            warnings.warn(
+                "max_iter is deprecated and will be removed in jsonpickle 5.0.0",
+                DeprecationWarning,
+                stacklevel=2,
+            )
     backend = backend or json
     context = context or Pickler(
         unpicklable=unpicklable,

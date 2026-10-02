@@ -4,6 +4,12 @@ Upcoming
       You can re-enable yaml support using ``jsonpickle.ext.yaml.register()``.
       (#550) (+551)
 
+v4.1.3
+======
+    * Add deprecation warnings for the pending removal of the ``backend``, ``max_iter``, and
+      ``v1_decode`` arguments, as well as the new behavior of 5.0.0 in not registering the
+      yaml backend by default. (+637)
+
 v4.1.2
 ======
     * Add deprecation warnings for the pending removal of the ``safe``, ``numeric_keys``, and

@@ -97,6 +97,20 @@ def decode(
                 DeprecationWarning,
                 stacklevel=2,
             )
+        if backend is not None:
+            warnings.warn(
+                "backend is deprecated and will be removed in jsonpickle 5.0.0, "
+                "use jsonpickle.set_preferred_backend() instead",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+        if v1_decode:
+            warnings.warn(
+                "v1_decode is deprecated and will be removed in jsonpickle 5.0.0, "
+                "re-encode any jsonpickle v1 data with jsonpickle 4.x before upgrading",
+                DeprecationWarning,
+                stacklevel=2,
+            )
     if isinstance(on_missing, str):
         on_missing = on_missing.lower()
     elif not util.is_function(on_missing):

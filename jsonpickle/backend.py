@@ -1,3 +1,6 @@
+import warnings
+
+
 class JSONBackend:
     """Manages encoding and decoding using various backends.
 
@@ -93,7 +96,9 @@ class JSONBackend:
         self.load_backend('json')
         self.load_backend('ujson')
         # TODO: remove default registration of the YAML backend in v5.0.0.
-        self.load_backend(
+        # Any later explicit load_backend('yaml') call, such as the one made by
+        # jsonpickle.ext.yaml.register(), resets this flag and silences the warning
+        self._yaml_registered_by_default = self.load_backend(
             'yaml', dumps='dump', loads='safe_load', loads_exc='YAMLError'
         )
 
@@ -152,6 +157,9 @@ class JSONBackend:
         :rtype bool: True on success, False if the backend could not be loaded.
 
         """
+        if name == 'yaml':
+            self._yaml_registered_by_default = False
+
         try:
             # Load the JSON backend
             mod = __import__(name)
@@ -183,7 +191,8 @@ class JSONBackend:
         self._decoder_options.setdefault(name, ([], {}))
 
         # Add this backend to the list of candidate backends
-        self._backend_names.append(name)
+        if name not in self._backend_names:
+            self._backend_names.append(name)
 
         # Indicate that we successfully loaded a JSON backend
         self._verified = True
@@ -200,7 +209,19 @@ class JSONBackend:
             self._backend_names.remove(name)
         self._verified = bool(self._backend_names)
 
+    def _warn_if_default_yaml(self, name):
+        if name == 'yaml' and self._yaml_registered_by_default:
+            # stacklevel=5 points at the caller of jsonpickle.encode/decode
+            warnings.warn(
+                "The yaml backend will no longer be registered by default in "
+                "jsonpickle 5.0.0, call jsonpickle.ext.yaml.register() to keep "
+                "using it",
+                DeprecationWarning,
+                stacklevel=5,
+            )
+
     def backend_encode(self, name, obj, indent=None, separators=None):
+        self._warn_if_default_yaml(name)
         optargs, optkwargs = self._encoder_options.get(name, ([], {}))
         encoder_kwargs = optkwargs.copy()
         if indent is not None:
@@ -211,6 +232,7 @@ class JSONBackend:
         return self._encoders[name](*encoder_args, **encoder_kwargs)
 
     def backend_decode(self, name, string):
+        self._warn_if_default_yaml(name)
         optargs, optkwargs = self._decoder_options.get(name, ((), {}))
         decoder_kwargs = optkwargs.copy()
         return self._decoders[name](string, *optargs, **decoder_kwargs)
