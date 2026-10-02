@@ -322,7 +322,7 @@ def test_memoryview_roundtrip():
 
     Previously this silently lost all data: memoryview has no useful
     __reduce__, so the generic object path serialized it as an empty,
-    unrestorable ``{"py/object": "builtins.memoryview"}`` stub.
+    unrestorable {"py/object": "builtins.memoryview"} stub.
     """
     data = memoryview(b"\x00\x01\xff hello")
     decoded = jsonpickle.decode(jsonpickle.encode(data))
