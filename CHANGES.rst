@@ -8,7 +8,7 @@ v4.1.3
 ======
     * Add deprecation warnings for the pending removal of the ``backend``, ``max_iter``, and
       ``v1_decode`` arguments, as well as the new behavior of 5.0.0 in not registering the
-      yaml backend by default. (+637)
+      yaml backend by default.
 
 v4.1.2
 ======
