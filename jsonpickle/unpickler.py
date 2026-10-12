@@ -671,6 +671,8 @@ class Unpickler:
                         deferred[k] = value
                     continue
             else:
+                if not isinstance(k, str):
+                    continue
                 if not k.startswith("__"):
                     try:
                         setattr(instance, k, value)
