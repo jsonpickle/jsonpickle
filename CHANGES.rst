@@ -105,6 +105,7 @@ v5.0.0
       DataFrame differently. (+635)
     * Fix bug where encoding a ``memoryview`` silently discarded its contents,
       producing an empty and unrestorable ``py/object`` stub. (+636)
+    * The `garden.yaml` file now contains recipes for reproducing ossfuzz tests. (+637)
 
 v4.1.2
 ======

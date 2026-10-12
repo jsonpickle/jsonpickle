@@ -8,6 +8,22 @@
 #   garden check                # Run checks
 #   garden tox                  # Run tests using "tox"
 #   garden bench                # Run benchmarks
+#
+#   # Fuzz testing with ossfuzz
+#   garden grow -vv ossfuzz     # Clone ossfuzz repository
+#   garden setup -vv ossfuzz    # Setup ossfuzz
+#   garden update -vv ossfuzz   # Update fuzzers from the source tree
+#   garden check -vv ossfuzz    # Run ossfuzz checks
+#   garden run -vv ossfuzz -- /path/to/clusterfuzz-testcase-XXX
+#                               # Reproduce ossfuzz error
+#   garden run -vv ossfuzz -- /path/to/clusterfuzz-testcase-XXX -e JSONPICKLE_DEBUG_OSSFUZZ=1
+#                               # Enable debug mode using `-e JSONPICKLE_DEBUG_OSSFUZZ=1`
+#
+#   Maintainer workflows
+#   garden setup/packaging      # Install tools for packaging and publishing jsonpickle
+#   garden wheel -vv            # Build wheel files for publishing
+#   garden publish -vv          # Publish jsonpickle to pypi
+#
 trees:
   jsonpickle:
     description: Two-way conversion of complex Python objects into JSON.
@@ -79,10 +95,26 @@ trees:
   pages:
     description: The jsonpickle.github.io website.
     url: "git@github.com:jsonpickle/jsonpickle.github.io.git"
+  ossfuzz:
+    url: "https://github.com/google/oss-fuzz.git"
+    depth: 1
+    commands:
+      setup: |
+        python3 infra/helper.py pull_images
+        python3 infra/helper.py build_image ${ossfuzz/name}
+      setup>:
+        - update
+      update: |
+        python3 infra/helper.py \
+            build_fuzzers --sanitizer address ${ossfuzz/name} ${GARDEN_CONFIG_DIR}
+      check: python infra/helper.py check_build ${ossfuzz/name}
+      run: python3 infra/helper.py reproduce ${ossfuzz/name} ${ossfuzz/target} "$@"
 
 variables:
   activate: |
     test -n "$VIRTUAL_ENV" ||
     test ! -d env3 ||
     source env3/bin/activate
+  ossfuzz/name: jsonpickle
+  ossfuzz/target: fuzz_unpickle
   timestamp: $ date +%Y-%m-%dT%T%z
