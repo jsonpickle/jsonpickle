@@ -14,7 +14,7 @@ from jsonpickle import tags
 
 class ObjWithDate:
     def __init__(self):
-        ts = datetime.datetime.now()  # ruff: ignore[DTZ005]
+        ts = datetime.datetime.now()
         self.data = {"a": "a", "ts": ts}
         self.data_ref = {"b": "b", "ts": ts}
 
@@ -133,7 +133,7 @@ def _roundtrip(obj):
 
 def test_datetime():
     """Roundtrip datetime objects"""
-    _roundtrip(datetime.datetime.now())  # ruff: ignore[DTZ005]
+    _roundtrip(datetime.datetime.now())
 
 
 def test_date():
@@ -143,7 +143,7 @@ def test_date():
 
 def test_time():
     """Roundtrip time objects"""
-    _roundtrip(datetime.datetime.now().time())  # ruff: ignore[DTZ005]
+    _roundtrip(datetime.datetime.now().time())
 
 
 def test_timedelta():
@@ -158,7 +158,7 @@ def test_utc():
 
 def test_unpickleable():
     """Date objects are human-readable strings when unpicklable is False"""
-    obj = datetime.datetime.now()  # ruff: ignore[DTZ005]
+    obj = datetime.datetime.now()
     pickler = jsonpickle.pickler.Pickler(unpicklable=False)
     flattened = pickler.flatten(obj)
     assert obj.isoformat() == flattened
@@ -175,7 +175,7 @@ def test_datetime_with_zoneinfo():
     """Roundtrip datetime objects with ZoneInfo tzinfo"""
     from zoneinfo import ZoneInfo
 
-    now = datetime.datetime.now()  # ruff: ignore[DTZ005]
+    now = datetime.datetime.now()
     SaoPaulo = ZoneInfo("America/Sao_Paulo")
     NewYork = ZoneInfo("America/New_York")
     now_sp = now.replace(tzinfo=SaoPaulo)
@@ -187,7 +187,7 @@ def test_datetime_with_zoneinfo():
 def test_datetime_fold():
     """Roundtrip preserves the PEP 495 fold flag"""
     for obj in (
-        datetime.datetime(2023, 11, 5, 1, 30, fold=1),  # ruff: ignore[DTZ001]
+        datetime.datetime(2023, 11, 5, 1, 30, fold=1),
         datetime.datetime(2023, 11, 5, 1, 30, tzinfo=utc, fold=1),
         datetime.time(1, 30, fold=1),
         datetime.time(1, 30, tzinfo=utc, fold=1),
@@ -198,7 +198,7 @@ def test_datetime_fold():
 
 def test_datetime_fold_is_encoded():
     """fold=0 and fold=1 do not encode to the same payload"""
-    obj = datetime.datetime(2023, 11, 5, 1, 30)  # ruff: ignore[DTZ001]
+    obj = datetime.datetime(2023, 11, 5, 1, 30)
     assert jsonpickle.encode(obj) != jsonpickle.encode(obj.replace(fold=1))
     t = datetime.time(1, 30)
     assert jsonpickle.encode(t) != jsonpickle.encode(t.replace(fold=1))
@@ -211,11 +211,11 @@ def test_datetime_fold_ambiguous_time():
     ambiguous = [
         (
             ZoneInfo("America/New_York"),
-            datetime.datetime(2023, 11, 5, 1, 30),  # ruff: ignore[DTZ001]
+            datetime.datetime(2023, 11, 5, 1, 30),
         ),
         (
             ZoneInfo("Europe/Paris"),
-            datetime.datetime(2023, 10, 29, 2, 30),  # ruff: ignore[DTZ001]
+            datetime.datetime(2023, 10, 29, 2, 30),
         ),
     ]
     for tz, naive in ambiguous:
@@ -244,7 +244,7 @@ def test_datetime_subclass_fold():
 def test_datetime_legacy_payloads():
     """Payloads written before fold was encoded still decode"""
     legacy = [
-        (LEGACY_DATETIME, datetime.datetime(2023, 11, 5, 1, 30)),  # ruff: ignore[DTZ001]
+        (LEGACY_DATETIME, datetime.datetime(2023, 11, 5, 1, 30)),
         (LEGACY_DATE, datetime.date(2023, 11, 5)),
         (LEGACY_TIME, datetime.time(1, 30, 15, 123456)),
     ]
@@ -275,7 +275,7 @@ def test_struct_time_chars():
 def test_datetime_structure():
     pickler = jsonpickle.pickler.Pickler()
     unpickler = jsonpickle.unpickler.Unpickler()
-    obj = datetime.datetime.now()  # ruff: ignore[DTZ005]
+    obj = datetime.datetime.now()
     flattened = pickler.flatten(obj)
     assert tags.OBJECT in flattened
     assert "__reduce__" in flattened
@@ -293,7 +293,7 @@ def test_datetime_inside_int_keys_with_keys_enabled():
 
 
 def test_datetime_repr_not_unpicklable():
-    obj = datetime.datetime.now()  # ruff: ignore[DTZ005]
+    obj = datetime.datetime.now()
     pickler = jsonpickle.pickler.Pickler(unpicklable=False)
     flattened = pickler.flatten(obj)
     assert tags.REPR not in flattened
@@ -304,7 +304,7 @@ def test_datetime_repr_not_unpicklable():
 
 def test_datetime_dict_keys_with_keys_enabled():
     """Test that we handle datetime objects as keys."""
-    datetime_dict = {datetime.datetime(2008, 12, 31): True}  # ruff: ignore[DTZ001]
+    datetime_dict = {datetime.datetime(2008, 12, 31): True}
     pickled = jsonpickle.encode(datetime_dict, keys=True)
     expect = datetime_dict
     actual = jsonpickle.decode(pickled, keys=True)

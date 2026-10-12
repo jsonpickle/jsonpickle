@@ -1,11 +1,29 @@
 # Use "cargo install garden-tools" to install garden https://gitlab.com/garden-rs/garden
 #
 #   # Usage
+#   garden setup                # Setup a virtualenv for jsonpickle development
 #   garden doc                  # Build the jsonpickle.github.io documentation
 #   garden fmt                  # Apply code formatting
 #   garden test                 # Run tests
+#   garden check                # Run checks
 #   garden tox                  # Run tests using "tox"
 #   garden bench                # Run benchmarks
+#
+#   # Fuzz testing with ossfuzz
+#   garden grow -vv ossfuzz     # Clone ossfuzz repository
+#   garden setup -vv ossfuzz    # Setup ossfuzz
+#   garden update -vv ossfuzz   # Update fuzzers from the source tree
+#   garden check -vv ossfuzz    # Run ossfuzz checks
+#   garden run -vv ossfuzz -- /path/to/clusterfuzz-testcase-XXX
+#                               # Reproduce ossfuzz error
+#   garden run -vv ossfuzz -- /path/to/clusterfuzz-testcase-XXX -e JSONPICKLE_DEBUG_OSSFUZZ=1
+#                               # Enable debug mode using `-e JSONPICKLE_DEBUG_OSSFUZZ=1`
+#
+#   Maintainer workflows
+#   garden setup/packaging      # Install tools for packaging and publishing jsonpickle
+#   garden wheel -vv            # Build wheel files for publishing
+#   garden publish -vv          # Publish jsonpickle to pypi
+#
 trees:
   jsonpickle:
     description: Two-way conversion of complex Python objects into JSON.
@@ -34,9 +52,7 @@ trees:
         then
             pyupgrade --py38-plus jsonpickle/*.py jsonpickle/*/*.py tests/*.py fuzzing/fuzz-targets/*.py
         fi
-      check/ruff: |
-        ${activate}
-        ruff check --fix "$@"
+      check/ruff: ${activate} ruff check --fix "$@"
       clean: |
         rm -fr build dist jsonpickle.egg-info
         find . -type d -name __pycache__ -print0 | xargs -0 rm -fr
@@ -49,15 +65,10 @@ trees:
         isort --profile=black "$@" jsonpickle tests fuzzing/fuzz-targets
       setup: |
         test -d env3 || python3 -m venv env3
-        garden setup/dev ${GARDEN_CMD_VERBOSE}
-      setup/dev: |
         ${activate} pip install --editable '.[dev,docs,testing]'
-      setup/packaging: |
-        ${activate} pip install --editable '.[packaging]'
-      test: |
-        ${activate} python3 -m pytest ${GARDEN_CMD_VERBOSE} "$@" jsonpickle tests
-      tox: |
-        tox run-parallel --parallel-live "$@" ${GARDEN_CMD_VERBOSE}
+      setup/packaging: ${activate} pip install --editable '.[packaging]'
+      test: ${activate} python3 -m pytest ${GARDEN_CMD_VERBOSE} "$@" jsonpickle tests
+      tox: tox run-parallel --parallel-live "$@" ${GARDEN_CMD_VERBOSE}
       wheel: |
         ${activate}
         python3 -m build -n .
@@ -84,10 +95,26 @@ trees:
   pages:
     description: The jsonpickle.github.io website.
     url: "git@github.com:jsonpickle/jsonpickle.github.io.git"
+  ossfuzz:
+    url: "https://github.com/google/oss-fuzz.git"
+    depth: 1
+    commands:
+      setup: |
+        python3 infra/helper.py pull_images
+        python3 infra/helper.py build_image ${ossfuzz/name}
+      setup>:
+        - update
+      update: |
+        python3 infra/helper.py \
+            build_fuzzers --sanitizer address ${ossfuzz/name} ${GARDEN_CONFIG_DIR}
+      check: python infra/helper.py check_build ${ossfuzz/name}
+      run: python3 infra/helper.py reproduce ${ossfuzz/name} ${ossfuzz/target} "$@"
 
 variables:
   activate: |
     test -n "$VIRTUAL_ENV" ||
     test ! -d env3 ||
     source env3/bin/activate
+  ossfuzz/name: jsonpickle
+  ossfuzz/target: fuzz_unpickle
   timestamp: $ date +%Y-%m-%dT%T%z

@@ -1,3 +1,4 @@
+import os
 import sys
 from json import JSONDecodeError
 
@@ -49,6 +50,8 @@ expected_errors = {
         ("Incorrect padding", -1),
     ],
 }
+
+debug_mode = os.environ.get("JSONPICKLE_DEBUG_OSSFUZZ", "") == "1"
 
 
 def TestOneInput(data):

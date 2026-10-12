@@ -105,6 +105,10 @@ v5.0.0
       DataFrame differently. (+635)
     * Fix bug where encoding a ``memoryview`` silently discarded its contents,
       producing an empty and unrestorable ``py/object`` stub. (+636)
+    * The `garden.yaml` file now contains recipes for reproducing ossfuzz tests. (+637)
+    * The unpickler was made more robust to object payloads that contained non-string
+      object attribute names. (+637)
+    * The test suite was made compatible with ruff 0.17.0. (+637)
 
 v4.1.2
 ======

@@ -1274,3 +1274,10 @@ def test_exclude_getstate_from_slots(pickler):
     flattened = pickler.flatten(obj)
     assert tags.STATE in flattened
     assert flattened[tags.STATE] == {"foo": "value"}
+
+
+def test_ossfuzz_566854432():
+    """fuzz test from https://issues.oss-fuzz.com/issues/566854432"""
+    value = """{"py/object": "builtins.ValueError", "json://9": []}"""
+    actual = jsonpickle.loads(value)
+    assert isinstance(actual, ValueError)

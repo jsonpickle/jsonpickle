@@ -2,6 +2,7 @@
 /build
 /dist
 /docs/build
+/ossfuzz
 /images/benchmark-*.svg
 /images/benchmark-data
 /images/benchmark-compare*.png
