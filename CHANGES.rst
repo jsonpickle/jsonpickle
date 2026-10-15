@@ -4,6 +4,10 @@ Upcoming
       You can re-enable yaml support using ``jsonpickle.ext.yaml.register()``.
       (#550) (+551)
 
+v4.1.4
+======
+    * Fix broken build from source on 4.1.3. (#638)
+
 v4.1.3
 ======
     * Add deprecation warnings for the pending removal of the ``backend``, ``max_iter``, and
