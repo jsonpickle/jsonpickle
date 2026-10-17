@@ -2047,6 +2047,50 @@ def test_setstate():
     assert decoded.magic
 
 
+class EmptyStateThing:
+    """An object whose ``__getstate__`` returns an empty dict."""
+
+    def __init__(self, secret=None):
+        self.secret = secret
+
+    def __getstate__(self):
+        # Deliberately exclude the (possibly non-serializable) attribute by
+        # returning an empty state dict.
+        return {}
+
+
+class EmptyStateThingWithSetstate(EmptyStateThing):
+    """An empty-dict state object that also implements ``__setstate__``."""
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+        self.setstate_called = True
+
+
+def test_getstate_empty_dict_is_respected():
+    """An empty ``__getstate__`` result must not leak ``__dict__``.
+
+    Returning ``{}`` is a valid, explicit state that means "no state", and it
+    must not be mistaken for the absence of ``__getstate__``. Falling back to
+    ``__dict__`` would silently serialize attributes the user excluded.
+    """
+    instance = EmptyStateThing(secret="do-not-serialize")
+    encoded = jsonpickle.encode(instance)
+    assert '"secret"' not in encoded
+    decoded = jsonpickle.decode(encoded)
+    assert not hasattr(decoded, "secret")
+
+
+def test_getstate_empty_dict_passed_to_setstate():
+    """An empty ``__getstate__`` result is still passed to ``__setstate__``."""
+    instance = EmptyStateThingWithSetstate(secret="do-not-serialize")
+    encoded = jsonpickle.encode(instance)
+    assert '"secret"' not in encoded
+    decoded = jsonpickle.decode(encoded)
+    assert decoded.setstate_called is True
+    assert not hasattr(decoded, "secret")
+
+
 def test_handles_nested_objects():
     """Nested objects can roundtrip"""
     child = PickleProtocol2Thing(None)

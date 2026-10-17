@@ -689,7 +689,11 @@ class Pickler:
             else:
                 if exclude and isinstance(state, dict):
                     state = {k: v for k, v in util.items(state, exclude=exclude)}
-                if state:
+                # An empty dict is a valid, explicit state and must not be
+                # mistaken for "no state" (which is signalled by ``None``).
+                # Falling back to ``obj.__dict__`` here would silently leak
+                # attributes that ``__getstate__`` deliberately excluded.
+                if state is not None:
                     return self._getstate(state, data)
 
         if isinstance(obj, types.ModuleType):
