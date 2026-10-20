@@ -76,6 +76,9 @@ v5.0.0
       The decorative ``values`` emitted for a referenced array no longer consume a
       ``py/id`` slot, keeping the encode and decode reference counters in sync.
       (#449) (+612)
+    * Fix bug where ``NumpyNDArrayHandlerBinary`` silently scrambled the values of an
+      array that was neither C- nor Fortran-contiguous (e.g. ``a[::2, ::3]``). The
+      bytes were written in C order but tagged as Fortran order. (+640)
     * Fix bug where compiled regex objects lost their flags (e.g. ``re.IGNORECASE``)
       when roundtripped through encode/decode. (+607)
     * Fix bug where encoding or decoding objects whose ``__reduce__`` or ``__reduce_ex__``

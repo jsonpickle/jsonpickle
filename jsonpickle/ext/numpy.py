@@ -206,7 +206,9 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
             self.flatten_byteorder(obj, data)
             self.flatten_flags(obj, data)
 
-            if not obj.flags.c_contiguous:
+            # tobytes(order="A") only emits Fortran order for
+            # f-contiguous arrays; any other layout is written in C order
+            if obj.flags.f_contiguous and not obj.flags.c_contiguous:
                 data["order"] = "F"
 
         return data

@@ -157,6 +157,22 @@ def test_b64():
     npt.assert_array_equal(expect, actual)
 
 
+def test_b64_non_contiguous():
+    """Test the binary encoding of an array that is neither C nor F contiguous"""
+    handler = jsonpickle.ext.numpy.NumpyNDArrayHandlerBinary()
+    handlers.registry.unregister(np.ndarray)
+    handlers.registry.register(np.ndarray, handler, base=True)
+    try:
+        expect = np.arange(120).reshape((10, 12))[::2, ::3]
+        actual = roundtrip(expect)
+        npt.assert_array_equal(expect, actual)
+        expect = np.asfortranarray(np.arange(120).reshape((10, 12)))
+        actual = roundtrip(expect)
+        npt.assert_array_equal(expect, actual)
+    finally:
+        jsonpickle.ext.numpy.register_handlers(ndarray_mode="warn")
+
+
 def test_views():
     """Test views under serialization"""
     rng = np.arange(20)  # a range of an array
