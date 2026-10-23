@@ -367,6 +367,23 @@ def test_byteorder():
     npt.assert_array_equal(bv, _bv)
 
 
+def test_byteorder_of_views():
+    """Test views whose byteorder differs from native or from their base"""
+    swapped_dtype = np.dtype(np.int64).newbyteorder()
+    # base stored as binary keeps its non-native byteorder
+    swapped = np.arange(100).astype(swapped_dtype)
+    swapped_views = [swapped, swapped[10:50], swapped.view(np.int64)]
+    # base stored as text comes back native
+    small = np.arange(10).astype(swapped_dtype)
+    small_views = [small, small[2:6], small.view(np.int64)]
+    # base without a byteorder
+    bytes_arr = np.arange(64, dtype=np.uint8)
+    bytes_views = [bytes_arr, bytes_arr.view(np.int64), bytes_arr.view(swapped_dtype)]
+    for data in (swapped_views, small_views, bytes_views):
+        for expect, actual in zip(data, roundtrip(data)):
+            npt.assert_array_equal(expect, actual)
+
+
 def test_zero_dimensional_array():
     expect = np.array(0.0, dtype="float64")
     actual = jsonpickle.decode(jsonpickle.encode(expect))
