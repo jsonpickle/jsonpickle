@@ -341,9 +341,14 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
             self.flatten_flags(obj, data)
 
             if get_byteorder(obj) != "|":
-                byteorder = "S" if get_byteorder(obj) != get_byteorder(base) else None
-                if byteorder:
-                    data["byteorder"] = byteorder
+                # the byteorder is stored relative to the base, which restore
+                # mirrors by starting from the restored base's dtype; a base
+                # without a byteorder (e.g. uint8) comes back as native
+                base_byteorder = get_byteorder(base)
+                if base_byteorder == "|":
+                    base_byteorder = native_byteorder
+                if get_byteorder(obj) != base_byteorder:
+                    data["byteorder"] = "S"
 
             if self.size_threshold is None or self.size_threshold >= obj.size:
                 # not used in restore since base is present, but
@@ -439,9 +444,14 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
                     "Current implementation assumes base is C or F contiguous"
                 )
 
+            dtype = self.restore_dtype(data)
+            if isinstance(base, np.ndarray):
+                # a view's byteorder is relative to its base, so start from
+                # the byteorder the base was actually restored with
+                dtype = dtype.newbyteorder(base.dtype.byteorder)
             arr = np.ndarray(
                 buffer=buffer,
-                dtype=self.restore_dtype(data).newbyteorder(data.get("byteorder", "|")),
+                dtype=dtype.newbyteorder(data.get("byteorder", "|")),
                 shape=data.get("shape"),  # type: ignore[arg-type]
                 offset=data.get("offset", 0),
                 strides=data.get("strides", None),
