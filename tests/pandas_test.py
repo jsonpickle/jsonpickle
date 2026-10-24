@@ -130,6 +130,17 @@ def test_index_roundtrip():
     assert_index_equal(decoded_idx, idx)
 
 
+@pytest.mark.parametrize("name", ["abc", 5, ("a", "b"), None])
+def test_index_name_roundtrip(name):
+    idx = pd.Index([1, 2, 3], name=name)
+    decoded_idx = roundtrip(idx)
+    assert_index_equal(decoded_idx, idx)
+    assert decoded_idx.name == name
+
+    series = pd.Series([4, 5, 6], index=idx)
+    assert roundtrip(series).index.name == name
+
+
 def test_datetime_index_roundtrip():
     idx = pd.date_range(start="2019-01-01", end="2019-02-01", freq="D")
     decoded_idx = roundtrip(idx)
