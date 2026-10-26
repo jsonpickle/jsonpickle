@@ -82,6 +82,9 @@ v5.0.0
     * Fix bug where a view of an array stored by reference was decoded with the
       wrong byteorder when the base array was not in native byteorder (or had none,
       e.g. ``uint8``), silently scrambling the view's values. (+641)
+    * Fix bug where a pandas Index (or a Series' index) with a string name was decoded
+      with its name split into a tuple of characters, and an integer name made decoding
+      raise ``TypeError``. (+642)
     * Fix bug where compiled regex objects lost their flags (e.g. ``re.IGNORECASE``)
       when roundtripped through encode/decode. (+607)
     * Fix bug where encoding or decoding objects whose ``__reduce__`` or ``__reduce_ex__``

@@ -421,7 +421,7 @@ class PandasIndexHandler(BaseHandler):
         buf, meta = self.pp.restore_pandas(data)
         dtype = meta.get("dtype", None)
         name_bundle = {
-            "name": (tuple if v is not None else lambda x: x)(v)  # ruff: ignore[B035]
+            "name": tuple(v) if isinstance(v, list) else v  # ruff: ignore[B035]
             for k, v in meta.items()
             if k in {"name", "names"}
         }
