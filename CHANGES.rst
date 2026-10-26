@@ -82,6 +82,10 @@ v5.0.0
     * Fix bug where a view of an array stored by reference was decoded with the
       wrong byteorder when the base array was not in native byteorder (or had none,
       e.g. ``uint8``), silently scrambling the view's values. (+641)
+    * Fix bug where a numpy array of dtype ``object`` holding equal-length lists
+      was decoded with the lists expanded into an extra dimension, or failed to
+      decode with ``ValueError: cannot reshape array`` once it was large enough to
+      be stored as binary. (+643)
     * Fix bug where compiled regex objects lost their flags (e.g. ``re.IGNORECASE``)
       when roundtripped through encode/decode. (+607)
     * Fix bug where encoding or decoding objects whose ``__reduce__`` or ``__reduce_ex__``

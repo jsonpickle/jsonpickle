@@ -6,7 +6,7 @@ import sys
 import warnings
 import zlib
 from types import ModuleType
-from typing import Any, NoReturn, Protocol, cast
+from typing import Any, Literal, NoReturn, Protocol, cast
 
 import numpy as np
 import numpy.typing as npt
@@ -30,6 +30,19 @@ def get_byteorder(arr: _HasDType) -> str:
     """translate equals sign to native order"""
     byteorder = arr.dtype.byteorder
     return native_byteorder if byteorder == "=" else byteorder
+
+
+def object_array(
+    values: Any, shape: tuple[int, ...], order: Literal["C", "F"] = "C"
+) -> npt.NDArray[Any]:
+    """build an object array without numpy recursing into sequence elements"""
+    arr = np.empty(shape, dtype=object, order=order)
+    for index in np.ndindex(*shape):
+        item = values
+        for i in index:
+            item = item[i]
+        arr[index] = item
+    return arr
 
 
 class NumpyBaseHandler(BaseHandler):
@@ -115,20 +128,22 @@ class NumpyNDArrayHandler(NumpyBaseHandler):
         self.flatten_dtype(obj.dtype.newbyteorder("N"), data)
         self.flatten_flags(obj, data)
         data["values"] = self.context.flatten(obj.tolist(), reset=False)
-        if 0 in obj.shape:
+        if 0 in obj.shape or obj.dtype == object:
             # add shape information explicitly as it cannot be
-            # inferred from an empty list
+            # inferred from an empty list or a list of sequence objects
             data["shape"] = obj.shape
         return data
 
     def restore(self, data: dict[str, Any]) -> npt.NDArray[Any]:
         values = self.context.restore(data["values"], reset=False)
-        arr = np.array(
-            values, dtype=self.restore_dtype(data), order=data.get("order", "C")
-        )
+        dtype = self.restore_dtype(data)
         shape = data.get("shape", None)
-        if shape is not None:
-            arr = arr.reshape(shape)
+        if dtype == object and shape is not None:
+            arr = object_array(values, tuple(shape), data.get("order", "C"))
+        else:
+            arr = np.array(values, dtype=dtype, order=data.get("order", "C"))
+            if shape is not None:
+                arr = arr.reshape(shape)
 
         self.restore_flags(data, arr)
         return arr
@@ -232,10 +247,7 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
             # are saved as a list to work around that.
             if dtype == object:
                 values = json.loads(buf.decode())
-                arr = np.array(values, dtype=dtype, order=data.get("order", "C"))
-                shape = data.get("shape", None)
-                if shape is not None:
-                    arr = arr.reshape(shape)
+                arr = object_array(values, tuple(data["shape"]), data.get("order", "C"))
             else:
                 arr = np.ndarray(
                     buffer=buf,
