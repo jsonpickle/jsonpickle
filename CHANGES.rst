@@ -82,6 +82,9 @@ v5.0.0
     * Fix bug where a view of an array stored by reference was decoded with the
       wrong byteorder when the base array was not in native byteorder (or had none,
       e.g. ``uint8``), silently scrambling the view's values. (+641)
+    * Fix bug where a pandas Index (or a Series' index) with a string name was decoded
+      with its name split into a tuple of characters, and an integer name made decoding
+      raise ``TypeError``. (+642)
     * Fix bug where a numpy array of dtype ``object`` holding equal-length lists
       was decoded with the lists expanded into an extra dimension, or failed to
       decode with ``ValueError: cannot reshape array`` once it was large enough to
