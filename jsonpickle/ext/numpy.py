@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import ast
+import itertools
 import json
+import math
 import sys
 import warnings
 import zlib
@@ -36,13 +38,12 @@ def object_array(
     values: Any, shape: tuple[int, ...], order: Literal["C", "F"] = "C"
 ) -> npt.NDArray[Any]:
     """build an object array without numpy recursing into sequence elements"""
-    arr = np.empty(shape, dtype=object, order=order)
-    for index in np.ndindex(*shape):
-        item = values
-        for i in index:
-            item = item[i]
-        arr[index] = item
-    return arr
+    flat = values if shape else [values]
+    for _ in range(len(shape) - 1):
+        flat = itertools.chain.from_iterable(flat)
+    # np.fromiter accepts dtype=object since numpy 1.23
+    arr = np.fromiter(flat, dtype=object, count=math.prod(shape))
+    return np.asarray(arr.reshape(shape), order=order)
 
 
 class NumpyBaseHandler(BaseHandler):
