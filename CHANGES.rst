@@ -85,6 +85,9 @@ v5.0.0
     * Fix bug where a pandas Index (or a Series' index) with a string name was decoded
       with its name split into a tuple of characters, and an integer name made decoding
       raise ``TypeError``. (+642)
+    * Fix bug where a compiled bytes regex (e.g. ``re.compile(rb"\d+")``) was decoded
+      as a str pattern when ``ujson`` or ``simplejson`` was installed, and failed to
+      encode at all with the stdlib ``json`` backend. (+644)
     * Fix bug where compiled regex objects lost their flags (e.g. ``re.IGNORECASE``)
       when roundtripped through encode/decode. (+607)
     * Fix bug where encoding or decoding objects whose ``__reduce__`` or ``__reduce_ex__``

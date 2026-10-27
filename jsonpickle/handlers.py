@@ -20,7 +20,7 @@ import uuid
 from collections.abc import Callable
 from typing import TYPE_CHECKING, Any, NoReturn, TypeAlias, TypeVar
 
-from . import util
+from . import tags, util
 
 T = TypeVar("T")
 
@@ -240,13 +240,22 @@ DatetimeHandler.handles(datetime.time)
 class RegexHandler(BaseHandler):
     """Flatten _sre.SRE_Pattern (compiled regex) objects"""
 
-    def flatten(self, obj: re.Pattern[str], data: dict[str, Any]) -> HandlerReturn:
-        data["pattern"] = obj.pattern
+    def flatten(self, obj: re.Pattern[Any], data: dict[str, Any]) -> HandlerReturn:
+        pattern = obj.pattern
+        if isinstance(pattern, bytes):
+            pattern = self.context._flatten_bytestring(pattern)
+        data["pattern"] = pattern
         data["flags"] = obj.flags
         return data
 
-    def restore(self, data: dict[str, Any]) -> re.Pattern[str]:
-        return re.compile(data["pattern"], data.get("flags", 0))
+    def restore(self, data: dict[str, Any]) -> re.Pattern[Any]:
+        pattern = data["pattern"]
+        if isinstance(pattern, dict):
+            if tags.B85 in pattern:
+                pattern = self.context._restore_base85(pattern)
+            else:
+                pattern = self.context._restore_base64(pattern)
+        return re.compile(pattern, data.get("flags", 0))
 
 
 RegexHandler.handles(type(re.compile("")))
