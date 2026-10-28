@@ -71,6 +71,10 @@ _TYPES_IMPORTABLE_NAMES: dict[type | Callable[..., Any], str] = {
     for name in types.__all__
     if name.endswith("Type")
 }
+# for module lookup
+_MISSING = object()
+_MAIN_MODULES = ("__main__", "__mp_main__")
+_GLOBAL_MODULES: dict[tuple[int, str], str] = {}
 
 
 def _is_type(obj: Any) -> bool:
@@ -499,6 +503,60 @@ def importable_name(cls: type | Callable[..., Any]) -> str:
         else:
             module = cls.__self__.__class__.__module__
     return f"{module}.{name}"
+
+
+def _getattr_path(obj: Any, path: str) -> Any:
+    """Follow a dotted attribute path, returning _MISSING if any part is missing"""
+    for name in path.split("."):
+        try:
+            obj = getattr(obj, name)
+        except Exception:  # ruff: ignore[BLE001]
+            # a module's __getattr__ can raise anything
+            return _MISSING
+    return obj
+
+
+def _find_global_module(obj: Any, name: str) -> str | None:
+    """Find the module that obj can be imported from as name
+
+    This is similar to pickle.whichmodule except that it prefers the public package that
+    re-exports obj over the module obj is defined in. That module is often
+    private and gets renamed between releases (scipy.special.expit is in
+    scipy.special._ufuncs before scipy 1.15 and scipy.special._special_ufuncs
+    after), which would make the output unreadable by other versions.
+    """
+    key = (id(obj), name)
+    module = _GLOBAL_MODULES.get(key)
+    # ids are reused once an object is freed, so check the cached module still has obj
+    if module is not None:
+        module_obj = sys.modules.get(module)
+        if module_obj is not None and _getattr_path(module_obj, name) is obj:
+            return module
+    holders = [
+        module_name
+        for module_name, module_obj in list(sys.modules.items())
+        if module_obj is not None and _getattr_path(module_obj, name) is obj
+    ]
+    if not holders:
+        return None
+
+    def rank(module_name: str) -> tuple[bool, bool, bool, int, str]:
+        return (
+            # the running script, which other processes can't import, goes last
+            module_name in _MAIN_MODULES,
+            # then public modules before private ones
+            any(part.startswith("_") for part in module_name.split(".")),
+            # then the library's own packages before modules that only import obj
+            not any(holder.startswith(f"{module_name}.") for holder in holders),
+            module_name.count("."),
+            module_name,
+        )
+
+    module = min(holders, key=rank)
+    if len(_GLOBAL_MODULES) >= 256:
+        _GLOBAL_MODULES.clear()
+    _GLOBAL_MODULES[key] = module
+    return module
 
 
 def b64encode(data: bytes) -> str:
