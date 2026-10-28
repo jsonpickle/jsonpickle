@@ -34,9 +34,11 @@ NUMERIC_COLUMNS = {
     "u64": np.array([0, 2**63 + 5], dtype="uint64"),
     "f32": np.array([0.5, 1.25], dtype="float32"),
     "f64": np.array([0.1, 1e300], dtype="float64"),
+    "c64": np.array([0.5 + 1j, 1.25 - 2j], dtype="complex64"),
+    "c128": np.array([1 / 3 + 1j / 7, 1e300j], dtype="complex128"),
 }
 
-LEGACY_BARE_CODES = {"pd/f", "pd/i", "pd/u"}
+LEGACY_BARE_CODES = {"pd/f", "pd/i", "pd/u", "np/c"}
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -137,6 +139,8 @@ def test_encoder_never_writes_ambiguous_codes():
         "pd/u64",
         "pd/f32",
         "pd/f64",
+        "np/c64",
+        "np/c128",
     ]
 
 
@@ -178,6 +182,21 @@ def test_ambiguous_codes_decode_to_the_widest_dtype(code, values, expected_dtype
     assert restored["c"].tolist() == values
 
 
+def test_ambiguous_complex_code_decodes_to_complex128():
+    """
+    "np/c" meant complex128 when written under numpy 1.x and complex64 under
+    numpy 2.x, so reading it as complex64 would round values from numpy 1.x
+    """
+    values = [1 / 3 + 1j / 7, 1e300j]
+    encoded = [
+        {"py/object": "builtins.complex", "py/newargs": {"py/tuple": [v.real, v.imag]}}
+        for v in values
+    ]
+    restored = jsonpickle.decode(_legacy_frame("np/c", encoded))
+    assert str(restored["c"].dtype) == "complex128"
+    assert restored["c"].tolist() == values
+
+
 @pytest.mark.parametrize(
     "code, dtype",
     [
@@ -191,6 +210,8 @@ def test_ambiguous_codes_decode_to_the_widest_dtype(code, values, expected_dtype
         ("pd/u16", "uint16"),
         ("pd/u32", "uint32"),
         ("pd/u64", "uint64"),
+        ("np/c64", "complex64"),
+        ("np/c128", "complex128"),
     ],
 )
 def test_width_suffixed_codes_keep_meaning(code, dtype):

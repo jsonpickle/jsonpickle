@@ -615,18 +615,21 @@ class Pickler:
             reduce_val = self._reduce(obj, has_reduce, has_reduce_ex)
 
             if reduce_val and isinstance(reduce_val, str):
-                try:
-                    varpath = iter(reduce_val.split("."))
-                    # curmod will be transformed by the
-                    # loop into the value to pickle
-                    curmod = sys.modules[next(varpath)]
-                    for modname in varpath:
-                        curmod = getattr(curmod, modname)
-                        # replace obj with value retrieved
-                        return self._flatten(curmod)
-                except KeyError:
-                    # well, we can't do anything with that, so we ignore it
-                    pass
+                # either an absolute module.attr path to an object to store in
+                # obj's place, or, like pickle, the name obj is a global under
+                top, _, path = reduce_val.partition(".")
+                target = (
+                    util._getattr_path(sys.modules[top], path)
+                    if path and sys.modules.get(top) is not None
+                    else util._MISSING
+                )
+                if target is obj:
+                    return {tags.MODULE: f"{top}/{reduce_val}"}
+                if target is not util._MISSING:
+                    return self._flatten(target)
+                module = util._find_global_module(obj, reduce_val)
+                if module is not None:
+                    return {tags.MODULE: f"{module}/{module}.{reduce_val}"}
 
             elif reduce_val:
                 # at this point, reduce_val should be some kind of iterable
