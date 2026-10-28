@@ -267,6 +267,8 @@ TYPE_MAP.update(get_smallest_unique_substrings(pd_dtypes, prefix="pd"))
 # than it was saved with. since every code suffixed with a width only had a single
 # meaning, we pin those codes so that the bare coees aren't written anymore
 _PINNED_CODES: dict[str, str] = {
+    "complex64": "np/c64",
+    "complex128": "np/c128",
     "float32": "pd/f32",
     "float64": "pd/f64",
     "int8": "pd/i8",
@@ -291,6 +293,7 @@ _LEGACY_AMBIGUOUS_CODES: dict[str, str] = {
     "pd/f": "float64",
     "pd/i": "int64",
     "pd/u": "uint64",
+    "np/c": "complex128",
 }
 
 REVERSE_TYPE_MAP: dict[str, Any] = {v: k for k, v in TYPE_MAP.items()}
