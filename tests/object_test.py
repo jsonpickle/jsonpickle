@@ -575,6 +575,16 @@ def test_compiled_regex_flags_roundtrip(pickler, unpickler):
     assert rgx.flags == restored.flags
 
 
+def test_compiled_bytes_regex_roundtrip():
+    # goes through the json backend, which is where bytes patterns went wrong
+    rgx = re.compile(rb"\d+\.\d+", re.IGNORECASE)
+    encoded = jsonpickle.encode(rgx)
+    restored = jsonpickle.decode(encoded)
+    assert rgx.pattern == restored.pattern
+    assert rgx.flags == restored.flags
+    assert restored.match(b"3.14") is not None
+
+
 def test_base_object_roundrip(pickler, unpickler):
     roundtrip = unpickler.restore(pickler.flatten(object()))
     assert type(roundtrip) is object

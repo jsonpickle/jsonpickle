@@ -91,6 +91,9 @@ v5.0.0
       was decoded with the lists expanded into an extra dimension, or failed to
       decode with ``ValueError: cannot reshape array`` once it was large enough to
       be stored as binary. (+643)
+    * Fix bug where a compiled bytes regex (e.g. ``re.compile(rb"\d+")``) was decoded
+      as a str pattern when ``ujson`` or ``simplejson`` was installed, and failed to
+      encode at all with the stdlib ``json`` backend. (+644)
     * Fix bug where compiled regex objects lost their flags (e.g. ``re.IGNORECASE``)
       when roundtripped through encode/decode. (+607)
     * Fix bug where encoding or decoding objects whose ``__reduce__`` or ``__reduce_ex__``
