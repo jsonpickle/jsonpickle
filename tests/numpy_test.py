@@ -421,6 +421,19 @@ def test_ndarray_dtype_object():
     npt.assert_array_equal(expect, actual)
 
 
+@pytest.mark.parametrize("size", [2, 30])
+def test_ndarray_dtype_object_sequence_elements(size):
+    """Object arrays holding lists keep their shape"""
+    expect = np.empty((size, 2), dtype=object)
+    for i in range(size):
+        expect[i, 0] = [i, i + 1]
+        expect[i, 1] = [i, i + 2]
+    actual = roundtrip(expect)
+    assert actual.shape == expect.shape
+    assert actual.tolist() == expect.tolist()
+    assert roundtrip(np.asfortranarray(expect)).flags.f_contiguous
+
+
 def test_np_random():
     """Ensure random.random() arrays can be serialized"""
     obj = np.random.random(100)
