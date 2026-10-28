@@ -40,6 +40,8 @@ v5.0.0
       base64 that jsonpickle encoded to. (+631)
     * **Breaking Change**: Ambiguous ``pd/f``, ``pd/i`` and ``pd/u`` tags are now read as
       the widest dtype they could possibly represent. (+634)
+    * **Breaking Change**: The minimum supported numpy version was raised from 1.21
+      to 1.23. (+643)
     * Fix bug where a pandas DataFrame could be restored with narrower column dtypes
       than it was saved with, silently wrapping integers and rounding floats. The
       dtype codes generated in various different orders between processes, so a code
@@ -85,6 +87,10 @@ v5.0.0
     * Fix bug where a pandas Index (or a Series' index) with a string name was decoded
       with its name split into a tuple of characters, and an integer name made decoding
       raise ``TypeError``. (+642)
+    * Fix bug where a numpy array of dtype ``object`` holding equal-length lists
+      was decoded with the lists expanded into an extra dimension, or failed to
+      decode with ``ValueError: cannot reshape array`` once it was large enough to
+      be stored as binary. (+643)
     * Fix bug where compiled regex objects lost their flags (e.g. ``re.IGNORECASE``)
       when roundtripped through encode/decode. (+607)
     * Fix bug where encoding or decoding objects whose ``__reduce__`` or ``__reduce_ex__``

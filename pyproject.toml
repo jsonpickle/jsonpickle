@@ -58,7 +58,7 @@ testing = [
     "feedparser",
     "gmpy2",
     "isort",
-    "numpy>=1.21",
+    "numpy>=1.23",
     "pandas",
     "pymongo",
     "PyYAML",
