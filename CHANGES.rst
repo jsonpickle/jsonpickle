@@ -40,6 +40,8 @@ v5.0.0
       base64 that jsonpickle encoded to. (+631)
     * **Breaking Change**: Ambiguous ``pd/f``, ``pd/i`` and ``pd/u`` tags are now read as
       the widest dtype they could possibly represent. (+634)
+    * **Breaking Change**: The minimum supported numpy version was raised from 1.21
+      to 1.23. (+643)
     * Fix bug where a pandas DataFrame could be restored with narrower column dtypes
       than it was saved with, silently wrapping integers and rounding floats. The
       dtype codes generated in various different orders between processes, so a code
