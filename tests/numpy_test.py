@@ -1,4 +1,7 @@
 import datetime
+import json
+import sys
+import types
 import warnings
 
 import pytest
@@ -518,6 +521,40 @@ def test_np_ufuncs():
     obj = np.log1p
     encoded = jsonpickle.encode(obj)
     assert obj is jsonpickle.decode(encoded)
+
+
+def test_np_ufunc_name_is_the_same_on_every_numpy():
+    """numpy < 2.0 ufuncs have no __module__, but must still be encoded
+    with the public name numpy 2.0 reports"""
+    encoded = json.loads(jsonpickle.encode(np.log1p))
+    assert encoded["importable_name"] == "numpy.log1p"
+
+
+def test_ufunc_from_other_library_roundtrip():
+    """ufuncs outside of numpy have no __module__ on any numpy version, and
+    must be encoded with their public name, since the private module scipy
+    defines them in is renamed between releases"""
+    special = pytest.importorskip("scipy.special")
+    encoded = jsonpickle.encode(special.expit)
+    assert json.loads(encoded)["importable_name"] == "scipy.special.expit"
+    assert jsonpickle.decode(encoded) is special.expit
+
+
+def test_ufunc_name_ignores_modules_that_only_import_it(monkeypatch):
+    special = pytest.importorskip("scipy.special")
+    monkeypatch.setattr(jsonpickle.util, "_GLOBAL_MODULES", {})
+    rival = types.ModuleType("a")
+    rival.expit = special.expit
+    monkeypatch.setitem(sys.modules, "a", rival)
+    encoded = json.loads(jsonpickle.encode(special.expit))
+    assert encoded["importable_name"] == "scipy.special.expit"
+
+
+def test_unimportable_ufunc_is_replaced_with_none():
+    ufunc = np.frompyfunc(lambda x: x, 1, 1)
+    with pytest.warns(UserWarning, match="cannot pickle"):
+        encoded = jsonpickle.encode(ufunc, warn=True)
+    assert jsonpickle.decode(encoded) is None
 
 
 class ThingWithDel:

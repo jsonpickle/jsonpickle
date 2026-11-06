@@ -94,6 +94,16 @@ v5.0.0
     * Fix bug where a compiled bytes regex (e.g. ``re.compile(rb"\d+")``) was decoded
       as a str pattern when ``ujson`` or ``simplejson`` was installed, and failed to
       encode at all with the stdlib ``json`` backend. (+644)
+    * Fix bug where a ``complex128`` pandas DataFrame column written under numpy 1.x was
+      restored as ``complex64`` under numpy 2.x, silently losing precision. (+645)
+    * Fix bug where encoding a numpy ufunc raised ``AttributeError`` on numpy < 2.0, and
+      encoding a ufunc from another library (e.g. ``scipy.special.expit``) raised it on
+      every numpy version, because those ufuncs have no ``__module__``. (+645)
+    * Fix bugs with objects whose ``__reduce__`` returns a string. A bare global name, as
+      pickle uses for singletons, was ignored and a copy of the object was encoded instead,
+      a path to the object itself decoded to an ``_IDProxy`` or ``None``, and a path more
+      than two attributes deep encoded the wrong object. Objects that name themselves are
+      now encoded as a reference to that global, so decoding returns the same object. (+645)
     * Fix bug where compiled regex objects lost their flags (e.g. ``re.IGNORECASE``)
       when roundtripped through encode/decode. (+607)
     * Fix bug where encoding or decoding objects whose ``__reduce__`` or ``__reduce_ex__``

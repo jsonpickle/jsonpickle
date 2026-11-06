@@ -1565,6 +1565,36 @@ class PickleProtocol2ReduceExString:
         assert False, "Should not be here"
 
 
+class ReduceToOwnName:
+    """A singleton that, as pickle expects, reduces to the global name it's under"""
+
+    def __reduce__(self):
+        return "REDUCE_TO_OWN_NAME"
+
+
+REDUCE_TO_OWN_NAME = ReduceToOwnName()
+
+
+class ReduceToOwnPath:
+    """A singleton that reduces to an absolute path to itself"""
+
+    def __reduce__(self):
+        return __name__ + ".REDUCE_TO_OWN_PATH"
+
+
+REDUCE_TO_OWN_PATH = ReduceToOwnPath()
+
+
+class ReduceToNestedPath:
+    """A reducible object that redirects to an object a few attributes deep"""
+
+    def __reduce__(self):
+        return __name__ + ".NESTED_MAGIC.inner"
+
+
+NESTED_MAGIC = types.SimpleNamespace(inner=slotmagic)
+
+
 class PickleProtocol2ReduceTuple:
     """A reducible object that returns the PickleProtocol2ReduceTuple callable"""
 
@@ -1939,6 +1969,24 @@ def test_reduce_string():
     encoded = jsonpickle.encode(instance)
     decoded = jsonpickle.decode(encoded)
     assert decoded == slotmagic
+
+
+def test_reduce_string_nested_path():
+    """Redirection follows the whole path rather than stopping at its second part"""
+    decoded = jsonpickle.decode(jsonpickle.encode(ReduceToNestedPath()))
+    assert decoded == slotmagic
+
+
+@pytest.mark.parametrize("singleton", [REDUCE_TO_OWN_NAME, REDUCE_TO_OWN_PATH])
+def test_reduce_string_naming_obj_itself_keeps_identity(singleton):
+    """When ``__reduce__`` names the object itself, store a reference to that
+    global as pickle does, and keep the ``py/id`` numbering in sync"""
+    encoded = jsonpickle.encode([singleton, slotmagic, slotmagic, singleton])
+    decoded = jsonpickle.decode(encoded)
+    assert decoded[0] is singleton
+    assert decoded[3] is singleton
+    assert decoded[1] == slotmagic
+    assert decoded[1] is decoded[2]
 
 
 def test_reduce_ex_string():

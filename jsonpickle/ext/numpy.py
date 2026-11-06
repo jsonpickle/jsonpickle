@@ -14,7 +14,13 @@ import numpy as np
 import numpy.typing as npt
 
 from ..handlers import BaseHandler, register, unregister
-from ..util import b64decode, b64encode, importable_name, loadclass
+from ..util import (
+    _find_global_module,
+    b64decode,
+    b64encode,
+    importable_name,
+    loadclass,
+)
 
 __all__ = ["register_handlers", "unregister_handlers"]
 
@@ -476,8 +482,17 @@ class NumpyNDArrayHandlerView(NumpyNDArrayHandlerBinary):
 
 
 class NumpyUfuncHandler(BaseHandler):
-    def flatten(self, obj: np.ufunc, data: dict[str, Any]) -> dict[str, Any]:
-        data["importable_name"] = importable_name(obj)
+    def flatten(self, obj: np.ufunc, data: dict[str, Any]) -> dict[str, Any] | None:
+        if hasattr(obj, "__module__"):
+            data["importable_name"] = importable_name(obj)
+            return data
+        # ufuncs have no __module__ before numpy 2.0, and ones from other libraries
+        # (e.g. scipy.special) don't have one on any numpy version
+        module = _find_global_module(obj, obj.__name__)
+        if module is None:
+            # e.g. np.frompyfunc results, which aren't importable from anywhere
+            return None
+        data["importable_name"] = f"{module}.{obj.__name__}"
         return data
 
     def restore(self, obj: dict[str, Any]) -> np.ufunc:
