@@ -308,10 +308,12 @@ class Pickler:
         if self.unpicklable and self.make_refs:
             result = self._flatten_impl(obj)
         else:
+            # With a depth limit, an object's flattened value depends on depth.
+            key = id(obj) if self._max_depth is None else (id(obj), self._depth)
             try:
-                result = self._flattened[id(obj)]
+                result = self._flattened[key]
             except KeyError:
-                result = self._flattened[id(obj)] = self._flatten_impl(obj)
+                result = self._flattened[key] = self._flatten_impl(obj)
         return result
 
     def flatten(self, obj: Any, reset: bool = True) -> Any:
