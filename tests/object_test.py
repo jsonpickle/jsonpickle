@@ -698,6 +698,22 @@ def test_getstate_does_not_recurse_infinitely():
     assert tags.OBJECT in actual
 
 
+@pytest.mark.parametrize(
+    "make_refs,unpicklable", [(False, True), (True, False), (False, False)]
+)
+def test_max_depth_with_repeated_objects(make_refs, unpicklable):
+    """Repeated objects respect max_depth regardless of encounter order"""
+    shared = [1]
+    for obj, expected in (
+        ([[shared], shared], [["[1]"], [1]]),
+        ([shared, [shared]], [[1], ["[1]"]]),
+    ):
+        encoded = jsonpickle.encode(
+            obj, make_refs=make_refs, unpicklable=unpicklable, max_depth=2
+        )
+        assert jsonpickle.decode(encoded) == expected
+
+
 def test_defaultdict_roundtrip():
     """Make sure we can handle collections.defaultdict(list)"""
     # setup
