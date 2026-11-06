@@ -203,6 +203,8 @@ class Pickler:
         self._seen = []
         # A cache of objects that have already been flattened.
         self._flattened = {}
+        # Object IDs currently being flattened, unlike the cumulative _objs.
+        self._flattening = set()
         # Used for util._is_readonly, see +483
         self.handle_readonly = handle_readonly
         # Custom context passed through to custom handlers, see #452
@@ -253,6 +255,7 @@ class Pickler:
         self._depth = -1
         self._seen = []
         self._flattened = {}
+        self._flattening = set()
 
     def _push(self) -> None:
         """Steps down one level in the namespace."""
@@ -309,11 +312,22 @@ class Pickler:
             result = self._flatten_impl(obj)
         else:
             # With a depth limit, an object's flattened value depends on depth.
-            key = id(obj) if self._max_depth is None else (id(obj), self._depth)
+            objid = id(obj)
+            key = objid if self._max_depth is None else (objid, self._depth)
             try:
                 result = self._flattened[key]
             except KeyError:
-                result = self._flattened[key] = self._flatten_impl(obj)
+                is_new = objid not in self._flattening
+                if self._max_depth is not None and is_new:
+                    # A completed alias at another depth is not a cycle.
+                    self._objs.pop(objid, None)
+                self._flattening.add(objid)
+                try:
+                    result = self._flattened[key] = self._flatten_impl(obj)
+                finally:
+                    # Recursive visits must leave the outer call marked active.
+                    if is_new:
+                        self._flattening.discard(objid)
         return result
 
     def flatten(self, obj: Any, reset: bool = True) -> Any:
