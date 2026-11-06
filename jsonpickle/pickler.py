@@ -615,8 +615,9 @@ class Pickler:
             reduce_val = self._reduce(obj, has_reduce, has_reduce_ex)
 
             if reduce_val and isinstance(reduce_val, str):
-                # either an absolute module.attr path to an object to store in
-                # obj's place, or, like pickle, the name obj is a global under
+                # reduce_val is either an absolute "module.attr" path to an object to
+                # store in obj's place, or (as in pickle) the bare name of a module-level
+                # global whose value is obj, in which case we must find the module ourselves
                 top, _, path = reduce_val.partition(".")
                 target = (
                     util._getattr_path(sys.modules[top], path)
