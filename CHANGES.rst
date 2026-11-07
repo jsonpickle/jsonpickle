@@ -1,3 +1,9 @@
+v5.0.1
+======
+    * Fix serialization of objects that have both a ``__dict__`` and
+      ``__slots__``; their slot attributes were silently dropped on
+      round-trip. (#306) (+648)
+
 v5.0.0
 ======
     * **Breaking Change**: The ``yaml`` module is no longer registered by default.
