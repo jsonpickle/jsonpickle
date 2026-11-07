@@ -574,7 +574,7 @@ class Pickler:
         data: dict[str, Any] = {}
         has_class = hasattr(obj, "__class__")
         has_dict = hasattr(obj, "__dict__")
-        has_slots = not has_dict and hasattr(obj, "__slots__")
+        has_slots = hasattr(obj, "__slots__")
         has_getnewargs = util.has_method(obj, "__getnewargs__")
         has_getnewargs_ex = util.has_method(obj, "__getnewargs_ex__")
         has_getinitargs = util.has_method(obj, "__getinitargs__")
@@ -724,7 +724,18 @@ class Pickler:
 
             # hack for zope persistent objects; this unghostifies the object
             getattr(obj, "_", None)
-            return self._flatten_dict_obj(obj.__dict__, data, exclude=exclude)
+            data = self._flatten_dict_obj(obj.__dict__, data, exclude=exclude)
+            if has_slots:
+                # An object may have both __dict__ and __slots__ (a slot defined
+                # alongside a dynamic instance dict). Flatten the __slots__
+                # attributes as well, otherwise they are silently lost on
+                # round-trip. They are restored as ordinary attributes.
+                allslots = [
+                    _wrap_string_slot(getattr(cls, "__slots__", ()))
+                    for cls in obj.__class__.mro()
+                ]
+                self._flatten_obj_attrs(obj, chain(*allslots), data, exclude)
+            return data
 
         if has_slots:
             return self._flatten_newstyle_with_slots(obj, data, exclude=exclude)
