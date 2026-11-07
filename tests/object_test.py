@@ -162,6 +162,29 @@ class ThingWithStringSlots:
         self.ab = a + b
 
 
+class ThingWithDict:
+    def __init__(self, a, b):
+        self.a = a
+        self.b = b
+
+
+class ThingWithDictAndSlot(ThingWithDict):
+    __slots__ = ("s",)
+
+    def __init__(self, a, b, s):
+        super().__init__(a, b)
+        self.s = s
+
+
+class ThingWithExplicitDictSlot:
+    # Explicitly mixing a dynamic instance dict with a slot via __slots__.
+    __slots__ = ("__dict__", "s")
+
+    def __init__(self, d, s):
+        self.__dict__.update(d)
+        self.s = s
+
+
 class ThingWithSelfAsDefaultFactory(collections.defaultdict):
     """defaultdict subclass that uses itself as its default factory"""
 
@@ -1099,6 +1122,30 @@ def test_newstyleslots_string_slot():
     jsonstr = jsonpickle.encode(obj)
     newobj = jsonpickle.decode(jsonstr)
     assert newobj.ab == "ab"
+
+
+def test_newstyleslots_with_dict():
+    """Serialize an object that has both __dict__ and __slots__.
+
+    Regression test: the pickler previously only flattened either the
+    __dict__ or the __slots__, so a slot defined alongside a dynamic
+    instance dict was silently dropped on round-trip.
+    """
+    obj = ThingWithDictAndSlot(1, "two", 3)
+    newobj = jsonpickle.decode(jsonpickle.encode(obj))
+    assert newobj.a == 1
+    assert newobj.b == "two"
+    assert newobj.s == 3
+    # inherited __dict__ entries survive too
+    assert newobj.__dict__ == {"a": 1, "b": "two"}
+
+
+def test_newstyleslots_explicit_dict_slot():
+    """Serialize an object with __slots__ that also includes __dict__."""
+    obj = ThingWithExplicitDictSlot({"k0": 35, "k1": "hi"}, 50)
+    newobj = jsonpickle.decode(jsonpickle.encode(obj))
+    assert newobj.s == 50
+    assert newobj.__dict__ == {"k0": 35, "k1": "hi"}
 
 
 def test_enum34_nested():
