@@ -698,6 +698,29 @@ def test_getstate_does_not_recurse_infinitely():
     assert tags.OBJECT in actual
 
 
+def test_max_depth_make_refs_false_respects_depth():
+    """max_depth + make_refs=False must apply repr() at the true depth.
+
+    Regression test for https://github.com/jsonpickle/jsonpickle/issues/646
+    With a shared sub-object referenced from two positions, the maximum-depth
+    repr() substitution was cached by object id and then reused for every
+    occurrence regardless of its actual depth, producing incorrect and
+    order-dependent output.
+    """
+    s = [1]
+    # The standalone s sits at depth 1 (fully flattened to [1]) while the s
+    # nested inside [s] reaches the maximum depth and must be replaced by
+    # repr() -> "[1]".
+    assert (
+        jsonpickle.encode([[s], s], make_refs=False, max_depth=2)
+        == '[["[1]"], [1]]'
+    )
+    assert (
+        jsonpickle.encode([s, [s]], make_refs=False, max_depth=2)
+        == '[[1], ["[1]"]]'
+    )
+
+
 def test_defaultdict_roundtrip():
     """Make sure we can handle collections.defaultdict(list)"""
     # setup
