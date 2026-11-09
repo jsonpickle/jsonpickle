@@ -1,3 +1,11 @@
+v5.0.1
+======
+    * Call ``__setstate__()`` on decode even when ``__getstate__()`` is
+      not defined, so objects that only override ``__setstate__()`` (and
+      rely on the default state) are restored correctly, matching the
+      standard ``pickle`` protocol. (#307) (+650)
+      submitted by Dream et AI
+
 v5.0.0
 ======
     * **Breaking Change**: The ``yaml`` module is no longer registered by default.
