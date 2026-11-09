@@ -589,6 +589,17 @@ class Pickler:
         # not using has_method since __getstate__() is handled separately below
         # Note: on Python 3.11+, all objects have __getstate__.
 
+        # Objects that implement __setstate__() but no custom __getstate__()
+        # must still have their state routed through the py/state path so that
+        # __setstate__() is invoked on decode, matching the standard pickle
+        # protocol (whose default __getstate__() is just __dict__).  We exclude
+        # the no-op object.__setstate__ added in 3.11+ so ordinary objects are
+        # unaffected.  See GH #307.
+        has_own_setstate = (
+            hasattr(type(obj), "__setstate__")
+            and type(obj).__setstate__ is not getattr(object, "__setstate__", None)
+        )
+
         if has_class:
             cls = obj.__class__
         else:
@@ -682,9 +693,9 @@ class Pickler:
             if has_getinitargs:
                 data[tags.INITARGS] = self._flatten(obj.__getinitargs__())
 
-        if has_own_getstate:
+        if has_own_getstate or (has_own_setstate and has_dict):
             try:
-                state = obj.__getstate__()
+                state = obj.__getstate__() if has_own_getstate else obj.__dict__
             except TypeError:
                 # Has getstate but it cannot be called, e.g. file descriptors
                 # in Python3
