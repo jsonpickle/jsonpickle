@@ -303,6 +303,10 @@ def test_fortran_base():
     a = np.asfortranarray(np.arange(100).reshape((10, 10)))
     _a = roundtrip(a)
     npt.assert_array_equal(a, _a)
+    assert _a.flags.f_contiguous
+    # views store strides relative to the base, so its layout must survive
+    _a, _b = roundtrip([a, a[:, 1:3]])
+    npt.assert_array_equal(a[:, 1:3], _b)
 
 
 def test_buffer():

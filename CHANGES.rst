@@ -106,6 +106,9 @@ v5.0.0
       now encoded as a reference to that global, so decoding returns the same object. (+645)
     * Fix bug where compiled regex objects lost their flags (e.g. ``re.IGNORECASE``)
       when roundtripped through encode/decode. (+607)
+    * Fix bug where a Fortran-ordered numpy array stored as binary was decoded in C
+      order, so a view of it (e.g. ``a[:, 1:3]`` stored next to ``a``) was rebuilt
+      from the wrong memory and silently returned the wrong values. (+PR_NUMBER)
     * Fix bug where encoding or decoding objects whose ``__reduce__`` or ``__reduce_ex__``
       methods had six elements (as permitted by pickle protocol 5) would raise an error. (#608)
       (+616)
