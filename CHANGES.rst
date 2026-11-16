@@ -137,6 +137,9 @@ v5.0.0
     * The unpickler was made more robust to object payloads that contained non-string
       object attribute names. (+637)
     * The test suite was made compatible with ruff 0.17.0. (+637)
+    * Fix bug where a Fortran-ordered numpy array stored as binary was decoded in C
+      order, so a view of it (e.g. ``a[:, 1:3]`` stored next to ``a``) was rebuilt
+      from the wrong memory and silently returned the wrong values. (+651)
 
 v4.1.2
 ======

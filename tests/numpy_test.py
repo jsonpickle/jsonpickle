@@ -298,11 +298,17 @@ def test_transpose():
         npt.assert_array_equal(b, _b)
 
 
-def test_fortran_base():
-    """Test a base array in fortran order"""
-    a = np.asfortranarray(np.arange(100).reshape((10, 10)))
+@pytest.mark.parametrize("order", ["C", "F"])
+def test_array_order_base(order):
+    """Test base arrays and their views in C and Fortran order."""
+    a = np.array(np.arange(100).reshape((10, 10)), order=order)
     _a = roundtrip(a)
     npt.assert_array_equal(a, _a)
+    assert _a.flags.c_contiguous == a.flags.c_contiguous
+    assert _a.flags.f_contiguous == a.flags.f_contiguous
+    # views store strides relative to the base, so its layout must survive
+    _a, _b = roundtrip([a, a[:, 1:3]])
+    npt.assert_array_equal(a[:, 1:3], _b)
 
 
 def test_buffer():

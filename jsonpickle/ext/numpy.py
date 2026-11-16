@@ -261,7 +261,7 @@ class NumpyNDArrayHandlerBinary(NumpyNDArrayHandler):
                     dtype=dtype,
                     shape=data.get("shape"),  # type: ignore[arg-type]
                     order=data.get("order", "C"),
-                ).copy()  # make a copy, to force the result to own the data
+                ).copy(order="A")  # copy to own the data, keeping its memory order
                 self.restore_byteorder(data, arr)
             self.restore_flags(data, arr)
 
