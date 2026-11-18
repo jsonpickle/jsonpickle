@@ -1,3 +1,11 @@
+v5.0.1
+======
+    * Fix non-deterministic output when encoding with both ``max_depth``
+      and ``make_refs=False`` (or ``unpicklable=False``): the
+      maximum-depth ``repr()`` substitution was cached by object id and
+      reused regardless of an object's actual depth. (#646) (+649)
+      submitted by Dream et AI
+
 v5.0.0
 ======
     * **Breaking Change**: The ``yaml`` module is no longer registered by default.

@@ -307,6 +307,14 @@ class Pickler:
         """Flatten an object and its guts into a json-safe representation"""
         if self.unpicklable and self.make_refs:
             result = self._flatten_impl(obj)
+        elif self._max_depth is not None:
+            # When a maximum depth is set the flattened form of an object
+            # depends on how deep it sits in the tree: objects that reach the
+            # maximum depth are replaced with repr().  Caching by id(obj) alone
+            # would let the first encounter's depth win for every later
+            # occurrence, yielding non-deterministic and incorrect output.
+            # See https://github.com/jsonpickle/jsonpickle/issues/646
+            result = self._flatten_impl(obj)
         else:
             try:
                 result = self._flattened[id(obj)]
